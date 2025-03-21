@@ -1,8 +1,9 @@
 package com.giozar04.servers.application.services;
 
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -24,16 +25,16 @@ import com.giozar04.shared.logging.CustomLogger;
 public class ServerService extends ServerAbstract {
 
     private static volatile ServerService instance;
-    
+
     // Mapa para almacenar los clientes conectados
     private final Map<Integer, ClientConnection> connectedClients;
-    
+
     // Mapa para almacenar los manejadores de mensajes según su tipo
     private final Map<String, MessageHandler> messageHandlers;
-    
+
     // Flag para verificar si el ShutdownHook ya se ha registrado
     private boolean shutdownHookRegistered = false;
-    
+
     /**
      * Constructor privado para implementar el patrón Singleton.
      */
@@ -80,7 +81,7 @@ public class ServerService extends ServerAbstract {
         logger.info("Manejador registrado para mensajes de tipo: " + messageType);
         return this;
     }
-    
+
     /**
      * Elimina el manejador de un tipo específico de mensaje.
      */
@@ -215,38 +216,30 @@ public class ServerService extends ServerAbstract {
                    clientConnection.getSocket().getInetAddress().getHostAddress());
 
         threadPool.submit(() -> {
-            ObjectInputStream in = null;
-            ObjectOutputStream out = null;
+            BufferedReader in = null;
+            PrintWriter out = null;
             try {
                 Socket socket = clientConnection.getSocket();
-                // Configurar streams para comunicación de objetos
-                out = new ObjectOutputStream(socket.getOutputStream());
-                in = new ObjectInputStream(socket.getInputStream());
-                
+                // Configurar streams para comunicación de texto
+                in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                out = new PrintWriter(socket.getOutputStream(), true);
+
                 // Enviar mensaje de bienvenida
                 Message welcomeMessage = Message.createSuccessMessage("WELCOME",
                         "Conexión establecida. Cliente ID: " + clientConnection.getId());
-                out.writeObject(welcomeMessage);
-                out.flush();
-                
+                // Convertir Message a JSON manualmente
+                String welcomeJson = messageToJson(welcomeMessage);
+                out.println(welcomeJson);
+
                 // Bucle de comunicación con el cliente
                 while (!socket.isClosed() && isRunning) {
-                    Object receivedObj = in.readObject();
-                    if (receivedObj instanceof Message) {
-                        Message receivedMessage = (Message) receivedObj;
-                        logger.info("Mensaje recibido del cliente " + clientConnection.getId() +
-                                   ": " + receivedMessage.getType());
-                        processMessage(clientConnection, receivedMessage, out);
-                    } else {
-                        logger.warn("Mensaje recibido no es del tipo esperado: " +
-                                    (receivedObj != null ? receivedObj.getClass().getName() : "null"));
-                        Message errorMessage = Message.createErrorMessage("ERROR", "Tipo de mensaje no soportado");
-                        out.writeObject(errorMessage);
-                        out.flush();
-                    }
+                    String receivedJson = in.readLine();
+                    if (receivedJson == null) break;
+                    Message receivedMessage = jsonToMessage(receivedJson);
+                    logger.info("Mensaje recibido del cliente " + clientConnection.getId() +
+                               ": " + receivedMessage.getType());
+                    processMessage(clientConnection, receivedMessage, out);
                 }
-            } catch (ClassNotFoundException e) {
-                logger.error("Error de serialización al procesar mensaje del cliente " + clientConnection.getId(), e);
             } catch (IOException e) {
                 logger.info("Cliente " + clientConnection.getId() + " desconectado: " + e.getMessage());
             } catch (Exception e) {
@@ -271,16 +264,16 @@ public class ServerService extends ServerAbstract {
     /**
      * Procesa un mensaje recibido utilizando el manejador correspondiente.
      */
-    private void processMessage(ClientConnection clientConnection, Message message, ObjectOutputStream out) throws IOException {
+    private void processMessage(ClientConnection clientConnection, Message message, PrintWriter out) throws IOException {
         String messageType = message.getType();
         MessageHandler handler = messageHandlers.get(messageType);
-        
+
         if (handler != null) {
             try {
                 Message response = handler.handleMessage(clientConnection, message);
                 if (response != null) {
-                    out.writeObject(response);
-                    out.flush();
+                    String jsonResponse = messageToJson(response);
+                    out.println(jsonResponse);
                     logger.info("Respuesta enviada al cliente " + clientConnection.getId() +
                                " para mensaje tipo: " + messageType);
                 }
@@ -288,56 +281,147 @@ public class ServerService extends ServerAbstract {
                 logger.error("Error al procesar mensaje tipo '" + messageType +
                            "' del cliente " + clientConnection.getId(), e);
                 Message errorResponse = Message.createErrorMessage(messageType, "Error al procesar solicitud: " + e.getMessage());
-                out.writeObject(errorResponse);
-                out.flush();
+                String jsonError = messageToJson(errorResponse);
+                out.println(jsonError);
             }
         } else {
             logger.warn("No hay manejador registrado para mensajes de tipo: " + messageType);
             Message errorResponse = Message.createErrorMessage(messageType, "Tipo de mensaje no soportado: " + messageType);
-            out.writeObject(errorResponse);
-            out.flush();
+            String jsonError = messageToJson(errorResponse);
+            out.println(jsonError);
         }
     }
 
     /**
-     * Envía un mensaje a un cliente específico.
+     * Convierte un objeto Message a una cadena JSON sin usar librerías externas.
      */
-    public void sendMessageToClient(int clientId, Message message)
-            throws IOException, ServerOperationException {
-        ClientConnection clientConnection = connectedClients.get(clientId);
-        if (clientConnection == null) {
-            throw new ServerOperationException("Cliente con ID " + clientId + " no encontrado");
-        }
-        try {
-            Socket socket = clientConnection.getSocket();
-            ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
-            out.writeObject(message);
-            out.flush();
-            logger.info("Mensaje enviado al cliente " + clientId + ": " + message.getType());
-        } catch (IOException e) {
-            logger.error("Error al enviar mensaje al cliente " + clientId, e);
-            throw e;
-        }
-    }
-    
-    /**
-     * Envía un mensaje a todos los clientes conectados.
-     */
-    public void broadcastMessage(Message message) {
-        connectedClients.values().forEach(clientConnection -> {
-            try {
-                Socket socket = clientConnection.getSocket();
-                ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
-                out.writeObject(message);
-                out.flush();
-            } catch (IOException e) {
-                logger.error("Error al enviar mensaje de broadcast al cliente " + clientConnection.getId(), e);
+    private String messageToJson(Message msg) {
+        // Construcción manual de JSON usando StringBuilder
+        // Se asume que los strings no contienen comillas, saltos de línea u otros caracteres especiales
+        // Si tuvieran, habría que escaparlos manualmente.
+        StringBuilder sb = new StringBuilder();
+        sb.append("{");
+        // "type"
+        sb.append("\"type\":\"").append(msg.getType() == null ? "" : msg.getType()).append("\"");
+        // "content"
+        sb.append(",\"content\":\"").append(msg.getContent() == null ? "" : msg.getContent()).append("\"");
+        // "status"
+        sb.append(",\"status\":\"").append(msg.getStatus() == null ? "PENDING" : msg.getStatus().name()).append("\"");
+
+        // data
+        // Asumiremos data es un Map<String,Object> y convertiremos solo pares key->toString()
+        sb.append(",\"data\":{");
+        if (msg.getData() != null && !msg.getData().isEmpty()) {
+            boolean first = true;
+            for (Map.Entry<String, Object> entry : msg.getData().entrySet()) {
+                if (!first) sb.append(",");
+                sb.append("\"").append(entry.getKey()).append("\":\"");
+                sb.append(entry.getValue() == null ? "" : entry.getValue().toString());
+                sb.append("\"");
+                first = false;
             }
-        });
-        logger.info("Mensaje de broadcast enviado a " + connectedClients.size() +
-                  " clientes: " + message.getType());
+        }
+        sb.append("}");
+
+        sb.append("}");
+        return sb.toString();
     }
-    
+
+    /**
+     * Convierte una cadena JSON a un objeto Message sin usar librerías externas.
+     * Se hará una implementación muy básica que asume un formato controlado.
+     */
+    private Message jsonToMessage(String json) {
+        // Buscar valores de "type":"..." etc.
+        // Este método es muy frágil e inseguro, pero ejemplifica la idea.
+        Message msg = new Message();
+
+        String typeValue = extractJsonField(json, "type");
+        msg.setType(typeValue);
+
+        String contentValue = extractJsonField(json, "content");
+        msg.setContent(contentValue);
+
+        String statusValue = extractJsonField(json, "status");
+        if (statusValue != null) {
+            try {
+                msg.setStatus(Message.Status.valueOf(statusValue));
+            } catch (IllegalArgumentException e) {
+                msg.setStatus(Message.Status.PENDING);
+            }
+        } else {
+            msg.setStatus(Message.Status.PENDING);
+        }
+
+        // Extraer data como un sub-JSON y luego parsear sus campos key->value (simple)
+        String dataJson = extractJsonObject(json, "data");
+        if (dataJson != null && !dataJson.isEmpty()) {
+            Map<String, Object> dataMap = parseSimpleMap(dataJson);
+            msg.setData(dataMap);
+        }
+
+        return msg;
+    }
+
+    /**
+     * Extrae el valor de un campo "fieldName":"value" dentro de un JSON.
+     * No es robusto contra anidaciones, comillas escapadas, etc.
+     */
+    private String extractJsonField(String json, String fieldName) {
+        // Buscar "fieldName":" en la cadena y extraer hasta la siguiente "
+        String search = "\"" + fieldName + "\":\"";
+        int start = json.indexOf(search);
+        if (start < 0) return null;
+        start += search.length();
+        int end = json.indexOf("\"", start);
+        if (end < 0) return null;
+        return json.substring(start, end);
+    }
+
+    /**
+     * Extrae un objeto JSON como "fieldName":{ ... }.
+     * Retorna el contenido interno de las llaves { } sin el nombre del campo.
+     */
+    private String extractJsonObject(String json, String fieldName) {
+        String search = "\"" + fieldName + "\":{";
+        int start = json.indexOf(search);
+        if (start < 0) return null;
+        start += search.length();
+        // Buscar la llave de cierre
+        int braceCount = 1;
+        int pos = start;
+        while (pos < json.length() && braceCount > 0) {
+            char c = json.charAt(pos);
+            if (c == '{') braceCount++;
+            if (c == '}') braceCount--;
+            pos++;
+        }
+        if (braceCount != 0) return null;
+        // El contenido es la subcadena de start..pos-2
+        return json.substring(start, pos - 1);
+    }
+
+    /**
+     * Parsea un contenido de la forma "key":"value","key2":"value2" y lo pone en un Map.
+     */
+    private Map<String, Object> parseSimpleMap(String innerJson) {
+        Map<String, Object> result = new ConcurrentHashMap<>();
+        // Dividir por comas, luego separar key y value
+        // Esto no maneja comas dentro de cadenas, etc.
+        // Se asume un formato "key":"value"
+        String[] pairs = innerJson.split(",");
+        for (String pair : pairs) {
+            // Buscar :\"
+            int colon = pair.indexOf("\":\"");
+            if (colon < 0) continue;
+            // key
+            String keyRaw = pair.substring(1, colon); // saltamos la primera comilla
+            String valRaw = pair.substring(colon + 4, pair.length() - 1); // saltamos ":"
+            result.put(keyRaw, valRaw);
+        }
+        return result;
+    }
+
     @Override
     public void close() throws Exception {
         try {
