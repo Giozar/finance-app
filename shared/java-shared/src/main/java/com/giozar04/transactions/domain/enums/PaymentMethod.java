@@ -1,5 +1,7 @@
 package com.giozar04.transactions.domain.enums;
 
-public class PaymentMethod {
-
+public enum PaymentMethod {
+    CASH,
+    CARD_DEBIT,
+    CARD_CREDIT
 }

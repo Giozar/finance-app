@@ -10,10 +10,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import com.giozar04.messages.domain.models.Message;
 import com.giozar04.servers.domain.exceptions.ServerOperationException;
 import com.giozar04.servers.domain.handlers.MessageHandler;
 import com.giozar04.servers.domain.models.ClientConnection;
-import com.giozar04.servers.domain.models.Message;
 import com.giozar04.servers.domain.models.ServerAbstract;
 import com.giozar04.shared.logging.CustomLogger;
 
@@ -227,7 +227,7 @@ public class ServerService extends ServerAbstract {
                 // Enviar mensaje de bienvenida
                 Message welcomeMessage = Message.createSuccessMessage("WELCOME",
                         "Conexión establecida. Cliente ID: " + clientConnection.getId());
-                // Convertir Message a JSON manualmente
+                // Convertir Message a JSON
                 String welcomeJson = messageToJson(welcomeMessage);
                 out.println(welcomeJson);
 
@@ -293,47 +293,110 @@ public class ServerService extends ServerAbstract {
     }
 
     /**
-     * Convierte un objeto Message a una cadena JSON sin usar librerías externas.
+     * Convierte un objeto Message a una cadena JSON sin usar librerías externas,
+     * manejando recursivamente sub-Map, List, etc.
      */
     private String messageToJson(Message msg) {
-        // Construcción manual de JSON usando StringBuilder
-        // Se asume que los strings no contienen comillas, saltos de línea u otros caracteres especiales
-        // Si tuvieran, habría que escaparlos manualmente.
         StringBuilder sb = new StringBuilder();
         sb.append("{");
-        // "type"
-        sb.append("\"type\":\"").append(msg.getType() == null ? "" : msg.getType()).append("\"");
-        // "content"
-        sb.append(",\"content\":\"").append(msg.getContent() == null ? "" : msg.getContent()).append("\"");
-        // "status"
-        sb.append(",\"status\":\"").append(msg.getStatus() == null ? "PENDING" : msg.getStatus().name()).append("\"");
 
-        // data
-        // Asumiremos data es un Map<String,Object> y convertiremos solo pares key->toString()
-        sb.append(",\"data\":{");
-        if (msg.getData() != null && !msg.getData().isEmpty()) {
-            boolean first = true;
-            for (Map.Entry<String, Object> entry : msg.getData().entrySet()) {
-                if (!first) sb.append(",");
-                sb.append("\"").append(entry.getKey()).append("\":\"");
-                sb.append(entry.getValue() == null ? "" : entry.getValue().toString());
-                sb.append("\"");
-                first = false;
-            }
-        }
-        sb.append("}");
+        // "type"
+        sb.append("\"type\":\"")
+          .append(msg.getType() == null ? "" : msg.getType())
+          .append("\",");
+
+        // "content"
+        sb.append("\"content\":\"")
+          .append(msg.getContent() == null ? "" : msg.getContent())
+          .append("\",");
+
+        // "status"
+        sb.append("\"status\":\"")
+          .append(msg.getStatus() == null ? "PENDING" : msg.getStatus().name())
+          .append("\",");
+
+        // "data"
+        sb.append("\"data\":");
+        sb.append(objectToJson(msg.getData()));
 
         sb.append("}");
         return sb.toString();
     }
 
     /**
-     * Convierte una cadena JSON a un objeto Message sin usar librerías externas.
-     * Se hará una implementación muy básica que asume un formato controlado.
+     * Serializa un Object a JSON de forma recursiva y muy simplificada.
+     * - Si es Map, lo convierte en { ... } 
+     * - Si es List, lo convierte en [ ... ]
+     * - Si es Number, lo convierte a string sin comillas
+     * - Si es String, lo convierte con comillas
+     * - Caso contrario, usa toString() con comillas
+     */
+    private String objectToJson(Object obj) {
+        if (obj == null) {
+            return "null";
+        }
+        if (obj instanceof String) {
+            // Aquí deberíamos escaparlo si contiene comillas, pero lo ignoramos por simplicidad
+            return "\"" + obj + "\"";
+        }
+        if (obj instanceof Number) {
+            return obj.toString(); // no usamos comillas para números
+        }
+        if (obj instanceof Boolean) {
+            return obj.toString(); // true o false
+        }
+        if (obj instanceof Map) {
+            return mapToJson((Map<?,?>) obj);
+        }
+        if (obj instanceof Iterable) {
+            return listToJson((Iterable<?>) obj);
+        }
+        // Fallback: lo convertimos a string con comillas
+        return "\"" + obj.toString() + "\"";
+    }
+
+    /**
+     * Convierte un Map<?,?> a JSON, recursivamente.
+     */
+    private String mapToJson(Map<?,?> map) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("{");
+        boolean first = true;
+        for (Map.Entry<?,?> e : map.entrySet()) {
+            if (!first) sb.append(",");
+            // Clave
+            sb.append("\"")
+              .append(e.getKey() == null ? "null" : e.getKey().toString())
+              .append("\":");
+            // Valor (recursivo)
+            sb.append(objectToJson(e.getValue()));
+            first = false;
+        }
+        sb.append("}");
+        return sb.toString();
+    }
+
+    /**
+     * Convierte cualquier Iterable (ej. List) a JSON.
+     */
+    private String listToJson(Iterable<?> list) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("[");
+        boolean first = true;
+        for (Object elem : list) {
+            if (!first) sb.append(",");
+            sb.append(objectToJson(elem));
+            first = false;
+        }
+        sb.append("]");
+        return sb.toString();
+    }
+
+    /**
+     * Convierte una cadena JSON a un objeto Message sin usar librerías externas,
+     * soportando sub-objetos en 'data' de forma básica.
      */
     private Message jsonToMessage(String json) {
-        // Buscar valores de "type":"..." etc.
-        // Este método es muy frágil e inseguro, pero ejemplifica la idea.
         Message msg = new Message();
 
         String typeValue = extractJsonField(json, "type");
@@ -353,10 +416,11 @@ public class ServerService extends ServerAbstract {
             msg.setStatus(Message.Status.PENDING);
         }
 
-        // Extraer data como un sub-JSON y luego parsear sus campos key->value (simple)
-        String dataJson = extractJsonObject(json, "data");
-        if (dataJson != null && !dataJson.isEmpty()) {
-            Map<String, Object> dataMap = parseSimpleMap(dataJson);
+        // Intentar extraer data como un sub-JSON
+        String dataObj = extractJsonObject(json, "data");
+        if (dataObj != null && !dataObj.isEmpty()) {
+            // parseJsonObject -> recursivo
+            Map<String, Object> dataMap = parseJsonObject(dataObj);
             msg.setData(dataMap);
         }
 
@@ -365,10 +429,8 @@ public class ServerService extends ServerAbstract {
 
     /**
      * Extrae el valor de un campo "fieldName":"value" dentro de un JSON.
-     * No es robusto contra anidaciones, comillas escapadas, etc.
      */
     private String extractJsonField(String json, String fieldName) {
-        // Buscar "fieldName":" en la cadena y extraer hasta la siguiente "
         String search = "\"" + fieldName + "\":\"";
         int start = json.indexOf(search);
         if (start < 0) return null;
@@ -380,14 +442,12 @@ public class ServerService extends ServerAbstract {
 
     /**
      * Extrae un objeto JSON como "fieldName":{ ... }.
-     * Retorna el contenido interno de las llaves { } sin el nombre del campo.
      */
     private String extractJsonObject(String json, String fieldName) {
         String search = "\"" + fieldName + "\":{";
         int start = json.indexOf(search);
         if (start < 0) return null;
         start += search.length();
-        // Buscar la llave de cierre
         int braceCount = 1;
         int pos = start;
         while (pos < json.length() && braceCount > 0) {
@@ -397,29 +457,112 @@ public class ServerService extends ServerAbstract {
             pos++;
         }
         if (braceCount != 0) return null;
-        // El contenido es la subcadena de start..pos-2
         return json.substring(start, pos - 1);
     }
 
     /**
-     * Parsea un contenido de la forma "key":"value","key2":"value2" y lo pone en un Map.
+     * Parsea un objeto JSON { \"key\": valor, \"other\": { ... }, \"list\": [ ... ] } recursivamente.
      */
-    private Map<String, Object> parseSimpleMap(String innerJson) {
-        Map<String, Object> result = new ConcurrentHashMap<>();
-        // Dividir por comas, luego separar key y value
-        // Esto no maneja comas dentro de cadenas, etc.
-        // Se asume un formato "key":"value"
-        String[] pairs = innerJson.split(",");
+    private Map<String, Object> parseJsonObject(String json) {
+        Map<String,Object> result = new ConcurrentHashMap<>();
+
+        // Quitar llaves exteriores
+        json = json.trim();
+        if (json.startsWith("{")) json = json.substring(1);
+        if (json.endsWith("}")) json = json.substring(0, json.length()-1);
+
+        // Dividir en pares key:valor a un nivel
+        String[] pairs = splitTopLevelCommas(json);
         for (String pair : pairs) {
-            // Buscar :\"
-            int colon = pair.indexOf("\":\"");
-            if (colon < 0) continue;
-            // key
-            String keyRaw = pair.substring(1, colon); // saltamos la primera comilla
-            String valRaw = pair.substring(colon + 4, pair.length() - 1); // saltamos ":"
-            result.put(keyRaw, valRaw);
+            int colonPos = pair.indexOf(":");
+            if (colonPos < 0) continue;
+            String rawKey = pair.substring(0, colonPos).trim();
+            String rawValue = pair.substring(colonPos + 1).trim();
+
+            String key = trimQuotes(rawKey);
+            Object value = parseValue(rawValue);
+            result.put(key, value);
         }
         return result;
+    }
+
+    /**
+     * Determina qué tipo de valor es rawValue y lo parsea recursivamente.
+     */
+    private Object parseValue(String rawValue) {
+        rawValue = rawValue.trim();
+        if (rawValue.startsWith("\"")) {
+            return trimQuotes(rawValue);
+        } else if (rawValue.startsWith("{")) {
+            return parseJsonObject(rawValue);
+        } else if (rawValue.startsWith("[")) {
+            return parseJsonArray(rawValue);
+        } else {
+            // fallback
+            return rawValue;
+        }
+    }
+
+    /**
+     * Parsea un array [ elemento, { ... }, \"string\" ] recursivamente.
+     */
+    private Object parseJsonArray(String json) {
+        json = json.trim();
+        if (json.startsWith("[")) json = json.substring(1);
+        if (json.endsWith("]")) json = json.substring(0, json.length()-1);
+
+        String[] elems = splitTopLevelCommas(json);
+        java.util.List<Object> list = new java.util.ArrayList<>();
+        for (String e : elems) {
+            list.add(parseValue(e));
+        }
+        return list;
+    }
+
+    /**
+     * Separa cadenas en comas de nivel top (no anidadas en {...} ni [...]).
+     */
+    private String[] splitTopLevelCommas(String json) {
+        java.util.List<String> result = new java.util.ArrayList<>();
+        int braceLevel = 0;
+        int bracketLevel = 0;
+        boolean inQuotes = false;
+        StringBuilder current = new StringBuilder();
+
+        for (int i = 0; i < json.length(); i++) {
+            char c = json.charAt(i);
+            if (c == '\"') {
+                inQuotes = !inQuotes;
+                current.append(c);
+            } else if (!inQuotes) {
+                if (c == '{') { braceLevel++; current.append(c); }
+                else if (c == '}') { braceLevel--; current.append(c); }
+                else if (c == '[') { bracketLevel++; current.append(c); }
+                else if (c == ']') { bracketLevel--; current.append(c); }
+                else if (c == ',' && braceLevel == 0 && bracketLevel == 0) {
+                    result.add(current.toString());
+                    current.setLength(0);
+                } else {
+                    current.append(c);
+                }
+            } else {
+                current.append(c);
+            }
+        }
+        if (current.length() > 0) {
+            result.add(current.toString());
+        }
+        return result.toArray(new String[0]);
+    }
+
+    /**
+     * Quita comillas de los extremos si existen.
+     */
+    private String trimQuotes(String s) {
+        s = s.trim();
+        if (s.startsWith("\"")) s = s.substring(1);
+        if (s.endsWith("\"")) s = s.substring(0, s.length()-1);
+        return s;
     }
 
     @Override
