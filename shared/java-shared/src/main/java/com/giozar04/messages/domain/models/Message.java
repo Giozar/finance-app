@@ -1,4 +1,4 @@
-package com.giozar04.servers.domain.models;
+package com.giozar04.messages.domain.models;
 
 import java.io.Serializable;
 import java.util.HashMap;

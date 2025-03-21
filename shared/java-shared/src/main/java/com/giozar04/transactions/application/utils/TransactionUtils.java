@@ -32,7 +32,18 @@ public class TransactionUtils {
     public static Transaction mapToTransaction(Map<String, Object> map) {
         Transaction transaction = new Transaction();
         if (map.containsKey("id")) {
-            transaction.setId(((Number) map.get("id")).longValue());
+            Object idObj = map.get("id");
+            long idVal = 0;
+            if (idObj instanceof Number) {
+                idVal = ((Number) idObj).longValue();
+            } else if (idObj instanceof String) {
+                try {
+                    idVal = Long.parseLong((String) idObj);
+                } catch (NumberFormatException e) {
+                    // ignoring
+                }
+            }
+            transaction.setId(idVal);
         }
         if (map.containsKey("type")) {
             transaction.setType((String) map.get("type"));
@@ -45,7 +56,18 @@ public class TransactionUtils {
             }
         }
         if (map.containsKey("amount")) {
-            transaction.setAmount(((Number) map.get("amount")).doubleValue());
+            Object amountObj = map.get("amount");
+            double amt = 0.0;
+            if (amountObj instanceof Number) {
+                amt = ((Number) amountObj).doubleValue();
+            } else if (amountObj instanceof String) {
+                try {
+                    amt = Double.parseDouble((String) amountObj);
+                } catch (NumberFormatException e) {
+                    // ignoring, se queda en 0
+                }
+            }
+            transaction.setAmount(amt);
         }
         if (map.containsKey("title")) {
             transaction.setTitle((String) map.get("title"));
@@ -60,7 +82,11 @@ public class TransactionUtils {
             transaction.setComments((String) map.get("comments"));
         }
         if (map.containsKey("date")) {
-            transaction.setDate(ZonedDateTime.parse((String) map.get("date"), FORMATTER));
+            try {
+                transaction.setDate(ZonedDateTime.parse((String) map.get("date"), FORMATTER));
+            } catch (Exception e) {
+                // ignoring parse error
+            }
         }
         if (map.containsKey("tags")) {
             Object tagsObj = map.get("tags");
@@ -70,7 +96,7 @@ public class TransactionUtils {
         }
         return transaction;
     }
-    
+
     public static DateTimeFormatter getFormatter() {
         return FORMATTER;
     }

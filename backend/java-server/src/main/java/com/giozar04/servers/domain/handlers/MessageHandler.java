@@ -1,8 +1,7 @@
 package com.giozar04.servers.domain.handlers;
 
+import com.giozar04.messages.domain.models.Message;
 import com.giozar04.servers.domain.models.ClientConnection;
-import com.giozar04.servers.domain.models.Message;
-
 /**
  * Interfaz para los manejadores de mensajes.
  * Define el contrato para procesar mensajes recibidos de los clientes.
