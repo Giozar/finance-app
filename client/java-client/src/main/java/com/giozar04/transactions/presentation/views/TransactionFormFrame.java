@@ -1,4 +1,4 @@
-package com.giozar04.presentation.views.transactions;
+package com.giozar04.transactions.presentation.views;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -27,12 +27,12 @@ import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 
-import com.giozar04.application.services.ServerConnection;
-import com.giozar04.presentation.components.DatePickerComponent;
-import com.giozar04.presentation.validators.TransactionValidator;
+import com.giozar04.serverConnection.application.services.ServerConnectionService;
+import com.giozar04.shared.components.DatePickerComponent;
 import com.giozar04.transactions.application.utils.TransactionUtils;
 import com.giozar04.transactions.domain.entities.Transaction;
 import com.giozar04.transactions.domain.enums.PaymentMethod;
+import com.giozar04.transactions.presentation.validators.TransactionValidator;
 
 /**
  * Formulario para la creación de transacciones.
@@ -56,14 +56,14 @@ public class TransactionFormFrame extends JFrame {
     // Validador para el formulario
     private final TransactionValidator validator;
     
-    // Referencia al servicio de cliente para comunicarse con el servidor
-    private final ServerConnection serverConnection;
+    // Referencia al servicio de serverConnectionService para comunicarse con el servidor
+    private final ServerConnectionService serverConnectionService;
 
     /**
-     * Constructor que recibe la instancia de ClientService.
+     * Constructor que recibe la instancia de ServerConnectionService.
      */
-    public TransactionFormFrame(ServerConnection serverConnection) {
-        this.serverConnection = serverConnection;
+    public TransactionFormFrame(ServerConnectionService serverConnectionService) {
+        this.serverConnectionService = serverConnectionService;
         validator = new TransactionValidator();
         
         // Configurar la ventana
@@ -306,8 +306,8 @@ public class TransactionFormFrame extends JFrame {
         Transaction transaction = TransactionUtils.mapToTransaction(transactionData);
         
         try {
-            // Llamamos al método del ClientService para enviar la transacción al servidor
-            serverConnection.sendTransaction(transaction);
+            // Llamamos al método del serverConnectionService para enviar la transacción al servidor
+            serverConnectionService.sendTransaction(transaction);
             JOptionPane.showMessageDialog(this, "Transacción enviada correctamente al servidor.", 
                     "Transacción Enviada", JOptionPane.INFORMATION_MESSAGE);
         } catch (IOException e) {
