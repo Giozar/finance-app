@@ -1,4 +1,4 @@
-package com.giozar04.application.services;
+package com.giozar04.serverConnection.application.services;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -8,28 +8,21 @@ import java.net.Socket;
 
 import com.giozar04.json.utils.JsonUtils;
 import com.giozar04.messages.domain.models.Message;
+import com.giozar04.serverConnection.domain.models.ServerConnectionAbstract;
 import com.giozar04.transactions.application.utils.TransactionUtils;
 import com.giozar04.transactions.domain.entities.Transaction;
 
-/**
- * Gestiona la conexión y comunicación con el servidor vía sockets.
- */
-public class ServerConnection {
+public class ServerConnectionService extends ServerConnectionAbstract {
 
     private Socket socket;
     private PrintWriter out;
     private BufferedReader in;
-    private final String serverHost;
-    private final int serverPort;
-    private volatile boolean isConnected;
 
-    public ServerConnection(String serverHost, int serverPort) {
-        this.serverHost = serverHost;
-        this.serverPort = serverPort;
-        this.isConnected = false;
+    public ServerConnectionService(String host, int port) {
+        super(host, port);
     }
 
-    /** Establece la conexión y lanza el hilo de escucha. */
+    @Override
     public void connect() throws IOException {
         socket = new Socket(serverHost, serverPort);
         out = new PrintWriter(socket.getOutputStream(), true);
@@ -38,13 +31,12 @@ public class ServerConnection {
         startListening();
     }
 
-    /** Hilo que escucha mensajes entrantes. */
     private void startListening() {
         new Thread(() -> {
             try {
                 while (isConnected) {
                     String line = in.readLine();
-                    if (line == null) break; // Fin de stream
+                    if (line == null) break;
                     Message message = JsonUtils.jsonToMessage(line);
                     if (message != null) {
                         processIncomingMessage(message);
@@ -57,12 +49,12 @@ public class ServerConnection {
         }).start();
     }
 
-    /** Procesa el mensaje recibido. */
-    private void processIncomingMessage(Message message) {
+    @Override
+    protected void processIncomingMessage(Message message) {
         System.out.println("Mensaje recibido: " + message);
     }
 
-    /** Envía un mensaje al servidor. */
+    @Override
     public void sendMessage(Message message) throws IOException {
         if (socket != null && !socket.isClosed() && out != null) {
             String json = JsonUtils.messageToJson(message);
@@ -72,7 +64,7 @@ public class ServerConnection {
         }
     }
 
-    /** Envía una transacción encapsulada en un mensaje. */
+    @Override
     public void sendTransaction(Transaction transaction) throws IOException {
         Message message = new Message();
         message.setType("CREATE_TRANSACTION");
@@ -80,7 +72,7 @@ public class ServerConnection {
         sendMessage(message);
     }
 
-    /** Cierra la conexión y libera recursos. */
+    @Override
     public void disconnect() throws IOException {
         isConnected = false;
         if (in != null) in.close();

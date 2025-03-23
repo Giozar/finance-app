@@ -1,4 +1,4 @@
-package com.giozar04.presentation.validators;
+package com.giozar04.transactions.presentation.validators;
 
 import java.util.ArrayList;
 import java.util.List;

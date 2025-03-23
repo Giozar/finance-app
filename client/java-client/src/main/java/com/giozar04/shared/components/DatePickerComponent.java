@@ -1,4 +1,4 @@
-package com.giozar04.presentation.components;
+package com.giozar04.shared.components;
 
 import java.awt.FlowLayout;
 import java.time.LocalDate;
