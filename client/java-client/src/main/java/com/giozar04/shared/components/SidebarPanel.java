@@ -1,4 +1,4 @@
-package com.giozar04.dashboard.presentation.components;
+package com.giozar04.shared.components;
 
 import java.awt.Color;
 import java.awt.Component;

@@ -1,8 +1,10 @@
 package com.giozar04.transactions.presentation.views;
 
-import javax.swing.JPanel;
-import javax.swing.BorderFactory;
 import java.awt.BorderLayout;
+
+import javax.swing.BorderFactory;
+import javax.swing.JPanel;
+
 import com.giozar04.transactions.presentation.components.TransactionFormPanel;
 
 public class CreateTransactionView extends JPanel {
