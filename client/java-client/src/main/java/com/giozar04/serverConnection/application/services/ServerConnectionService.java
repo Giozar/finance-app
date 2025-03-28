@@ -9,17 +9,23 @@ import java.net.Socket;
 import com.giozar04.json.utils.JsonUtils;
 import com.giozar04.messages.domain.models.Message;
 import com.giozar04.serverConnection.domain.models.ServerConnectionAbstract;
-import com.giozar04.transactions.application.utils.TransactionUtils;
-import com.giozar04.transactions.domain.entities.Transaction;
 
 public class ServerConnectionService extends ServerConnectionAbstract {
 
     private Socket socket;
     private PrintWriter out;
     private BufferedReader in;
+    private static ServerConnectionService instance;
 
-    public ServerConnectionService(String host, int port) {
+    private ServerConnectionService(String host, int port) {
         super(host, port);
+    }
+
+    public static ServerConnectionService getInstance(String host, int port) {
+        if (instance == null) {
+            instance = new ServerConnectionService(host, port);
+        }
+        return instance;
     }
 
     @Override
@@ -62,14 +68,6 @@ public class ServerConnectionService extends ServerConnectionAbstract {
         } else {
             throw new IOException("No se ha establecido la conexión con el servidor");
         }
-    }
-
-    @Override
-    public void sendTransaction(Transaction transaction) throws IOException {
-        Message message = new Message();
-        message.setType("CREATE_TRANSACTION");
-        message.addData("transaction", TransactionUtils.transactionToMap(transaction));
-        sendMessage(message);
     }
 
     @Override

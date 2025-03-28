@@ -1,4 +1,4 @@
-package com.giozar04.transactions.presentation.views;
+package com.giozar04.transactions.presentation.components;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -17,7 +17,6 @@ import java.util.stream.Collectors;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -27,8 +26,8 @@ import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 
-import com.giozar04.serverConnection.application.services.ServerConnectionService;
 import com.giozar04.shared.components.DatePickerComponent;
+import com.giozar04.transactions.application.services.TransactionService;
 import com.giozar04.transactions.application.utils.TransactionUtils;
 import com.giozar04.transactions.domain.entities.Transaction;
 import com.giozar04.transactions.domain.enums.PaymentMethod;
@@ -37,7 +36,7 @@ import com.giozar04.transactions.presentation.validators.TransactionValidator;
 /**
  * Formulario para la creación de transacciones.
  */
-public class TransactionFormFrame extends JFrame {
+public class TransactionFormPanel extends JPanel {
     private static final long serialVersionUID = 1L;
 
     // Componentes del formulario
@@ -54,48 +53,36 @@ public class TransactionFormFrame extends JFrame {
     private JButton btnClear;
     
     // Validador para el formulario
-    private final TransactionValidator validator;
+    private final TransactionValidator validator = new TransactionValidator();
     
-    // Referencia al servicio de serverConnectionService para comunicarse con el servidor
-    private final ServerConnectionService serverConnectionService;
+    // Referencia al servicio de transactionService para comunicarse con el servidor
+    private final TransactionService transactionService = TransactionService.getInstance();
 
     /**
-     * Constructor que recibe la instancia de ServerConnectionService.
+     * Constructor que recibe la instancia de TransactionService.
      */
-    public TransactionFormFrame(ServerConnectionService serverConnectionService) {
-        this.serverConnectionService = serverConnectionService;
-        validator = new TransactionValidator();
-        
-        // Configurar la ventana
-        setTitle("Formulario de Transacción");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(600, 650);
-        setLocationRelativeTo(null);
-        
-        // Panel principal con borde
-        JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
-        mainPanel.setBorder(new EmptyBorder(20, 20, 20, 20));
-        setContentPane(mainPanel);
-        
+
+     public TransactionFormPanel() {
+        super(new BorderLayout(10, 10));
+        setBorder(new EmptyBorder(20, 20, 20, 20));
+
         // Título del formulario
         JLabel titleLabel = new JLabel("Nueva Transacción");
         titleLabel.setFont(new Font("Arial", Font.BOLD, 18));
         titleLabel.setBorder(new EmptyBorder(0, 0, 10, 0));
-        mainPanel.add(titleLabel, BorderLayout.NORTH);
-        
+        add(titleLabel, BorderLayout.NORTH);
+
         // Panel del formulario
-        JPanel formPanel = createFormPanel();
-        mainPanel.add(formPanel, BorderLayout.CENTER);
-        
+        add(createFormFieldsPanel(), BorderLayout.CENTER);
+
         // Panel de botones
-        JPanel buttonPanel = createButtonPanel();
-        mainPanel.add(buttonPanel, BorderLayout.SOUTH);
+        add(createFormButtonsPanel(), BorderLayout.SOUTH);
     }
 
     /**
      * Crea el panel del formulario con todos los campos.
      */
-    private JPanel createFormPanel() {
+    private JPanel createFormFieldsPanel() {
         JPanel panel = new JPanel(new GridBagLayout());
         panel.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createTitledBorder(
@@ -224,7 +211,7 @@ public class TransactionFormFrame extends JFrame {
     /**
      * Crea el panel de botones del formulario.
      */
-    private JPanel createButtonPanel() {
+    private JPanel createFormButtonsPanel() {
         JPanel panel = new JPanel();
         panel.setBorder(new EmptyBorder(10, 0, 0, 0));
         
@@ -306,8 +293,8 @@ public class TransactionFormFrame extends JFrame {
         Transaction transaction = TransactionUtils.mapToTransaction(transactionData);
         
         try {
-            // Llamamos al método del serverConnectionService para enviar la transacción al servidor
-            serverConnectionService.sendTransaction(transaction);
+            // Llamamos al método del transactionService para enviar la transacción al servidor
+            transactionService.createTransaction(transaction);
             JOptionPane.showMessageDialog(this, "Transacción enviada correctamente al servidor.", 
                     "Transacción Enviada", JOptionPane.INFORMATION_MESSAGE);
         } catch (IOException e) {
