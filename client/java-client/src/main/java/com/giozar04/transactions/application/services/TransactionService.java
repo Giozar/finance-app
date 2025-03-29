@@ -33,4 +33,21 @@ public class TransactionService {
         message.addData("transaction", TransactionUtils.transactionToMap(transaction));
         serverConnectionService.sendMessage(message);
     }
+
+    public void getAllTransactions() throws IOException {
+        Message message = new Message();
+        message.setType("GET_ALL_TRANSACTIONS");
+        serverConnectionService.sendMessage(message);
+
+        try {
+            Message mesage = serverConnectionService.receiveMessage();
+            if (message.getType().equals("GET_ALL_TRANSACTIONS")) {
+                System.out.println("Respuesta de todas las transacciones:" + mesage.getData("transactions"));
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+    }
+
 }

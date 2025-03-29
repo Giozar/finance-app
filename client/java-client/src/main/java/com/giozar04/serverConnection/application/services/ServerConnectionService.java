@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import com.giozar04.json.utils.JsonUtils;
 import com.giozar04.messages.domain.models.Message;
@@ -16,6 +18,7 @@ public class ServerConnectionService extends ServerConnectionAbstract {
     private PrintWriter out;
     private BufferedReader in;
     private static ServerConnectionService instance;
+    private final BlockingQueue<Message> incomingMessages = new LinkedBlockingQueue<>();
 
     private ServerConnectionService(String host, int port) {
         super(host, port);
@@ -43,9 +46,11 @@ public class ServerConnectionService extends ServerConnectionAbstract {
                 while (isConnected) {
                     String line = in.readLine();
                     if (line == null) break;
+
                     Message message = JsonUtils.jsonToMessage(line);
                     if (message != null) {
-                        processIncomingMessage(message);
+                        processIncomingMessage(message); // extensible para el futuro
+                        incomingMessages.offer(message); // se guarda en la cola
                     }
                 }
             } catch (IOException e) {
@@ -57,7 +62,7 @@ public class ServerConnectionService extends ServerConnectionAbstract {
 
     @Override
     protected void processIncomingMessage(Message message) {
-        System.out.println("Mensaje recibido: " + message);
+        System.out.println("[CLIENT] Mensaje recibido del servidor: " + message);
     }
 
     @Override
@@ -68,6 +73,11 @@ public class ServerConnectionService extends ServerConnectionAbstract {
         } else {
             throw new IOException("No se ha establecido la conexión con el servidor");
         }
+    }
+
+    @Override
+    public Message receiveMessage() throws InterruptedException {
+        return incomingMessages.take(); // Espera hasta que haya mensaje disponible
     }
 
     @Override
