@@ -2,11 +2,12 @@ package com.giozar04;
 
 import java.io.IOException;
 
+import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
 import com.giozar04.configs.ServerConnectionConfig;
-import com.giozar04.dashboard.presentation.views.MainDashboardView;
 import com.giozar04.serverConnection.application.services.ServerConnectionService;
+import com.giozar04.shared.layouts.AppLayout;
 import com.giozar04.transactions.application.services.TransactionService;
 
 public class Main {
@@ -43,8 +44,14 @@ public class Main {
 
     private static void launchUI() {
         SwingUtilities.invokeLater(() -> {
-            MainDashboardView view = new MainDashboardView();
-            view.setVisible(true);
+            JFrame frame = new JFrame("Mi App de Finanzas");
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.setSize(1000, 700);
+            frame.setLocationRelativeTo(null);
+
+            AppLayout layout = new AppLayout();
+            frame.setContentPane(layout);
+            frame.setVisible(true);
         });
     }
 }
