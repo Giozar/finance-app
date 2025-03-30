@@ -5,7 +5,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.Map;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import com.giozar04.json.utils.JsonUtils;
@@ -18,7 +20,9 @@ public class ServerConnectionService extends ServerConnectionAbstract {
     private PrintWriter out;
     private BufferedReader in;
     private static ServerConnectionService instance;
-    private final BlockingQueue<Message> incomingMessages = new LinkedBlockingQueue<>();
+
+    // Cola de mensajes por tipo
+    private final Map<String, BlockingQueue<Message>> messageQueues = new ConcurrentHashMap<>();
 
     private ServerConnectionService(String host, int port) {
         super(host, port);
@@ -45,12 +49,19 @@ public class ServerConnectionService extends ServerConnectionAbstract {
             try {
                 while (isConnected) {
                     String line = in.readLine();
-                    if (line == null) break;
+                    if (line == null) {
+                        break;
+                    }
 
                     Message message = JsonUtils.jsonToMessage(line);
                     if (message != null) {
                         processIncomingMessage(message); // extensible para el futuro
-                        incomingMessages.offer(message); // se guarda en la cola
+
+                        // Encolar el mensaje en la cola correspondiente a su tipo
+                        String type = message.getType();
+                        messageQueues
+                                .computeIfAbsent(type, k -> new LinkedBlockingQueue<>())
+                                .offer(message);
                     }
                 }
             } catch (IOException e) {
@@ -60,8 +71,19 @@ public class ServerConnectionService extends ServerConnectionAbstract {
         }).start();
     }
 
+    /**
+     * Método para obtener un mensaje por tipo. Se bloquea hasta recibir el
+     * mensaje solicitado.
+     */
+    public Message waitForMessage(String type) throws InterruptedException {
+        BlockingQueue<Message> queue = messageQueues
+                .computeIfAbsent(type, k -> new LinkedBlockingQueue<>());
+        return queue.take(); // Espera el mensaje de ese tipo
+    }
+
     @Override
     protected void processIncomingMessage(Message message) {
+        // Puedes expandir esto en el futuro para manejar otros tipos globales como NOTIFICATIONS
         System.out.println("[CLIENT] Mensaje recibido del servidor: " + message);
     }
 
@@ -77,14 +99,20 @@ public class ServerConnectionService extends ServerConnectionAbstract {
 
     @Override
     public Message receiveMessage() throws InterruptedException {
-        return incomingMessages.take(); // Espera hasta que haya mensaje disponible
+        throw new UnsupportedOperationException("Usa waitForMessage(type) en lugar de receiveMessage()");
     }
 
     @Override
     public void disconnect() throws IOException {
         isConnected = false;
-        if (in != null) in.close();
-        if (out != null) out.close();
-        if (socket != null) socket.close();
+        if (in != null) {
+            in.close();
+        }
+        if (out != null) {
+            out.close();
+        }
+        if (socket != null) {
+            socket.close();
+        }
     }
 }
