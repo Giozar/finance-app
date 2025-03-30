@@ -12,6 +12,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import com.giozar04.json.utils.JsonUtils;
 import com.giozar04.messages.domain.models.Message;
+import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
 import com.giozar04.serverConnection.domain.models.ServerConnectionAbstract;
 
 public class ServerConnectionService extends ServerConnectionAbstract {
@@ -88,12 +89,16 @@ public class ServerConnectionService extends ServerConnectionAbstract {
     }
 
     @Override
-    public void sendMessage(Message message) throws IOException {
+    public void sendMessage(Message message) throws ClientOperationException {
         if (socket != null && !socket.isClosed() && out != null) {
-            String json = JsonUtils.messageToJson(message);
-            out.println(json);
+            try {
+                String json = JsonUtils.messageToJson(message);
+                out.println(json);
+            } catch (Exception e) {
+                throw new ClientOperationException("Error al enviar el mensaje: " + e.getMessage(), e);
+            }
         } else {
-            throw new IOException("No se ha establecido la conexión con el servidor");
+            throw new ClientOperationException("No se ha establecido la conexión con el servidor");
         }
     }
 

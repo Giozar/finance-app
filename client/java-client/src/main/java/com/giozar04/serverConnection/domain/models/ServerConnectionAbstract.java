@@ -1,7 +1,5 @@
 package com.giozar04.serverConnection.domain.models;
 
-import java.io.IOException;
-
 import com.giozar04.configs.ServerConnectionConfig;
 import com.giozar04.messages.domain.models.Message;
 import com.giozar04.serverConnection.domain.interfaces.ServerConnectionInterface;
@@ -21,5 +19,5 @@ public abstract class ServerConnectionAbstract implements ServerConnectionInterf
         this(config.getHost(), config.getPort());
     }
 
-    protected abstract void processIncomingMessage(Message message) throws IOException;
+    protected abstract void processIncomingMessage(Message message);
 }

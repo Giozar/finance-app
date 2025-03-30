@@ -80,7 +80,18 @@ public class TransactionHandlers {
             LOGGER.info("Procesando solicitud de obtención de transacción");
 
             // Extraer ID de la transacción del mensaje
-            Long id = (Long) message.getData("id");
+           Object rawId = message.getData("id");
+           Long id = null;
+           if (rawId instanceof Long) {
+               id = (Long) rawId;
+           } else if (rawId instanceof String) {
+               try {
+                   id = Long.parseLong((String) rawId);
+               } catch (NumberFormatException e) {
+                   return Message.createErrorMessage(TransactionMessageTypes.UPDATE_TRANSACTION,
+                           "ID de transacción inválido");
+               }
+           }
             if (id == null) {
                 return Message.createErrorMessage(TransactionMessageTypes.GET_TRANSACTION,
                         "ID de transacción no proporcionado");
@@ -112,7 +123,18 @@ public class TransactionHandlers {
             LOGGER.info("Procesando solicitud de actualización de transacción");
 
             // Extraer ID de la transacción del mensaje
-            Long id = (Long) message.getData("id");
+            Object rawId = message.getData("id");
+            Long id = null;
+            if (rawId instanceof Long) {
+                id = (Long) rawId;
+            } else if (rawId instanceof String) {
+                try {
+                    id = Long.parseLong((String) rawId);
+                } catch (NumberFormatException e) {
+                    return Message.createErrorMessage(TransactionMessageTypes.UPDATE_TRANSACTION,
+                            "ID de transacción inválido");
+                }
+            }
             if (id == null) {
                 return Message.createErrorMessage(TransactionMessageTypes.UPDATE_TRANSACTION,
                         "ID de transacción no proporcionado");
@@ -155,7 +177,18 @@ public class TransactionHandlers {
             LOGGER.info("Procesando solicitud de eliminación de transacción");
 
             // Extraer ID de la transacción del mensaje
-            Long id = (Long) message.getData("id");
+            Object rawId = message.getData("id");
+            Long id = null;
+            if (rawId instanceof Long) {
+                id = (Long) rawId;
+            } else if (rawId instanceof String) {
+                try {
+                    id = Long.parseLong((String) rawId);
+                } catch (NumberFormatException e) {
+                    return Message.createErrorMessage(TransactionMessageTypes.UPDATE_TRANSACTION,
+                            "ID de transacción inválido");
+                }
+            }
             if (id == null) {
                 return Message.createErrorMessage(TransactionMessageTypes.DELETE_TRANSACTION,
                         "ID de transacción no proporcionado");
@@ -198,7 +231,7 @@ public class TransactionHandlers {
             response.addData("transactions", transactionList);
             response.addData("count", transactions.size());
 
-            System.out.println("🟦 Mensaje completo: " + response);
+            // System.out.println("🟦 Mensaje completo: " + response);
             return response;
         };
     }

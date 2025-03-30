@@ -17,8 +17,4 @@ public class CreateTransactionView extends JPanel {
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         add(transactionFormPanel, BorderLayout.CENTER);
     }
-
-    public TransactionFormPanel getFormPanel() {
-        return transactionFormPanel;
-    }
 }
