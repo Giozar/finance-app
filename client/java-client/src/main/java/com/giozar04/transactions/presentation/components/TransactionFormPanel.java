@@ -7,7 +7,6 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -26,6 +25,7 @@ import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 
+import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
 import com.giozar04.shared.components.DatePickerComponent;
 import com.giozar04.transactions.application.services.TransactionService;
 import com.giozar04.transactions.application.utils.TransactionUtils;
@@ -292,18 +292,17 @@ public class TransactionFormPanel extends JPanel {
         // Convertir el Map a una entidad Transaction usando TransactionUtils
         Transaction transaction = TransactionUtils.mapToTransaction(transactionData);
         
+        // Llamamos al método del transactionService para enviar la transacción al servidor
         try {
-            // Llamamos al método del transactionService para enviar la transacción al servidor
             transactionService.createTransaction(transaction);
             JOptionPane.showMessageDialog(this, "Transacción enviada correctamente al servidor.", 
                     "Transacción Enviada", JOptionPane.INFORMATION_MESSAGE);
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(this, "Error al enviar la transacción: " + e.getMessage(),
+            // Limpiar el formulario después de guardar
+            clearForm();
+        } catch (ClientOperationException e) {
+            JOptionPane.showMessageDialog(this, "Error al enviar la transacción: " + e.getMessage(), 
                     "Error", JOptionPane.ERROR_MESSAGE);
         }
-        
-        // Limpiar el formulario después de guardar
-        clearForm();
     }
     
     /**
