@@ -6,6 +6,7 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.HeadlessException;
 import java.awt.event.ActionEvent;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -30,6 +31,7 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellEditor;
 
+import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
 import com.giozar04.shared.components.MainContentPanel;
 import com.giozar04.transactions.application.services.TransactionService;
 import com.giozar04.transactions.domain.entities.Transaction;
@@ -37,10 +39,10 @@ import com.giozar04.transactions.presentation.components.TransactionFormPanel;
 
 public class TransactionsView extends JPanel {
 
-    private JTable transactionsTable;
-    private TransactionTableModel tableModel;
-    private JTextField searchField;
-    private JComboBox<String> filterCombo;
+    private final JTable transactionsTable;
+    private final TransactionTableModel tableModel;
+    private final JTextField searchField;
+    private final JComboBox<String> filterCombo;
 
     public TransactionsView() {
         setLayout(new BorderLayout());
@@ -99,13 +101,19 @@ public class TransactionsView extends JPanel {
         loadTransactions();
     }
 
+    // Sobrescribimos addNotify para refrescar la lista cada vez que la vista se muestre
+    @Override
+    public void addNotify() {
+        super.addNotify();
+        loadTransactions();
+    }
+
     private void loadTransactions() {
         TransactionService service = TransactionService.getInstance();
         try {
             List<Transaction> transactions = service.getAllTransactions();
             tableModel.setTransactions(transactions);
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (ClientOperationException e) {
             JOptionPane.showMessageDialog(this, "Error al cargar las transacciones", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
@@ -122,9 +130,9 @@ public class TransactionsView extends JPanel {
         while (parent != null && !(parent instanceof MainContentPanel)) {
             parent = parent.getParent();
         }
-        if (parent instanceof MainContentPanel) {
-            // Se asume que CreateTransactionView es la vista para crear una transacción
-            ((MainContentPanel) parent).setView(new CreateTransactionView());
+        if (parent instanceof MainContentPanel mainContentPanel) {
+            // CreateTransactionView es la vista para crear una transacción
+            mainContentPanel.setView(new CreateTransactionView());
         }
     }
 
@@ -249,21 +257,11 @@ public class TransactionsView extends JPanel {
             label.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
             // Asignar color de fondo según el método de pago
             switch (value.toString().toUpperCase()) {
-                case "DÉBITO", "DEBITO":
-                    label.setBackground(new Color(220, 230, 241));
-                    break;
-                case "CRÉDITO", "CREDITO":
-                    label.setBackground(new Color(241, 220, 220));
-                    break;
-                case "EFECTIVO":
-                    label.setBackground(new Color(220, 241, 229));
-                    break;
-                case "DIGITAL":
-                    label.setBackground(new Color(241, 237, 220));
-                    break;
-                default:
-                    label.setBackground(Color.LIGHT_GRAY);
-                    break;
+                case "DÉBITO", "DEBITO" -> label.setBackground(new Color(220, 230, 241));
+                case "CRÉDITO", "CREDITO" -> label.setBackground(new Color(241, 220, 220));
+                case "EFECTIVO" -> label.setBackground(new Color(220, 241, 229));
+                case "DIGITAL" -> label.setBackground(new Color(241, 237, 220));
+                default -> label.setBackground(Color.LIGHT_GRAY);
             }
             label.setHorizontalAlignment(SwingConstants.CENTER);
             if (isSelected) {
@@ -336,11 +334,11 @@ public class TransactionsView extends JPanel {
             while (parent != null && !(parent instanceof MainContentPanel)) {
                 parent = parent.getParent();
             }
-            if (parent instanceof MainContentPanel) {
+            if (parent instanceof MainContentPanel mainContentPanel) {
                 // Se utiliza CreateTransactionView para la edición, reutilizando TransactionFormPanel
                 TransactionFormPanel editView = new TransactionFormPanel();
                 editView.loadTransaction(transaction);
-                ((MainContentPanel) parent).setView(editView);
+                mainContentPanel.setView(editView);
             }
             fireEditingStopped();
         }
@@ -355,7 +353,7 @@ public class TransactionsView extends JPanel {
                     TransactionService.getInstance().deleteTransactionById(transaction.getId());
                     JOptionPane.showMessageDialog(TransactionsView.this, "Transacción eliminada.");
                     tableModel.removeTransactionAt(row);
-                } catch (Exception ex) {
+                } catch (ClientOperationException | HeadlessException ex) {
                     JOptionPane.showMessageDialog(TransactionsView.this, "Error al eliminar la transacción: " + ex.getMessage());
                 }
             }
