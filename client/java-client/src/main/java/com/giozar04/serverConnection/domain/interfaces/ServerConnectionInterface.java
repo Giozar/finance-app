@@ -8,4 +8,5 @@ public interface ServerConnectionInterface {
     void connect() throws IOException;
     void disconnect() throws IOException;
     void sendMessage(Message message) throws IOException;
+    Message receiveMessage() throws InterruptedException;
 }
