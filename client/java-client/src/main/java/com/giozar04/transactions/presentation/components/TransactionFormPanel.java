@@ -34,12 +34,13 @@ import com.giozar04.transactions.domain.enums.PaymentMethod;
 import com.giozar04.transactions.presentation.validators.TransactionValidator;
 
 /**
- * Formulario para la creación de transacciones.
+ * Formulario para la creación/edición de transacciones.
  */
 public class TransactionFormPanel extends JPanel {
     private static final long serialVersionUID = 1L;
 
     // Componentes del formulario
+    private final JLabel titleLabel;
     private JTextField txtTitle;
     private JComboBox<String> comboType;
     private JComboBox<String> comboPaymentMethod;
@@ -55,19 +56,18 @@ public class TransactionFormPanel extends JPanel {
     // Validador para el formulario
     private final TransactionValidator validator = new TransactionValidator();
     
-    // Referencia al servicio de transactionService para comunicarse con el servidor
+    // Servicio de transacciones
     private final TransactionService transactionService = TransactionService.getInstance();
+    
+    // Variable para almacenar la transacción en modo edición (null = creación)
+    private Transaction editingTransaction = null;
 
-    /**
-     * Constructor que recibe la instancia de TransactionService.
-     */
-
-     public TransactionFormPanel() {
+    public TransactionFormPanel() {
         super(new BorderLayout(10, 10));
         setBorder(new EmptyBorder(20, 20, 20, 20));
 
         // Título del formulario
-        JLabel titleLabel = new JLabel("Nueva Transacción");
+        titleLabel = new JLabel("Nueva Transacción");
         titleLabel.setFont(new Font("Arial", Font.BOLD, 18));
         titleLabel.setBorder(new EmptyBorder(0, 0, 10, 0));
         add(titleLabel, BorderLayout.NORTH);
@@ -79,9 +79,6 @@ public class TransactionFormPanel extends JPanel {
         add(createFormButtonsPanel(), BorderLayout.SOUTH);
     }
 
-    /**
-     * Crea el panel del formulario con todos los campos.
-     */
     private JPanel createFormFieldsPanel() {
         JPanel panel = new JPanel(new GridBagLayout());
         panel.setBorder(BorderFactory.createCompoundBorder(
@@ -208,9 +205,6 @@ public class TransactionFormPanel extends JPanel {
         return panel;
     }
     
-    /**
-     * Crea el panel de botones del formulario.
-     */
     private JPanel createFormButtonsPanel() {
         JPanel panel = new JPanel();
         panel.setBorder(new EmptyBorder(10, 0, 0, 0));
@@ -220,7 +214,6 @@ public class TransactionFormPanel extends JPanel {
         
         btnClear = new JButton("Limpiar");
         
-        // Acción de los botones
         btnSubmit.addActionListener((ActionEvent e) -> saveTransaction());
         btnClear.addActionListener((ActionEvent e) -> clearForm());
         
@@ -230,22 +223,13 @@ public class TransactionFormPanel extends JPanel {
         return panel;
     }
     
-    /**
-     * Valida y envía la transacción al servidor.
-     */
     private void saveTransaction() {
-        // Limpiar errores previos
         validator.clearErrors();
-        
-        // Validar campos requeridos
         validator.validateRequired(txtTitle.getText(), "Título");
         validator.validateRequired(txtAmount.getText(), "Monto");
-        
-        // Validar formato y valor del monto
         validator.validateNumeric(txtAmount.getText(), "Monto");
         validator.validatePositiveNumber(txtAmount.getText(), "Monto");
         
-        // Si hay errores, mostrarlos
         if (validator.hasErrors()) {
             JOptionPane.showMessageDialog(
                 this, 
@@ -256,7 +240,6 @@ public class TransactionFormPanel extends JPanel {
             return;
         }
         
-        // Crear un mapa con los datos del formulario para usar con TransactionUtils
         Map<String, Object> transactionData = new HashMap<>();
         transactionData.put("title", txtTitle.getText());
         transactionData.put("type", comboType.getSelectedItem());
@@ -271,7 +254,6 @@ public class TransactionFormPanel extends JPanel {
         
         transactionData.put("category", txtCategory.getText());
         
-        // Obtener la fecha en formato ISO
         if (datePicker.getDate() != null) {
             transactionData.put("date", datePicker.getISODate());
         }
@@ -279,7 +261,6 @@ public class TransactionFormPanel extends JPanel {
         transactionData.put("description", txtDescription.getText());
         transactionData.put("comments", txtComments.getText());
         
-        // Procesar tags si existen
         String tagsText = txtTags.getText().trim();
         if (!tagsText.isEmpty()) {
             List<String> tagsList = Arrays.stream(tagsText.split(","))
@@ -289,15 +270,20 @@ public class TransactionFormPanel extends JPanel {
             transactionData.put("tags", tagsList);
         }
         
-        // Convertir el Map a una entidad Transaction usando TransactionUtils
         Transaction transaction = TransactionUtils.mapToTransaction(transactionData);
         
-        // Llamamos al método del transactionService para enviar la transacción al servidor
         try {
-            transactionService.createTransaction(transaction);
-            JOptionPane.showMessageDialog(this, "Transacción enviada correctamente al servidor.", 
-                    "Transacción Enviada", JOptionPane.INFORMATION_MESSAGE);
-            // Limpiar el formulario después de guardar
+            if (editingTransaction == null) {
+                // Creación de nueva transacción
+                transactionService.createTransaction(transaction);
+                JOptionPane.showMessageDialog(this, "Transacción enviada correctamente al servidor.", 
+                        "Transacción Enviada", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                // Actualización de la transacción existente
+                transactionService.updateTransactionById(editingTransaction.getId(), transaction);
+                JOptionPane.showMessageDialog(this, "Transacción actualizada correctamente.", 
+                        "Transacción Actualizada", JOptionPane.INFORMATION_MESSAGE);
+            }
             clearForm();
         } catch (ClientOperationException e) {
             JOptionPane.showMessageDialog(this, "Error al enviar la transacción: " + e.getMessage(), 
@@ -305,10 +291,7 @@ public class TransactionFormPanel extends JPanel {
         }
     }
     
-    /**
-     * Limpia todos los campos del formulario.
-     */
-    private void clearForm() {
+    public void clearForm() {
         txtTitle.setText("");
         comboType.setSelectedIndex(0);
         comboPaymentMethod.setSelectedIndex(0);
@@ -319,7 +302,34 @@ public class TransactionFormPanel extends JPanel {
         txtComments.setText("");
         txtTags.setText("");
         
-        // Limpiar los errores de validación
         validator.clearErrors();
+        editingTransaction = null;
+        titleLabel.setText("Nueva Transacción");
+        btnSubmit.setText("Crear");
     }
+    
+    /**
+     * Carga una transacción en el formulario para su edición.
+     * @param transaction La transacción a editar.
+     */
+    public void loadTransaction(Transaction transaction) {
+        this.editingTransaction = transaction;
+        titleLabel.setText("Editar Transacción");
+        btnSubmit.setText("Actualizar");
+        
+        txtTitle.setText(transaction.getTitle());
+        comboType.setSelectedItem(transaction.getType());
+        comboPaymentMethod.setSelectedItem(transaction.getPaymentMethod().name());
+        txtAmount.setText(String.valueOf(transaction.getAmount()));
+        txtCategory.setText(transaction.getCategory());
+        if (transaction.getDate() != null) {
+            datePicker.setDate(transaction.getDate());
+        } else {
+            datePicker.clear();
+        }
+        txtDescription.setText(transaction.getDescription());
+        txtComments.setText(transaction.getComments());
+        txtTags.setText(transaction.getTagsAsString());
+    }
+    
 }

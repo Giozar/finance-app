@@ -46,6 +46,55 @@ public class TransactionService {
         }
     }
 
+    public void updateTransactionById(Long transactionId, Transaction transaction) throws ClientOperationException {
+        Message message = new Message();
+        message.setType("UPDATE_TRANSACTION");
+        // Modificado: enviar el ID con la clave "id"
+        message.addData("id", transactionId);
+        message.addData("transaction", TransactionUtils.transactionToMap(transaction));
+
+        serverConnectionService.sendMessage(message);
+        try {
+            Message response = serverConnectionService.waitForMessage("UPDATE_TRANSACTION");
+            System.out.println("[CLIENT] Mensaje recibido del servidor: " + response);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new TransactionExceptions.TransactionUpdateException("Error al esperar la respuesta del servidor", e);
+        }
+    }
+
+    public void deleteTransactionById(Long transactionId) throws ClientOperationException {
+        Message message = new Message();
+        message.setType("DELETE_TRANSACTION");
+        // Modificado: enviar el ID con la clave "id"
+        message.addData("id", transactionId);
+
+        serverConnectionService.sendMessage(message);
+        try {
+            Message response = serverConnectionService.waitForMessage("DELETE_TRANSACTION");
+            System.out.println("[CLIENT] Mensaje recibido del servidor: " + response);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new TransactionExceptions.TransactionDeletionException("Error al esperar la respuesta del servidor", e);
+        }
+    }
+
+    public void getTransactionById(Long transactionId) throws ClientOperationException {
+        Message message = new Message();
+        message.setType("GET_TRANSACTION");
+        // Modificado: enviar el ID con la clave "id"
+        message.addData("id", transactionId);
+
+        serverConnectionService.sendMessage(message);
+        try {
+            Message response = serverConnectionService.waitForMessage("GET_TRANSACTION");
+            System.out.println("[CLIENT] Mensaje recibido del servidor: " + response);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new TransactionExceptions.TransactionRetrievalException("Error al esperar la respuesta del servidor", e);
+        }
+    }
+
     public List<Transaction> getAllTransactions() throws ClientOperationException {
         Message message = new Message();
         message.setType("GET_ALL_TRANSACTIONS");
@@ -62,9 +111,9 @@ public class TransactionService {
                 );
             }
 
-            System.out.println("🟨 Datos crudos recibidos: " + raw);
-            System.out.println("🟨 Tipo recibido: " + raw.getClass().getName());
-            System.out.println("[CLIENT] Mensaje recibido del servidor: " + response);
+            // System.out.println("🟨 Datos crudos recibidos: " + raw);
+            // System.out.println("🟨 Tipo recibido: " + raw.getClass().getName());
+            // System.out.println("[CLIENT] Mensaje recibido del servidor: " + response);
 
             if (raw instanceof List) {
                 List<?> transactionList = (List<?>) raw;
@@ -80,9 +129,9 @@ public class TransactionService {
                     }
                 }
 
-                for (Transaction t : transactions) {
-                    System.out.println("- " + t.getId() + " | " + t.getTitle() + " | $" + t.getAmount() + " | " + t.getDate());
-                }
+                // for (Transaction t : transactions) {
+                //     System.out.println("- " + t.getId() + " | " + t.getTitle() + " | $" + t.getAmount() + " | " + t.getDate());
+                // }
 
                 return transactions;
             } else {
