@@ -1,6 +1,6 @@
 package com.giozar04.transactions.infrastructure.handlers;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -13,24 +13,26 @@ import com.giozar04.transactions.application.utils.TransactionUtils;
 import com.giozar04.transactions.domain.entities.Transaction;
 
 /**
- * Clase que proporciona manejadores para las operaciones relacionadas con transacciones.
- * Utiliza serialización nativa de Java en lugar de bibliotecas externas.
+ * Clase que proporciona manejadores para las operaciones relacionadas con
+ * transacciones. Utiliza serialización nativa de Java en lugar de bibliotecas
+ * externas.
  */
 public class TransactionHandlers {
-    
+
     private static final CustomLogger LOGGER = new CustomLogger();
-    
+
     /**
      * Tipos de mensajes para operaciones de transacciones.
      */
     public static final class TransactionMessageTypes {
+
         public static final String CREATE_TRANSACTION = "CREATE_TRANSACTION";
         public static final String GET_TRANSACTION = "GET_TRANSACTION";
         public static final String UPDATE_TRANSACTION = "UPDATE_TRANSACTION";
         public static final String DELETE_TRANSACTION = "DELETE_TRANSACTION";
         public static final String GET_ALL_TRANSACTIONS = "GET_ALL_TRANSACTIONS";
     }
-    
+
     /**
      * Crea un manejador para la creación de transacciones.
      *
@@ -40,33 +42,33 @@ public class TransactionHandlers {
     public static MessageHandler createTransactionHandler(TransactionService transactionService) {
         return (ClientConnection clientConnection, Message message) -> {
             LOGGER.info("Procesando solicitud de creación de transacción");
-            
+
             // Extraer datos de la transacción del mensaje
             @SuppressWarnings("unchecked")
             Map<String, Object> transactionData = (Map<String, Object>) message.getData("transaction");
             if (transactionData == null) {
-                return Message.createErrorMessage(TransactionMessageTypes.CREATE_TRANSACTION, 
+                return Message.createErrorMessage(TransactionMessageTypes.CREATE_TRANSACTION,
                         "Datos de transacción no proporcionados");
             }
-            
+
             // Convertir mapa a objeto Transaction
             Transaction transaction = TransactionUtils.mapToTransaction(transactionData);
-            
+
             // Crear la transacción usando el servicio
             Transaction createdTransaction = transactionService.createTransaction(transaction);
-            
+
             // Crear mensaje de respuesta
             Message response = Message.createSuccessMessage(
-                    TransactionMessageTypes.CREATE_TRANSACTION, 
+                    TransactionMessageTypes.CREATE_TRANSACTION,
                     "Transacción creada exitosamente");
-            
+
             // Convertir la transacción creada a un mapa para incluirla en la respuesta
             response.addData("transaction", TransactionUtils.transactionToMap(createdTransaction));
-            
+
             return response;
         };
     }
-    
+
     /**
      * Crea un manejador para obtener una transacción por ID.
      *
@@ -76,29 +78,29 @@ public class TransactionHandlers {
     public static MessageHandler getTransactionHandler(TransactionService transactionService) {
         return (ClientConnection clientConnection, Message message) -> {
             LOGGER.info("Procesando solicitud de obtención de transacción");
-            
+
             // Extraer ID de la transacción del mensaje
             Long id = (Long) message.getData("id");
             if (id == null) {
-                return Message.createErrorMessage(TransactionMessageTypes.GET_TRANSACTION, 
+                return Message.createErrorMessage(TransactionMessageTypes.GET_TRANSACTION,
                         "ID de transacción no proporcionado");
             }
-            
+
             // Obtener la transacción usando el servicio
             Transaction transaction = transactionService.getTransactionById(id);
-            
+
             // Crear mensaje de respuesta
             Message response = Message.createSuccessMessage(
-                    TransactionMessageTypes.GET_TRANSACTION, 
+                    TransactionMessageTypes.GET_TRANSACTION,
                     "Transacción obtenida exitosamente");
-            
+
             // Convertir la transacción a un mapa para incluirla en la respuesta
             response.addData("transaction", TransactionUtils.transactionToMap(transaction));
-            
+
             return response;
         };
     }
-    
+
     /**
      * Crea un manejador para actualizar una transacción.
      *
@@ -108,40 +110,40 @@ public class TransactionHandlers {
     public static MessageHandler updateTransactionHandler(TransactionService transactionService) {
         return (ClientConnection clientConnection, Message message) -> {
             LOGGER.info("Procesando solicitud de actualización de transacción");
-            
+
             // Extraer ID de la transacción del mensaje
             Long id = (Long) message.getData("id");
             if (id == null) {
-                return Message.createErrorMessage(TransactionMessageTypes.UPDATE_TRANSACTION, 
+                return Message.createErrorMessage(TransactionMessageTypes.UPDATE_TRANSACTION,
                         "ID de transacción no proporcionado");
             }
-            
+
             // Extraer datos de la transacción del mensaje
             @SuppressWarnings("unchecked")
             Map<String, Object> transactionData = (Map<String, Object>) message.getData("transaction");
             if (transactionData == null) {
-                return Message.createErrorMessage(TransactionMessageTypes.UPDATE_TRANSACTION, 
+                return Message.createErrorMessage(TransactionMessageTypes.UPDATE_TRANSACTION,
                         "Datos de transacción no proporcionados");
             }
-            
+
             // Convertir mapa a objeto Transaction
             Transaction transaction = TransactionUtils.mapToTransaction(transactionData);
-            
+
             // Actualizar la transacción usando el servicio
             Transaction updatedTransaction = transactionService.updateTransactionById(id, transaction);
-            
+
             // Crear mensaje de respuesta
             Message response = Message.createSuccessMessage(
-                    TransactionMessageTypes.UPDATE_TRANSACTION, 
+                    TransactionMessageTypes.UPDATE_TRANSACTION,
                     "Transacción actualizada exitosamente");
-            
+
             // Convertir la transacción actualizada a un mapa para incluirla en la respuesta
             response.addData("transaction", TransactionUtils.transactionToMap(updatedTransaction));
-            
+
             return response;
         };
     }
-    
+
     /**
      * Crea un manejador para eliminar una transacción.
      *
@@ -151,52 +153,52 @@ public class TransactionHandlers {
     public static MessageHandler deleteTransactionHandler(TransactionService transactionService) {
         return (ClientConnection clientConnection, Message message) -> {
             LOGGER.info("Procesando solicitud de eliminación de transacción");
-            
+
             // Extraer ID de la transacción del mensaje
             Long id = (Long) message.getData("id");
             if (id == null) {
-                return Message.createErrorMessage(TransactionMessageTypes.DELETE_TRANSACTION, 
+                return Message.createErrorMessage(TransactionMessageTypes.DELETE_TRANSACTION,
                         "ID de transacción no proporcionado");
             }
-            
+
             // Eliminar la transacción usando el servicio
             transactionService.deleteTransactionById(id);
-            
+
             // Crear mensaje de respuesta
             return Message.createSuccessMessage(
-                    TransactionMessageTypes.DELETE_TRANSACTION, 
+                    TransactionMessageTypes.DELETE_TRANSACTION,
                     "Transacción eliminada exitosamente");
         };
     }
-    
+
     /**
      * Crea un manejador para obtener todas las transacciones.
      *
      * @param transactionService El servicio de transacciones a utilizar.
-     * @return Un manejador para mensajes de obtención de todas las transacciones.
+     * @return Un manejador para mensajes de obtención de todas las
+     * transacciones.
      */
-    @SuppressWarnings("unchecked")
     public static MessageHandler getAllTransactionsHandler(TransactionService transactionService) {
         return (ClientConnection clientConnection, Message message) -> {
             LOGGER.info("Procesando solicitud de obtención de todas las transacciones");
-            
+
             // Obtener todas las transacciones usando el servicio
             List<Transaction> transactions = transactionService.getAllTransactions();
-            
+
             // Crear mensaje de respuesta
             Message response = Message.createSuccessMessage(
-                    TransactionMessageTypes.GET_ALL_TRANSACTIONS, 
+                    TransactionMessageTypes.GET_ALL_TRANSACTIONS,
                     "Transacciones obtenidas exitosamente");
-            
+
             // Convertir cada transacción a un mapa y añadirlas a una lista
-            Map<String, Object>[] transactionMaps = new HashMap[transactions.size()];
-            for (int i = 0; i < transactions.size(); i++) {
-                transactionMaps[i] = TransactionUtils.transactionToMap(transactions.get(i));
+            List<Map<String, Object>> transactionList = new ArrayList<>();
+            for (Transaction t : transactions) {
+                transactionList.add(TransactionUtils.transactionToMap(t));
             }
-            
-            response.addData("transactions", transactionMaps);
+            response.addData("transactions", transactionList);
             response.addData("count", transactions.size());
-            
+
+            System.out.println("🟦 Mensaje completo: " + response);
             return response;
         };
     }
