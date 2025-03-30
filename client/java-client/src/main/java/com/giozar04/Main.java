@@ -8,7 +8,7 @@ import javax.swing.SwingUtilities;
 import com.giozar04.configs.ServerConnectionConfig;
 import com.giozar04.serverConnection.application.services.ServerConnectionService;
 import com.giozar04.shared.layouts.AppLayout;
-import com.giozar04.transactions.application.services.TransactionService;
+import com.giozar04.transactions.infrastructure.services.TransactionService;
 
 public class Main {
 
