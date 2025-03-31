@@ -1,4 +1,4 @@
-package com.giozar04.transactions.presentation.table.editors;
+package com.giozar04.shared.components.table;
 
 import java.awt.Component;
 import java.awt.event.ActionEvent;
@@ -11,15 +11,13 @@ import javax.swing.JPopupMenu;
 import javax.swing.JTable;
 import javax.swing.table.TableCellEditor;
 
-/**
- * Editor personalizado para la columna de "Opciones", que muestra un menú emergente.
- */
 public class OptionsCellEditor extends AbstractCellEditor implements TableCellEditor {
 
     private final JButton button = new JButton("···");
     private final JPopupMenu popupMenu;
     private int currentRow;
     private final PopupMenuActionHandler actionHandler;
+
 
     public OptionsCellEditor(PopupMenuActionHandler actionHandler) {
         this.actionHandler = actionHandler;
@@ -29,15 +27,15 @@ public class OptionsCellEditor extends AbstractCellEditor implements TableCellEd
         JMenuItem detailsItem = new JMenuItem("Ver Detalles");
 
         editItem.addActionListener((ActionEvent e) -> {
-            actionHandler.onEditTransaction(currentRow);
+            getActionHandler().onEdit(currentRow);
             fireEditingStopped();
         });
         deleteItem.addActionListener((ActionEvent e) -> {
-            actionHandler.onDeleteTransaction(currentRow);
+            getActionHandler().onDelete(currentRow);
             fireEditingStopped();
         });
         detailsItem.addActionListener((ActionEvent e) -> {
-            actionHandler.onViewDetails(currentRow);
+            getActionHandler().onViewDetails(currentRow);
             fireEditingStopped();
         });
 
@@ -49,6 +47,10 @@ public class OptionsCellEditor extends AbstractCellEditor implements TableCellEd
             // Mostrar el menú emergente centrado en el botón
             popupMenu.show(button, button.getWidth() / 2, button.getHeight() / 2);
         });
+    }
+
+    public PopupMenuActionHandler getActionHandler() {
+        return actionHandler;
     }
 
     @Override

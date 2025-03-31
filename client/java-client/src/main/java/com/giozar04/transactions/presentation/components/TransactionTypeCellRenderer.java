@@ -1,4 +1,4 @@
-package com.giozar04.transactions.presentation.table.renders;
+package com.giozar04.transactions.presentation.components;
 
 import java.awt.Color;
 import java.awt.Component;
