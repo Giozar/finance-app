@@ -1,4 +1,4 @@
-package com.giozar04.transactions.application.exceptions;
+package com.giozar04.transactions.domain.exceptions;
 
 public class TransactionExceptions {
 

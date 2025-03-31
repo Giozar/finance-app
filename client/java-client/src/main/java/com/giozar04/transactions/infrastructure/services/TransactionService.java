@@ -7,9 +7,9 @@ import java.util.Map;
 import com.giozar04.messages.domain.models.Message;
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
 import com.giozar04.serverConnection.application.services.ServerConnectionService;
-import com.giozar04.transactions.application.exceptions.TransactionExceptions;
 import com.giozar04.transactions.application.utils.TransactionUtils;
 import com.giozar04.transactions.domain.entities.Transaction;
+import com.giozar04.transactions.domain.exceptions.TransactionExceptions;
 
 public class TransactionService {
 
