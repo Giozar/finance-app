@@ -35,17 +35,32 @@ import com.giozar04.transactions.presentation.components.TransactionTypeCellRend
 
 public class TransactionsView extends JPanel implements PopupMenuActionHandler {
 
-    private final JTextField searchField;
-    private final JComboBox<String> filterCombo;
+    private JTextField searchField;
+    private JComboBox<String> filterCombo;
     private GenericTablePanel<Transaction> tablePanel;
-    private TransactionService transactionService;
+    private final TransactionService transactionService;
 
     public TransactionsView() {
         transactionService = TransactionService.getInstance();
         setLayout(new BorderLayout());
         setBorder(new EmptyBorder(10, 10, 10, 10));
 
-        // Encabezado y botón para nueva transacción
+        // Inicializa la parte superior (encabezado y búsqueda)
+        JPanel topPanel = createTopPanel();
+        add(topPanel, BorderLayout.NORTH);
+
+        // Inicializa la tabla de transacciones
+        initTablePanel();
+    }
+
+    // ----------------------------
+    // Construcción de componentes
+    // ----------------------------
+    /**
+     * Crea el panel superior que contiene el encabezado y la barra de búsqueda.
+     */
+    private JPanel createTopPanel() {
+        // Panel de encabezado con título y botón para nueva transacción
         JPanel headerPanel = new JPanel(new BorderLayout());
         JLabel headerLabel = new JLabel("Gestión de Transacciones");
         headerLabel.setFont(new Font("SansSerif", Font.BOLD, 24));
@@ -55,7 +70,7 @@ public class TransactionsView extends JPanel implements PopupMenuActionHandler {
         newTransactionButton.addActionListener(this::handleNewTransaction);
         headerPanel.add(newTransactionButton, BorderLayout.EAST);
 
-        // Barra de búsqueda y filtro
+        // Panel de búsqueda y filtro
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
         searchPanel.add(new JLabel("Buscar:"));
         searchField = new JTextField(20);
@@ -67,13 +82,20 @@ public class TransactionsView extends JPanel implements PopupMenuActionHandler {
         JButton searchButton = new JButton("Buscar");
         searchButton.addActionListener(e -> performSearch());
         searchPanel.add(searchButton);
-        // Panel superior que agrupa encabezado y búsqueda
+
+        // Agrupa encabezado y búsqueda en un panel superior
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.add(headerPanel, BorderLayout.NORTH);
         topPanel.add(searchPanel, BorderLayout.SOUTH);
-        add(topPanel, BorderLayout.NORTH);
 
-        // Definición de columnas para la tabla de transacciones
+        return topPanel;
+    }
+
+    /**
+     * Inicializa y configura la tabla de transacciones.
+     */
+    private void initTablePanel() {
+        // Definición de columnas para la tabla
         List<ColumnDefinition<Transaction>> columns = Arrays.asList(
                 new ColumnDefinition<>("Título", Transaction::getTitle),
                 new ColumnDefinition<>("Tipo", Transaction::getType),
@@ -87,35 +109,46 @@ public class TransactionsView extends JPanel implements PopupMenuActionHandler {
                 new ColumnDefinition<>("Opciones", t -> "···")
         );
 
-        // Asignar renderizadores y editores específicos
+        // Asignar renderizadores y editores a columnas específicas
         columns.get(1).setRenderer(new TransactionTypeCellRenderer());
         columns.get(3).setRenderer(new PaymentMethodCellRenderer());
         columns.get(6).setRenderer(new OptionsCellRenderer());
         columns.get(6).setEditor(new OptionsCellEditor(this));
+
         // Alinear la columna "Monto" a la derecha
         DefaultTableCellRenderer rightRenderer = new DefaultTableCellRenderer();
         rightRenderer.setHorizontalAlignment(SwingConstants.RIGHT);
         columns.get(4).setRenderer(rightRenderer);
 
-        // Crear el componente de tabla genérico con los datos de transacciones
+        // Crear el panel de la tabla con los datos iniciales
         try {
             List<Transaction> transactions = transactionService.getAllTransactions();
             tablePanel = new GenericTablePanel<>(columns, transactions);
             add(tablePanel, BorderLayout.CENTER);
         } catch (ClientOperationException e) {
-            JOptionPane.showMessageDialog(this, "Error al cargar las transacciones", "Error", JOptionPane.ERROR_MESSAGE);
+            showError("Error al cargar las transacciones");
         }
     }
 
+    // ------------------------
+    // Funcionalidades lógicas
+    // ------------------------
+    /**
+     * Carga o recarga las transacciones en la tabla.
+     */
     private void loadTransactions() {
         try {
             List<Transaction> transactions = transactionService.getAllTransactions();
             tablePanel.setData(transactions);
         } catch (ClientOperationException e) {
-            JOptionPane.showMessageDialog(this, "Error al cargar las transacciones", "Error", JOptionPane.ERROR_MESSAGE);
+            showError("Error al cargar las transacciones");
         }
     }
 
+    /**
+     * Realiza la búsqueda de transacciones en función del texto y filtro
+     * seleccionado.
+     */
     private void performSearch() {
         String query = searchField.getText().trim().toLowerCase();
         String typeFilter = (String) filterCombo.getSelectedItem();
@@ -125,40 +158,71 @@ public class TransactionsView extends JPanel implements PopupMenuActionHandler {
                 boolean matchesQuery = t.getTitle().toLowerCase().contains(query)
                         || t.getCategory().toLowerCase().contains(query)
                         || t.getPaymentMethod().toString().toLowerCase().contains(query);
-                boolean matchesType = typeFilter.equals("Todos los tipos") || t.getType().equalsIgnoreCase(typeFilter);
+                boolean matchesType = "Todos los tipos".equals(typeFilter)
+                        || t.getType().equalsIgnoreCase(typeFilter);
                 return matchesQuery && matchesType;
             }).toList();
             tablePanel.setData(filtered);
         } catch (ClientOperationException e) {
-            JOptionPane.showMessageDialog(this, "Error al buscar las transacciones: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            showError("Error al buscar las transacciones: " + e.getMessage());
         }
+
     }
 
     /**
-     * Maneja la acción de crear una nueva transacción.
+     * Maneja la acción para crear una nueva transacción.
      */
     private void handleNewTransaction(ActionEvent e) {
-        Container parent = getParent();
-        while (parent != null && !(parent instanceof MainContentPanel)) {
-            parent = parent.getParent();
+        // Deshabilitar el botón que disparó la acción para evitar múltiples clics
+        Object source = e.getSource();
+        if (source instanceof JButton button) {
+            button.setEnabled(false);
+            // Aquí podrías programar más lógica si es necesario
         }
-        if (parent instanceof MainContentPanel mainContentPanel) {
-            // Utiliza CreateTransactionView para crear una nueva transacción
+        MainContentPanel mainContentPanel = getMainContentPanel();
+        if (mainContentPanel != null) {
+            // Se asume que CreateTransactionView es la vista para crear transacciones
             mainContentPanel.setView(new CreateTransactionView());
         }
     }
 
-    // Implementación de PopupMenuActionHandler
+    /**
+     * Muestra un mensaje de error en un cuadro de diálogo.
+     *
+     * @param message El mensaje de error a mostrar. Si es nulo o vacío, se
+     * muestra un mensaje por defecto.
+     */
+    private void showError(String message) {
+        if (message == null || message.trim().isEmpty()) {
+            message = "Ha ocurrido un error inesperado.";
+        }
+        // Imprime el error en la consola para fines de depuración.
+        System.err.println("Error: " + message);
+        // Muestra el mensaje de error en un diálogo.
+        JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
+    }
 
-    @Override
-    public void onEdit(int rowIndex) {
-        Transaction transaction = tablePanel.getItemAt(rowIndex);
+    /**
+     * Busca y retorna el panel principal de contenido.
+     *
+     * @return MainContentPanel si se encuentra; de lo contrario, null.
+     */
+    private MainContentPanel getMainContentPanel() {
         Container parent = getParent();
         while (parent != null && !(parent instanceof MainContentPanel)) {
             parent = parent.getParent();
         }
-        if (parent instanceof MainContentPanel mainContentPanel) {
-            // Utiliza TransactionFormPanel para la edición
+        return (parent instanceof MainContentPanel) ? (MainContentPanel) parent : null;
+    }
+
+    // -------------------------------
+    // Implementación de Popup Handler
+    // --------------------------------
+    @Override
+    public void onEdit(int rowIndex) {
+        Transaction transaction = tablePanel.getItemAt(rowIndex);
+        MainContentPanel mainContentPanel = getMainContentPanel();
+        if (mainContentPanel != null) {
             TransactionFormPanel editView = new TransactionFormPanel();
             editView.loadTransaction(transaction);
             mainContentPanel.setView(editView);
@@ -193,4 +257,3 @@ public class TransactionsView extends JPanel implements PopupMenuActionHandler {
         loadTransactions();
     }
 }
-
