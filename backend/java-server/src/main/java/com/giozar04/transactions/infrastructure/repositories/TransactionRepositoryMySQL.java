@@ -12,9 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
-import com.giozar04.transactions.domain.classes.TransactionExceptions;
 import com.giozar04.transactions.domain.entities.Transaction;
 import com.giozar04.transactions.domain.enums.PaymentMethod;
+import com.giozar04.transactions.domain.exceptions.TransactionExceptions;
 import com.giozar04.transactions.domain.models.TransactionRepositoryAbstract;
 
 /**
