@@ -1,16 +1,23 @@
 package com.giozar04.bootstrap;
 
 import java.io.IOException;
+import java.util.List;
 
 import com.giozar04.configs.DatabaseConfig;
 import com.giozar04.configs.ServerConfig;
 import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
 import com.giozar04.servers.application.services.ServerService;
 import com.giozar04.servers.domain.exceptions.ServerOperationException;
+import com.giozar04.servers.domain.interfaces.ServerRegisterHandlers;
 import com.giozar04.shared.logging.CustomLogger;
 import com.giozar04.transactions.application.services.TransactionService;
 import com.giozar04.transactions.domain.interfaces.TransactionRepositoryInterface;
+import com.giozar04.transactions.infrastructure.handlers.TransactionHandlers;
 import com.giozar04.transactions.infrastructure.repositories.TransactionRepositoryMySQL;
+import com.giozar04.users.application.services.UserService;
+import com.giozar04.users.domain.interfaces.UserRepositoryInterface;
+import com.giozar04.users.infrastructure.handlers.UserHandlers;
+import com.giozar04.users.infrastructure.repositories.UserRepositoryMySQL;
 
 public class ApplicationInitializer {
     private final CustomLogger logger = new CustomLogger();
@@ -24,16 +31,31 @@ public class ApplicationInitializer {
         DatabaseInitializer dbInitializer = new DatabaseInitializer(databaseConfig, logger);
         DatabaseConnectionInterface dbConnection = dbInitializer.initialize();
 
+        // Inicializar repositorios y servicios de usuarios
+        UserRepositoryInterface userRepository =
+                new UserRepositoryMySQL(dbConnection);
+        UserService userService = new UserService(userRepository);
+
+
         // Inicializar repositorios y servicios de transacciones
         TransactionRepositoryInterface transactionRepository =
                 new TransactionRepositoryMySQL(dbConnection);
         TransactionService transactionService =
                 new TransactionService(transactionRepository);
+
+        
+        // Se registran todos los servicios
+        List<ServerRegisterHandlers> featureServices = List.of(
+                new UserHandlers(userService),
+                new TransactionHandlers(transactionService)
+        );
+
         logger.info("Servicios inicializados correctamente.");
 
         ServerInitializer serverInitializer = new ServerInitializer(serverConfig, logger);
         try {
-            ServerService server = serverInitializer.initialize(transactionService);
+
+            ServerService server = serverInitializer.initialize(featureServices);
             server.startServer();
             logger.info("Servidor iniciado correctamente en " + serverConfig.getHost() + ":" + serverConfig.getPort());
             
