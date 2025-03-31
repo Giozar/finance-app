@@ -27,10 +27,10 @@ import javax.swing.border.TitledBorder;
 
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
 import com.giozar04.shared.components.DatePickerComponent;
-import com.giozar04.transactions.application.services.TransactionService;
 import com.giozar04.transactions.application.utils.TransactionUtils;
 import com.giozar04.transactions.domain.entities.Transaction;
 import com.giozar04.transactions.domain.enums.PaymentMethod;
+import com.giozar04.transactions.infrastructure.services.TransactionService;
 import com.giozar04.transactions.presentation.validators.TransactionValidator;
 
 /**
