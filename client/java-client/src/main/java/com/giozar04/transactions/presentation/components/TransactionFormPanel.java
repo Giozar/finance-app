@@ -21,12 +21,12 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
 import com.giozar04.shared.components.DatePickerComponent;
+import com.giozar04.shared.components.forms.FormField;
 import com.giozar04.transactions.application.utils.TransactionUtils;
 import com.giozar04.transactions.domain.entities.Transaction;
 import com.giozar04.transactions.domain.enums.PaymentMethod;
@@ -41,24 +41,24 @@ public class TransactionFormPanel extends JPanel {
 
     // Componentes del formulario
     private final JLabel titleLabel;
-    private JTextField txtTitle;
+    private FormField titleField;
     private JComboBox<String> comboType;
     private JComboBox<String> comboPaymentMethod;
-    private JTextField txtAmount;
-    private JTextField txtCategory;
+    private FormField amountField;
+    private FormField categoryField;
     private DatePickerComponent datePicker;
     private JTextArea txtDescription;
     private JTextArea txtComments;
-    private JTextField txtTags;
+    private FormField tagsField;
     private JButton btnSubmit;
     private JButton btnClear;
-    
+
     // Validador para el formulario
     private final TransactionValidator validator = new TransactionValidator();
-    
+
     // Servicio de transacciones
     private final TransactionService transactionService = TransactionService.getInstance();
-    
+
     // Variable para almacenar la transacción en modo edición (null = creación)
     private Transaction editingTransaction = null;
 
@@ -89,179 +89,128 @@ public class TransactionFormPanel extends JPanel {
                         TitledBorder.TOP,
                         new Font("Arial", Font.BOLD, 12)),
                 BorderFactory.createEmptyBorder(10, 10, 10, 10)));
-        
+
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = new Insets(5, 5, 5, 5);
         gbc.anchor = GridBagConstraints.WEST;
-        
+
         // Fila 0: Título
         gbc.gridx = 0;
         gbc.gridy = 0;
-        gbc.weightx = 0.2;
-        panel.add(new JLabel("Título: *"), gbc);
-        
-        gbc.gridx = 1;
-        gbc.weightx = 0.8;
-        txtTitle = new JTextField(20);
-        panel.add(txtTitle, gbc);
-        
-        // Fila 1: Tipo (INCOME o EXPENSE)
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        gbc.weightx = 0.2;
-        panel.add(new JLabel("Tipo: *"), gbc);
-        
-        gbc.gridx = 1;
-        gbc.weightx = 0.8;
+        gbc.gridwidth = 2;
+        titleField = new FormField("Título: *");
+        panel.add(titleField, gbc);
+
+        // Fila 1: Tipo
+        gbc.gridy++;
         comboType = new JComboBox<>(new String[] { "INCOME", "EXPENSE" });
-        panel.add(comboType, gbc);
-        
+        panel.add(labeledComponent("Tipo: *", comboType), gbc);
+
         // Fila 2: Método de Pago
-        gbc.gridx = 0;
-        gbc.gridy = 2;
-        gbc.weightx = 0.2;
-        panel.add(new JLabel("Método de Pago: *"), gbc);
-        
-        gbc.gridx = 1;
-        gbc.weightx = 0.8;
+        gbc.gridy++;
         comboPaymentMethod = new JComboBox<>(
                 Arrays.stream(PaymentMethod.values())
-                      .map(Enum::name)
-                      .toArray(String[]::new)
-        );
-        panel.add(comboPaymentMethod, gbc);
-        
+                        .map(Enum::name)
+                        .toArray(String[]::new));
+        panel.add(labeledComponent("Método de Pago: *", comboPaymentMethod), gbc);
+
         // Fila 3: Monto
-        gbc.gridx = 0;
-        gbc.gridy = 3;
-        gbc.weightx = 0.2;
-        panel.add(new JLabel("Monto: *"), gbc);
-        
-        gbc.gridx = 1;
-        gbc.weightx = 0.8;
-        txtAmount = new JTextField(20);
-        panel.add(txtAmount, gbc);
-        
+        gbc.gridy++;
+        amountField = new FormField("Monto: *");
+        panel.add(amountField, gbc);
+
         // Fila 4: Categoría
-        gbc.gridx = 0;
-        gbc.gridy = 4;
-        gbc.weightx = 0.2;
-        panel.add(new JLabel("Categoría:"), gbc);
-        
-        gbc.gridx = 1;
-        gbc.weightx = 0.8;
-        txtCategory = new JTextField(20);
-        panel.add(txtCategory, gbc);
-        
+        gbc.gridy++;
+        categoryField = new FormField("Categoría:");
+        panel.add(categoryField, gbc);
+
         // Fila 5: Fecha
-        gbc.gridx = 0;
-        gbc.gridy = 5;
-        gbc.weightx = 0.2;
-        panel.add(new JLabel("Fecha:"), gbc);
-        
-        gbc.gridx = 1;
-        gbc.weightx = 0.8;
+        gbc.gridy++;
         datePicker = new DatePickerComponent();
-        panel.add(datePicker, gbc);
-        
+        panel.add(labeledComponent("Fecha:", datePicker), gbc);
+
         // Fila 6: Descripción
-        gbc.gridx = 0;
-        gbc.gridy = 6;
-        gbc.weightx = 0.2;
-        gbc.anchor = GridBagConstraints.NORTHWEST;
-        panel.add(new JLabel("Descripción:"), gbc);
-        
-        gbc.gridx = 1;
-        gbc.weightx = 0.8;
+        gbc.gridy++;
         txtDescription = new JTextArea(4, 20);
-        JScrollPane scrollDesc = new JScrollPane(txtDescription);
-        panel.add(scrollDesc, gbc);
-        
+        panel.add(labeledComponent("Descripción:", new JScrollPane(txtDescription)), gbc);
+
         // Fila 7: Comentarios
-        gbc.gridx = 0;
-        gbc.gridy = 7;
-        gbc.weightx = 0.2;
-        panel.add(new JLabel("Comentarios:"), gbc);
-        
-        gbc.gridx = 1;
-        gbc.weightx = 0.8;
+        gbc.gridy++;
         txtComments = new JTextArea(4, 20);
-        JScrollPane scrollComments = new JScrollPane(txtComments);
-        panel.add(scrollComments, gbc);
-        
+        panel.add(labeledComponent("Comentarios:", new JScrollPane(txtComments)), gbc);
+
         // Fila 8: Tags
-        gbc.gridx = 0;
-        gbc.gridy = 8;
-        gbc.weightx = 0.2;
-        gbc.anchor = GridBagConstraints.WEST;
-        panel.add(new JLabel("Tags (separados por comas):"), gbc);
-        
-        gbc.gridx = 1;
-        gbc.weightx = 0.8;
-        txtTags = new JTextField(20);
-        panel.add(txtTags, gbc);
-        
+        gbc.gridy++;
+        tagsField = new FormField("Tags (separados por comas):");
+        panel.add(tagsField, gbc);
+
         return panel;
     }
-    
+
+    private JPanel labeledComponent(String label, java.awt.Component component) {
+        JPanel wrapper = new JPanel(new BorderLayout(5, 5));
+        wrapper.add(new JLabel(label), BorderLayout.WEST);
+        wrapper.add(component, BorderLayout.CENTER);
+        return wrapper;
+    }
+
     private JPanel createFormButtonsPanel() {
         JPanel panel = new JPanel();
         panel.setBorder(new EmptyBorder(10, 0, 0, 0));
-        
+
         btnSubmit = new JButton("Crear");
         btnSubmit.setFont(new Font("Arial", Font.BOLD, 12));
-        
+
         btnClear = new JButton("Limpiar");
-        
+
         btnSubmit.addActionListener((ActionEvent e) -> saveTransaction());
         btnClear.addActionListener((ActionEvent e) -> clearForm());
-        
+
         panel.add(btnSubmit);
         panel.add(btnClear);
-        
+
         return panel;
     }
-    
+
     private void saveTransaction() {
         validator.clearErrors();
-        validator.validateRequired(txtTitle.getText(), "Título");
-        validator.validateRequired(txtAmount.getText(), "Monto");
-        validator.validateNumeric(txtAmount.getText(), "Monto");
-        validator.validatePositiveNumber(txtAmount.getText(), "Monto");
-        
+        validator.validateRequired(titleField.getValue(), "Título");
+        validator.validateRequired(amountField.getValue(), "Monto");
+        validator.validateNumeric(amountField.getValue(), "Monto");
+        validator.validatePositiveNumber(amountField.getValue(), "Monto");
+
         if (validator.hasErrors()) {
             JOptionPane.showMessageDialog(
-                this, 
-                validator.getErrorMessage(),
-                "Error de validación", 
-                JOptionPane.ERROR_MESSAGE
-            );
+                    this,
+                    validator.getErrorMessage(),
+                    "Error de validación",
+                    JOptionPane.ERROR_MESSAGE);
             return;
         }
-        
+
         Map<String, Object> transactionData = new HashMap<>();
-        transactionData.put("title", txtTitle.getText());
+        transactionData.put("title", titleField.getValue());
         transactionData.put("type", comboType.getSelectedItem());
         transactionData.put("paymentMethod", comboPaymentMethod.getSelectedItem());
-        
+
         try {
-            double amount = Double.parseDouble(txtAmount.getText());
+            double amount = Double.parseDouble(amountField.getValue());
             transactionData.put("amount", amount);
         } catch (NumberFormatException e) {
             transactionData.put("amount", 0.0);
         }
-        
-        transactionData.put("category", txtCategory.getText());
-        
+
+        transactionData.put("category", categoryField.getValue());
+
         if (datePicker.getDate() != null) {
             transactionData.put("date", datePicker.getISODate());
         }
-        
+
         transactionData.put("description", txtDescription.getText());
         transactionData.put("comments", txtComments.getText());
-        
-        String tagsText = txtTags.getText().trim();
+
+        String tagsText = tagsField.getValue().trim();
         if (!tagsText.isEmpty()) {
             List<String> tagsList = Arrays.stream(tagsText.split(","))
                     .map(String::trim)
@@ -269,45 +218,45 @@ public class TransactionFormPanel extends JPanel {
                     .collect(Collectors.toList());
             transactionData.put("tags", tagsList);
         }
-        
+
         Transaction transaction = TransactionUtils.mapToTransaction(transactionData);
-        
+
         try {
             if (editingTransaction == null) {
                 // Creación de nueva transacción
                 transactionService.createTransaction(transaction);
-                JOptionPane.showMessageDialog(this, "Transacción enviada correctamente al servidor.", 
+                JOptionPane.showMessageDialog(this, "Transacción enviada correctamente al servidor.",
                         "Transacción Enviada", JOptionPane.INFORMATION_MESSAGE);
             } else {
                 // Actualización de la transacción existente
                 transactionService.updateTransactionById(editingTransaction.getId(), transaction);
-                JOptionPane.showMessageDialog(this, "Transacción actualizada correctamente.", 
+                JOptionPane.showMessageDialog(this, "Transacción actualizada correctamente.",
                         "Transacción Actualizada", JOptionPane.INFORMATION_MESSAGE);
             }
             clearForm();
         } catch (ClientOperationException e) {
-            JOptionPane.showMessageDialog(this, "Error al enviar la transacción: " + e.getMessage(), 
+            JOptionPane.showMessageDialog(this, "Error al enviar la transacción: " + e.getMessage(),
                     "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
-    
+
     public void clearForm() {
-        txtTitle.setText("");
+        titleField.clear();
         comboType.setSelectedIndex(0);
         comboPaymentMethod.setSelectedIndex(0);
-        txtAmount.setText("");
-        txtCategory.setText("");
+        amountField.clear();
+        categoryField.clear();
         datePicker.clear();
         txtDescription.setText("");
         txtComments.setText("");
-        txtTags.setText("");
-        
+        tagsField.clear();
+
         validator.clearErrors();
         editingTransaction = null;
         titleLabel.setText("Nueva Transacción");
         btnSubmit.setText("Crear");
     }
-    
+
     /**
      * Carga una transacción en el formulario para su edición.
      * @param transaction La transacción a editar.
@@ -316,12 +265,12 @@ public class TransactionFormPanel extends JPanel {
         this.editingTransaction = transaction;
         titleLabel.setText("Editar Transacción");
         btnSubmit.setText("Actualizar");
-        
-        txtTitle.setText(transaction.getTitle());
+
+        titleField.setValue(transaction.getTitle());
         comboType.setSelectedItem(transaction.getType());
         comboPaymentMethod.setSelectedItem(transaction.getPaymentMethod().name());
-        txtAmount.setText(String.valueOf(transaction.getAmount()));
-        txtCategory.setText(transaction.getCategory());
+        amountField.setValue(String.valueOf(transaction.getAmount()));
+        categoryField.setValue(transaction.getCategory());
         if (transaction.getDate() != null) {
             datePicker.setDate(transaction.getDate());
         } else {
@@ -329,7 +278,6 @@ public class TransactionFormPanel extends JPanel {
         }
         txtDescription.setText(transaction.getDescription());
         txtComments.setText(transaction.getComments());
-        txtTags.setText(transaction.getTagsAsString());
+        tagsField.setValue(transaction.getTagsAsString());
     }
-    
-}
+} 

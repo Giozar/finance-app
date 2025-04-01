@@ -14,6 +14,12 @@ public class UserExceptions {
         }
     }
 
+    public static class UserParsingException extends RuntimeException {
+        public UserParsingException(String message, Throwable cause) {
+            super(message, cause);
+        }
+    }
+
     public static class UserUpdateException extends RuntimeException {
         public UserUpdateException(String message, Throwable cause) {
             super(message, cause);
