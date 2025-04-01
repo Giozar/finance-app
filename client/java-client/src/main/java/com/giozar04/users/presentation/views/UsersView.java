@@ -26,6 +26,7 @@ import com.giozar04.shared.components.table.GenericTablePanel;
 import com.giozar04.shared.components.table.OptionsCellEditor;
 import com.giozar04.shared.components.table.OptionsCellRenderer;
 import com.giozar04.shared.components.table.PopupMenuActionHandler;
+import com.giozar04.shared.utils.ErrorDialogUtil;
 import com.giozar04.users.domain.entities.User;
 import com.giozar04.users.infrastructure.services.UserService;
 import com.giozar04.users.presentation.components.UserFormPanel;
@@ -97,7 +98,7 @@ public class UsersView extends JPanel implements PopupMenuActionHandler {
             tablePanel = new GenericTablePanel<>(columns, users);
             add(tablePanel, BorderLayout.CENTER);
         } catch (ClientOperationException e) {
-            showError("Error al cargar los usuarios.");
+            ErrorDialogUtil.showError(this, "Error al cargar los usuarios.");
         }
     }
 
@@ -106,7 +107,7 @@ public class UsersView extends JPanel implements PopupMenuActionHandler {
             List<User> users = userService.getAllUsers();
             tablePanel.setData(users);
         } catch (ClientOperationException e) {
-            showError("Error al recargar los usuarios.");
+            ErrorDialogUtil.showError(this, "Error al recargar los usuarios.");
         }
     }
 
@@ -120,7 +121,7 @@ public class UsersView extends JPanel implements PopupMenuActionHandler {
                     .collect(Collectors.toList());
             tablePanel.setData(filtered);
         } catch (ClientOperationException e) {
-            showError("Error al buscar: " + e.getMessage());
+            ErrorDialogUtil.showError(this, "Error al buscar: " + e.getMessage());
         }
     }
 
@@ -139,11 +140,6 @@ public class UsersView extends JPanel implements PopupMenuActionHandler {
             parent = parent.getParent();
         }
         return (MainContentPanel) parent;
-    }
-
-    private void showError(String msg) {
-        System.err.println("Error: " + msg);
-        JOptionPane.showMessageDialog(this, msg, "Error", JOptionPane.ERROR_MESSAGE);
     }
 
     // CRUD desde menú contextual
@@ -168,7 +164,7 @@ public class UsersView extends JPanel implements PopupMenuActionHandler {
                 JOptionPane.showMessageDialog(this, "Usuario eliminado.");
                 loadUsers();
             } catch (ClientOperationException | HeadlessException ex) {
-                showError("No se pudo eliminar: " + ex.getMessage());
+                ErrorDialogUtil.showError(this, "No se pudo eliminar: " + ex.getMessage());
             }
         }
     }

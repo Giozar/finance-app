@@ -17,8 +17,8 @@ import com.giozar04.users.domain.exceptions.UserExceptions;
 import com.giozar04.users.domain.models.UserRepositoryAbstract;
 
 /**
- * Implementación MySQL del repositorio de usuarios.
- * Maneja operaciones CRUD para entidades User en una base de datos MySQL.
+ * Implementación MySQL del repositorio de usuarios. Maneja operaciones CRUD
+ * para entidades User en una base de datos MySQL.
  */
 public class UserRepositoryMySQL extends UserRepositoryAbstract {
 
@@ -36,8 +36,15 @@ public class UserRepositoryMySQL extends UserRepositoryAbstract {
     public User createUser(User user) {
         validateUser(user);
 
-        try (Connection conn = databaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
+        // Asignar fechas si vienen nulas
+        if (user.getCreatedAt() == null) {
+            user.setCreatedAt(ZonedDateTime.now());
+        }
+        if (user.getUpdatedAt() == null) {
+            user.setUpdatedAt(ZonedDateTime.now());
+        }
+
+        try (Connection conn = databaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
 
             stmt.setString(1, user.getName());
             stmt.setString(2, user.getEmail());
@@ -71,8 +78,7 @@ public class UserRepositoryMySQL extends UserRepositoryAbstract {
     public User getUserById(long id) {
         validateId(id);
 
-        try (Connection conn = databaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(SQL_SELECT_BY_ID)) {
+        try (Connection conn = databaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(SQL_SELECT_BY_ID)) {
 
             stmt.setLong(1, id);
             try (ResultSet rs = stmt.executeQuery()) {
@@ -93,8 +99,7 @@ public class UserRepositoryMySQL extends UserRepositoryAbstract {
         validateId(id);
         validateUser(user);
 
-        try (Connection conn = databaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(SQL_UPDATE)) {
+        try (Connection conn = databaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(SQL_UPDATE)) {
 
             stmt.setString(1, user.getName());
             stmt.setString(2, user.getEmail());
@@ -122,8 +127,7 @@ public class UserRepositoryMySQL extends UserRepositoryAbstract {
     public void deleteUserById(long id) {
         validateId(id);
 
-        try (Connection conn = databaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(SQL_DELETE)) {
+        try (Connection conn = databaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(SQL_DELETE)) {
 
             stmt.setLong(1, id);
 
@@ -145,9 +149,7 @@ public class UserRepositoryMySQL extends UserRepositoryAbstract {
     public List<User> getAllUsers() {
         List<User> users = new ArrayList<>();
 
-        try (Connection conn = databaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(SQL_SELECT_ALL);
-             ResultSet rs = stmt.executeQuery()) {
+        try (Connection conn = databaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(SQL_SELECT_ALL); ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
                 users.add(mapResultSetToUser(rs));

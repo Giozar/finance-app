@@ -27,6 +27,7 @@ import com.giozar04.shared.components.table.GenericTablePanel;
 import com.giozar04.shared.components.table.OptionsCellEditor;
 import com.giozar04.shared.components.table.OptionsCellRenderer;
 import com.giozar04.shared.components.table.PopupMenuActionHandler;
+import com.giozar04.shared.utils.ErrorDialogUtil;
 import com.giozar04.transactions.domain.entities.Transaction;
 import com.giozar04.transactions.infrastructure.services.TransactionService;
 import com.giozar04.transactions.presentation.components.PaymentMethodCellRenderer;
@@ -126,7 +127,7 @@ public class TransactionsView extends JPanel implements PopupMenuActionHandler {
             tablePanel = new GenericTablePanel<>(columns, transactions);
             add(tablePanel, BorderLayout.CENTER);
         } catch (ClientOperationException e) {
-            showError("Error al cargar las transacciones");
+            ErrorDialogUtil.showError(this, "Error al cargar las transacciones");
         }
     }
 
@@ -141,7 +142,7 @@ public class TransactionsView extends JPanel implements PopupMenuActionHandler {
             List<Transaction> transactions = transactionService.getAllTransactions();
             tablePanel.setData(transactions);
         } catch (ClientOperationException e) {
-            showError("Error al cargar las transacciones");
+            ErrorDialogUtil.showError(this, "Error al cargar las transacciones");
         }
     }
 
@@ -164,7 +165,7 @@ public class TransactionsView extends JPanel implements PopupMenuActionHandler {
             }).toList();
             tablePanel.setData(filtered);
         } catch (ClientOperationException e) {
-            showError("Error al buscar las transacciones: " + e.getMessage());
+            ErrorDialogUtil.showError(this, "Error al buscar las transacciones: " + e.getMessage());
         }
 
     }
@@ -184,22 +185,6 @@ public class TransactionsView extends JPanel implements PopupMenuActionHandler {
             // Se asume que CreateTransactionView es la vista para crear transacciones
             mainContentPanel.setView(new CreateTransactionView());
         }
-    }
-
-    /**
-     * Muestra un mensaje de error en un cuadro de diálogo.
-     *
-     * @param message El mensaje de error a mostrar. Si es nulo o vacío, se
-     * muestra un mensaje por defecto.
-     */
-    private void showError(String message) {
-        if (message == null || message.trim().isEmpty()) {
-            message = "Ha ocurrido un error inesperado.";
-        }
-        // Imprime el error en la consola para fines de depuración.
-        System.err.println("Error: " + message);
-        // Muestra el mensaje de error en un diálogo.
-        JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
     }
 
     /**
