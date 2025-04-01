@@ -11,6 +11,7 @@ import com.giozar04.shared.components.HeaderPanel;
 import com.giozar04.shared.components.MainContentPanel;
 import com.giozar04.shared.components.SidebarPanel;
 import com.giozar04.transactions.presentation.views.TransactionsView;
+import com.giozar04.users.presentation.views.UsersView;
 
 public class AppLayout extends JPanel {
 
@@ -37,6 +38,7 @@ public class AppLayout extends JPanel {
         switch (menu) {
             case "Inicio" -> setContent(new MainDashboardView());
             case "Transacciones" -> setContent(new TransactionsView());
+            case "Usuarios" -> setContent(new UsersView());
             default -> setContent(new JLabel("Vista no encontrada"));
         }
     }

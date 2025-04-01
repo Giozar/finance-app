@@ -30,7 +30,7 @@ public class SidebarPanel extends JPanel {
         add(lblTitle);
         add(Box.createVerticalStrut(20));
 
-        String[] menuItems = {"Inicio", "Transacciones", "Clientes", "Cuentas"};
+        String[] menuItems = {"Inicio", "Usuarios", "Transacciones", "Clientes", "Cuentas"};
         for (String item : menuItems) {
             JButton button = new JButton(item);
             button.setAlignmentX(Component.LEFT_ALIGNMENT);
