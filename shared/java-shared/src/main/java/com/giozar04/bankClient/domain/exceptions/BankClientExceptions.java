@@ -7,7 +7,7 @@ public class BankClientExceptions {
             super(message, cause);
         }
     }
-
+  
     public static class BankClientRetrievalException extends RuntimeException {
         public BankClientRetrievalException(String message, Throwable cause) {
             super(message, cause);
