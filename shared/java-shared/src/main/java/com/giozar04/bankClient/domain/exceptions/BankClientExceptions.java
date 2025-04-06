@@ -7,11 +7,28 @@ public class BankClientExceptions {
             super(message, cause);
         }
     }
-
-    public static class name extends RuntimeException {
-        public name( String message, Throwable cause) {
-            super( message, cause);
+  
+    public static class BankClientRetrievalException extends RuntimeException {
+        public BankClientRetrievalException(String message, Throwable cause) {
+            super(message, cause);
         }
     }
 
+    public static class BankClientUpdateException extends RuntimeException {
+        public BankClientUpdateException(String message, Throwable cause) {
+            super(message, cause);
+        }
+    }
+
+    public static class BankClientDeletionException extends RuntimeException {
+        public BankClientDeletionException(String message, Throwable cause) {
+            super(message, cause);
+        }
+    }
+
+    public static class BankClientNotFoundException extends RuntimeException {
+        public BankClientNotFoundException(String message, Throwable cause) {
+            super(message, cause);
+        }
+    }
 }
