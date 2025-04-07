@@ -31,4 +31,16 @@ public class BankClientExceptions {
             super(message, cause);
         }
     }
+
+    public static class BankClientParsingException extends RuntimeException {
+        public BankClientParsingException(String message, Throwable cause) {
+            super(message, cause);
+        }
+    }
+
+    public static class BankClientValidationException extends RuntimeException {
+        public BankClientValidationException(String message, Throwable cause) {
+            super(message, cause);
+        }
+    }
 }
