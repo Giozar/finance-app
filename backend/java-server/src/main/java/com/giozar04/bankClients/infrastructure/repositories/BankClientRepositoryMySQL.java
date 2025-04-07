@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,8 +33,15 @@ public class BankClientRepositoryMySQL extends BankClientRepositoryAbstract {
     public BankClient createBankClient(BankClient bankClient) {
         validateBankClient(bankClient);
 
-        try (Connection conn = databaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
+        // Asignar timestamps si no vienen
+        if (bankClient.getCreatedAt() == null) {
+            bankClient.setCreatedAt(ZonedDateTime.now());
+        }
+        if (bankClient.getUpdatedAt() == null) {
+            bankClient.setUpdatedAt(ZonedDateTime.now());
+        }
+
+        try (Connection conn = databaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
 
             stmt.setLong(1, bankClient.getUserId());
             stmt.setString(2, bankClient.getBankName());
@@ -66,8 +74,7 @@ public class BankClientRepositoryMySQL extends BankClientRepositoryAbstract {
     public BankClient getBankClientById(long id) {
         validateId(id);
 
-        try (Connection conn = databaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(SQL_SELECT_BY_ID)) {
+        try (Connection conn = databaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(SQL_SELECT_BY_ID)) {
 
             stmt.setLong(1, id);
             try (ResultSet rs = stmt.executeQuery()) {
@@ -89,8 +96,7 @@ public class BankClientRepositoryMySQL extends BankClientRepositoryAbstract {
 
         List<BankClient> clients = new ArrayList<>();
 
-        try (Connection conn = databaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(SQL_SELECT_BY_USER_ID)) {
+        try (Connection conn = databaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(SQL_SELECT_BY_USER_ID)) {
 
             stmt.setLong(1, userId);
 
@@ -108,16 +114,22 @@ public class BankClientRepositoryMySQL extends BankClientRepositoryAbstract {
     }
 
     @Override
-    public BankClient updateBankClientById(long id, BankClient updated) {
+    public BankClient updateBankClientById(long id, BankClient bankClient) {
         validateId(id);
-        validateBankClient(updated);
+        validateBankClient(bankClient);
 
-        try (Connection conn = databaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(SQL_UPDATE)) {
+        // Se actualiza updatedAt, incluso si no viene
+        if (bankClient.getUpdatedAt() == null) {
+            bankClient.setUpdatedAt(ZonedDateTime.now());
+        }
 
-            stmt.setString(1, updated.getBankName());
-            stmt.setString(2, updated.getClientNumber());
-            stmt.setTimestamp(3, Timestamp.valueOf(updated.getUpdatedAt().toLocalDateTime()));
+        bankClient.setUpdatedAt(ZonedDateTime.now());
+
+        try (Connection conn = databaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(SQL_UPDATE)) {
+
+            stmt.setString(1, bankClient.getBankName());
+            stmt.setString(2, bankClient.getClientNumber());
+            stmt.setTimestamp(3, Timestamp.valueOf(bankClient.getUpdatedAt().toLocalDateTime()));
             stmt.setLong(4, id);
 
             int affected = stmt.executeUpdate();
@@ -126,8 +138,8 @@ public class BankClientRepositoryMySQL extends BankClientRepositoryAbstract {
             }
 
             databaseConnection.commitTransaction();
-            updated.setId(id);
-            return updated;
+            bankClient.setId(id);
+            return bankClient;
 
         } catch (SQLException e) {
             rollback();
@@ -139,8 +151,7 @@ public class BankClientRepositoryMySQL extends BankClientRepositoryAbstract {
     public void deleteBankClientById(long id) {
         validateId(id);
 
-        try (Connection conn = databaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(SQL_DELETE)) {
+        try (Connection conn = databaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(SQL_DELETE)) {
 
             stmt.setLong(1, id);
 
@@ -162,9 +173,7 @@ public class BankClientRepositoryMySQL extends BankClientRepositoryAbstract {
     public List<BankClient> getAllBankClients() {
         List<BankClient> clients = new ArrayList<>();
 
-        try (Connection conn = databaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(SQL_SELECT_ALL);
-             ResultSet rs = stmt.executeQuery()) {
+        try (Connection conn = databaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(SQL_SELECT_ALL); ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
                 clients.add(mapResultSetToBankClient(rs));
@@ -181,12 +190,12 @@ public class BankClientRepositoryMySQL extends BankClientRepositoryAbstract {
         ZoneId zone = ZoneId.systemDefault();
 
         return new BankClient(
-            rs.getLong("id"),
-            rs.getLong("user_id"),
-            rs.getString("bank_name"),
-            rs.getString("client_number"),
-            rs.getTimestamp("created_at").toLocalDateTime().atZone(zone),
-            rs.getTimestamp("updated_at").toLocalDateTime().atZone(zone)
+                rs.getLong("id"),
+                rs.getLong("user_id"),
+                rs.getString("bank_name"),
+                rs.getString("client_number"),
+                rs.getTimestamp("created_at").toLocalDateTime().atZone(zone),
+                rs.getTimestamp("updated_at").toLocalDateTime().atZone(zone)
         );
     }
 

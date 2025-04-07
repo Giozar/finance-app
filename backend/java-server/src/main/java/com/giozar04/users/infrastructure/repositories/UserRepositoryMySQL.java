@@ -99,6 +99,13 @@ public class UserRepositoryMySQL extends UserRepositoryAbstract {
         validateId(id);
         validateUser(user);
 
+        // Se actualiza updatedAt, incluso si no viene
+        if (user.getUpdatedAt() == null) {
+            user.setUpdatedAt(ZonedDateTime.now());
+        }
+
+        user.setUpdatedAt(ZonedDateTime.now());
+
         try (Connection conn = databaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(SQL_UPDATE)) {
 
             stmt.setString(1, user.getName());

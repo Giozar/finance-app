@@ -1,8 +1,11 @@
 package com.giozar04.bootstrap;
 
+import java.io.IOException;
+
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
+import com.giozar04.bankClients.infrastructure.services.BankClientService;
 import com.giozar04.configs.ServerConnectionConfig;
 import com.giozar04.serverConnection.application.services.ServerConnectionService;
 import com.giozar04.shared.layouts.AppLayout;
@@ -12,8 +15,9 @@ import com.giozar04.users.infrastructure.services.UserService;
 public class ApplicationInitializer {
 
     private ServerConnectionService connectionService;
-    private TransactionService transactionService;
     private UserService userService;
+    private BankClientService bankClientService;
+    private TransactionService transactionService;
 
     public void start() {
         if (initializeConnection() && initializeServices()) {
@@ -30,7 +34,7 @@ public class ApplicationInitializer {
             connectionService.connect();
             System.out.println("✅ Conexión establecida con el servidor.");
             return true;
-        } catch (Exception e) {
+        } catch (IOException e) {
             System.err.println("❌ Error al conectar con el servidor: " + e.getMessage());
             return false;
         }
@@ -38,12 +42,15 @@ public class ApplicationInitializer {
 
     private boolean initializeServices() {
         try {
-            this.transactionService = TransactionService.connectService(connectionService);
-            System.out.println("✅ Servicio de transacciones conectado correctamente.");
 
             this.userService = UserService.connectService(connectionService);
             System.out.println("✅ Servicio de usuarios conectado correctamente.");
 
+            this.bankClientService = BankClientService.connectService(connectionService);
+            System.out.println("✅ Servicio de clientes bancarios conectado correctamente.");
+            
+            this.transactionService = TransactionService.connectService(connectionService);
+            System.out.println("✅ Servicio de transacciones conectado correctamente.");
             
             return true;
         } catch (Exception e) {
