@@ -6,6 +6,7 @@ import java.awt.Component;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import com.giozar04.bankClients.presentation.views.BankClientsView;
 import com.giozar04.dashboard.presentation.views.MainDashboardView;
 import com.giozar04.shared.components.HeaderPanel;
 import com.giozar04.shared.components.MainContentPanel;
@@ -37,8 +38,9 @@ public class AppLayout extends JPanel {
     private void navigate(String menu) {
         switch (menu) {
             case "Inicio" -> setContent(new MainDashboardView());
-            case "Transacciones" -> setContent(new TransactionsView());
             case "Usuarios" -> setContent(new UsersView());
+            case "Clientes" -> setContent(new BankClientsView());
+            case "Transacciones" -> setContent(new TransactionsView());
             default -> setContent(new JLabel("Vista no encontrada"));
         }
     }

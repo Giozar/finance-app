@@ -16,7 +16,7 @@ public class BankClientService {
     private final ServerConnectionService serverConnectionService;
     private static BankClientService instance;
 
-    public BankClientService(ServerConnectionService serverConnectionService) {
+    private BankClientService(ServerConnectionService serverConnectionService) {
         this.serverConnectionService = serverConnectionService;
     }
 
@@ -94,6 +94,8 @@ public class BankClientService {
 
     @SuppressWarnings("unchecked")
     public List<BankClient> getAllBankClients() throws ClientOperationException {
+
+        System.out.println("PIDO TODOS LOS CLIENTES");
         Message message = new Message();
         message.setType("GET_ALL_BANK_CLIENTS");
 
