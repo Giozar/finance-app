@@ -16,7 +16,7 @@ public class TransactionService {
     private final ServerConnectionService serverConnectionService;
     private static TransactionService instance;
 
-    public TransactionService(ServerConnectionService serverConnectionService) {
+    private TransactionService(ServerConnectionService serverConnectionService) {
         this.serverConnectionService = serverConnectionService;
     }
 

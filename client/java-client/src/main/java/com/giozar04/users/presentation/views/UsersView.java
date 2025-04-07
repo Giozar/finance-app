@@ -26,7 +26,7 @@ import com.giozar04.shared.components.table.GenericTablePanel;
 import com.giozar04.shared.components.table.OptionsCellEditor;
 import com.giozar04.shared.components.table.OptionsCellRenderer;
 import com.giozar04.shared.components.table.PopupMenuActionHandler;
-import com.giozar04.shared.utils.ErrorDialogUtil;
+import com.giozar04.shared.utils.DialogUtil;
 import com.giozar04.users.domain.entities.User;
 import com.giozar04.users.infrastructure.services.UserService;
 import com.giozar04.users.presentation.components.UserFormPanel;
@@ -98,7 +98,7 @@ public class UsersView extends JPanel implements PopupMenuActionHandler {
             tablePanel = new GenericTablePanel<>(columns, users);
             add(tablePanel, BorderLayout.CENTER);
         } catch (ClientOperationException e) {
-            ErrorDialogUtil.showError(this, "Error al cargar los usuarios.");
+            DialogUtil.showError(this, "Error al cargar los usuarios.");
         }
     }
 
@@ -107,7 +107,7 @@ public class UsersView extends JPanel implements PopupMenuActionHandler {
             List<User> users = userService.getAllUsers();
             tablePanel.setData(users);
         } catch (ClientOperationException e) {
-            ErrorDialogUtil.showError(this, "Error al recargar los usuarios.");
+            DialogUtil.showError(this, "Error al recargar los usuarios.");
         }
     }
 
@@ -121,7 +121,7 @@ public class UsersView extends JPanel implements PopupMenuActionHandler {
                     .collect(Collectors.toList());
             tablePanel.setData(filtered);
         } catch (ClientOperationException e) {
-            ErrorDialogUtil.showError(this, "Error al buscar: " + e.getMessage());
+            DialogUtil.showError(this, "Error al buscar: " + e.getMessage());
         }
     }
 
@@ -155,16 +155,14 @@ public class UsersView extends JPanel implements PopupMenuActionHandler {
     @Override
     public void onDelete(int rowIndex) {
         User user = tablePanel.getItemAt(rowIndex);
-        int confirm = JOptionPane.showConfirmDialog(this,
-                "¿Eliminar usuario?",
-                "Confirmación", JOptionPane.YES_NO_OPTION);
-        if (confirm == JOptionPane.YES_OPTION) {
+        boolean confirm = DialogUtil.showConfirm(this, "¿Desea eliminar eliminar usuario", "Confirmar eliminación");
+        if (confirm) {
             try {
                 userService.deleteUserById(user.getId());
                 JOptionPane.showMessageDialog(this, "Usuario eliminado.");
                 loadUsers();
             } catch (ClientOperationException | HeadlessException ex) {
-                ErrorDialogUtil.showError(this, "No se pudo eliminar: " + ex.getMessage());
+                DialogUtil.showError(this, "No se pudo eliminar: " + ex.getMessage());
             }
         }
     }

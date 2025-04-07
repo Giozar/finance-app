@@ -92,6 +92,7 @@ public class UserService {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public List<User> getAllUsers() throws ClientOperationException {
         Message message = new Message();
         message.setType("GET_ALL_USERS");

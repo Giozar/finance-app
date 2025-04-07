@@ -13,7 +13,6 @@ import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
@@ -27,7 +26,7 @@ import com.giozar04.shared.components.table.GenericTablePanel;
 import com.giozar04.shared.components.table.OptionsCellEditor;
 import com.giozar04.shared.components.table.OptionsCellRenderer;
 import com.giozar04.shared.components.table.PopupMenuActionHandler;
-import com.giozar04.shared.utils.ErrorDialogUtil;
+import com.giozar04.shared.utils.DialogUtil;
 import com.giozar04.transactions.domain.entities.Transaction;
 import com.giozar04.transactions.infrastructure.services.TransactionService;
 import com.giozar04.transactions.presentation.components.PaymentMethodCellRenderer;
@@ -127,7 +126,7 @@ public class TransactionsView extends JPanel implements PopupMenuActionHandler {
             tablePanel = new GenericTablePanel<>(columns, transactions);
             add(tablePanel, BorderLayout.CENTER);
         } catch (ClientOperationException e) {
-            ErrorDialogUtil.showError(this, "Error al cargar las transacciones");
+            DialogUtil.showError(this, "Error al cargar las transacciones");
         }
     }
 
@@ -142,7 +141,7 @@ public class TransactionsView extends JPanel implements PopupMenuActionHandler {
             List<Transaction> transactions = transactionService.getAllTransactions();
             tablePanel.setData(transactions);
         } catch (ClientOperationException e) {
-            ErrorDialogUtil.showError(this, "Error al cargar las transacciones");
+            DialogUtil.showError(this, "Error al cargar las transacciones");
         }
     }
 
@@ -165,7 +164,7 @@ public class TransactionsView extends JPanel implements PopupMenuActionHandler {
             }).toList();
             tablePanel.setData(filtered);
         } catch (ClientOperationException e) {
-            ErrorDialogUtil.showError(this, "Error al buscar las transacciones: " + e.getMessage());
+            DialogUtil.showError(this, "Error al buscar las transacciones: " + e.getMessage());
         }
 
     }
@@ -217,23 +216,23 @@ public class TransactionsView extends JPanel implements PopupMenuActionHandler {
     @Override
     public void onDelete(int rowIndex) {
         Transaction transaction = tablePanel.getItemAt(rowIndex);
-        int confirm = JOptionPane.showConfirmDialog(this,
-                "¿Desea eliminar la transacción seleccionada?",
-                "Confirmar eliminación", JOptionPane.YES_NO_OPTION);
-        if (confirm == JOptionPane.YES_OPTION) {
+        boolean confirmed = DialogUtil.showConfirm(this, "¿Desea eliminar la transacción seleccionada?", "Confirmar eliminación");
+    
+        if (confirmed) {
             try {
                 transactionService.deleteTransactionById(transaction.getId());
-                JOptionPane.showMessageDialog(this, "Transacción eliminada.");
+                DialogUtil.showSuccess(this, "Transacción eliminada.");
                 loadTransactions();
             } catch (ClientOperationException | HeadlessException ex) {
-                JOptionPane.showMessageDialog(this, "Error al eliminar la transacción: " + ex.getMessage());
+                DialogUtil.showError(this, "Error al eliminar la transacción: " + ex.getMessage());
             }
         }
     }
+    
 
     @Override
     public void onViewDetails(int rowIndex) {
-        JOptionPane.showMessageDialog(this, "Ver detalles aún no implementado.");
+        DialogUtil.showWarning(this, "Ver detalles aún no implementado.");
     }
 
     @Override

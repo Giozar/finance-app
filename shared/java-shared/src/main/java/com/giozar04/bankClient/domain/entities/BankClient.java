@@ -19,6 +19,9 @@ public class BankClient {
         this.updatedAt = updatedAt; 
     }
 
+    public BankClient() {
+    }
+
     public long getId() {
         return id;
     }
