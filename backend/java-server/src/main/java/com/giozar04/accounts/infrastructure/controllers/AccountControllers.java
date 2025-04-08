@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import com.giozar04.accounts.application.AccountUtils;
 import com.giozar04.accounts.application.services.AccountService;
+import com.giozar04.accounts.application.utils.AccountUtils;
 import com.giozar04.accounts.domain.entities.Account;
 import com.giozar04.messages.domain.models.Message;
 import com.giozar04.servers.domain.handlers.MessageHandler;

@@ -20,17 +20,19 @@ import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
 public class AccountRepositoryMySQL extends AccountRepositoryAbstract {
 
     private static final String SQL_INSERT = """
-        INSERT INTO accounts (user_id, bank_client_id, name, type, current_balance, bank_name,
+        INSERT INTO accounts (user_id, bank_client_id, name, type, current_balance,
         account_number, clabe, credit_limit, cutoff_day, payment_day, created_at, updated_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """;
 
     private static final String SQL_SELECT_BY_ID = "SELECT * FROM accounts WHERE id = ?";
+
     private static final String SQL_UPDATE = """
         UPDATE accounts SET user_id = ?, bank_client_id = ?, name = ?, type = ?, current_balance = ?,
-        bank_name = ?, account_number = ?, clabe = ?, credit_limit = ?, cutoff_day = ?, payment_day = ?,
+        account_number = ?, clabe = ?, credit_limit = ?, cutoff_day = ?, payment_day = ?,
         updated_at = ? WHERE id = ?
     """;
+
     private static final String SQL_DELETE = "DELETE FROM accounts WHERE id = ?";
     private static final String SQL_SELECT_ALL = "SELECT * FROM accounts";
 
@@ -61,26 +63,25 @@ public class AccountRepositoryMySQL extends AccountRepositoryAbstract {
             stmt.setString(3, account.getName());
             stmt.setString(4, account.getType());
             stmt.setDouble(5, account.getCurrentBalance());
-            stmt.setString(6, account.getBankName());
-            stmt.setString(7, account.getAccountNumber());
-            stmt.setString(8, account.getClabe());
+            stmt.setString(6, account.getAccountNumber());
+            stmt.setString(7, account.getClabe());
             if (account.getCreditLimit() != null) {
-                stmt.setDouble(9, account.getCreditLimit());
+                stmt.setDouble(8, account.getCreditLimit());
             } else {
-                stmt.setNull(9, Types.DOUBLE);
+                stmt.setNull(8, Types.DOUBLE);
             }
             if (account.getCutoffDay() != null) {
-                stmt.setInt(10, account.getCutoffDay());
+                stmt.setInt(9, account.getCutoffDay());
+            } else {
+                stmt.setNull(9, Types.INTEGER);
+            }
+            if (account.getPaymentDay() != null) {
+                stmt.setInt(10, account.getPaymentDay());
             } else {
                 stmt.setNull(10, Types.INTEGER);
             }
-            if (account.getPaymentDay() != null) {
-                stmt.setInt(11, account.getPaymentDay());
-            } else {
-                stmt.setNull(11, Types.INTEGER);
-            }
-            stmt.setTimestamp(12, Timestamp.valueOf(account.getCreatedAt().toLocalDateTime()));
-            stmt.setTimestamp(13, Timestamp.valueOf(account.getUpdatedAt().toLocalDateTime()));
+            stmt.setTimestamp(11, Timestamp.valueOf(account.getCreatedAt().toLocalDateTime()));
+            stmt.setTimestamp(12, Timestamp.valueOf(account.getUpdatedAt().toLocalDateTime()));
 
             int affected = stmt.executeUpdate();
             if (affected == 0) throw new SQLException("No se pudo insertar la cuenta");
@@ -126,7 +127,6 @@ public class AccountRepositoryMySQL extends AccountRepositoryAbstract {
     public Account updateAccountById(long id, Account account) {
         validateId(id);
         validateAccount(account);
-
         account.setUpdatedAt(ZonedDateTime.now());
 
         try (Connection conn = databaseConnection.getConnection();
@@ -141,26 +141,25 @@ public class AccountRepositoryMySQL extends AccountRepositoryAbstract {
             stmt.setString(3, account.getName());
             stmt.setString(4, account.getType());
             stmt.setDouble(5, account.getCurrentBalance());
-            stmt.setString(6, account.getBankName());
-            stmt.setString(7, account.getAccountNumber());
-            stmt.setString(8, account.getClabe());
+            stmt.setString(6, account.getAccountNumber());
+            stmt.setString(7, account.getClabe());
             if (account.getCreditLimit() != null) {
-                stmt.setDouble(9, account.getCreditLimit());
+                stmt.setDouble(8, account.getCreditLimit());
             } else {
-                stmt.setNull(9, Types.DOUBLE);
+                stmt.setNull(8, Types.DOUBLE);
             }
             if (account.getCutoffDay() != null) {
-                stmt.setInt(10, account.getCutoffDay());
+                stmt.setInt(9, account.getCutoffDay());
+            } else {
+                stmt.setNull(9, Types.INTEGER);
+            }
+            if (account.getPaymentDay() != null) {
+                stmt.setInt(10, account.getPaymentDay());
             } else {
                 stmt.setNull(10, Types.INTEGER);
             }
-            if (account.getPaymentDay() != null) {
-                stmt.setInt(11, account.getPaymentDay());
-            } else {
-                stmt.setNull(11, Types.INTEGER);
-            }
-            stmt.setTimestamp(12, Timestamp.valueOf(account.getUpdatedAt().toLocalDateTime()));
-            stmt.setLong(13, id);
+            stmt.setTimestamp(11, Timestamp.valueOf(account.getUpdatedAt().toLocalDateTime()));
+            stmt.setLong(12, id);
 
             int affected = stmt.executeUpdate();
             if (affected == 0) {
@@ -230,7 +229,6 @@ public class AccountRepositoryMySQL extends AccountRepositoryAbstract {
         account.setName(rs.getString("name"));
         account.setType(rs.getString("type"));
         account.setCurrentBalance(rs.getDouble("current_balance"));
-        account.setBankName(rs.getString("bank_name"));
         account.setAccountNumber(rs.getString("account_number"));
         account.setClabe(rs.getString("clabe"));
 

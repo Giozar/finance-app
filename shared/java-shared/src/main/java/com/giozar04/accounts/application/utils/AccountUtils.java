@@ -1,4 +1,4 @@
-package com.giozar04.accounts.application;
+package com.giozar04.accounts.application.utils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,7 +16,6 @@ public class AccountUtils {
         map.put("name", account.getName());
         map.put("type", account.getType());
         map.put("currentBalance", account.getCurrentBalance());
-        map.put("bankName", account.getBankName());
         map.put("accountNumber", account.getAccountNumber());
         map.put("clabe", account.getClabe());
         map.put("creditLimit", account.getCreditLimit());
@@ -42,7 +41,6 @@ public class AccountUtils {
         account.setName((String) map.getOrDefault("name", ""));
         account.setType((String) map.getOrDefault("type", ""));
         account.setCurrentBalance(SharedUtils.parseDouble(map.get("currentBalance")));
-        account.setBankName((String) map.get("bankName"));
         account.setAccountNumber((String) map.get("accountNumber"));
         account.setClabe((String) map.get("clabe"));
         account.setCreditLimit(SharedUtils.parseNullableDouble(map.get("creditLimit")));
