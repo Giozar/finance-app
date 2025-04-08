@@ -67,20 +67,19 @@ public class AccountTestApp {
 
     private static void createAccount(AccountService service, Scanner scanner) {
         Account account = new Account();
-    
+
         System.out.print("ID del usuario dueño: ");
         account.setUserId(scanner.nextLong());
         scanner.nextLine();
-    
+
         System.out.print("¿Desea ligar la cuenta a un cliente de banco? (s/n): ");
         String ligaABanco = scanner.nextLine().trim().toLowerCase();
-    
+
         if (ligaABanco.equals("s")) {
             System.out.print("ID del cliente de banco: ");
             account.setBankClientId(scanner.nextLong());
             scanner.nextLine();
-    
-            // Nuevo: aceptar también tipo savings
+
             System.out.print("Tipo de cuenta (debit, credit o savings): ");
             String tipo = scanner.nextLine().trim().toLowerCase();
             while (!tipo.equals("debit") && !tipo.equals("credit") && !tipo.equals("savings")) {
@@ -88,60 +87,54 @@ public class AccountTestApp {
                 tipo = scanner.nextLine().trim().toLowerCase();
             }
             account.setType(tipo);
-    
+
             System.out.print("Nombre de la cuenta: ");
             account.setName(scanner.nextLine());
-    
-            System.out.print("Nombre del banco (opcional): ");
-            account.setBankName(scanner.nextLine());
-    
+
             System.out.print("Número de cuenta: ");
             account.setAccountNumber(scanner.nextLine());
-    
+
             System.out.print("CLABE: ");
             account.setClabe(scanner.nextLine());
-    
+
             if (tipo.equals("credit")) {
                 System.out.print("Límite de crédito: ");
                 account.setCreditLimit(scanner.nextDouble());
                 scanner.nextLine();
-    
+
                 System.out.print("Día de corte (1-31): ");
                 account.setCutoffDay(scanner.nextInt());
                 scanner.nextLine();
-    
+
                 System.out.print("Día de pago (1-31): ");
                 account.setPaymentDay(scanner.nextInt());
                 scanner.nextLine();
             }
-    
+
         } else {
-            // No se liga a cliente de banco → cuenta tipo cash
             account.setType("cash");
             account.setBankClientId(null);
-            account.setBankName(null);
             account.setAccountNumber(null);
             account.setClabe(null);
             account.setCreditLimit(null);
             account.setCutoffDay(null);
             account.setPaymentDay(null);
-    
+
             System.out.print("Nombre de la cuenta: ");
             account.setName(scanner.nextLine());
         }
-    
-        // Balance inicial
+
         System.out.print("Balance actual: ");
         account.setCurrentBalance(scanner.nextDouble());
         scanner.nextLine();
-    
+
         account.setCreatedAt(ZonedDateTime.now());
         account.setUpdatedAt(ZonedDateTime.now());
-    
+
         Account created = service.createAccount(account);
         System.out.println("Cuenta creada con ID: " + created.getId());
     }
-    
+
     private static void getAllAccounts(AccountService service) {
         var accounts = service.getAllAccounts();
         if (accounts.isEmpty()) {
@@ -203,24 +196,22 @@ public class AccountTestApp {
         System.out.println("User ID: " + account.getUserId());
         System.out.println("Tipo: " + account.getType());
         System.out.println("Nombre: " + account.getName());
-    
+
         if (account.getBankClientId() != null) {
             System.out.println("ID Cliente de banco: " + account.getBankClientId());
-            System.out.println("Banco: " + account.getBankName());
             System.out.println("Número de cuenta: " + account.getAccountNumber());
             System.out.println("CLABE: " + account.getClabe());
         }
-    
+
         if ("credit".equals(account.getType())) {
             System.out.println("Límite de crédito: " + account.getCreditLimit());
             System.out.println("Día de corte: " + account.getCutoffDay());
             System.out.println("Día de pago: " + account.getPaymentDay());
         }
-    
+
         System.out.printf("Balance: $%.2f%n", account.getCurrentBalance());
         System.out.println("Fecha de creación: " + account.getCreatedAt());
         System.out.println("Última actualización: " + account.getUpdatedAt());
         System.out.println("----------------------------------------");
     }
-    
 }

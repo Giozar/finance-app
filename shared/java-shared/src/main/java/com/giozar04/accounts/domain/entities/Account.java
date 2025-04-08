@@ -12,7 +12,6 @@ public class Account implements Serializable {
     private String name;
     private String type; // debit | credit | savings | cash
     private double currentBalance;
-    private String bankName;
     private String accountNumber;
     private String clabe;
     private Double creditLimit;
@@ -41,9 +40,6 @@ public class Account implements Serializable {
 
     public double getCurrentBalance() { return currentBalance; }
     public void setCurrentBalance(double currentBalance) { this.currentBalance = currentBalance; }
-
-    public String getBankName() { return bankName; }
-    public void setBankName(String bankName) { this.bankName = bankName; }
 
     public String getAccountNumber() { return accountNumber; }
     public void setAccountNumber(String accountNumber) { this.accountNumber = accountNumber; }
