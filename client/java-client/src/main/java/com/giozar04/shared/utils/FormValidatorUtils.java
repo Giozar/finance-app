@@ -100,6 +100,20 @@ public class FormValidatorUtils {
         }
     }
 
+    public static boolean isIntegerInRange(String value, String fieldName, int min, int max, List<String> errors) {
+        try {
+            int parsed = Integer.parseInt(value.trim());
+            if (parsed < min || parsed > max) {
+                errors.add(fieldName + " debe estar entre " + min + " y " + max + ".");
+                return false;
+            }
+            return true;
+        } catch (NumberFormatException e) {
+            errors.add(fieldName + " debe ser un número entero válido.");
+            return false;
+        }
+    }
+
     /**
      * Verifica si la lista de errores contiene mensajes.
      *

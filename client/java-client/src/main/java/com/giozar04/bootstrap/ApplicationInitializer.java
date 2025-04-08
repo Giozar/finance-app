@@ -5,6 +5,7 @@ import java.io.IOException;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
+import com.giozar04.accounts.infrastructure.services.AccountService;
 import com.giozar04.bankClients.infrastructure.services.BankClientService;
 import com.giozar04.configs.ServerConnectionConfig;
 import com.giozar04.serverConnection.application.services.ServerConnectionService;
@@ -17,6 +18,7 @@ public class ApplicationInitializer {
     private ServerConnectionService connectionService;
     private UserService userService;
     private BankClientService bankClientService;
+    private AccountService accountService;
     private TransactionService transactionService;
 
     public void start() {
@@ -48,6 +50,9 @@ public class ApplicationInitializer {
 
             this.bankClientService = BankClientService.connectService(connectionService);
             System.out.println("✅ Servicio de clientes bancarios conectado correctamente.");
+
+            this.accountService = AccountService.connectService(connectionService);
+            System.out.println("Servicios de cuentas conectado correctamente");
             
             this.transactionService = TransactionService.connectService(connectionService);
             System.out.println("✅ Servicio de transacciones conectado correctamente.");

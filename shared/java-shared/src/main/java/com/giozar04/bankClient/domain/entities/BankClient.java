@@ -70,6 +70,12 @@ public class BankClient {
         this.updatedAt = updatedAt;
     }
 
+    @Override
+    public String toString() {
+        return bankName + " (" + clientNumber + ")";
+    }
+    
+
     
     
     
