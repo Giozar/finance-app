@@ -31,6 +31,37 @@ public class SharedUtils {
         return 0.0;
     }
 
+    public static Long parseNullableLong(Object value) {
+        if (value instanceof Number number) return number.longValue();
+        if (value instanceof String str) {
+            try {
+                return Long.valueOf(str);
+            } catch (NumberFormatException ignored) {}
+        }
+        return null;
+    }
+    
+    public static Double parseNullableDouble(Object value) {
+        if (value instanceof Number number) return number.doubleValue();
+        if (value instanceof String str) {
+            try {
+                return Double.valueOf(str);
+            } catch (NumberFormatException ignored) {}
+        }
+        return null;
+    }
+    
+    public static Integer parseNullableInt(Object value) {
+        if (value instanceof Number number) return number.intValue();
+        if (value instanceof String str) {
+            try {
+                return Integer.valueOf(str);
+            } catch (NumberFormatException ignored) {}
+        }
+        return null;
+    }
+    
+
     public static ZonedDateTime parseZonedDateTime(Object value) {
         if (value instanceof String str) {
             try {
