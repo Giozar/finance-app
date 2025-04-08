@@ -5,6 +5,7 @@ import java.util.Scanner;
 
 import com.giozar04.accounts.application.services.AccountService;
 import com.giozar04.accounts.domain.entities.Account;
+import com.giozar04.accounts.domain.enums.AccountTypes;
 import com.giozar04.accounts.infrastructure.repositories.AccountRepositoryMySQL;
 import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
 import com.giozar04.databases.infrastructure.repositories.DatabaseConnectionMySQL;
@@ -68,10 +69,6 @@ public class AccountTestApp {
     private static void createAccount(AccountService service, Scanner scanner) {
         Account account = new Account();
 
-        System.out.print("ID del usuario dueño: ");
-        account.setUserId(scanner.nextLong());
-        scanner.nextLine();
-
         System.out.print("¿Desea ligar la cuenta a un cliente de banco? (s/n): ");
         String ligaABanco = scanner.nextLine().trim().toLowerCase();
 
@@ -112,7 +109,7 @@ public class AccountTestApp {
             }
 
         } else {
-            account.setType("cash");
+            account.setType(AccountTypes.CASH.name().toLowerCase());
             account.setBankClientId(null);
             account.setAccountNumber(null);
             account.setClabe(null);
@@ -133,6 +130,62 @@ public class AccountTestApp {
 
         Account created = service.createAccount(account);
         System.out.println("Cuenta creada con ID: " + created.getId());
+    }
+
+    private static void updateAccount(AccountService service, Scanner scanner) {
+        System.out.print("ID de cuenta a actualizar (long): ");
+        long id = scanner.nextLong();
+        scanner.nextLine();
+
+        Account account = service.getAccountById(id);
+
+        System.out.print("Nuevo nombre (" + account.getName() + "): ");
+        String name = scanner.nextLine();
+        if (!name.isBlank()) account.setName(name);
+
+        System.out.print("Nuevo tipo (debit, credit, cash, savings) [" + account.getType() + "]: ");
+        String type = scanner.nextLine().trim().toLowerCase();
+        if (!type.isBlank()) account.setType(type);
+
+        System.out.print("Nuevo balance (" + account.getCurrentBalance() + "): ");
+        String balanceStr = scanner.nextLine();
+        if (!balanceStr.isBlank()) account.setCurrentBalance(Double.parseDouble(balanceStr));
+
+        System.out.print("Nuevo número de cuenta (" + account.getAccountNumber() + "): ");
+        String accNum = scanner.nextLine();
+        if (!accNum.isBlank()) account.setAccountNumber(accNum);
+
+        System.out.print("Nuevo CLABE (" + account.getClabe() + "): ");
+        String clabe = scanner.nextLine();
+        if (!clabe.isBlank()) account.setClabe(clabe);
+
+        if ("credit".equals(account.getType())) {
+            System.out.print("Nuevo límite de crédito (" + account.getCreditLimit() + "): ");
+            String limit = scanner.nextLine();
+            if (!limit.isBlank()) account.setCreditLimit(Double.parseDouble(limit));
+
+            System.out.print("Nuevo día de corte (" + account.getCutoffDay() + "): ");
+            String cutoff = scanner.nextLine();
+            if (!cutoff.isBlank()) account.setCutoffDay(Integer.parseInt(cutoff));
+
+            System.out.print("Nuevo día de pago (" + account.getPaymentDay() + "): ");
+            String payment = scanner.nextLine();
+            if (!payment.isBlank()) account.setPaymentDay(Integer.parseInt(payment));
+        }
+
+        account.setUpdatedAt(ZonedDateTime.now());
+
+        service.updateAccountById(id, account);
+        System.out.println("Cuenta actualizada.");
+    }
+
+    private static void deleteAccount(AccountService service, Scanner scanner) {
+        System.out.print("ID de cuenta a eliminar (long): ");
+        long id = scanner.nextLong();
+        scanner.nextLine();
+
+        service.deleteAccountById(id);
+        System.out.println("Cuenta eliminada.");
     }
 
     private static void getAllAccounts(AccountService service) {
@@ -157,43 +210,8 @@ public class AccountTestApp {
         }
     }
 
-    private static void updateAccount(AccountService service, Scanner scanner) {
-        System.out.print("ID de cuenta a actualizar (long): ");
-        long id = scanner.nextLong();
-        scanner.nextLine();
-
-        Account account = service.getAccountById(id);
-
-        System.out.print("Nuevo nombre (" + account.getName() + "): ");
-        String name = scanner.nextLine();
-        if (!name.isBlank()) account.setName(name);
-
-        System.out.print("Nuevo tipo (" + account.getType() + "): ");
-        String type = scanner.nextLine();
-        if (!type.isBlank()) account.setType(type);
-
-        System.out.print("Nuevo balance (" + account.getCurrentBalance() + "): ");
-        String balanceStr = scanner.nextLine();
-        if (!balanceStr.isBlank()) account.setCurrentBalance(Double.parseDouble(balanceStr));
-
-        account.setUpdatedAt(ZonedDateTime.now());
-
-        service.updateAccountById(id, account);
-        System.out.println("Cuenta actualizada.");
-    }
-
-    private static void deleteAccount(AccountService service, Scanner scanner) {
-        System.out.print("ID de cuenta a eliminar (long): ");
-        long id = scanner.nextLong();
-        scanner.nextLine();
-
-        service.deleteAccountById(id);
-        System.out.println("Cuenta eliminada.");
-    }
-
     private static void printAccountDetails(Account account) {
         System.out.println("ID: " + account.getId());
-        System.out.println("User ID: " + account.getUserId());
         System.out.println("Tipo: " + account.getType());
         System.out.println("Nombre: " + account.getName());
 
