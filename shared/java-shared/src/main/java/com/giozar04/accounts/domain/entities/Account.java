@@ -10,7 +10,7 @@ public class Account implements Serializable {
     private long userId;
     private Long bankClientId; // Puede ser null para cuentas de efectivo
     private String name;
-    private String type; // debit | credit | cash | digital
+    private String type; // debit | credit | savings | cash
     private double currentBalance;
     private String bankName;
     private String accountNumber;

@@ -3,6 +3,10 @@ package com.giozar04.bootstrap;
 import java.io.IOException;
 import java.util.List;
 
+import com.giozar04.accounts.application.services.AccountService;
+import com.giozar04.accounts.domain.interfaces.AccountRepositoryInterface;
+import com.giozar04.accounts.infrastructure.handlers.AccountHandlers;
+import com.giozar04.accounts.infrastructure.repositories.AccountRepositoryMySQL;
 import com.giozar04.bankClients.application.services.BankClientService;
 import com.giozar04.bankClients.domain.interfaces.BankClientRepositoryInterface;
 import com.giozar04.bankClients.infrastructure.handlers.BankClientHandlers;
@@ -45,6 +49,11 @@ public class ApplicationInitializer {
                 new BankClientRepositoryMySQL(dbConnection);
         BankClientService bankClientService = new BankClientService(bankClientRepository);
 
+        // Inicializar repositorios y servicios de cuentas
+        AccountRepositoryInterface accountRepository =
+                new AccountRepositoryMySQL(dbConnection);
+        AccountService accountService = new AccountService(accountRepository);
+
         // Inicializar repositorios y servicios de transacciones
         TransactionRepositoryInterface transactionRepository =
                 new TransactionRepositoryMySQL(dbConnection);
@@ -56,6 +65,7 @@ public class ApplicationInitializer {
         List<ServerRegisterHandlers> featureServices = List.of(
                 new UserHandlers(userService),
                 new BankClientHandlers(bankClientService),
+                new AccountHandlers(accountService),
                 new TransactionHandlers(transactionService)
         );
 

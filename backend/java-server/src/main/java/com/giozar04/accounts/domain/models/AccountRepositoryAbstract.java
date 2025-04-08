@@ -1,0 +1,87 @@
+package com.giozar04.accounts.domain.models;
+
+import java.util.List;
+import java.util.Objects;
+
+import com.giozar04.accounts.domain.entities.Account;
+import com.giozar04.accounts.domain.interfaces.AccountRepositoryInterface;
+import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
+import com.giozar04.shared.logging.CustomLogger;
+
+public abstract class AccountRepositoryAbstract implements AccountRepositoryInterface {
+
+    protected final DatabaseConnectionInterface databaseConnection;
+    protected final CustomLogger logger;
+
+    protected AccountRepositoryAbstract(DatabaseConnectionInterface databaseConnection) {
+        this.databaseConnection = Objects.requireNonNull(databaseConnection, 
+            "La conexión a la base de datos no puede ser nula");
+        this.logger = new CustomLogger();
+    }
+
+    protected void validateAccount(Account account) {
+        Objects.requireNonNull(account, "La cuenta no puede ser nula");
+    
+        if (account.getName() == null || account.getName().isBlank()) {
+            throw new IllegalArgumentException("El nombre de la cuenta no puede estar vacío");
+        }
+    
+        String type = account.getType();
+        if (type == null || type.isBlank()) {
+            throw new IllegalArgumentException("El tipo de cuenta no puede estar vacío");
+        }
+    
+        List<String> tiposValidos = List.of("debit", "credit", "cash", "savings");
+        if (!tiposValidos.contains(type)) {
+            throw new IllegalArgumentException("Tipo de cuenta inválido: " + type);
+        }
+    
+        if (account.getCurrentBalance() < 0) {
+            throw new IllegalArgumentException("El balance actual no puede ser negativo");
+        }
+    
+        // Validaciones específicas
+        if (type.equals("credit")) {
+            if (account.getCreditLimit() == null || account.getCutoffDay() == null || account.getPaymentDay() == null) {
+                throw new IllegalArgumentException("Las cuentas de crédito requieren límite, día de corte y día de pago.");
+            }
+        }
+    
+        if (type.equals("debit") || type.equals("credit") || type.equals("savings")) {
+            if (account.getBankClientId() == null) {
+                throw new IllegalArgumentException("Las cuentas de tipo " + type + " deben estar ligadas a un cliente de banco.");
+            }
+            if (account.getClabe() == null || account.getClabe().isBlank()
+                || account.getAccountNumber() == null || account.getAccountNumber().isBlank()) {
+                throw new IllegalArgumentException("Las cuentas bancarias deben tener número de cuenta y CLABE.");
+            }
+        }
+    
+        if (type.equals("cash")) {
+            if (account.getBankClientId() != null) {
+                throw new IllegalArgumentException("Las cuentas de efectivo no deben estar ligadas a un cliente de banco.");
+            }
+        }
+    }
+    
+    protected void validateId(long id) {
+        if (id <= 0) {
+            throw new IllegalArgumentException("El ID debe ser mayor que cero");
+        }
+    }
+
+    @Override
+    public abstract Account createAccount(Account account);
+
+    @Override
+    public abstract Account getAccountById(long id);
+
+    @Override
+    public abstract Account updateAccountById(long id, Account account);
+
+    @Override
+    public abstract void deleteAccountById(long id);
+
+    @Override
+    public abstract List<Account> getAllAccounts();
+}

@@ -24,6 +24,7 @@ public class UserControllers {
         public static final String GET_ALL_USERS = "GET_ALL_USERS";
     }
 
+    @SuppressWarnings("unchecked")
     public static MessageHandler createUserController(UserService userService) {
         return (ClientConnection clientConnection, Message message) -> {
             LOGGER.info("Procesando solicitud de creación de usuario");
@@ -62,6 +63,7 @@ public class UserControllers {
         };
     }
 
+    @SuppressWarnings("unchecked")
     public static MessageHandler updateUserController(UserService userService) {
         return (ClientConnection clientConnection, Message message) -> {
             LOGGER.info("Procesando solicitud de actualización de usuario");
