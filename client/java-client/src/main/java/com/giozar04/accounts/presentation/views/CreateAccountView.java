@@ -11,7 +11,6 @@ public class CreateAccountView extends JPanel {
 
     public CreateAccountView() {
         super(new BorderLayout());
-
         accountFormPanel = new AccountFormPanel();
         add(accountFormPanel, BorderLayout.CENTER);
     }

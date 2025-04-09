@@ -21,7 +21,7 @@ public class BankClientRepositoryMySQL extends BankClientRepositoryAbstract {
     private static final String SQL_INSERT = "INSERT INTO bank_clients (user_id, bank_name, client_number, created_at, updated_at) VALUES (?, ?, ?, ?, ?)";
     private static final String SQL_SELECT_BY_ID = "SELECT * FROM bank_clients WHERE id = ?";
     private static final String SQL_SELECT_BY_USER_ID = "SELECT * FROM bank_clients WHERE user_id = ?";
-    private static final String SQL_UPDATE = "UPDATE bank_clients SET bank_name = ?, client_number = ?, updated_at = ? WHERE id = ?";
+    private static final String SQL_UPDATE = "UPDATE bank_clients SET user_id = ?, bank_name = ?, client_number = ?, updated_at = ? WHERE id = ?";
     private static final String SQL_DELETE = "DELETE FROM bank_clients WHERE id = ?";
     private static final String SQL_SELECT_ALL = "SELECT * FROM bank_clients";
 
@@ -127,10 +127,11 @@ public class BankClientRepositoryMySQL extends BankClientRepositoryAbstract {
 
         try (Connection conn = databaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(SQL_UPDATE)) {
 
-            stmt.setString(1, bankClient.getBankName());
-            stmt.setString(2, bankClient.getClientNumber());
-            stmt.setTimestamp(3, Timestamp.valueOf(bankClient.getUpdatedAt().toLocalDateTime()));
-            stmt.setLong(4, id);
+            stmt.setLong(1, bankClient.getUserId());  // NUEVO
+            stmt.setString(2, bankClient.getBankName());
+            stmt.setString(3, bankClient.getClientNumber());
+            stmt.setTimestamp(4, Timestamp.valueOf(bankClient.getUpdatedAt().toLocalDateTime()));
+            stmt.setLong(5, id);
 
             int affected = stmt.executeUpdate();
             if (affected == 0) {
@@ -145,6 +146,7 @@ public class BankClientRepositoryMySQL extends BankClientRepositoryAbstract {
             rollback();
             throw new BankClientExceptions.BankClientUpdateException("Error al actualizar el cliente bancario", e);
         }
+
     }
 
     @Override
