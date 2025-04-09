@@ -7,6 +7,7 @@ import java.util.Map;
 import com.giozar04.messages.domain.models.Message;
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
 import com.giozar04.serverConnection.application.services.ServerConnectionService;
+import com.giozar04.serverConnection.application.validators.ServerResponseValidator;
 import com.giozar04.users.application.utils.UserUtils;
 import com.giozar04.users.domain.entities.User;
 import com.giozar04.users.domain.exceptions.UserExceptions;
@@ -39,6 +40,7 @@ public class UserService {
         serverConnectionService.sendMessage(message);
         try {
             Message response = serverConnectionService.waitForMessage("CREATE_USER");
+            ServerResponseValidator.validateResponse(response);
             System.out.println("[CLIENT] Usuario creado: " + response);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -55,6 +57,7 @@ public class UserService {
         serverConnectionService.sendMessage(message);
         try {
             Message response = serverConnectionService.waitForMessage("UPDATE_USER");
+            ServerResponseValidator.validateResponse(response);
             System.out.println("[CLIENT] Usuario actualizado: " + response);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -70,6 +73,7 @@ public class UserService {
         serverConnectionService.sendMessage(message);
         try {
             Message response = serverConnectionService.waitForMessage("DELETE_USER");
+            ServerResponseValidator.validateResponse(response);
             System.out.println("[CLIENT] Usuario eliminado: " + response);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -85,6 +89,7 @@ public class UserService {
         serverConnectionService.sendMessage(message);
         try {
             Message response = serverConnectionService.waitForMessage("GET_USER");
+            ServerResponseValidator.validateResponse(response);
             System.out.println("[CLIENT] Usuario recibido: " + response);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -101,6 +106,7 @@ public class UserService {
 
         try {
             Message response = serverConnectionService.waitForMessage("GET_ALL_USERS");
+            ServerResponseValidator.validateResponse(response);
             Object raw = response.getData("users");
 
             if (raw == null) {
