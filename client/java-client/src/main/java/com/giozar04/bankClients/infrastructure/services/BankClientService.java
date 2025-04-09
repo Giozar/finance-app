@@ -10,6 +10,7 @@ import com.giozar04.bankClient.domain.exceptions.BankClientExceptions;
 import com.giozar04.messages.domain.models.Message;
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
 import com.giozar04.serverConnection.application.services.ServerConnectionService;
+import com.giozar04.serverConnection.application.validators.ServerResponseValidator;
 
 public class BankClientService {
 
@@ -39,6 +40,7 @@ public class BankClientService {
         serverConnectionService.sendMessage(message);
         try {
             Message response = serverConnectionService.waitForMessage("CREATE_BANK_CLIENT");
+            ServerResponseValidator.validateResponse(response);
             System.out.println("[CLIENT] Respuesta del servidor: " + response);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -55,6 +57,7 @@ public class BankClientService {
         serverConnectionService.sendMessage(message);
         try {
             Message response = serverConnectionService.waitForMessage("UPDATE_BANK_CLIENT");
+            ServerResponseValidator.validateResponse(response);
             System.out.println("[CLIENT] Respuesta del servidor: " + response);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -70,6 +73,7 @@ public class BankClientService {
         serverConnectionService.sendMessage(message);
         try {
             Message response = serverConnectionService.waitForMessage("DELETE_BANK_CLIENT");
+            ServerResponseValidator.validateResponse(response);
             System.out.println("[CLIENT] Respuesta del servidor: " + response);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -85,6 +89,7 @@ public class BankClientService {
         serverConnectionService.sendMessage(message);
         try {
             Message response = serverConnectionService.waitForMessage("GET_BANK_CLIENT");
+            ServerResponseValidator.validateResponse(response);
             System.out.println("[CLIENT] Respuesta del servidor: " + response);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -103,6 +108,7 @@ public class BankClientService {
 
         try {
             Message response = serverConnectionService.waitForMessage("GET_ALL_BANK_CLIENTS");
+            ServerResponseValidator.validateResponse(response);
             Object raw = response.getData("bankClients");
 
             if (raw == null) {

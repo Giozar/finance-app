@@ -7,6 +7,7 @@ import java.util.Map;
 import com.giozar04.messages.domain.models.Message;
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
 import com.giozar04.serverConnection.application.services.ServerConnectionService;
+import com.giozar04.serverConnection.application.validators.ServerResponseValidator;
 import com.giozar04.transactions.application.utils.TransactionUtils;
 import com.giozar04.transactions.domain.entities.Transaction;
 import com.giozar04.transactions.domain.exceptions.TransactionExceptions;
@@ -39,6 +40,7 @@ public class TransactionService {
         serverConnectionService.sendMessage(message);
         try {
             Message response = serverConnectionService.waitForMessage("CREATE_TRANSACTION");
+            ServerResponseValidator.validateResponse(response);
             System.out.println("[CLIENT] Mensaje recibido del servidor: " + response);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -56,6 +58,7 @@ public class TransactionService {
         serverConnectionService.sendMessage(message);
         try {
             Message response = serverConnectionService.waitForMessage("UPDATE_TRANSACTION");
+            ServerResponseValidator.validateResponse(response);
             System.out.println("[CLIENT] Mensaje recibido del servidor: " + response);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -72,6 +75,7 @@ public class TransactionService {
         serverConnectionService.sendMessage(message);
         try {
             Message response = serverConnectionService.waitForMessage("DELETE_TRANSACTION");
+            ServerResponseValidator.validateResponse(response);
             System.out.println("[CLIENT] Mensaje recibido del servidor: " + response);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -88,6 +92,7 @@ public class TransactionService {
         serverConnectionService.sendMessage(message);
         try {
             Message response = serverConnectionService.waitForMessage("GET_TRANSACTION");
+            ServerResponseValidator.validateResponse(response);
             System.out.println("[CLIENT] Mensaje recibido del servidor: " + response);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -103,6 +108,7 @@ public class TransactionService {
 
         try {
             Message response = serverConnectionService.waitForMessage("GET_ALL_TRANSACTIONS");
+            ServerResponseValidator.validateResponse(response);
             Object raw = response.getData("transactions");
 
             if (raw == null) {
