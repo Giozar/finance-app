@@ -11,10 +11,12 @@ import com.giozar04.messages.domain.models.Message;
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
 import com.giozar04.serverConnection.application.services.ServerConnectionService;
 import com.giozar04.serverConnection.application.validators.ServerResponseValidator;
+import com.giozar04.shared.utils.CustomLogger;
 
 public class BankClientService {
 
     private final ServerConnectionService serverConnectionService;
+    private static final CustomLogger logger = CustomLogger.getInstance();
     private static BankClientService instance;
 
     private BankClientService(ServerConnectionService serverConnectionService) {
@@ -32,7 +34,8 @@ public class BankClientService {
         return instance;
     }
 
-    public void createBankClient(BankClient bankClient) throws ClientOperationException {
+    @SuppressWarnings("unchecked")
+    public BankClient createBankClient(BankClient bankClient) throws ClientOperationException {
         Message message = new Message();
         message.setType("CREATE_BANK_CLIENT");
         message.addData("bankClient", BankClientUtils.bankClientToMap(bankClient));
@@ -41,14 +44,16 @@ public class BankClientService {
         try {
             Message response = serverConnectionService.waitForMessage("CREATE_BANK_CLIENT");
             ServerResponseValidator.validateResponse(response);
-            System.out.println("[CLIENT] Respuesta del servidor: " + response);
+            logger.info("Cliente creado exitosamente: " + response);
+            return BankClientUtils.mapToBankClient((Map<String, Object>) response.getData("bankClient"));
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new BankClientExceptions.BankClientCreationException("Error al esperar la respuesta del servidor", e);
         }
     }
 
-    public void updateBankClientById(Long id, BankClient bankClient) throws ClientOperationException {
+    @SuppressWarnings("unchecked")
+    public BankClient updateBankClientById(Long id, BankClient bankClient) throws ClientOperationException {
         Message message = new Message();
         message.setType("UPDATE_BANK_CLIENT");
         message.addData("id", id);
@@ -58,14 +63,16 @@ public class BankClientService {
         try {
             Message response = serverConnectionService.waitForMessage("UPDATE_BANK_CLIENT");
             ServerResponseValidator.validateResponse(response);
-            System.out.println("[CLIENT] Respuesta del servidor: " + response);
+            logger.info("Cliente actualizado correctamente: " + response);
+            return BankClientUtils.mapToBankClient((Map<String, Object>) response.getData("bankClient"));
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new BankClientExceptions.BankClientUpdateException("Error al esperar la respuesta del servidor", e);
         }
     }
 
-    public void deleteBankClientById(Long id) throws ClientOperationException {
+    @SuppressWarnings("unchecked")
+    public BankClient deleteBankClientById(Long id) throws ClientOperationException {
         Message message = new Message();
         message.setType("DELETE_BANK_CLIENT");
         message.addData("id", id);
@@ -74,14 +81,16 @@ public class BankClientService {
         try {
             Message response = serverConnectionService.waitForMessage("DELETE_BANK_CLIENT");
             ServerResponseValidator.validateResponse(response);
-            System.out.println("[CLIENT] Respuesta del servidor: " + response);
+            logger.info("Cliente eliminado exitosamente: " + response);
+            return BankClientUtils.mapToBankClient((Map<String, Object>) response.getData("bankClient"));
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new BankClientExceptions.BankClientDeletionException("Error al esperar la respuesta del servidor", e);
         }
     }
 
-    public void getBankClientById(Long id) throws ClientOperationException {
+    @SuppressWarnings("unchecked")
+    public BankClient getBankClientById(Long id) throws ClientOperationException {
         Message message = new Message();
         message.setType("GET_BANK_CLIENT");
         message.addData("id", id);
@@ -90,7 +99,8 @@ public class BankClientService {
         try {
             Message response = serverConnectionService.waitForMessage("GET_BANK_CLIENT");
             ServerResponseValidator.validateResponse(response);
-            System.out.println("[CLIENT] Respuesta del servidor: " + response);
+            logger.info("Cliente obtenido correctamente: " + response);
+            return BankClientUtils.mapToBankClient((Map<String, Object>) response.getData("bankClient"));
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new BankClientExceptions.BankClientRetrievalException("Error al esperar la respuesta del servidor", e);
@@ -99,8 +109,7 @@ public class BankClientService {
 
     @SuppressWarnings("unchecked")
     public List<BankClient> getAllBankClients() throws ClientOperationException {
-
-        System.out.println("PIDO TODOS LOS CLIENTES");
+        logger.info("Solicitando todos los clientes...");
         Message message = new Message();
         message.setType("GET_ALL_BANK_CLIENTS");
 
@@ -122,6 +131,7 @@ public class BankClientService {
                         clients.add(BankClientUtils.mapToBankClient((Map<String, Object>) map));
                     }
                 }
+                logger.info("Lista de clientes obtenida correctamente. Total: " + clients.size());
                 return clients;
             } else {
                 throw new BankClientExceptions.BankClientParsingException(

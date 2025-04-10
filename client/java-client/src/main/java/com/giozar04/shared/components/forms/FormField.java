@@ -13,15 +13,26 @@ public class FormField extends JPanel {
     private final JLabel label;
     private final JTextField textField;
 
+    // Valores por defecto
+    private static final int DEFAULT_WIDTH = 400;
+    private static final int DEFAULT_HEIGHT = 40;
+
+    // Constructor básico (usa ancho y alto por defecto)
     public FormField(String labelText) {
-        this(labelText, false);
+        this(labelText, false, DEFAULT_WIDTH, DEFAULT_HEIGHT);
     }
 
+    // Constructor con password (ancho y alto por defecto)
     public FormField(String labelText, boolean isPassword) {
+        this(labelText, isPassword, DEFAULT_WIDTH, DEFAULT_HEIGHT);
+    }
+
+    // Constructor con ancho y alto personalizados
+    public FormField(String labelText, boolean isPassword, int width, int height) {
         setLayout(new BorderLayout(5, 5));
 
         label = new JLabel(labelText);
-        label.setPreferredSize(new Dimension(150, 25));
+        label.setPreferredSize(new Dimension(150, 25)); // ancho fijo para etiquetas
 
         if (isPassword) {
             textField = new JPasswordField(20);
@@ -31,6 +42,10 @@ public class FormField extends JPanel {
 
         add(label, BorderLayout.WEST);
         add(textField, BorderLayout.CENTER);
+
+        Dimension size = new Dimension(width, height);
+        setMaximumSize(size);
+        setPreferredSize(size);
     }
 
     public String getValue() {

@@ -11,10 +11,12 @@ import com.giozar04.messages.domain.models.Message;
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
 import com.giozar04.serverConnection.application.services.ServerConnectionService;
 import com.giozar04.serverConnection.application.validators.ServerResponseValidator;
+import com.giozar04.shared.utils.CustomLogger;
 
 public class AccountService {
 
     private final ServerConnectionService serverConnectionService;
+    private static final CustomLogger logger = CustomLogger.getInstance();
     private static AccountService instance;
 
     private AccountService(ServerConnectionService serverConnectionService) {
@@ -32,7 +34,8 @@ public class AccountService {
         return instance;
     }
 
-    public void createAccount(Account account) throws ClientOperationException {
+    @SuppressWarnings("unchecked")
+    public Account createAccount(Account account) throws ClientOperationException {
         Message message = new Message();
         message.setType("CREATE_ACCOUNT");
         message.addData("account", AccountUtils.accountToMap(account));
@@ -41,14 +44,16 @@ public class AccountService {
         try {
             Message response = serverConnectionService.waitForMessage("CREATE_ACCOUNT");
             ServerResponseValidator.validateResponse(response);
-            System.out.println("[CLIENT] Cuenta creada: " + response);
+            logger.info("Cuenta creada exitosamente: " + response);
+            return AccountUtils.mapToAccount((Map<String, Object>) response.getData("account"));
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new AccountExceptions.AccountCreationException("Error al esperar respuesta del servidor", e);
         }
     }
 
-    public void updateAccountById(Long id, Account account) throws ClientOperationException {
+    @SuppressWarnings("unchecked")
+    public Account updateAccountById(Long id, Account account) throws ClientOperationException {
         Message message = new Message();
         message.setType("UPDATE_ACCOUNT");
         message.addData("id", id);
@@ -58,14 +63,16 @@ public class AccountService {
         try {
             Message response = serverConnectionService.waitForMessage("UPDATE_ACCOUNT");
             ServerResponseValidator.validateResponse(response);
-            System.out.println("[CLIENT] Cuenta actualizada: " + response);
+            logger.info("Cuenta actualizada correctamente: " + response);
+            return AccountUtils.mapToAccount((Map<String, Object>) response.getData("account"));
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new AccountExceptions.AccountUpdateException("Error al esperar respuesta del servidor", e);
         }
     }
 
-    public void deleteAccountById(Long id) throws ClientOperationException {
+    @SuppressWarnings("unchecked")
+    public Account deleteAccountById(Long id) throws ClientOperationException {
         Message message = new Message();
         message.setType("DELETE_ACCOUNT");
         message.addData("id", id);
@@ -74,14 +81,16 @@ public class AccountService {
         try {
             Message response = serverConnectionService.waitForMessage("DELETE_ACCOUNT");
             ServerResponseValidator.validateResponse(response);
-            System.out.println("[CLIENT] Cuenta eliminada: " + response);
+            logger.info("Cuenta eliminada exitosamente: " + response);
+            return AccountUtils.mapToAccount((Map<String, Object>) response.getData("account"));
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new AccountExceptions.AccountDeletionException("Error al esperar respuesta del servidor", e);
         }
     }
 
-    public void getAccountById(Long id) throws ClientOperationException {
+    @SuppressWarnings("unchecked")
+    public Account getAccountById(Long id) throws ClientOperationException {
         Message message = new Message();
         message.setType("GET_ACCOUNT");
         message.addData("id", id);
@@ -90,7 +99,8 @@ public class AccountService {
         try {
             Message response = serverConnectionService.waitForMessage("GET_ACCOUNT");
             ServerResponseValidator.validateResponse(response);
-            System.out.println("[CLIENT] Cuenta recibida: " + response);
+            logger.info("Cuenta obtenida correctamente: " + response);
+            return AccountUtils.mapToAccount((Map<String, Object>) response.getData("account"));
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new AccountExceptions.AccountRetrievalException("Error al esperar respuesta del servidor", e);
@@ -99,10 +109,12 @@ public class AccountService {
 
     @SuppressWarnings("unchecked")
     public List<Account> getAllAccounts() throws ClientOperationException {
+        logger.info("Solicitando todas las cuentas...");
         Message message = new Message();
         message.setType("GET_ALL_ACCOUNTS");
 
         serverConnectionService.sendMessage(message);
+
         try {
             Message response = serverConnectionService.waitForMessage("GET_ALL_ACCOUNTS");
             ServerResponseValidator.validateResponse(response);
@@ -119,6 +131,7 @@ public class AccountService {
                         accounts.add(AccountUtils.mapToAccount((Map<String, Object>) map));
                     }
                 }
+                logger.info("Cuentas obtenidas correctamente. Total: " + accounts.size());
                 return accounts;
             } else {
                 throw new AccountExceptions.AccountParsingException("Formato inesperado: " + raw.getClass().getName(), null);

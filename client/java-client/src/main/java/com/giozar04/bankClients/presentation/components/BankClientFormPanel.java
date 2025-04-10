@@ -1,20 +1,22 @@
 package com.giozar04.bankClients.presentation.components;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.GridLayout;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import com.giozar04.bankClient.domain.entities.BankClient;
 import com.giozar04.bankClients.infrastructure.services.BankClientService;
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
+import com.giozar04.shared.components.forms.FormComboBox;
 import com.giozar04.shared.components.forms.FormField;
 import com.giozar04.shared.utils.DialogUtil;
 import com.giozar04.shared.utils.FormValidatorUtils;
@@ -27,7 +29,7 @@ public class BankClientFormPanel extends JPanel {
 
     private final FormField bankNameField;
     private final FormField clientNumberField;
-    private final JComboBox<User> userCombo;
+    private final FormComboBox<User> userComboBox;
     private final JButton saveButton;
     private final JButton cancelButton;
 
@@ -37,15 +39,21 @@ public class BankClientFormPanel extends JPanel {
         setLayout(new BorderLayout(10, 10));
         setBorder(new EmptyBorder(20, 20, 20, 20));
 
-        JPanel formPanel = new JPanel(new GridLayout(0, 1, 10, 10));
-        bankNameField = new FormField("Nombre del Banco:");
-        clientNumberField = new FormField("Número de Cliente:");
-        userCombo = new JComboBox<>();
+        JPanel formPanel = new JPanel();
+        formPanel.setLayout(new BoxLayout(formPanel, BoxLayout.Y_AXIS));
+        formPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
+
+        bankNameField = new FormField("Nombre del Banco:", false, 400, 40);
+        clientNumberField = new FormField("Número de Cliente:", false, 400, 40);
+        userComboBox = new FormComboBox<>("Usuario:", 400, 40);
+        userComboBox.setPlaceholder("Selecciona un usuario...");
         loadUsers();
 
         formPanel.add(bankNameField);
+        formPanel.add(Box.createRigidArea(new Dimension(0, 10)));
         formPanel.add(clientNumberField);
-        formPanel.add(userCombo);
+        formPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+        formPanel.add(userComboBox);
 
         add(formPanel, BorderLayout.CENTER);
 
@@ -63,62 +71,58 @@ public class BankClientFormPanel extends JPanel {
     }
 
     private void loadUsers() {
-        userCombo.removeAllItems();
         try {
             List<User> users = userService.getAllUsers();
-            for (User user: users) {
-                userCombo.addItem(user);
-            }
+            userComboBox.setItems(users);
         } catch (ClientOperationException e) {
-            DialogUtil.showError(this, "Error al cargar a los usuarios " + e.getMessage());
+            DialogUtil.showError(this, "Error al cargar a los usuarios: " + e.getMessage());
         }
     }
 
     private void selectUserById(long userId) {
-        for (int i = 0; i < userCombo.getItemCount(); i++) {
-            User user = userCombo.getItemAt(i);
+        for (int i = 0; i < userComboBox.getItemCount(); i++) {
+            User user = userComboBox.getItemAt(i);
             if (user.getId() == userId) {
-                userCombo.setSelectedItem(user);
+                userComboBox.setSelectedItem(user);
                 break;
             }
         }
     }
-    
 
     private void handleSave() {
         List<String> errors = new ArrayList<>();
-
+    
         String bankName = bankNameField.getValue().trim();
         String clientNumber = clientNumberField.getValue().trim();
-        User user = (User) userCombo.getSelectedItem();
-        long userId = user.getId();
+        User user = userComboBox.getSelectedItem();
+        long userId = 0;
         FormValidatorUtils.isRequired(bankName, "Nombre del Banco", errors);
         FormValidatorUtils.isRequired(clientNumber, "Número de Cliente", errors);
-        FormValidatorUtils.isLongPositive(userId+ "", "ID de Usuario", errors);
 
-        if(userCombo.getSelectedItem() == null ){
-            errors.add("Debes seleccionar un Usuario");
+        if (user != null) {
+            userId = user.getId();
         }
 
+        if(userId == 0 || !userComboBox.isSelectionValid()) {
+            errors.add("Debes seleccionar un Usuario válido");
+        }
+    
         if (!errors.isEmpty()) {
             String message = FormValidatorUtils.formatErrorMessage(errors);
             DialogUtil.showError(this, message);
             return;
         }
-
-        
+    
         BankClient client = currentClient != null ? currentClient : new BankClient();
-
         client.setBankName(bankName);
         client.setClientNumber(clientNumber);
         client.setUserId(userId);
-
-
+    
         if (currentClient == null) {
             client.setCreatedAt(ZonedDateTime.now());
         }
         client.setUpdatedAt(ZonedDateTime.now());
-
+    
         try {
             if (currentClient == null) {
                 BankClientService.getInstance().createBankClient(client);
@@ -132,7 +136,7 @@ public class BankClientFormPanel extends JPanel {
             DialogUtil.showError(this, "Error al guardar el cliente: " + ex.getMessage());
         }
     }
-
+    
     public void loadBankClient(BankClient client) {
         this.currentClient = client;
         bankNameField.setValue(client.getBankName());
@@ -144,6 +148,6 @@ public class BankClientFormPanel extends JPanel {
         currentClient = null;
         bankNameField.clear();
         clientNumberField.clear();
-        userCombo.setSelectedIndex(-1);
+        userComboBox.clearSelection();
     }
 }
