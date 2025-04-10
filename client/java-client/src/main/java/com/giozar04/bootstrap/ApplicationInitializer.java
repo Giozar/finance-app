@@ -10,10 +10,13 @@ import com.giozar04.bankClients.infrastructure.services.BankClientService;
 import com.giozar04.configs.ServerConnectionConfig;
 import com.giozar04.serverConnection.application.services.ServerConnectionService;
 import com.giozar04.shared.layouts.AppLayout;
+import com.giozar04.shared.utils.CustomLogger;
 import com.giozar04.transactions.infrastructure.services.TransactionService;
 import com.giozar04.users.infrastructure.services.UserService;
 
 public class ApplicationInitializer {
+
+    private final CustomLogger logger = CustomLogger.getInstance();
 
     private ServerConnectionService connectionService;
     private UserService userService;
@@ -25,7 +28,7 @@ public class ApplicationInitializer {
         if (initializeConnection() && initializeServices()) {
             launchUI();
         } else {
-            System.err.println("❌ La aplicación no se pudo iniciar por fallas de conexión.");
+            this.logger.error("❌ La aplicación no se pudo iniciar por fallas de conexión.");
         }
     }
 

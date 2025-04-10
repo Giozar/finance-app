@@ -8,6 +8,7 @@ import com.giozar04.messages.domain.models.Message;
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
 import com.giozar04.serverConnection.application.services.ServerConnectionService;
 import com.giozar04.serverConnection.application.validators.ServerResponseValidator;
+import com.giozar04.shared.utils.CustomLogger;
 import com.giozar04.users.application.utils.UserUtils;
 import com.giozar04.users.domain.entities.User;
 import com.giozar04.users.domain.exceptions.UserExceptions;
@@ -15,6 +16,7 @@ import com.giozar04.users.domain.exceptions.UserExceptions;
 public class UserService {
 
     private final ServerConnectionService serverConnectionService;
+    private static final CustomLogger logger = CustomLogger.getInstance();
     private static UserService instance;
 
     private UserService(ServerConnectionService serverConnectionService) {
@@ -32,7 +34,8 @@ public class UserService {
         return instance;
     }
 
-    public void createUser(User user) throws ClientOperationException {
+    @SuppressWarnings("unchecked")
+    public User createUser(User user) throws ClientOperationException {
         Message message = new Message();
         message.setType("CREATE_USER");
         message.addData("user", UserUtils.userToMap(user));
@@ -41,14 +44,16 @@ public class UserService {
         try {
             Message response = serverConnectionService.waitForMessage("CREATE_USER");
             ServerResponseValidator.validateResponse(response);
-            System.out.println("[CLIENT] Usuario creado: " + response);
+            logger.info("Usuario creado exitosamente: " + response);
+            return UserUtils.mapToUser((Map<String, Object>) response.getData("user"));
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new UserExceptions.UserCreationException("Error al esperar la respuesta del servidor", e);
         }
     }
 
-    public void updateUserById(Long userId, User user) throws ClientOperationException {
+    @SuppressWarnings("unchecked")
+    public User updateUserById(Long userId, User user) throws ClientOperationException {
         Message message = new Message();
         message.setType("UPDATE_USER");
         message.addData("id", userId);
@@ -58,14 +63,16 @@ public class UserService {
         try {
             Message response = serverConnectionService.waitForMessage("UPDATE_USER");
             ServerResponseValidator.validateResponse(response);
-            System.out.println("[CLIENT] Usuario actualizado: " + response);
+            logger.info("Usuario actualizado correctamente: " + response);
+            return UserUtils.mapToUser((Map<String, Object>) response.getData("user"));
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new UserExceptions.UserUpdateException("Error al esperar la respuesta del servidor", e);
         }
     }
 
-    public void deleteUserById(Long userId) throws ClientOperationException {
+    @SuppressWarnings("unchecked")
+    public User deleteUserById(Long userId) throws ClientOperationException {
         Message message = new Message();
         message.setType("DELETE_USER");
         message.addData("id", userId);
@@ -74,14 +81,16 @@ public class UserService {
         try {
             Message response = serverConnectionService.waitForMessage("DELETE_USER");
             ServerResponseValidator.validateResponse(response);
-            System.out.println("[CLIENT] Usuario eliminado: " + response);
+            logger.info("Usuario eliminado exitosamente: " + response);
+            return UserUtils.mapToUser((Map<String, Object>) response.getData("user"));
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new UserExceptions.UserDeletionException("Error al esperar la respuesta del servidor", e);
         }
     }
 
-    public void getUserById(Long userId) throws ClientOperationException {
+    @SuppressWarnings("unchecked")
+    public User getUserById(Long userId) throws ClientOperationException {
         Message message = new Message();
         message.setType("GET_USER");
         message.addData("id", userId);
@@ -90,7 +99,8 @@ public class UserService {
         try {
             Message response = serverConnectionService.waitForMessage("GET_USER");
             ServerResponseValidator.validateResponse(response);
-            System.out.println("[CLIENT] Usuario recibido: " + response);
+            logger.info("Usuario obtenido: " + response);
+            return UserUtils.mapToUser((Map<String, Object>) response.getData("user"));
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new UserExceptions.UserRetrievalException("Error al esperar la respuesta del servidor", e);
@@ -122,6 +132,7 @@ public class UserService {
                         users.add(UserUtils.mapToUser((Map<String, Object>) map));
                     }
                 }
+                logger.info("Usuarios obtenidos correctamente. Total: " + users.size());
                 return users;
             } else {
                 throw new UserExceptions.UserParsingException(

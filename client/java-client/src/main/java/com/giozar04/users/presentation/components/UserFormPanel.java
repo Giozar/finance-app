@@ -1,14 +1,17 @@
 package com.giozar04.users.presentation.components;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.GridLayout;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
 
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
 import com.giozar04.shared.components.forms.FormField;
@@ -30,17 +33,24 @@ public class UserFormPanel extends JPanel {
     private User currentUser;
 
     public UserFormPanel() {
-        setLayout(new BorderLayout());
-        JPanel formPanel = new JPanel(new GridLayout(0, 1, 10, 10));
+        setLayout(new BorderLayout(10, 10));
+        setBorder(new EmptyBorder(20, 20, 20, 20));
 
-        nameField = new FormField("Nombre:");
-        emailField = new FormField("Correo electrónico:");
-        passwordField = new FormField("Contraseña:", true);
-        balanceField = new FormField("Balance global:");
+        JPanel formPanel = new JPanel();
+        formPanel.setLayout(new BoxLayout(formPanel, BoxLayout.Y_AXIS));
+        formPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
+
+        nameField = new FormField("Nombre:", false, 400, 40);
+        emailField = new FormField("Correo electrónico:", false, 400, 40);
+        passwordField = new FormField("Contraseña:", true, 400, 40);
+        balanceField = new FormField("Balance global:", false, 400, 40);
 
         formPanel.add(nameField);
+        formPanel.add(Box.createRigidArea(new Dimension(0, 10)));
         formPanel.add(emailField);
+        formPanel.add(Box.createRigidArea(new Dimension(0, 10)));
         formPanel.add(passwordField);
+        formPanel.add(Box.createRigidArea(new Dimension(0, 10)));
         formPanel.add(balanceField);
 
         add(formPanel, BorderLayout.CENTER);
@@ -60,10 +70,10 @@ public class UserFormPanel extends JPanel {
     private void handleSave() {
         List<String> errors = new ArrayList<>();
 
-        String name = nameField.getValue();
-        String email = emailField.getValue();
+        String name = nameField.getValue().trim();
+        String email = emailField.getValue().trim();
         String password = passwordField.getValue();
-        String balanceStr = balanceField.getValue();
+        String balanceStr = balanceField.getValue().trim();
 
         FormValidatorUtils.isRequired(name, "Nombre", errors);
         FormValidatorUtils.isEmail(email, "Correo electrónico", errors);
