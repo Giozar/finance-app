@@ -20,11 +20,9 @@ public class CardUtils {
         if (card.getExpirationDate() != null) {
             map.put("expirationDate", card.getExpirationDate().format(SharedUtils.getFormatter()));
         }
-
         if (card.getCreatedAt() != null) {
             map.put("createdAt", card.getCreatedAt().format(SharedUtils.getFormatter()));
         }
-
         if (card.getUpdatedAt() != null) {
             map.put("updatedAt", card.getUpdatedAt().format(SharedUtils.getFormatter()));
         }
@@ -38,20 +36,15 @@ public class CardUtils {
         card.setId(SharedUtils.parseLong(map.get("id")));
         card.setAccountId(SharedUtils.parseLong(map.get("accountId")));
         card.setName((String) map.getOrDefault("name", ""));
-
-        Object typeObj = map.get("cardType");
-        try {
-            if (typeObj != null) {
-                card.setCardType(CardTypes.fromValue(typeObj.toString()));
-            }
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Tipo de tarjeta no válido: " + typeObj);
-        }
-
         card.setCardNumber((String) map.getOrDefault("cardNumber", ""));
         card.setExpirationDate(SharedUtils.parseZonedDateTime(map.get("expirationDate")));
         card.setCreatedAt(SharedUtils.parseZonedDateTime(map.get("createdAt")));
         card.setUpdatedAt(SharedUtils.parseZonedDateTime(map.get("updatedAt")));
+
+        Object typeObj = map.get("cardType");
+        if (typeObj != null) {
+            card.setCardType(CardTypes.fromValue(typeObj.toString()));
+        }
 
         return card;
     }
