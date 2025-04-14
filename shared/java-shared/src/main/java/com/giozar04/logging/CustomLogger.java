@@ -1,4 +1,4 @@
-package com.giozar04.shared.utils;
+package com.giozar04.logging;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -12,7 +12,7 @@ public class CustomLogger {
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     // Instancia singleton
-    private static final CustomLogger instance = new CustomLogger();
+    private static final CustomLogger instance = null;
 
     // Constructor privado para evitar instanciación externa
     private CustomLogger() {}
@@ -23,6 +23,9 @@ public class CustomLogger {
      * @return instancia única de CustomLogger
      */
     public static CustomLogger getInstance() {
+        if (instance == null) {
+            return new CustomLogger();
+        }
         return instance;
     }
 

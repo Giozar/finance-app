@@ -7,14 +7,14 @@ import java.util.Map;
 import com.giozar04.accounts.application.services.AccountService;
 import com.giozar04.accounts.application.utils.AccountUtils;
 import com.giozar04.accounts.domain.entities.Account;
+import com.giozar04.logging.CustomLogger;
 import com.giozar04.messages.domain.models.Message;
 import com.giozar04.servers.domain.handlers.MessageHandler;
 import com.giozar04.servers.domain.models.ClientConnection;
-import com.giozar04.shared.logging.CustomLogger;
 
 public class AccountControllers {
 
-    private static final CustomLogger LOGGER = new CustomLogger();
+    private static final CustomLogger LOGGER = CustomLogger.getInstance();
 
     public static final class AccountMessageTypes {
         public static final String CREATE_ACCOUNT = "CREATE_ACCOUNT";

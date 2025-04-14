@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.giozar04.logging.CustomLogger;
 import com.giozar04.messages.domain.models.Message;
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
 import com.giozar04.serverConnection.application.services.ServerConnectionService;
 import com.giozar04.serverConnection.application.validators.ServerResponseValidator;
-import com.giozar04.shared.utils.CustomLogger;
 import com.giozar04.users.application.utils.UserUtils;
 import com.giozar04.users.domain.entities.User;
 import com.giozar04.users.domain.exceptions.UserExceptions;
@@ -71,8 +71,7 @@ public class UserService {
         }
     }
 
-    @SuppressWarnings("unchecked")
-    public User deleteUserById(Long userId) throws ClientOperationException {
+    public void deleteUserById(Long userId) throws ClientOperationException {
         Message message = new Message();
         message.setType("DELETE_USER");
         message.addData("id", userId);
@@ -82,7 +81,6 @@ public class UserService {
             Message response = serverConnectionService.waitForMessage("DELETE_USER");
             ServerResponseValidator.validateResponse(response);
             logger.info("Usuario eliminado exitosamente: " + response);
-            return UserUtils.mapToUser((Map<String, Object>) response.getData("user"));
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new UserExceptions.UserDeletionException("Error al esperar la respuesta del servidor", e);

@@ -7,11 +7,12 @@ import java.util.Map;
 import com.giozar04.accounts.application.utils.AccountUtils;
 import com.giozar04.accounts.domain.entities.Account;
 import com.giozar04.accounts.domain.exceptions.AccountExceptions;
+import com.giozar04.logging.CustomLogger;
 import com.giozar04.messages.domain.models.Message;
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
 import com.giozar04.serverConnection.application.services.ServerConnectionService;
 import com.giozar04.serverConnection.application.validators.ServerResponseValidator;
-import com.giozar04.shared.utils.CustomLogger;
+
 
 public class AccountService {
 
@@ -71,8 +72,7 @@ public class AccountService {
         }
     }
 
-    @SuppressWarnings("unchecked")
-    public Account deleteAccountById(Long id) throws ClientOperationException {
+    public void deleteAccountById(Long id) throws ClientOperationException {
         Message message = new Message();
         message.setType("DELETE_ACCOUNT");
         message.addData("id", id);
@@ -82,7 +82,6 @@ public class AccountService {
             Message response = serverConnectionService.waitForMessage("DELETE_ACCOUNT");
             ServerResponseValidator.validateResponse(response);
             logger.info("Cuenta eliminada exitosamente: " + response);
-            return AccountUtils.mapToAccount((Map<String, Object>) response.getData("account"));
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new AccountExceptions.AccountDeletionException("Error al esperar respuesta del servidor", e);

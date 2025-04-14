@@ -7,11 +7,12 @@ import java.util.Map;
 import com.giozar04.bankClient.application.utils.BankClientUtils;
 import com.giozar04.bankClient.domain.entities.BankClient;
 import com.giozar04.bankClient.domain.exceptions.BankClientExceptions;
+import com.giozar04.logging.CustomLogger;
 import com.giozar04.messages.domain.models.Message;
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
 import com.giozar04.serverConnection.application.services.ServerConnectionService;
 import com.giozar04.serverConnection.application.validators.ServerResponseValidator;
-import com.giozar04.shared.utils.CustomLogger;
+
 
 public class BankClientService {
 
@@ -71,8 +72,7 @@ public class BankClientService {
         }
     }
 
-    @SuppressWarnings("unchecked")
-    public BankClient deleteBankClientById(Long id) throws ClientOperationException {
+    public void deleteBankClientById(Long id) throws ClientOperationException {
         Message message = new Message();
         message.setType("DELETE_BANK_CLIENT");
         message.addData("id", id);
@@ -82,7 +82,6 @@ public class BankClientService {
             Message response = serverConnectionService.waitForMessage("DELETE_BANK_CLIENT");
             ServerResponseValidator.validateResponse(response);
             logger.info("Cliente eliminado exitosamente: " + response);
-            return BankClientUtils.mapToBankClient((Map<String, Object>) response.getData("bankClient"));
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new BankClientExceptions.BankClientDeletionException("Error al esperar la respuesta del servidor", e);

@@ -6,19 +6,18 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import com.giozar04.configs.ServerConfig;
+import com.giozar04.logging.CustomLogger;
 import com.giozar04.servers.application.services.ServerService;
 import com.giozar04.servers.domain.exceptions.ServerOperationException;
 import com.giozar04.servers.domain.interfaces.ServerRegisterHandlers;
-import com.giozar04.shared.logging.CustomLogger;
 
 public class ServerInitializer {
         private final ServerConfig serverConfig;
-        private final CustomLogger logger;
+        private final CustomLogger logger = CustomLogger.getInstance();
         private final ExecutorService threadPool;
     
-        public ServerInitializer(ServerConfig serverConfig, CustomLogger logger) {
+        public ServerInitializer(ServerConfig serverConfig) {
             this.serverConfig = serverConfig;
-            this.logger = logger;
             this.threadPool = Executors.newCachedThreadPool();
         }
     
@@ -28,8 +27,7 @@ public class ServerInitializer {
             ServerService server = ServerService.getInstance(
                     serverConfig.getHost(),
                     serverConfig.getPort(),
-                    threadPool,
-                    logger
+                    threadPool
             );
     
             for (ServerRegisterHandlers registrar : featureRegistrars) {

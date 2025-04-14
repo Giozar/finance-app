@@ -9,9 +9,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.giozar04.logging.CustomLogger;
 import com.giozar04.servers.domain.exceptions.ServerOperationException;
 import com.giozar04.servers.domain.interfaces.ServerInterface;
-import com.giozar04.shared.logging.CustomLogger;
 
 /**
  * Implementación base para servidores de sockets.
@@ -25,7 +25,7 @@ public abstract class ServerAbstract implements ServerInterface {
     protected final int serverPort;
     protected volatile boolean isRunning;
     protected final ExecutorService threadPool;
-    protected final CustomLogger logger;
+    protected final CustomLogger logger = CustomLogger.getInstance();
     protected final AtomicInteger connectedClientsCount = new AtomicInteger(0);
     // Generador único de identificadores para clientes
     protected final AtomicInteger clientIdGenerator = new AtomicInteger(0);
@@ -40,26 +40,14 @@ public abstract class ServerAbstract implements ServerInterface {
      * @throws NullPointerException si algún parámetro requerido es nulo.
      * @throws IllegalArgumentException si el puerto está fuera del rango válido.
      */
-    protected ServerAbstract(String serverHost, int serverPort, ExecutorService threadPool, CustomLogger logger) {
+    protected ServerAbstract(String serverHost, int serverPort, ExecutorService threadPool) {
         this.serverHost = Objects.requireNonNull(serverHost, "El serverHost no puede ser nulo");
         if (serverPort < 0 || serverPort > 65535) {
             throw new IllegalArgumentException("El puerto debe estar entre 0 y 65535");
         }
         this.serverPort = serverPort;
         this.threadPool = Objects.requireNonNull(threadPool, "El threadPool no puede ser nulo");
-        this.logger = Objects.requireNonNull(logger, "El logger no puede ser nulo");
         this.isRunning = false;
-    }
-
-    /**
-     * Constructor alternativo que crea un logger por defecto.
-     *
-     * @param serverHost La dirección del host donde se ejecutará el servidor.
-     * @param serverPort El puerto en el que escuchará el servidor.
-     * @param threadPool El pool de hilos para manejar conexiones de clientes.
-     */
-    protected ServerAbstract(String serverHost, int serverPort, ExecutorService threadPool) {
-        this(serverHost, serverPort, threadPool, new CustomLogger());
     }
 
     /**

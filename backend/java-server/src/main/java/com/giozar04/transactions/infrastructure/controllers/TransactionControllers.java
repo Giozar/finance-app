@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.giozar04.logging.CustomLogger;
 import com.giozar04.messages.domain.models.Message;
 import com.giozar04.servers.domain.handlers.MessageHandler;
 import com.giozar04.servers.domain.models.ClientConnection;
-import com.giozar04.shared.logging.CustomLogger;
 import com.giozar04.transactions.application.services.TransactionService;
 import com.giozar04.transactions.application.utils.TransactionUtils;
 import com.giozar04.transactions.domain.entities.Transaction;
@@ -19,7 +19,7 @@ import com.giozar04.transactions.domain.entities.Transaction;
  */
 public class TransactionControllers {
 
-    private static final CustomLogger LOGGER = new CustomLogger();
+    private static final CustomLogger LOGGER = CustomLogger.getInstance();
 
     /**
      * Tipos de mensajes para operaciones de transacciones.

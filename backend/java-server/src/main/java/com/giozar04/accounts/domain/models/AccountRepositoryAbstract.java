@@ -7,17 +7,17 @@ import com.giozar04.accounts.domain.entities.Account;
 import com.giozar04.accounts.domain.enums.AccountTypes;
 import com.giozar04.accounts.domain.interfaces.AccountRepositoryInterface;
 import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
-import com.giozar04.shared.logging.CustomLogger;
+import com.giozar04.logging.CustomLogger;
+
 
 public abstract class AccountRepositoryAbstract implements AccountRepositoryInterface {
 
     protected final DatabaseConnectionInterface databaseConnection;
-    protected final CustomLogger logger;
+    protected final CustomLogger logger = CustomLogger.getInstance();
 
     protected AccountRepositoryAbstract(DatabaseConnectionInterface databaseConnection) {
         this.databaseConnection = Objects.requireNonNull(databaseConnection, 
             "La conexión a la base de datos no puede ser nula");
-        this.logger = new CustomLogger();
     }
 
     protected void validateAccount(Account account) {

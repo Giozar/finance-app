@@ -3,7 +3,7 @@ package com.giozar04.bootstrap;
 import com.giozar04.configs.DatabaseConfig;
 import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
 import com.giozar04.databases.infrastructure.repositories.DatabaseConnectionMySQL;
-import com.giozar04.shared.logging.CustomLogger;
+import com.giozar04.logging.CustomLogger;
 
 public class DatabaseInitializer {
     private final DatabaseConfig dbConfig;
