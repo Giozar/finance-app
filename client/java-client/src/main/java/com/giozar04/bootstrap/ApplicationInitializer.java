@@ -8,9 +8,9 @@ import javax.swing.SwingUtilities;
 import com.giozar04.accounts.infrastructure.services.AccountService;
 import com.giozar04.bankClients.infrastructure.services.BankClientService;
 import com.giozar04.configs.ServerConnectionConfig;
+import com.giozar04.logging.CustomLogger;
 import com.giozar04.serverConnection.application.services.ServerConnectionService;
 import com.giozar04.shared.layouts.AppLayout;
-import com.giozar04.shared.utils.CustomLogger;
 import com.giozar04.transactions.infrastructure.services.TransactionService;
 import com.giozar04.users.infrastructure.services.UserService;
 

@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.giozar04.logging.CustomLogger;
 import com.giozar04.messages.domain.models.Message;
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
 import com.giozar04.serverConnection.application.services.ServerConnectionService;
 import com.giozar04.serverConnection.application.validators.ServerResponseValidator;
-import com.giozar04.shared.utils.CustomLogger;
 import com.giozar04.transactions.application.utils.TransactionUtils;
 import com.giozar04.transactions.domain.entities.Transaction;
 import com.giozar04.transactions.domain.exceptions.TransactionExceptions;
@@ -71,8 +71,7 @@ public class TransactionService {
         }
     }
 
-    @SuppressWarnings("unchecked")
-    public Transaction deleteTransactionById(Long transactionId) throws ClientOperationException {
+    public void deleteTransactionById(Long transactionId) throws ClientOperationException {
         Message message = new Message();
         message.setType("DELETE_TRANSACTION");
         message.addData("id", transactionId);
@@ -82,7 +81,6 @@ public class TransactionService {
             Message response = serverConnectionService.waitForMessage("DELETE_TRANSACTION");
             ServerResponseValidator.validateResponse(response);
             logger.info("Transacción eliminada exitosamente: " + response);
-            return TransactionUtils.mapToTransaction((Map<String, Object>) response.getData("transaction"));
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new TransactionExceptions.TransactionDeletionException("Error al esperar la respuesta del servidor", e);

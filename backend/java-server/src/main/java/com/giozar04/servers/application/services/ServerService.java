@@ -16,7 +16,6 @@ import com.giozar04.servers.domain.exceptions.ServerOperationException;
 import com.giozar04.servers.domain.handlers.MessageHandler;
 import com.giozar04.servers.domain.models.ClientConnection;
 import com.giozar04.servers.domain.models.ServerAbstract;
-import com.giozar04.shared.logging.CustomLogger;
 
 /**
  * Implementa el servidor de sockets como Singleton.
@@ -28,29 +27,21 @@ public class ServerService extends ServerAbstract {
     private final Map<String, MessageHandler> messageHandlers;
     private boolean shutdownHookRegistered = false;
 
-    private ServerService(String serverHost, int serverPort, ExecutorService threadPool, CustomLogger logger) {
-        super(serverHost, serverPort, threadPool, logger);
+    private ServerService(String serverHost, int serverPort, ExecutorService threadPool) {
+        super(serverHost, serverPort, threadPool);
         this.connectedClients = new ConcurrentHashMap<>();
         this.messageHandlers = new ConcurrentHashMap<>();
         registerShutdownHook();
     }
 
-    public static ServerService getInstance(String serverHost, int serverPort, ExecutorService threadPool, CustomLogger logger) {
+    public static ServerService getInstance(String serverHost, int serverPort, ExecutorService threadPool) {
         if (instance == null) {
             synchronized (ServerService.class) {
                 if (instance == null) {
-                    instance = new ServerService(serverHost, serverPort, threadPool, logger);
+                    instance = new ServerService(serverHost, serverPort, threadPool);
                 }
             }
         }
-        return instance;
-    }
-
-    public static ServerService getInstance(String serverHost, int serverPort, ExecutorService threadPool) {
-        return getInstance(serverHost, serverPort, threadPool, new CustomLogger());
-    }
-
-    public static ServerService getInstance() {
         return instance;
     }
 

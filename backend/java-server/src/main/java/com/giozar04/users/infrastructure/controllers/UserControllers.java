@@ -4,17 +4,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.giozar04.logging.CustomLogger;
 import com.giozar04.messages.domain.models.Message;
 import com.giozar04.servers.domain.handlers.MessageHandler;
 import com.giozar04.servers.domain.models.ClientConnection;
-import com.giozar04.shared.logging.CustomLogger;
 import com.giozar04.users.application.services.UserService;
 import com.giozar04.users.application.utils.UserUtils;
 import com.giozar04.users.domain.entities.User;
 
 public class UserControllers {
 
-    private static final CustomLogger LOGGER = new CustomLogger();
+    private static final CustomLogger LOGGER = CustomLogger.getInstance();
 
     public static final class UserMessageTypes {
         public static final String CREATE_USER = "CREATE_USER";

@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Objects;
 
 import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
-import com.giozar04.shared.logging.CustomLogger;
+import com.giozar04.logging.CustomLogger;
 import com.giozar04.transactions.domain.entities.Transaction;
 import com.giozar04.transactions.domain.interfaces.TransactionRepositoryInterface;
 
@@ -18,7 +18,7 @@ public abstract class TransactionRepositoryAbstract implements TransactionReposi
     protected final DatabaseConnectionInterface databaseConnection;
     
     // Logger para registro de eventos
-    protected final CustomLogger logger;
+    protected final CustomLogger logger = CustomLogger.getInstance();
     
     /**
      * Constructor que inicializa la conexión a la base de datos.
@@ -29,7 +29,6 @@ public abstract class TransactionRepositoryAbstract implements TransactionReposi
     protected TransactionRepositoryAbstract(DatabaseConnectionInterface databaseConnection) {
         this.databaseConnection = Objects.requireNonNull(databaseConnection, 
                 "La conexión a la base de datos no puede ser nula");
-        this.logger = new CustomLogger();
     }
     
     /**

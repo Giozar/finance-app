@@ -45,7 +45,7 @@ public class CardUtils {
                 card.setCardType(CardTypes.fromValue(typeObj.toString()));
             }
         } catch (Exception e) {
-            card.setCardType(null); // TODO: Lanzar excepción para forzar validación
+            throw new IllegalArgumentException("Tipo de tarjeta no válido: " + typeObj);
         }
 
         card.setCardNumber((String) map.getOrDefault("cardNumber", ""));

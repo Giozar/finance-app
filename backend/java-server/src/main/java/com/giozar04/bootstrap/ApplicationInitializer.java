@@ -14,10 +14,10 @@ import com.giozar04.bankClients.infrastructure.repositories.BankClientRepository
 import com.giozar04.configs.DatabaseConfig;
 import com.giozar04.configs.ServerConfig;
 import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
+import com.giozar04.logging.CustomLogger;
 import com.giozar04.servers.application.services.ServerService;
 import com.giozar04.servers.domain.exceptions.ServerOperationException;
 import com.giozar04.servers.domain.interfaces.ServerRegisterHandlers;
-import com.giozar04.shared.logging.CustomLogger;
 import com.giozar04.transactions.application.services.TransactionService;
 import com.giozar04.transactions.domain.interfaces.TransactionRepositoryInterface;
 import com.giozar04.transactions.infrastructure.handlers.TransactionHandlers;
@@ -28,7 +28,7 @@ import com.giozar04.users.infrastructure.handlers.UserHandlers;
 import com.giozar04.users.infrastructure.repositories.UserRepositoryMySQL;
 
 public class ApplicationInitializer {
-    private final CustomLogger logger = new CustomLogger();
+    private final CustomLogger logger = CustomLogger.getInstance();
 
     public void start() {
         logger.info("Iniciando aplicación...");
@@ -71,7 +71,7 @@ public class ApplicationInitializer {
 
         logger.info("Servicios inicializados correctamente.");
 
-        ServerInitializer serverInitializer = new ServerInitializer(serverConfig, logger);
+        ServerInitializer serverInitializer = new ServerInitializer(serverConfig);
         try {
 
             ServerService server = serverInitializer.initialize(featureServices);
