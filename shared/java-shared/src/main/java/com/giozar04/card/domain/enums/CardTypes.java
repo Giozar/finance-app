@@ -2,7 +2,7 @@ package com.giozar04.card.domain.enums;
 
 public enum CardTypes {
     PHYSICAL("physical", "Física"),
-    Digital("digital", "Digital");
+    DIGITAL("digital", "Digital");
 
     private final String value;
     private final String label;
