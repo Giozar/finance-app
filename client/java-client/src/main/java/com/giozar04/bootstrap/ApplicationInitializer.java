@@ -7,6 +7,7 @@ import javax.swing.SwingUtilities;
 
 import com.giozar04.accounts.infrastructure.services.AccountService;
 import com.giozar04.bankClients.infrastructure.services.BankClientService;
+import com.giozar04.cards.infrastructure.services.CardService;
 import com.giozar04.configs.ServerConnectionConfig;
 import com.giozar04.logging.CustomLogger;
 import com.giozar04.serverConnection.application.services.ServerConnectionService;
@@ -22,6 +23,7 @@ public class ApplicationInitializer {
     private UserService userService;
     private BankClientService bankClientService;
     private AccountService accountService;
+    private CardService cardService;
     private TransactionService transactionService;
 
     public void start() {
@@ -56,6 +58,9 @@ public class ApplicationInitializer {
 
             this.accountService = AccountService.connectService(connectionService);
             System.out.println("Servicios de cuentas conectado correctamente");
+
+            this.cardService = CardService.connectService(connectionService);
+            System.out.println("✅ Servicio de tarjetas conectado correctamente.");
             
             this.transactionService = TransactionService.connectService(connectionService);
             System.out.println("✅ Servicio de transacciones conectado correctamente.");

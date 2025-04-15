@@ -8,6 +8,7 @@ import javax.swing.JPanel;
 
 import com.giozar04.accounts.presentation.views.AccountsView;
 import com.giozar04.bankClients.presentation.views.BankClientsView;
+import com.giozar04.cards.presentation.views.CardsView;
 import com.giozar04.dashboard.presentation.views.MainDashboardView;
 import com.giozar04.shared.components.HeaderPanel;
 import com.giozar04.shared.components.MainContentPanel;
@@ -42,6 +43,7 @@ public class AppLayout extends JPanel {
             case "Usuarios" -> setContent(new UsersView());
             case "Clientes" -> setContent(new BankClientsView());
             case "Cuentas" -> setContent(new AccountsView());
+            case "Tarjetas" -> setContent(new CardsView());
             case "Transacciones" -> setContent(new TransactionsView());
             default -> setContent(new JLabel("Vista no encontrada"));
         }
