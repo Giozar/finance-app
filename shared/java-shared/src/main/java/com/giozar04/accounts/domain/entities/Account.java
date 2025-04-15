@@ -61,4 +61,9 @@ public class Account implements Serializable {
 
     public ZonedDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(ZonedDateTime updatedAt) { this.updatedAt = updatedAt; }
+
+    @Override
+    public String toString() {
+        return name + " ( " + type + " )";
+    }
 }

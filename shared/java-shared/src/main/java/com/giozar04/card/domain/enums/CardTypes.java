@@ -33,6 +33,4 @@ public enum CardTypes {
         }
         throw  new IllegalArgumentException("Tipo de tarjeta no  valido: " + value);
     }
-
-    
 }
