@@ -15,6 +15,10 @@ import com.giozar04.cards.application.services.CardService;
 import com.giozar04.cards.domain.interfaces.CardRepositoryInterface;
 import com.giozar04.cards.infrastructure.handlers.CardHandlers;
 import com.giozar04.cards.infrastructure.repositories.CardRepositoryMySQL;
+import com.giozar04.categories.application.services.CategoryService;
+import com.giozar04.categories.domain.interfaces.CategoryRepositoryInterface;
+import com.giozar04.categories.infrastructure.handlers.CategoryHandlers;
+import com.giozar04.categories.infrastructure.repositories.CategoryRepositoryMySQL;
 import com.giozar04.configs.DatabaseConfig;
 import com.giozar04.configs.ServerConfig;
 import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
@@ -63,6 +67,11 @@ public class ApplicationInitializer {
                 new CardRepositoryMySQL(dbConnection);
         CardService cardService = new CardService(cardRepository);
 
+        // Inicializar repositorios y servicios de categorías
+        CategoryRepositoryInterface categoryRepository = 
+                new CategoryRepositoryMySQL(dbConnection);
+        CategoryService categoryService = new CategoryService(categoryRepository);
+
         // Inicializar repositorios y servicios de transacciones
         TransactionRepositoryInterface transactionRepository =
                 new TransactionRepositoryMySQL(dbConnection);
@@ -76,6 +85,7 @@ public class ApplicationInitializer {
                 new BankClientHandlers(bankClientService),
                 new AccountHandlers(accountService),
                 new CardHandlers(cardService),
+                new CategoryHandlers(categoryService),
                 new TransactionHandlers(transactionService)
         );
 
