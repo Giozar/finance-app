@@ -13,6 +13,7 @@ import com.giozar04.configs.ServerConnectionConfig;
 import com.giozar04.logging.CustomLogger;
 import com.giozar04.serverConnection.application.services.ServerConnectionService;
 import com.giozar04.shared.layouts.AppLayout;
+import com.giozar04.tags.infrastructure.services.TagService;
 import com.giozar04.transactions.infrastructure.services.TransactionService;
 import com.giozar04.users.infrastructure.services.UserService;
 
@@ -26,6 +27,7 @@ public class ApplicationInitializer {
     private AccountService accountService;
     private CardService cardService;
     private CategoryService categoryService;
+    private TagService tagService;
     private TransactionService transactionService;
 
     public void start() {
@@ -67,6 +69,9 @@ public class ApplicationInitializer {
             this.categoryService = CategoryService.connectService(connectionService);
             System.out.println("Servicios de categorías conectados correctamente");
             
+            this.tagService = TagService.connectService(connectionService);
+            System.out.println("✅ Servicio de etiquetas conectado correctamente.");
+
             this.transactionService = TransactionService.connectService(connectionService);
             System.out.println("✅ Servicio de transacciones conectado correctamente.");
             

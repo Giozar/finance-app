@@ -26,6 +26,10 @@ import com.giozar04.logging.CustomLogger;
 import com.giozar04.servers.application.services.ServerService;
 import com.giozar04.servers.domain.exceptions.ServerOperationException;
 import com.giozar04.servers.domain.interfaces.ServerRegisterHandlers;
+import com.giozar04.tags.application.services.TagService;
+import com.giozar04.tags.domain.interfaces.TagRepositoryInterface;
+import com.giozar04.tags.infrastructure.handlers.TagHandlers;
+import com.giozar04.tags.infrastructure.repositories.TagRepositoryMySQL;
 import com.giozar04.transactions.application.services.TransactionService;
 import com.giozar04.transactions.domain.interfaces.TransactionRepositoryInterface;
 import com.giozar04.transactions.infrastructure.handlers.TransactionHandlers;
@@ -68,9 +72,14 @@ public class ApplicationInitializer {
         CardService cardService = new CardService(cardRepository);
 
         // Inicializar repositorios y servicios de categorías
-        CategoryRepositoryInterface categoryRepository = 
+        CategoryRepositoryInterface categoryRepository =
                 new CategoryRepositoryMySQL(dbConnection);
         CategoryService categoryService = new CategoryService(categoryRepository);
+
+        // Inicializar repositorios y servicios de etiquetas
+        TagRepositoryInterface tagRepository =
+                new TagRepositoryMySQL(dbConnection);
+        TagService tagService = new TagService(tagRepository);
 
         // Inicializar repositorios y servicios de transacciones
         TransactionRepositoryInterface transactionRepository =
@@ -86,6 +95,7 @@ public class ApplicationInitializer {
                 new AccountHandlers(accountService),
                 new CardHandlers(cardService),
                 new CategoryHandlers(categoryService),
+                new TagHandlers(tagService),
                 new TransactionHandlers(transactionService)
         );
 
