@@ -14,6 +14,7 @@ import com.giozar04.dashboard.presentation.views.MainDashboardView;
 import com.giozar04.shared.components.HeaderPanel;
 import com.giozar04.shared.components.MainContentPanel;
 import com.giozar04.shared.components.SidebarPanel;
+import com.giozar04.tags.presentation.views.TagsView;
 import com.giozar04.transactions.presentation.views.TransactionsView;
 import com.giozar04.users.presentation.views.UsersView;
 
@@ -46,6 +47,7 @@ public class AppLayout extends JPanel {
             case "Cuentas" -> setContent(new AccountsView());
             case "Tarjetas" -> setContent(new CardsView());
             case "Categorías" -> setContent(new CategoriesView());
+            case "Etiquetas" -> setContent(new TagsView());
             case "Transacciones" -> setContent(new TransactionsView());
             default -> setContent(new JLabel("Vista no encontrada"));
         }
