@@ -11,6 +11,7 @@ import com.giozar04.bankClients.presentation.views.BankClientsView;
 import com.giozar04.cards.presentation.views.CardsView;
 import com.giozar04.categories.presentation.views.CategoriesView;
 import com.giozar04.dashboard.presentation.views.MainDashboardView;
+import com.giozar04.externalEntities.presentation.views.ExternalEntitiesView;
 import com.giozar04.shared.components.HeaderPanel;
 import com.giozar04.shared.components.MainContentPanel;
 import com.giozar04.shared.components.SidebarPanel;
@@ -48,6 +49,7 @@ public class AppLayout extends JPanel {
             case "Tarjetas" -> setContent(new CardsView());
             case "Categorías" -> setContent(new CategoriesView());
             case "Etiquetas" -> setContent(new TagsView());
+            case "Entidades externas" -> setContent(new ExternalEntitiesView());
             case "Transacciones" -> setContent(new TransactionsView());
             default -> setContent(new JLabel("Vista no encontrada"));
         }
