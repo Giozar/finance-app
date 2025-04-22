@@ -10,6 +10,7 @@ import com.giozar04.bankClients.infrastructure.services.BankClientService;
 import com.giozar04.cards.infrastructure.services.CardService;
 import com.giozar04.categories.infrastructure.services.CategoryService;
 import com.giozar04.configs.ServerConnectionConfig;
+import com.giozar04.externalEntities.infrastructure.services.ExternalEntityService;
 import com.giozar04.logging.CustomLogger;
 import com.giozar04.serverConnection.application.services.ServerConnectionService;
 import com.giozar04.shared.layouts.AppLayout;
@@ -28,6 +29,7 @@ public class ApplicationInitializer {
     private CardService cardService;
     private CategoryService categoryService;
     private TagService tagService;
+    private ExternalEntityService externalEntityService;
     private TransactionService transactionService;
 
     public void start() {
@@ -72,6 +74,9 @@ public class ApplicationInitializer {
             this.tagService = TagService.connectService(connectionService);
             System.out.println("✅ Servicio de etiquetas conectado correctamente.");
 
+            this.externalEntityService = ExternalEntityService.connectService(connectionService);
+            System.out.println("✅ Servicio de entidades externas conectado correctamente");
+            
             this.transactionService = TransactionService.connectService(connectionService);
             System.out.println("✅ Servicio de transacciones conectado correctamente.");
             
