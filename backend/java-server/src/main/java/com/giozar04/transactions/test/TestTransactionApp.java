@@ -102,7 +102,7 @@ public class TestTransactionApp {
             // Crear una transacción de prueba
             Transaction transaction = new Transaction();
             transaction.setType("EXPENSE");
-            transaction.setPaymentMethod(PaymentMethod.CARD_CREDIT);
+            transaction.setPaymentMethod(PaymentMethod.CARD);
             transaction.setAmount(1500.75);
             transaction.setTitle("Compra Supermercado");
             transaction.setCategory("Alimentación");
@@ -211,8 +211,7 @@ public class TestTransactionApp {
             System.out.println("Método de pago actual: " + existingTransaction.getPaymentMethod());
             System.out.println("Opciones de método de pago:");
             System.out.println("1. CASH");
-            System.out.println("2. CARD_DEBIT");
-            System.out.println("3. CARD_CREDIT");
+            System.out.println("2. CARD");
             System.out.print("Seleccione nueva opción (0 para mantener actual): ");
             int paymentOption = scanner.nextInt();
             scanner.nextLine();
@@ -223,10 +222,7 @@ public class TestTransactionApp {
                         existingTransaction.setPaymentMethod(PaymentMethod.CASH);
                         break;
                     case 2:
-                        existingTransaction.setPaymentMethod(PaymentMethod.CARD_DEBIT);
-                        break;
-                    case 3:
-                        existingTransaction.setPaymentMethod(PaymentMethod.CARD_CREDIT);
+                        existingTransaction.setPaymentMethod(PaymentMethod.CARD);
                         break;
                     default:
                         System.out.println("Opción inválida, se mantiene el método de pago actual.");

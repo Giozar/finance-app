@@ -1,5 +1,6 @@
 package com.giozar04.shared.utils;
 
+import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -70,6 +71,28 @@ public class SharedUtils {
         }
         return ZonedDateTime.now();
     }
+
+    public static BigDecimal parseBigDecimal(Object value) {
+    if (value instanceof BigDecimal bd) return bd;
+    if (value instanceof Number number) return BigDecimal.valueOf(number.doubleValue());
+    if (value instanceof String str) {
+        try {
+            return new BigDecimal(str);
+        } catch (NumberFormatException ignored) {}
+    }
+    return BigDecimal.ZERO;
+}
+
+public static BigDecimal parseNullableBigDecimal(Object value) {
+    if (value instanceof BigDecimal bd) return bd;
+    if (value instanceof Number number) return BigDecimal.valueOf(number.doubleValue());
+    if (value instanceof String str) {
+        try {
+            return new BigDecimal(str);
+        } catch (NumberFormatException ignored) {}
+    }
+    return null;
+}
 
     public static DateTimeFormatter getFormatter() {
         return FORMATTER;
