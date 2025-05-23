@@ -11,6 +11,10 @@ import com.giozar04.bankClients.application.services.BankClientService;
 import com.giozar04.bankClients.domain.interfaces.BankClientRepositoryInterface;
 import com.giozar04.bankClients.infrastructure.handlers.BankClientHandlers;
 import com.giozar04.bankClients.infrastructure.repositories.BankClientRepositoryMySQL;
+import com.giozar04.cardTransactionDetails.application.services.CardTransactionDetailService;
+import com.giozar04.cardTransactionDetails.domain.interfaces.CardTransactionDetailRepositoryInterface;
+import com.giozar04.cardTransactionDetails.infrastructure.handlers.CardTransactionDetailHandlers;
+import com.giozar04.cardTransactionDetails.infrastructure.repositories.CardTransactionDetailRepositoryMySQL;
 import com.giozar04.cards.application.services.CardService;
 import com.giozar04.cards.domain.interfaces.CardRepositoryInterface;
 import com.giozar04.cards.infrastructure.handlers.CardHandlers;
@@ -42,6 +46,14 @@ import com.giozar04.users.application.services.UserService;
 import com.giozar04.users.domain.interfaces.UserRepositoryInterface;
 import com.giozar04.users.infrastructure.handlers.UserHandlers;
 import com.giozar04.users.infrastructure.repositories.UserRepositoryMySQL;
+import com.giozar04.walletCardLinks.application.services.WalletCardLinkService;
+import com.giozar04.walletCardLinks.domain.interfaces.WalletCardLinkRepositoryInterface;
+import com.giozar04.walletCardLinks.infrastructure.handlers.WalletCardLinkHandlers;
+import com.giozar04.walletCardLinks.infrastructure.repositories.WalletCardLinkRepositoryMySQL;
+import com.giozar04.walletTransactionDetails.application.services.WalletTransactionDetailService;
+import com.giozar04.walletTransactionDetails.domain.interfaces.WalletTransactionDetailRepositoryInterface;
+import com.giozar04.walletTransactionDetails.infrastructure.handlers.WalletTransactionDetailHandlers;
+import com.giozar04.walletTransactionDetails.infrastructure.repositories.WalletTransactionDetailRepositoryMySQL;
 
 public class ApplicationInitializer {
     private final CustomLogger logger = CustomLogger.getInstance();
@@ -96,7 +108,21 @@ public class ApplicationInitializer {
         TransactionService transactionService =
                 new TransactionService(transactionRepository);
 
-        
+        // Inicializar repositorios y servicios de detalles de transacciones con tarjeta
+        CardTransactionDetailRepositoryInterface cardTransactionDetailRepository =
+                new CardTransactionDetailRepositoryMySQL(dbConnection);
+        CardTransactionDetailService cardTransactionDetailService = new CardTransactionDetailService(cardTransactionDetailRepository);
+
+        // Inicializar repositorios y servicios de detalles de transacciones de wallet
+        WalletTransactionDetailRepositoryInterface walletTransactionDetailRepository =
+                new WalletTransactionDetailRepositoryMySQL(dbConnection);
+        WalletTransactionDetailService walletTransactionDetailService = new WalletTransactionDetailService(walletTransactionDetailRepository);
+
+        // Inicializar repositorios y servicios de vínculos wallet-tarjeta
+        WalletCardLinkRepositoryInterface walletCardLinkRepository =
+                new WalletCardLinkRepositoryMySQL(dbConnection);
+        WalletCardLinkService walletCardLinkService = new WalletCardLinkService(walletCardLinkRepository);
+
         // Se registran todos los servicios
         List<ServerRegisterHandlers> featureServices = List.of(
                 new UserHandlers(userService),
@@ -106,7 +132,10 @@ public class ApplicationInitializer {
                 new CategoryHandlers(categoryService),
                 new TagHandlers(tagService),
                 new ExternalEntityHandlers(externalEntityService),
-                new TransactionHandlers(transactionService)
+                new TransactionHandlers(transactionService),
+                new CardTransactionDetailHandlers(cardTransactionDetailService),
+                new WalletTransactionDetailHandlers(walletTransactionDetailService),
+                new WalletCardLinkHandlers(walletCardLinkService)
         );
 
         logger.info("Servicios inicializados correctamente.");
