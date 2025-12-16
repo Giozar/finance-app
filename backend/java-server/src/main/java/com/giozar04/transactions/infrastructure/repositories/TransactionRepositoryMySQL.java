@@ -4,8 +4,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
+import java.sql.Types;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -13,306 +14,210 @@ import java.util.List;
 
 import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
 import com.giozar04.transactions.domain.entities.Transaction;
+import com.giozar04.transactions.domain.enums.OperationTypes;
 import com.giozar04.transactions.domain.enums.PaymentMethod;
 import com.giozar04.transactions.domain.exceptions.TransactionExceptions;
 import com.giozar04.transactions.domain.models.TransactionRepositoryAbstract;
 
-/**
- * Implementación MySQL del repositorio de transacciones.
- * Maneja operaciones CRUD para entidades Transaction en una base de datos MySQL.
- */
 public class TransactionRepositoryMySQL extends TransactionRepositoryAbstract {
 
-    // Consultas SQL como constantes para mejor mantenibilidad
-    private static final String SQL_INSERT = "INSERT INTO transactions (type, payment_method, amount, title, category, description, comments, date, timezone, tags) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-    private static final String SQL_SELECT_BY_ID = "SELECT * FROM transactions WHERE id = ?";
-    private static final String SQL_UPDATE = "UPDATE transactions SET type = ?, payment_method = ?, amount = ?, title = ?, category = ?, description = ?, comments = ?, date = ?, timezone = ?, tags = ? WHERE id = ?";
-    private static final String SQL_DELETE = "DELETE FROM transactions WHERE id = ?";
-    private static final String SQL_SELECT_ALL = "SELECT * FROM transactions ORDER BY date DESC";
+    private static final String SQL_INSERT = """
+        INSERT INTO transactions (
+            operation_type, payment_method, source_account_id, destination_account_id, external_entity_id,
+            amount, concept, category, description, comments, date, timezone, tags, created_at, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """;
 
-    /**
-     * Constructor que inicializa el repositorio con una conexión a la base de datos.
-     *
-     * @param databaseConnection la conexión a la base de datos
-     */
+    private static final String SQL_SELECT_BY_ID = "SELECT * FROM transactions WHERE id = ?";
+    private static final String SQL_UPDATE = """
+        UPDATE transactions SET
+            operation_type = ?, payment_method = ?, source_account_id = ?, destination_account_id = ?, external_entity_id = ?,
+            amount = ?, concept = ?, category = ?, description = ?, comments = ?, date = ?, timezone = ?, tags = ?, updated_at = ?
+        WHERE id = ?
+    """;
+
+    private static final String SQL_DELETE = "DELETE FROM transactions WHERE id = ?";
+    private static final String SQL_SELECT_ALL = "SELECT * FROM transactions";
+
     public TransactionRepositoryMySQL(DatabaseConnectionInterface databaseConnection) {
         super(databaseConnection);
     }
 
     @Override
-    public Transaction createTransaction(Transaction transaction) {
-        // Validar la transacción usando el método de la clase base
-        validateTransaction(transaction);
-        
-        Connection connection = null;
-        
-        try {
-            // Obtener conexión de la interfaz
-            connection = databaseConnection.getConnection();
-            
-            try (PreparedStatement statement = connection.prepareStatement(SQL_INSERT, PreparedStatement.RETURN_GENERATED_KEYS)) {
-                statement.setString(1, transaction.getType());
-                statement.setString(2, transaction.getPaymentMethod().name());
-                statement.setDouble(3, transaction.getAmount());
-                statement.setString(4, transaction.getTitle());
-                statement.setString(5, transaction.getCategory());
-                statement.setString(6, transaction.getDescription());
-                statement.setString(7, transaction.getComments());
-                
-                // Convertir ZonedDateTime a Timestamp para almacenamiento
-                LocalDateTime localDateTime = transaction.getDate().toLocalDateTime();
-                statement.setTimestamp(8, Timestamp.valueOf(localDateTime));
-                
-                // Guardar la zona horaria
-                statement.setString(9, transaction.getDate().getZone().getId());
-                
-                // Convertir lista de tags a string separado por comas
-                statement.setString(10, transaction.getTagsAsString());
-                
-                int affectedRows = statement.executeUpdate();
-                if (affectedRows == 0) {
-                    throw new SQLException("La creación de la transacción falló, ninguna fila afectada.");
+    public Transaction createTransaction(Transaction tx) {
+        validateTransaction(tx);
+
+        if (tx.getCreatedAt() == null) tx.setCreatedAt(ZonedDateTime.now());
+        if (tx.getUpdatedAt() == null) tx.setUpdatedAt(ZonedDateTime.now());
+
+        try (Connection conn = databaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
+
+            setStatementValues(stmt, tx, false);
+
+            int affected = stmt.executeUpdate();
+            if (affected == 0) throw new SQLException("No se pudo insertar la transacción");
+
+            try (ResultSet keys = stmt.getGeneratedKeys()) {
+                if (keys.next()) {
+                    tx.setId(keys.getLong(1));
                 }
-                
-                // Obtener el ID generado
-                try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
-                    if (generatedKeys.next()) {
-                        transaction.setId(generatedKeys.getLong(1));
-                    } else {
-                        throw new SQLException("La creación de la transacción falló, no se obtuvo el ID.");
-                    }
-                }
-                
-                // Confirmar la transacción
-                databaseConnection.commitTransaction();
-                
-                logger.info("Transacción creada exitosamente con ID: " + transaction.getId());
-                return transaction;
-            } catch (SQLException e) {
-                // Revertir la transacción en caso de error
-                try {
-                    databaseConnection.rollbackTransaction();
-                } catch (SQLException ex) {
-                    logger.error("Error al revertir la transacción: " + ex.getMessage(), ex);
-                }
-                
-                logger.error("Error al crear una transacción: " + e.getMessage(), e);
-                throw new TransactionExceptions.TransactionCreationException("Error al crear una transacción", e);
             }
+
+            databaseConnection.commitTransaction();
+            logger.info("Transacción creada con ID: " + tx.getId());
+            return tx;
+
         } catch (SQLException e) {
-            logger.error("Error al obtener la conexión a la base de datos: " + e.getMessage(), e);
-            throw new TransactionExceptions.TransactionCreationException("Error al obtener la conexión a la base de datos", e);
+            rollback();
+            throw new TransactionExceptions.CreationException("Error al crear transacción", e);
         }
     }
 
     @Override
     public Transaction getTransactionById(long id) {
-        // Validar el ID usando el método de la clase base
         validateId(id);
-        
-        Connection connection = null;
-        
-        try {
-            // Obtener conexión de la interfaz
-            connection = databaseConnection.getConnection();
-            
-            try (PreparedStatement statement = connection.prepareStatement(SQL_SELECT_BY_ID)) {
-                statement.setLong(1, id);
-                
-                try (ResultSet resultSet = statement.executeQuery()) {
-                    if (resultSet.next()) {
-                        Transaction transaction = mapResultSetToTransaction(resultSet);
-                        logger.info("Transacción obtenida exitosamente con ID: " + id);
-                        return transaction;
-                    } else {
-                        logger.warn("Transacción no encontrada con ID: " + id, null);
-                        throw new TransactionExceptions.TransactionNotFoundException("Transacción no encontrada con ID: " + id, null);
-                    }
-                }
+
+        try (Connection conn = databaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(SQL_SELECT_BY_ID)) {
+
+            stmt.setLong(1, id);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) return mapResultSet(rs);
+                throw new TransactionExceptions.NotFoundException("Transacción no encontrada con ID: " + id, null);
             }
+
         } catch (SQLException e) {
-            logger.error("Error al obtener la transacción con ID: " + id, e);
-            throw new TransactionExceptions.TransactionNotFoundException("Error al obtener la transacción con ID: " + id, e);
+            throw new TransactionExceptions.RetrievalException("Error al obtener transacción", e);
         }
     }
 
     @Override
-    public Transaction updateTransactionById(long id, Transaction transaction) {
-        // Validar el ID y la transacción usando los métodos de la clase base
+    public Transaction updateTransactionById(long id, Transaction tx) {
         validateId(id);
-        validateTransaction(transaction);
-        
-        Connection connection = null;
-        
-        try {
-            // Obtener conexión de la interfaz
-            connection = databaseConnection.getConnection();
-            
-            try (PreparedStatement statement = connection.prepareStatement(SQL_UPDATE)) {
-                statement.setString(1, transaction.getType());
-                statement.setString(2, transaction.getPaymentMethod().name());
-                statement.setDouble(3, transaction.getAmount());
-                statement.setString(4, transaction.getTitle());
-                statement.setString(5, transaction.getCategory());
-                statement.setString(6, transaction.getDescription());
-                statement.setString(7, transaction.getComments());
-                
-                // Convertir ZonedDateTime a Timestamp para almacenamiento
-                LocalDateTime localDateTime = transaction.getDate().toLocalDateTime();
-                statement.setTimestamp(8, Timestamp.valueOf(localDateTime));
-                
-                // Guardar la zona horaria
-                statement.setString(9, transaction.getDate().getZone().getId());
-                
-                // Convertir lista de tags a string separado por comas
-                statement.setString(10, transaction.getTagsAsString());
-                
-                statement.setLong(11, id);
-                
-                int affectedRows = statement.executeUpdate();
-                if (affectedRows == 0) {
-                    logger.warn("Transacción no encontrada con ID: " + id, null);
-                    throw new TransactionExceptions.TransactionNotFoundException("Transacción no encontrada con ID: " + id, null);
-                }
-                
-                // Confirmar la transacción
-                databaseConnection.commitTransaction();
-                
-                // Actualizar el ID en el objeto
-                transaction.setId(id);
-                
-                logger.info("Transacción actualizada exitosamente con ID: " + id);
-                return transaction;
-            } catch (SQLException e) {
-                // Revertir la transacción en caso de error
-                try {
-                    databaseConnection.rollbackTransaction();
-                } catch (SQLException ex) {
-                    logger.error("Error al revertir la transacción: " + ex.getMessage(), ex);
-                }
-                
-                logger.error("Error al actualizar la transacción con ID: " + id, e);
-                throw new TransactionExceptions.TransactionUpdateException("Error al actualizar la transacción con ID: " + id, e);
-            }
+        validateTransaction(tx);
+        tx.setUpdatedAt(ZonedDateTime.now());
+
+        try (Connection conn = databaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(SQL_UPDATE)) {
+
+            setStatementValues(stmt, tx, true);
+            stmt.setLong(15, id);
+
+            int affected = stmt.executeUpdate();
+            if (affected == 0) throw new TransactionExceptions.NotFoundException("No se encontró la transacción a actualizar", null);
+
+            databaseConnection.commitTransaction();
+            tx.setId(id);
+            return tx;
+
         } catch (SQLException e) {
-            logger.error("Error al obtener la conexión a la base de datos: " + e.getMessage(), e);
-            throw new TransactionExceptions.TransactionUpdateException("Error al obtener la conexión a la base de datos", e);
+            rollback();
+            throw new TransactionExceptions.UpdateException("Error al actualizar transacción", e);
         }
     }
 
     @Override
     public void deleteTransactionById(long id) {
-        // Validar el ID usando el método de la clase base
         validateId(id);
-        
-        Connection connection = null;
-        
-        try {
-            // Obtener conexión de la interfaz
-            connection = databaseConnection.getConnection();
-            
-            try (PreparedStatement statement = connection.prepareStatement(SQL_DELETE)) {
-                statement.setLong(1, id);
-                
-                int affectedRows = statement.executeUpdate();
-                if (affectedRows == 0) {
-                    logger.warn("Transacción no encontrada con ID: " + id, null);
-                    throw new TransactionExceptions.TransactionNotFoundException("Transacción no encontrada con ID: " + id, null);
-                }
-                
-                // Confirmar la transacción
-                databaseConnection.commitTransaction();
-                
-                logger.info("Transacción eliminada exitosamente con ID: " + id);
-            } catch (SQLException e) {
-                // Revertir la transacción en caso de error
-                try {
-                    databaseConnection.rollbackTransaction();
-                } catch (SQLException ex) {
-                    logger.error("Error al revertir la transacción: " + ex.getMessage(), ex);
-                }
-                
-                logger.error("Error al eliminar la transacción con ID: " + id, e);
-                throw new TransactionExceptions.TransactionDeletionException("Error al eliminar la transacción con ID: " + id, e);
-            }
+
+        try (Connection conn = databaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(SQL_DELETE)) {
+
+            stmt.setLong(1, id);
+            int affected = stmt.executeUpdate();
+            if (affected == 0) throw new TransactionExceptions.NotFoundException("Transacción no encontrada", null);
+
+            databaseConnection.commitTransaction();
+            logger.info("Transacción eliminada con ID: " + id);
+
         } catch (SQLException e) {
-            logger.error("Error al obtener la conexión a la base de datos: " + e.getMessage(), e);
-            throw new TransactionExceptions.TransactionDeletionException("Error al obtener la conexión a la base de datos", e);
+            rollback();
+            throw new TransactionExceptions.DeletionException("Error al eliminar transacción", e);
         }
     }
 
     @Override
     public List<Transaction> getAllTransactions() {
-        List<Transaction> transactions = new ArrayList<>();
-        
-        Connection connection = null;
-        
-        try {
-            // Obtener conexión de la interfaz
-            connection = databaseConnection.getConnection();
-            
-            try (PreparedStatement statement = connection.prepareStatement(SQL_SELECT_ALL);
-                 ResultSet resultSet = statement.executeQuery()) {
-                
-                while (resultSet.next()) {
-                    Transaction transaction = mapResultSetToTransaction(resultSet);
-                    transactions.add(transaction);
-                }
-                
-                logger.info("Se obtuvieron " + transactions.size() + " transacciones exitosamente");
-                return transactions;
-            } catch (SQLException e) {
-                logger.error("Error al obtener todas las transacciones", e);
-                throw new TransactionExceptions.TransactionRetrievalException("Error al obtener todas las transacciones", e);
+        List<Transaction> list = new ArrayList<>();
+
+        try (Connection conn = databaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(SQL_SELECT_ALL);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                list.add(mapResultSet(rs));
             }
+
+            return list;
+
         } catch (SQLException e) {
-            logger.error("Error al obtener la conexión a la base de datos: " + e.getMessage(), e);
-            throw new TransactionExceptions.TransactionRetrievalException("Error al obtener la conexión a la base de datos", e);
+            throw new TransactionExceptions.RetrievalException("Error al obtener transacciones", e);
         }
     }
-    
-    /**
-     * Convierte un ResultSet en un objeto Transaction.
-     *
-     * @param resultSet el ResultSet que contiene los datos de la transacción
-     * @return un objeto Transaction con los datos del ResultSet
-     * @throws SQLException si ocurre un error al acceder a los datos del ResultSet
-     */
-    private Transaction mapResultSetToTransaction(ResultSet resultSet) throws SQLException {
-        Transaction transaction = new Transaction();
-        transaction.setId(resultSet.getLong("id"));
-        transaction.setType(resultSet.getString("type"));
-        
-        // Convertir string a enum
-        String paymentMethodStr = resultSet.getString("payment_method");
-        try {
-            transaction.setPaymentMethod(PaymentMethod.valueOf(paymentMethodStr));
-        } catch (IllegalArgumentException e) {
-            logger.warn("Método de pago desconocido: " + paymentMethodStr + ". Utilizando valor por defecto CASH.", e);
-            transaction.setPaymentMethod(PaymentMethod.CASH);
-        }
-        
-        transaction.setAmount(resultSet.getDouble("amount"));
-        transaction.setTitle(resultSet.getString("title"));
-        transaction.setCategory(resultSet.getString("category"));
-        transaction.setDescription(resultSet.getString("description"));
-        transaction.setComments(resultSet.getString("comments"));
-        
-        // Reconstruir ZonedDateTime a partir de timestamp y zona horaria
-        Timestamp timestamp = resultSet.getTimestamp("date");
-        String timezone = resultSet.getString("timezone");
-        if (timestamp != null) {
-            LocalDateTime localDateTime = timestamp.toLocalDateTime();
-            ZoneId zoneId = ZoneId.of(timezone != null && !timezone.isEmpty() ? timezone : "UTC");
-            transaction.setDate(ZonedDateTime.of(localDateTime, zoneId));
+
+    private Transaction mapResultSet(ResultSet rs) throws SQLException {
+        Transaction tx = new Transaction();
+        ZoneId zone = ZoneId.systemDefault();
+
+        tx.setId(rs.getLong("id"));
+        tx.setOperationType(OperationTypes.fromValue(rs.getString("operation_type")));
+        tx.setPaymentMethod(PaymentMethod.fromValue(rs.getString("payment_method")));
+
+        tx.setSourceAccountId(rs.getObject("source_account_id") != null ? rs.getLong("source_account_id") : null);
+        tx.setDestinationAccountId(rs.getObject("destination_account_id") != null ? rs.getLong("destination_account_id") : null);
+        tx.setExternalEntityId(rs.getObject("external_entity_id") != null ? rs.getLong("external_entity_id") : null);
+
+        tx.setAmount(rs.getBigDecimal("amount"));
+        tx.setConcept(rs.getString("concept"));
+        tx.setCategory(rs.getString("category"));
+        tx.setDescription(rs.getString("description"));
+        tx.setComments(rs.getString("comments"));
+        tx.setDate(ZonedDateTime.of(rs.getTimestamp("date").toLocalDateTime(), zone));
+        tx.setTimezone(rs.getString("timezone"));
+        tx.setTags(rs.getString("tags"));
+
+        tx.setCreatedAt(ZonedDateTime.of(rs.getTimestamp("created_at").toLocalDateTime(), zone));
+        tx.setUpdatedAt(ZonedDateTime.of(rs.getTimestamp("updated_at").toLocalDateTime(), zone));
+
+        return tx;
+    }
+
+    private void setStatementValues(PreparedStatement stmt, Transaction tx, boolean isUpdate) throws SQLException {
+        stmt.setString(1, tx.getOperationType().getValue());
+        stmt.setString(2, tx.getPaymentMethod().getValue());
+
+        if (tx.getSourceAccountId() != null) stmt.setLong(3, tx.getSourceAccountId());
+        else stmt.setNull(3, Types.BIGINT);
+
+        if (tx.getDestinationAccountId() != null) stmt.setLong(4, tx.getDestinationAccountId());
+        else stmt.setNull(4, Types.BIGINT);
+
+        if (tx.getExternalEntityId() != null) stmt.setLong(5, tx.getExternalEntityId());
+        else stmt.setNull(5, Types.BIGINT);
+
+        stmt.setBigDecimal(6, tx.getAmount());
+        stmt.setString(7, tx.getConcept());
+        stmt.setString(8, tx.getCategory());
+        stmt.setString(9, tx.getDescription());
+        stmt.setString(10, tx.getComments());
+        stmt.setTimestamp(11, Timestamp.valueOf(tx.getDate().toLocalDateTime()));
+        stmt.setString(12, tx.getTimezone());
+        stmt.setString(13, tx.getTags());
+
+        if (!isUpdate) {
+            stmt.setTimestamp(14, Timestamp.valueOf(tx.getCreatedAt().toLocalDateTime()));
+            stmt.setTimestamp(15, Timestamp.valueOf(tx.getUpdatedAt().toLocalDateTime()));
         } else {
-            transaction.setDate(ZonedDateTime.now());
+            stmt.setTimestamp(14, Timestamp.valueOf(tx.getUpdatedAt().toLocalDateTime()));
         }
-        
-        // Procesar tags
-        String tagsString = resultSet.getString("tags");
-        transaction.setTagsFromString(tagsString);
-        
-        return transaction;
+    }
+
+    private void rollback() {
+        try {
+            databaseConnection.rollbackTransaction();
+        } catch (SQLException e) {
+            logger.error("Error al hacer rollback en transacción", e);
+        }
     }
 }

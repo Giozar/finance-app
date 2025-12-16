@@ -7,6 +7,7 @@ import javax.swing.SwingUtilities;
 
 import com.giozar04.accounts.infrastructure.services.AccountService;
 import com.giozar04.bankClients.infrastructure.services.BankClientService;
+import com.giozar04.cardTransactionDetails.infrastructure.services.CardTransactionDetailService;
 import com.giozar04.cards.infrastructure.services.CardService;
 import com.giozar04.categories.infrastructure.services.CategoryService;
 import com.giozar04.configs.ServerConnectionConfig;
@@ -17,6 +18,8 @@ import com.giozar04.shared.layouts.AppLayout;
 import com.giozar04.tags.infrastructure.services.TagService;
 import com.giozar04.transactions.infrastructure.services.TransactionService;
 import com.giozar04.users.infrastructure.services.UserService;
+import com.giozar04.walletCardLinks.infrastructure.services.WalletCardLinkService;
+import com.giozar04.walletTransactionDetails.infrastructure.services.WalletTransactionDetailService;
 
 public class ApplicationInitializer {
 
@@ -55,7 +58,6 @@ public class ApplicationInitializer {
 
     private boolean initializeServices() {
         try {
-
             this.userService = UserService.connectService(connectionService);
             System.out.println("✅ Servicio de usuarios conectado correctamente.");
 
@@ -63,23 +65,32 @@ public class ApplicationInitializer {
             System.out.println("✅ Servicio de clientes bancarios conectado correctamente.");
 
             this.accountService = AccountService.connectService(connectionService);
-            System.out.println("Servicios de cuentas conectado correctamente");
+            System.out.println("✅ Servicios de cuentas conectado correctamente");
 
             this.cardService = CardService.connectService(connectionService);
             System.out.println("✅ Servicio de tarjetas conectado correctamente.");
 
             this.categoryService = CategoryService.connectService(connectionService);
-            System.out.println("Servicios de categorías conectados correctamente");
-            
+            System.out.println("✅ Servicios de categorías conectados correctamente");
+
             this.tagService = TagService.connectService(connectionService);
             System.out.println("✅ Servicio de etiquetas conectado correctamente.");
 
             this.externalEntityService = ExternalEntityService.connectService(connectionService);
             System.out.println("✅ Servicio de entidades externas conectado correctamente");
-            
+
             this.transactionService = TransactionService.connectService(connectionService);
             System.out.println("✅ Servicio de transacciones conectado correctamente.");
-            
+
+            CardTransactionDetailService.connectService(connectionService);
+            System.out.println("✅ Servicio de detalles de transacciones con tarjeta conectado correctamente.");
+
+            WalletCardLinkService.connectService(connectionService);
+            System.out.println("✅ Servicio de vínculos tarjeta-wallet conectado correctamente.");
+
+            WalletTransactionDetailService.connectService(connectionService);
+            System.out.println("✅ Servicio de detalles de transacciones con wallet conectado correctamente.");
+
             return true;
         } catch (Exception e) {
             System.err.println("❌ Error al inicializar servicios: " + e.getMessage());
