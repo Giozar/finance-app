@@ -90,3 +90,33 @@ Los scripts SQL se ubican en:
 ```text
 database/schema.sql
 ```
+
+
+## Configuración del archivo `config.properties`
+
+```text
+backend/java-server/src/main/resources/config.properties
+```
+
+El proyecto utiliza un archivo de configuración `config.properties` para definir los parámetros del **servidor** y de la **base de datos**.
+
+Una vez que la base de datos ha sido creada y ejecutada (por ejemplo, mediante Docker), es necesario **ajustar estos valores para que coincidan con la configuración real del entorno**.
+
+---
+
+### Configuración del Servidor
+
+```properties
+server.host=<host-del-servidor>
+server.port=<puerto-del-servidor>
+```
+
+### Configuración de la Base de Datos
+
+```properties
+database.host=<host-base-datos>
+database.port=<puerto-base-datos>
+database.name=<nombre-base-datos>
+database.username=<usuario-base-datos>
+database.password=<password-base-datos>
+```
