@@ -262,76 +262,61 @@ CREATE INDEX idx_wallet_payment_card ON wallet_transaction_details (card_id);
 -- ======================================================
 -- AUTOMATIZACIÓN DE SALDOS (TRIGGERS)
 -- ======================================================
-DELIMITER / /
-CREATE TRIGGER tr_after_transaction_insert AFTER
-INSERT
-    ON transactions FOR EACH ROW BEGIN
+
+-- Aseguramos permisos para crear triggers
+SET GLOBAL log_bin_trust_function_creators = 1;
+
+DELIMITER //
+
+CREATE TRIGGER tr_after_transaction_insert AFTER INSERT ON transactions 
+FOR EACH ROW 
+BEGIN
     -- Los pagos tipo WALLET se ignoran aquí para evitar duplicidad de cargos (se manejan en su propio trigger)
     IF NEW.payment_method <> 'WALLET' THEN
-    -- Manejo de Egresos
-    IF NEW.operation_type = 'EXPENSE'
-    AND NEW.source_account_id IS NOT NULL THEN
-UPDATE accounts
-SET
-    current_balance = current_balance - NEW.amount
-WHERE
-    id = NEW.source_account_id;
+        -- Manejo de Egresos
+        IF NEW.operation_type = 'EXPENSE' AND NEW.source_account_id IS NOT NULL THEN
+            UPDATE accounts
+            SET current_balance = current_balance - NEW.amount
+            WHERE id = NEW.source_account_id;
+        END IF;
 
-END IF;
+        -- Manejo de Ingresos
+        IF NEW.operation_type = 'INCOME' AND NEW.destination_account_id IS NOT NULL THEN
+            UPDATE accounts
+            SET current_balance = current_balance + NEW.amount
+            WHERE id = NEW.destination_account_id;
+        END IF;
 
--- Manejo de Ingresos
-IF NEW.operation_type = 'INCOME'
-AND NEW.destination_account_id IS NOT NULL THEN
-UPDATE accounts
-SET
-    current_balance = current_balance + NEW.amount
-WHERE
-    id = NEW.destination_account_id;
+        -- Manejo de Transferencias
+        IF NEW.operation_type = 'TRANSFER' THEN
+            UPDATE accounts
+            SET current_balance = current_balance - NEW.amount
+            WHERE id = NEW.source_account_id;
 
-END IF;
+            UPDATE accounts
+            SET current_balance = current_balance + NEW.amount
+            WHERE id = NEW.destination_account_id;
+        END IF;
+    END IF;
+END //
 
--- Manejo de Transferencias
-IF NEW.operation_type = 'TRANSFER' THEN
-UPDATE accounts
-SET
-    current_balance = current_balance - NEW.amount
-WHERE
-    id = NEW.source_account_id;
-
-UPDATE accounts
-SET
-    current_balance = current_balance + NEW.amount
-WHERE
-    id = NEW.destination_account_id;
-
-END IF;
-
-END IF;
-
-END / /
-CREATE TRIGGER tr_after_wallet_detail_insert AFTER
-INSERT
-    ON wallet_transaction_details FOR EACH ROW BEGIN
+CREATE TRIGGER tr_after_wallet_detail_insert AFTER INSERT ON wallet_transaction_details 
+FOR EACH ROW 
+BEGIN
     -- Caso Saldo Wallet
     IF NEW.source_type = 'wallet_balance' THEN
-UPDATE accounts
-SET
-    current_balance = current_balance - NEW.amount
-WHERE
-    id = NEW.wallet_account_id;
+        UPDATE accounts
+        SET current_balance = current_balance - NEW.amount
+        WHERE id = NEW.wallet_account_id;
+    END IF;
 
-END IF;
+    -- Caso Tarjeta Vinculada
+    IF NEW.source_type = 'linked_card' AND NEW.card_id IS NOT NULL THEN
+        UPDATE accounts a
+        INNER JOIN cards c ON a.id = c.account_id
+        SET a.current_balance = a.current_balance - NEW.amount
+        WHERE c.id = NEW.card_id;
+    END IF;
+END //
 
--- Caso Tarjeta Vinculada
-IF NEW.source_type = 'linked_card'
-AND NEW.card_id IS NOT NULL THEN
-UPDATE accounts a
-INNER JOIN cards c ON a.id = c.account_id
-SET
-    a.current_balance = a.current_balance - NEW.amount
-WHERE
-    c.id = NEW.card_id;
-
-END IF;
-
-END / / DELIMITER;
+DELIMITER ;
