@@ -37,7 +37,7 @@ import com.giozar04.transactions.infrastructure.services.TransactionService;
 public class TransactionFormPanel extends JPanel {
 
     private final JLabel titleLabel;
-    private FormField titleField;
+    private FormField conceptField;
     private JComboBox<String> comboType;
     private JComboBox<String> comboPaymentMethod;
     private FormField amountField;
@@ -79,7 +79,7 @@ public class TransactionFormPanel extends JPanel {
                         TitledBorder.LEFT, TitledBorder.TOP, new Font("Arial", Font.BOLD, 12)),
                 new EmptyBorder(10, 10, 10, 10)));
 
-        titleField = new FormField("Título:", false, 400, 40);
+        conceptField = new FormField("Concepto:", false, 400, 40);
         comboType = new JComboBox<>(new String[]{"INCOME", "EXPENSE"});
         comboPaymentMethod = new JComboBox<>(Arrays.stream(PaymentMethod.values()).map(Enum::name).toArray(String[]::new));
         amountField = new FormField("Monto:", false, 400, 40);
@@ -90,7 +90,7 @@ public class TransactionFormPanel extends JPanel {
         tagsField = new FormField("Tags (separados por comas):", false, 400, 40);
 
         // Añadir campos con separación
-        panel.add(titleField);
+        panel.add(conceptField);
         panel.add(Box.createRigidArea(new Dimension(0, 10)));
         panel.add(new FormLabel("Tipo:", comboType));
         panel.add(Box.createRigidArea(new Dimension(0, 10)));
@@ -123,10 +123,10 @@ public class TransactionFormPanel extends JPanel {
     private void handleSave() {
         List<String> errors = new ArrayList<>();
 
-        String title = titleField.getValue().trim();
+        String concept = conceptField.getValue().trim();
         String amount = amountField.getValue().trim();
 
-        FormValidatorUtils.isRequired(title, "Título", errors);
+        FormValidatorUtils.isRequired(concept, "Concepto", errors);
         FormValidatorUtils.isRequired(amount, "Monto", errors);
         FormValidatorUtils.isNumeric(amount, "Monto", errors);
         FormValidatorUtils.isPositiveNumber(amount, "Monto", errors);
@@ -138,10 +138,10 @@ public class TransactionFormPanel extends JPanel {
         }
 
         Map<String, Object> data = new HashMap<>();
-        data.put("title", title);
-        data.put("type", comboType.getSelectedItem());
+        data.put("concept", concept);
+        data.put("operationType", comboType.getSelectedItem());
         data.put("paymentMethod", comboPaymentMethod.getSelectedItem());
-        data.put("amount", Double.valueOf(amount));
+        data.put("amount", amount);
         data.put("category", categoryField.getValue());
         data.put("description", descriptionField.getValue());
         data.put("comments", commentsField.getValue());
@@ -157,7 +157,7 @@ public class TransactionFormPanel extends JPanel {
             data.put("tags", tagsList);
         }
 
-        Transaction transaction = TransactionUtils.mapToTransaction(data);
+        Transaction transaction = TransactionUtils.fromMap(data);
 
         try {
             if (editingTransaction == null) {
@@ -178,15 +178,15 @@ public class TransactionFormPanel extends JPanel {
         titleLabel.setText("Editar Transacción");
         saveButton.setText("Actualizar");
 
-        titleField.setValue(t.getTitle());
-        comboType.setSelectedItem(t.getType());
+        conceptField.setValue(t.getConcept());
+        comboType.setSelectedItem(t.getOperationType().name());
         comboPaymentMethod.setSelectedItem(t.getPaymentMethod().name());
         amountField.setValue(String.valueOf(t.getAmount()));
         categoryField.setValue(t.getCategory());
         datePicker.setDate(t.getDate());
         descriptionField.setValue(t.getDescription());
         commentsField.setValue(t.getComments());
-        tagsField.setValue(t.getTagsAsString());
+        tagsField.setValue(t.getTags());
     }
 
     public void clearForm() {
@@ -194,7 +194,7 @@ public class TransactionFormPanel extends JPanel {
         titleLabel.setText("Nueva Transacción");
         saveButton.setText("Guardar");
 
-        titleField.clear();
+        conceptField.clear();
         comboType.setSelectedIndex(0);
         comboPaymentMethod.setSelectedIndex(0);
         amountField.clear();
