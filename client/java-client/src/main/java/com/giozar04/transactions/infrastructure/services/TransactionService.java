@@ -38,14 +38,14 @@ public class TransactionService {
     public Transaction createTransaction(Transaction transaction) throws ClientOperationException {
         Message message = new Message();
         message.setType("CREATE_TRANSACTION");
-        message.addData("transaction", TransactionUtils.transactionToMap(transaction));
+        message.addData("transaction", TransactionUtils.toMap(transaction));
 
         serverConnectionService.sendMessage(message);
         try {
             Message response = serverConnectionService.waitForMessage("CREATE_TRANSACTION");
             ServerResponseValidator.validateResponse(response);
             logger.info("Transacción creada exitosamente: " + response);
-            return TransactionUtils.mapToTransaction((Map<String, Object>) response.getData("transaction"));
+            return TransactionUtils.fromMap((Map<String, Object>) response.getData("transaction"));
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new TransactionExceptions.TransactionCreationException("Error al esperar la respuesta del servidor", e);
@@ -57,14 +57,14 @@ public class TransactionService {
         Message message = new Message();
         message.setType("UPDATE_TRANSACTION");
         message.addData("id", transactionId);
-        message.addData("transaction", TransactionUtils.transactionToMap(transaction));
+        message.addData("transaction", TransactionUtils.toMap(transaction));
 
         serverConnectionService.sendMessage(message);
         try {
             Message response = serverConnectionService.waitForMessage("UPDATE_TRANSACTION");
             ServerResponseValidator.validateResponse(response);
             logger.info("Transacción actualizada correctamente: " + response);
-            return TransactionUtils.mapToTransaction((Map<String, Object>) response.getData("transaction"));
+            return TransactionUtils.fromMap((Map<String, Object>) response.getData("transaction"));
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new TransactionExceptions.TransactionUpdateException("Error al esperar la respuesta del servidor", e);
@@ -98,7 +98,7 @@ public class TransactionService {
             Message response = serverConnectionService.waitForMessage("GET_TRANSACTION");
             ServerResponseValidator.validateResponse(response);
             logger.info("Transacción obtenida correctamente: " + response);
-            return TransactionUtils.mapToTransaction((Map<String, Object>) response.getData("transaction"));
+            return TransactionUtils.fromMap((Map<String, Object>) response.getData("transaction"));
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new TransactionExceptions.TransactionRetrievalException("Error al esperar la respuesta del servidor", e);
@@ -126,7 +126,7 @@ public class TransactionService {
                 List<Transaction> transactions = new ArrayList<>();
                 for (Object obj : rawList) {
                     if (obj instanceof Map<?, ?> map) {
-                        transactions.add(TransactionUtils.mapToTransaction((Map<String, Object>) map));
+                        transactions.add(TransactionUtils.fromMap((Map<String, Object>) map));
                     }
                 }
                 logger.info("Transacciones obtenidas correctamente. Total: " + transactions.size());

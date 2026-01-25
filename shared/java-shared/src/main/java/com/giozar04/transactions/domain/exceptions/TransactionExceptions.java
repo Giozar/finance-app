@@ -21,4 +21,24 @@ public class TransactionExceptions {
     public static class NotFoundException extends RuntimeException {
         public NotFoundException(String message, Throwable cause) { super(message, cause); }
     }
+
+    public static class TransactionCreationException extends RuntimeException {
+        public TransactionCreationException(String message, Throwable cause) { super(message, cause); }
+    }
+
+    public static class TransactionRetrievalException extends RuntimeException {
+        public TransactionRetrievalException(String message, Throwable cause) { super(message, cause); }
+    }
+
+    public static class TransactionUpdateException extends RuntimeException {
+        public TransactionUpdateException(String message, Throwable cause) { super(message, cause); }
+    }
+
+    public static class TransactionDeletionException extends RuntimeException {
+        public TransactionDeletionException(String message, Throwable cause) { super(message, cause); }
+    }
+
+    public static class TransactionParsingException extends RuntimeException {
+        public TransactionParsingException(String message, Throwable cause) { super(message, cause); }
+    }
 }

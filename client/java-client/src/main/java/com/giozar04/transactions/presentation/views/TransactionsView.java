@@ -97,8 +97,8 @@ public class TransactionsView extends JPanel implements PopupMenuActionHandler {
     private void initTablePanel() {
         // Definición de columnas para la tabla
         List<ColumnDefinition<Transaction>> columns = Arrays.asList(
-                new ColumnDefinition<>("Título", Transaction::getTitle),
-                new ColumnDefinition<>("Tipo", Transaction::getType),
+                new ColumnDefinition<>("Concepto", Transaction::getConcept),
+                new ColumnDefinition<>("Tipo", t -> t.getOperationType().name()),
                 new ColumnDefinition<>("Categoría", Transaction::getCategory),
                 new ColumnDefinition<>("Método de Pago", Transaction::getPaymentMethod),
                 new ColumnDefinition<>("Monto", t -> String.format("$%.2f", t.getAmount())),
@@ -155,11 +155,11 @@ public class TransactionsView extends JPanel implements PopupMenuActionHandler {
         try {
             List<Transaction> allTransactions = transactionService.getAllTransactions();
             List<Transaction> filtered = allTransactions.stream().filter(t -> {
-                boolean matchesQuery = t.getTitle().toLowerCase().contains(query)
+                boolean matchesQuery = t.getConcept().toLowerCase().contains(query)
                         || t.getCategory().toLowerCase().contains(query)
                         || t.getPaymentMethod().toString().toLowerCase().contains(query);
                 boolean matchesType = "Todos los tipos".equals(typeFilter)
-                        || t.getType().equalsIgnoreCase(typeFilter);
+                        || t.getOperationType().name().equalsIgnoreCase(typeFilter);
                 return matchesQuery && matchesType;
             }).toList();
             tablePanel.setData(filtered);
