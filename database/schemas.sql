@@ -356,7 +356,9 @@ SET GLOBAL log_bin_trust_function_creators = 1;
 
 DELIMITER //
 
--- 1. TRIGGER AL INSERTAR
+-- ======================================================
+-- 1. TRIGGER PARA ACTUALIZAR SALDOS AL INSERTAR
+-- ======================================================
 DROP TRIGGER IF EXISTS tr_after_transaction_insert //
 CREATE TRIGGER tr_after_transaction_insert AFTER INSERT ON transactions 
 FOR EACH ROW 
@@ -376,7 +378,9 @@ BEGIN
     END IF;
 END //
 
--- 2. TRIGGER AL ACTUALIZAR (Para cuando corriges un monto o cambias de cuenta)
+-- ======================================================
+-- 2. TRIGGER PARA CORREGIR SALDOS AL ACTUALIZAR
+-- ======================================================
 DROP TRIGGER IF EXISTS tr_after_transaction_update //
 CREATE TRIGGER tr_after_transaction_update AFTER UPDATE ON transactions 
 FOR EACH ROW 
@@ -406,7 +410,9 @@ BEGIN
     END IF;
 END //
 
--- 3. TRIGGER AL ELIMINAR
+-- ======================================================
+-- 3. TRIGGER PARA RESTITUIR SALDOS AL ELIMINAR
+-- ======================================================
 DROP TRIGGER IF EXISTS tr_after_transaction_delete //
 CREATE TRIGGER tr_after_transaction_delete AFTER DELETE ON transactions 
 FOR EACH ROW 
@@ -420,6 +426,28 @@ BEGIN
             UPDATE accounts SET current_balance = current_balance + OLD.amount WHERE id = OLD.source_account_id;
             UPDATE accounts SET current_balance = current_balance - OLD.amount WHERE id = OLD.destination_account_id;
         END IF;
+    END IF;
+END //
+
+-- ======================================================
+-- 4. TRIGGER MAESTRO: SINCRONIZACIÓN DE GLOBAL_BALANCE (FASE 0)
+-- ======================================================
+-- Este trigger asegura que users.global_balance sea la suma de todas sus cuentas
+DROP TRIGGER IF EXISTS tr_sync_global_balance //
+CREATE TRIGGER tr_sync_global_balance AFTER UPDATE ON accounts 
+FOR EACH ROW 
+BEGIN
+    -- Solo actuamos si el saldo actual cambió para evitar bucles infinitos
+    IF OLD.current_balance <> NEW.current_balance THEN
+        UPDATE users 
+        SET global_balance = (
+            SELECT SUM(current_balance) 
+            FROM accounts 
+            WHERE user_id = NEW.user_id 
+               OR bank_client_id IN (SELECT id FROM bank_clients WHERE user_id = NEW.user_id)
+        )
+        WHERE id = NEW.user_id 
+           OR id = (SELECT user_id FROM bank_clients WHERE id = NEW.bank_client_id);
     END IF;
 END //
 
