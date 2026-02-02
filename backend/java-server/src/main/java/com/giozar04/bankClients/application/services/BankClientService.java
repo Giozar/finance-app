@@ -40,7 +40,6 @@ public class BankClientService implements BankClientRepositoryInterface {
 
     @Override
     public List<BankClient> getBankClientsByUserId(long userId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getBankClientsByUserId'");
+        return bankClientRepository.getBankClientsByUserId(userId);
     }
 }
