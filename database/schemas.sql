@@ -34,7 +34,9 @@ CREATE TABLE IF NOT EXISTS
         client_number VARCHAR(50) NOT NULL,
         created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        CONSTRAINT fk_bank_clients_user FOREIGN KEY (user_id) REFERENCES users (id),
+        CONSTRAINT fk_bank_clients_user
+        -- Si borras al usuario, se borra su relación con el banco
+        FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
         UNIQUE KEY unique_client_per_bank (user_id, bank_name, client_number)
     );
 
@@ -48,7 +50,7 @@ CREATE INDEX idx_bank_clients_client_number ON bank_clients (client_number);
 CREATE TABLE IF NOT EXISTS
     accounts (
         id BIGINT PRIMARY KEY AUTO_INCREMENT,
-        user_id BIGINT NULL, -- <--- Relación directa para Efectivo/No bancarizados
+        user_id BIGINT NULL,
         bank_client_id BIGINT NULL,
         name VARCHAR(100) NOT NULL,
         type VARCHAR(50) NOT NULL,
@@ -62,15 +64,21 @@ CREATE TABLE IF NOT EXISTS
         updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         CONSTRAINT fk_accounts_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
         CONSTRAINT fk_accounts_bank_client FOREIGN KEY (bank_client_id) REFERENCES bank_clients (id) ON DELETE SET NULL,
+        -- Validar relación con usuario directamente, o es de un banco, nunca ambos.
         CONSTRAINT chk_account_owner CHECK (
-            user_id IS NOT NULL
-            OR bank_client_id IS NOT NULL
+            (
+                user_id IS NOT NULL
+                AND bank_client_id IS NULL
+            )
+            OR (
+                user_id IS NULL
+                AND bank_client_id IS NOT NULL
+            )
         )
     );
 
 CREATE INDEX idx_accounts_user_id ON accounts (user_id);
 
--- Nuevo índice para rapidez
 CREATE INDEX idx_accounts_bank_client_id ON accounts (bank_client_id);
 
 CREATE INDEX idx_accounts_type ON accounts (type);
@@ -352,103 +360,201 @@ END / / DELIMITER;
 -- ======================================================
 -- AUTOMATIZACIÓN DE SALDOS (TRANSACCIONES Y WALLET)
 -- ======================================================
-SET GLOBAL log_bin_trust_function_creators = 1;
+SET
+    GLOBAL log_bin_trust_function_creators = 1;
 
-DELIMITER //
-
+DELIMITER / /
 -- ======================================================
 -- 1. TRIGGER PARA ACTUALIZAR SALDOS AL INSERTAR
 -- ======================================================
-DROP TRIGGER IF EXISTS tr_after_transaction_insert //
-CREATE TRIGGER tr_after_transaction_insert AFTER INSERT ON transactions 
-FOR EACH ROW 
-BEGIN
-    IF NEW.payment_method <> 'WALLET' THEN
-        -- GASTO
-        IF NEW.operation_type = 'EXPENSE' AND NEW.source_account_id IS NOT NULL THEN
-            UPDATE accounts SET current_balance = current_balance - NEW.amount WHERE id = NEW.source_account_id;
-        -- INGRESO
-        ELSEIF NEW.operation_type = 'INCOME' AND NEW.destination_account_id IS NOT NULL THEN
-            UPDATE accounts SET current_balance = current_balance + NEW.amount WHERE id = NEW.destination_account_id;
-        -- TRANSFERENCIA
-        ELSEIF NEW.operation_type = 'TRANSFER' AND NEW.source_account_id IS NOT NULL AND NEW.destination_account_id IS NOT NULL THEN
-            UPDATE accounts SET current_balance = current_balance - NEW.amount WHERE id = NEW.source_account_id;
-            UPDATE accounts SET current_balance = current_balance + NEW.amount WHERE id = NEW.destination_account_id;
-        END IF;
-    END IF;
-END //
+DROP TRIGGER IF EXISTS tr_after_transaction_insert / /
+CREATE TRIGGER tr_after_transaction_insert AFTER
+INSERT
+    ON transactions FOR EACH ROW BEGIN IF NEW.payment_method <> 'WALLET' THEN
+    -- GASTO
+    IF NEW.operation_type = 'EXPENSE'
+    AND NEW.source_account_id IS NOT NULL THEN
+UPDATE accounts
+SET
+    current_balance = current_balance - NEW.amount
+WHERE
+    id = NEW.source_account_id;
 
+-- INGRESO
+ELSEIF NEW.operation_type = 'INCOME'
+AND NEW.destination_account_id IS NOT NULL THEN
+UPDATE accounts
+SET
+    current_balance = current_balance + NEW.amount
+WHERE
+    id = NEW.destination_account_id;
+
+-- TRANSFERENCIA
+ELSEIF NEW.operation_type = 'TRANSFER'
+AND NEW.source_account_id IS NOT NULL
+AND NEW.destination_account_id IS NOT NULL THEN
+UPDATE accounts
+SET
+    current_balance = current_balance - NEW.amount
+WHERE
+    id = NEW.source_account_id;
+
+UPDATE accounts
+SET
+    current_balance = current_balance + NEW.amount
+WHERE
+    id = NEW.destination_account_id;
+
+END IF;
+
+END IF;
+
+END / /
 -- ======================================================
 -- 2. TRIGGER PARA CORREGIR SALDOS AL ACTUALIZAR
 -- ======================================================
-DROP TRIGGER IF EXISTS tr_after_transaction_update //
-CREATE TRIGGER tr_after_transaction_update AFTER UPDATE ON transactions 
-FOR EACH ROW 
-BEGIN
-    -- A. REVERTIR valores antiguos
-    IF OLD.payment_method <> 'WALLET' THEN
-        IF OLD.operation_type = 'EXPENSE' THEN
-            UPDATE accounts SET current_balance = current_balance + OLD.amount WHERE id = OLD.source_account_id;
-        ELSEIF OLD.operation_type = 'INCOME' THEN
-            UPDATE accounts SET current_balance = current_balance - OLD.amount WHERE id = OLD.destination_account_id;
-        ELSEIF OLD.operation_type = 'TRANSFER' THEN
-            UPDATE accounts SET current_balance = current_balance + OLD.amount WHERE id = OLD.source_account_id;
-            UPDATE accounts SET current_balance = current_balance - OLD.amount WHERE id = OLD.destination_account_id;
-        END IF;
-    END IF;
+DROP TRIGGER IF EXISTS tr_after_transaction_update / /
+CREATE TRIGGER tr_after_transaction_update AFTER
+UPDATE ON transactions FOR EACH ROW BEGIN
+-- A. REVERTIR valores antiguos
+IF OLD.payment_method <> 'WALLET' THEN IF OLD.operation_type = 'EXPENSE' THEN
+UPDATE accounts
+SET
+    current_balance = current_balance + OLD.amount
+WHERE
+    id = OLD.source_account_id;
 
-    -- B. APLICAR valores nuevos
-    IF NEW.payment_method <> 'WALLET' THEN
-        IF NEW.operation_type = 'EXPENSE' THEN
-            UPDATE accounts SET current_balance = current_balance - NEW.amount WHERE id = NEW.source_account_id;
-        ELSEIF NEW.operation_type = 'INCOME' THEN
-            UPDATE accounts SET current_balance = current_balance + NEW.amount WHERE id = NEW.destination_account_id;
-        ELSEIF NEW.operation_type = 'TRANSFER' THEN
-            UPDATE accounts SET current_balance = current_balance - NEW.amount WHERE id = NEW.source_account_id;
-            UPDATE accounts SET current_balance = current_balance + NEW.amount WHERE id = NEW.destination_account_id;
-        END IF;
-    END IF;
-END //
+ELSEIF OLD.operation_type = 'INCOME' THEN
+UPDATE accounts
+SET
+    current_balance = current_balance - OLD.amount
+WHERE
+    id = OLD.destination_account_id;
 
+ELSEIF OLD.operation_type = 'TRANSFER' THEN
+UPDATE accounts
+SET
+    current_balance = current_balance + OLD.amount
+WHERE
+    id = OLD.source_account_id;
+
+UPDATE accounts
+SET
+    current_balance = current_balance - OLD.amount
+WHERE
+    id = OLD.destination_account_id;
+
+END IF;
+
+END IF;
+
+-- B. APLICAR valores nuevos
+IF NEW.payment_method <> 'WALLET' THEN IF NEW.operation_type = 'EXPENSE' THEN
+UPDATE accounts
+SET
+    current_balance = current_balance - NEW.amount
+WHERE
+    id = NEW.source_account_id;
+
+ELSEIF NEW.operation_type = 'INCOME' THEN
+UPDATE accounts
+SET
+    current_balance = current_balance + NEW.amount
+WHERE
+    id = NEW.destination_account_id;
+
+ELSEIF NEW.operation_type = 'TRANSFER' THEN
+UPDATE accounts
+SET
+    current_balance = current_balance - NEW.amount
+WHERE
+    id = NEW.source_account_id;
+
+UPDATE accounts
+SET
+    current_balance = current_balance + NEW.amount
+WHERE
+    id = NEW.destination_account_id;
+
+END IF;
+
+END IF;
+
+END / /
 -- ======================================================
 -- 3. TRIGGER PARA RESTITUIR SALDOS AL ELIMINAR
 -- ======================================================
-DROP TRIGGER IF EXISTS tr_after_transaction_delete //
-CREATE TRIGGER tr_after_transaction_delete AFTER DELETE ON transactions 
-FOR EACH ROW 
-BEGIN
-    IF OLD.payment_method <> 'WALLET' THEN
-        IF OLD.operation_type = 'EXPENSE' THEN
-            UPDATE accounts SET current_balance = current_balance + OLD.amount WHERE id = OLD.source_account_id;
-        ELSEIF OLD.operation_type = 'INCOME' THEN
-            UPDATE accounts SET current_balance = current_balance - OLD.amount WHERE id = OLD.destination_account_id;
-        ELSEIF OLD.operation_type = 'TRANSFER' THEN
-            UPDATE accounts SET current_balance = current_balance + OLD.amount WHERE id = OLD.source_account_id;
-            UPDATE accounts SET current_balance = current_balance - OLD.amount WHERE id = OLD.destination_account_id;
-        END IF;
-    END IF;
-END //
+DROP TRIGGER IF EXISTS tr_after_transaction_delete / /
+CREATE TRIGGER tr_after_transaction_delete AFTER DELETE ON transactions FOR EACH ROW BEGIN IF OLD.payment_method <> 'WALLET' THEN IF OLD.operation_type = 'EXPENSE' THEN
+UPDATE accounts
+SET
+    current_balance = current_balance + OLD.amount
+WHERE
+    id = OLD.source_account_id;
 
+ELSEIF OLD.operation_type = 'INCOME' THEN
+UPDATE accounts
+SET
+    current_balance = current_balance - OLD.amount
+WHERE
+    id = OLD.destination_account_id;
+
+ELSEIF OLD.operation_type = 'TRANSFER' THEN
+UPDATE accounts
+SET
+    current_balance = current_balance + OLD.amount
+WHERE
+    id = OLD.source_account_id;
+
+UPDATE accounts
+SET
+    current_balance = current_balance - OLD.amount
+WHERE
+    id = OLD.destination_account_id;
+
+END IF;
+
+END IF;
+
+END / /
 -- ======================================================
 -- 4. TRIGGER MAESTRO: SINCRONIZACIÓN DE GLOBAL_BALANCE (FASE 0)
 -- ======================================================
 -- Este trigger asegura que users.global_balance sea la suma de todas sus cuentas
-DROP TRIGGER IF EXISTS tr_sync_global_balance //
-CREATE TRIGGER tr_sync_global_balance AFTER UPDATE ON accounts 
-FOR EACH ROW 
-BEGIN
-    -- Solo actuamos si el saldo actual cambió para evitar bucles infinitos
-    IF OLD.current_balance <> NEW.current_balance THEN
-        UPDATE users 
-        SET global_balance = (
-            SELECT SUM(current_balance) 
-            FROM accounts 
-            WHERE user_id = NEW.user_id 
-               OR bank_client_id IN (SELECT id FROM bank_clients WHERE user_id = NEW.user_id)
-        )
-        WHERE id = NEW.user_id 
-           OR id = (SELECT user_id FROM bank_clients WHERE id = NEW.bank_client_id);
-    END IF;
-END //
+DROP TRIGGER IF EXISTS tr_sync_global_balance / /
+CREATE TRIGGER tr_sync_global_balance AFTER
+UPDATE ON accounts FOR EACH ROW BEGIN
+-- Solo actuamos si el saldo actual cambió para evitar bucles infinitos
+IF OLD.current_balance <> NEW.current_balance THEN
+UPDATE users
+SET
+    global_balance = (
+        SELECT
+            SUM(current_balance)
+        FROM
+            accounts
+        WHERE
+            user_id = NEW.user_id
+            OR bank_client_id IN (
+                SELECT
+                    id
+                FROM
+                    bank_clients
+                WHERE
+                    user_id = NEW.user_id
+            )
+    )
+WHERE
+    id = NEW.user_id
+    OR id = (
+        SELECT
+            user_id
+        FROM
+            bank_clients
+        WHERE
+            id = NEW.bank_client_id
+    );
 
-DELIMITER ;
+END IF;
+
+END / / DELIMITER;
