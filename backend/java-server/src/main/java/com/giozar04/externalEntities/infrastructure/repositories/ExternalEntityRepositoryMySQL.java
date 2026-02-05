@@ -20,13 +20,13 @@ import com.giozar04.externalEntities.domain.models.ExternalEntityRepositoryAbstr
 public class ExternalEntityRepositoryMySQL extends ExternalEntityRepositoryAbstract {
 
     private static final String SQL_INSERT = """
-        INSERT INTO external_entities (name, type, contact, created_at, updated_at)
-        VALUES (?, ?, ?, ?, ?)
+        INSERT INTO external_entities (user_id, name, type, contact, created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?)
     """;
 
     private static final String SQL_SELECT_BY_ID = "SELECT * FROM external_entities WHERE id = ?";
     private static final String SQL_UPDATE = """
-        UPDATE external_entities SET name = ?, type = ?, contact = ?, updated_at = ?
+        UPDATE external_entities SET user_id = ?, name = ?, type = ?, contact = ?, updated_at = ?
         WHERE id = ?
     """;
 
@@ -47,11 +47,12 @@ public class ExternalEntityRepositoryMySQL extends ExternalEntityRepositoryAbstr
         try (Connection conn = databaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
 
-            stmt.setString(1, entity.getName());
-            stmt.setString(2, entity.getType().getValue());
-            stmt.setString(3, entity.getContact());
-            stmt.setTimestamp(4, Timestamp.valueOf(entity.getCreatedAt().toLocalDateTime()));
-            stmt.setTimestamp(5, Timestamp.valueOf(entity.getUpdatedAt().toLocalDateTime()));
+            stmt.setLong(1, entity.getUserId());
+            stmt.setString(2, entity.getName());
+            stmt.setString(3, entity.getType().getValue());
+            stmt.setString(4, entity.getContact());
+            stmt.setTimestamp(5, Timestamp.valueOf(entity.getCreatedAt().toLocalDateTime()));
+            stmt.setTimestamp(6, Timestamp.valueOf(entity.getUpdatedAt().toLocalDateTime()));
 
             int affected = stmt.executeUpdate();
             if (affected == 0) throw new SQLException("No se pudo insertar la entidad externa");
@@ -102,11 +103,12 @@ public class ExternalEntityRepositoryMySQL extends ExternalEntityRepositoryAbstr
         try (Connection conn = databaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(SQL_UPDATE)) {
 
-            stmt.setString(1, entity.getName());
-            stmt.setString(2, entity.getType().getValue());
-            stmt.setString(3, entity.getContact());
-            stmt.setTimestamp(4, Timestamp.valueOf(entity.getUpdatedAt().toLocalDateTime()));
-            stmt.setLong(5, id);
+            stmt.setLong(1, entity.getUserId());
+            stmt.setString(2, entity.getName());
+            stmt.setString(3, entity.getType().getValue());
+            stmt.setString(4, entity.getContact());
+            stmt.setTimestamp(5, Timestamp.valueOf(entity.getUpdatedAt().toLocalDateTime()));
+            stmt.setLong(6, id);
 
             int affected = stmt.executeUpdate();
             if (affected == 0) {
@@ -170,6 +172,7 @@ public class ExternalEntityRepositoryMySQL extends ExternalEntityRepositoryAbstr
         ZoneId zone = ZoneId.systemDefault();
 
         entity.setId(rs.getLong("id"));
+        entity.setUserId(rs.getLong("user_id"));
         entity.setName(rs.getString("name"));
         entity.setType(ExternalEntityTypes.fromValue(rs.getString("type")));
         entity.setContact(rs.getString("contact"));
