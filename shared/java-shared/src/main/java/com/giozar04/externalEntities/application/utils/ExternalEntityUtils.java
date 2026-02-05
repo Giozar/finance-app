@@ -12,6 +12,7 @@ public class ExternalEntityUtils {
     public static Map<String, Object> externalEntityToMap(ExternalEntity entity) {
         Map<String, Object> map = new HashMap<>();
         map.put("id", entity.getId());
+        map.put("userId", entity.getUserId());
         map.put("name", entity.getName());
         map.put("type", entity.getType() != null ? entity.getType().getValue() : null);
         map.put("contact", entity.getContact());
@@ -30,6 +31,7 @@ public class ExternalEntityUtils {
     public static ExternalEntity mapToExternalEntity(Map<String, Object> map) {
         ExternalEntity entity = new ExternalEntity();
         entity.setId(SharedUtils.parseLong(map.get("id")));
+        entity.setUserId(SharedUtils.parseLong(map.get("userId")));
         entity.setName((String) map.get("name"));
         entity.setType(ExternalEntityTypes.fromValue((String) map.get("type")));
         entity.setContact((String) map.get("contact"));
