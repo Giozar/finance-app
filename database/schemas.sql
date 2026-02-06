@@ -92,16 +92,19 @@ CREATE INDEX idx_accounts_type ON accounts (type);
 CREATE TABLE IF NOT EXISTS
     external_entities (
         id BIGINT PRIMARY KEY AUTO_INCREMENT,
-        user_id BIGINT NOT NULL, -- Propiedad del contacto/entidad
+        user_id BIGINT NOT NULL, -- Propiedad privada
         name VARCHAR(100) NOT NULL,
-        type VARCHAR(20) NOT NULL, -- store, service, person
+        type VARCHAR(20) NOT NULL, -- 'store', 'service', 'person'
         contact VARCHAR(200),
         created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         CONSTRAINT fk_entities_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
-        -- Evita que el mismo usuario registre dos veces la misma entidad
+        -- Evita duplicados para el mismo usuario, pero permite que dos usuarios
+        -- distintos tengan su propia "TIENDA PEPE" sin chocar.
         UNIQUE KEY unique_entity_per_user (user_id, name)
     );
+
+CREATE INDEX idx_external_entities_user ON external_entities (user_id);
 
 CREATE INDEX idx_external_entities_type ON external_entities (type);
 
