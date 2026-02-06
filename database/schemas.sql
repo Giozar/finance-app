@@ -113,22 +113,46 @@ CREATE INDEX idx_external_entities_name ON external_entities (name);
 -- ======================================================
 -- 5. CARDS
 -- ======================================================
-CREATE TABLE IF NOT EXISTS
-    cards (
-        id BIGINT PRIMARY KEY AUTO_INCREMENT,
-        account_id BIGINT NOT NULL,
-        name VARCHAR(100) NOT NULL,
-        card_type VARCHAR(20) NOT NULL,
-        card_number VARCHAR(4) NOT NULL,
-        expiration_date DATETIME NOT NULL,
-        created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        CONSTRAINT fk_cards_account FOREIGN KEY (account_id) REFERENCES accounts (id) ON DELETE CASCADE
-    );
+CREATE TABLE IF NOT EXISTS cards (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    account_id BIGINT NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    card_type VARCHAR(20) NOT NULL,
+    card_number VARCHAR(4) NOT NULL,
+    expiration_date DATE NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_cards_account 
+        FOREIGN KEY (account_id) REFERENCES accounts(id) ON DELETE CASCADE
+);
 
 CREATE INDEX idx_cards_account_id ON cards (account_id);
-
 CREATE INDEX idx_cards_card_type ON cards (card_type);
+
+-- Validar que la tarjeta se pueda vincular a una cuenta bancaria
+DELIMITER //
+
+DROP TRIGGER IF EXISTS tr_before_card_insert //
+CREATE TRIGGER tr_before_card_insert
+BEFORE INSERT ON cards
+FOR EACH ROW
+BEGIN
+    DECLARE v_bank_id BIGINT;
+
+    -- Buscamos si la cuenta seleccionada tiene un vínculo bancario
+    SELECT bank_client_id INTO v_bank_id 
+    FROM accounts 
+    WHERE id = NEW.account_id;
+
+    -- Si bank_client_id es NULL, significa que es Efectivo/Personal y bloqueamos
+    IF v_bank_id IS NULL THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Error: Solo se pueden vincular tarjetas a cuentas bancarias.';
+    END IF;
+END //
+
+DELIMITER ;
 
 -- ======================================================
 -- 6. CATEGORIES
