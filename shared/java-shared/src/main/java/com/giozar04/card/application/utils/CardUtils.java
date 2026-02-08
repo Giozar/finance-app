@@ -16,6 +16,7 @@ public class CardUtils {
         map.put("name", card.getName());
         map.put("cardType", card.getCardType() != null ? card.getCardType().getValue() : null);
         map.put("cardNumber", card.getCardNumber());
+        map.put("status", card.getStatus());
 
         if (card.getExpirationDate() != null) {
             map.put("expirationDate", card.getExpirationDate().format(SharedUtils.getFormatter()));
@@ -38,6 +39,7 @@ public class CardUtils {
         card.setName((String) map.getOrDefault("name", ""));
         card.setCardNumber((String) map.getOrDefault("cardNumber", ""));
         card.setExpirationDate(SharedUtils.parseZonedDateTime(map.get("expirationDate")));
+        card.setStatus((String) map.getOrDefault("status", "ACTIVE"));
         card.setCreatedAt(SharedUtils.parseZonedDateTime(map.get("createdAt")));
         card.setUpdatedAt(SharedUtils.parseZonedDateTime(map.get("updatedAt")));
 

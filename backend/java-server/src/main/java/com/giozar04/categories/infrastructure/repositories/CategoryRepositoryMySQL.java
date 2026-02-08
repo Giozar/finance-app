@@ -20,13 +20,13 @@ import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
 public class CategoryRepositoryMySQL extends CategoryRepositoryAbstract {
 
     private static final String SQL_INSERT = """
-        INSERT INTO categories (name, type, icon, created_at, updated_at)
-        VALUES (?, ?, ?, ?, ?)
+        INSERT INTO categories (user_id, name, type, icon, created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?)
     """;
 
     private static final String SQL_SELECT_BY_ID = "SELECT * FROM categories WHERE id = ?";
     private static final String SQL_UPDATE = """
-        UPDATE categories SET name = ?, type = ?, icon = ?, updated_at = ?
+        UPDATE categories SET user_id = ?, name = ?, type = ?, icon = ?, updated_at = ?
         WHERE id = ?
     """;
 
@@ -47,11 +47,12 @@ public class CategoryRepositoryMySQL extends CategoryRepositoryAbstract {
         try (Connection conn = databaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
 
-            stmt.setString(1, category.getName());
-            stmt.setString(2, category.getType().getValue());
-            stmt.setString(3, category.getIcon());
-            stmt.setTimestamp(4, Timestamp.valueOf(category.getCreatedAt().toLocalDateTime()));
-            stmt.setTimestamp(5, Timestamp.valueOf(category.getUpdatedAt().toLocalDateTime()));
+            stmt.setLong(1, category.getUserId());
+            stmt.setString(2, category.getName());
+            stmt.setString(3, category.getType().getValue());
+            stmt.setString(4, category.getIcon());
+            stmt.setTimestamp(5, Timestamp.valueOf(category.getCreatedAt().toLocalDateTime()));
+            stmt.setTimestamp(6, Timestamp.valueOf(category.getUpdatedAt().toLocalDateTime()));
 
             int affected = stmt.executeUpdate();
             if (affected == 0) throw new SQLException("No se pudo insertar la categoría");
@@ -102,11 +103,12 @@ public class CategoryRepositoryMySQL extends CategoryRepositoryAbstract {
         try (Connection conn = databaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(SQL_UPDATE)) {
 
-            stmt.setString(1, category.getName());
-            stmt.setString(2, category.getType().getValue());
-            stmt.setString(3, category.getIcon());
-            stmt.setTimestamp(4, Timestamp.valueOf(category.getUpdatedAt().toLocalDateTime()));
-            stmt.setLong(5, id);
+            stmt.setLong(1, category.getUserId());
+            stmt.setString(2, category.getName());
+            stmt.setString(3, category.getType().getValue());
+            stmt.setString(4, category.getIcon());
+            stmt.setTimestamp(5, Timestamp.valueOf(category.getUpdatedAt().toLocalDateTime()));
+            stmt.setLong(6, id);
 
             int affected = stmt.executeUpdate();
             if (affected == 0) {
@@ -170,6 +172,7 @@ public class CategoryRepositoryMySQL extends CategoryRepositoryAbstract {
         ZoneId zone = ZoneId.systemDefault();
 
         category.setId(rs.getLong("id"));
+        category.setUserId(rs.getLong("user_id"));
         category.setName(rs.getString("name"));
         category.setType(CategoryTypes.fromValue(rs.getString("type")));
         category.setIcon(rs.getString("icon"));

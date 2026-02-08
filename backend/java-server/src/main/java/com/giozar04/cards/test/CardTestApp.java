@@ -91,6 +91,10 @@ public class CardTestApp {
         String fecha = scanner.nextLine();
         card.setExpirationDate(ZonedDateTime.parse(fecha + "T00:00:00Z"));
 
+        System.out.print("Estado (ACTIVE/BLOCKED/EXPIRED) [ACTIVE]: ");
+        String status = scanner.nextLine().trim().toUpperCase();
+        card.setStatus(status.isBlank() ? "ACTIVE" : status);
+
         card.setCreatedAt(ZonedDateTime.now());
         card.setUpdatedAt(ZonedDateTime.now());
 
@@ -120,6 +124,10 @@ public class CardTestApp {
         System.out.print("Nueva fecha de expiración (YYYY-MM-DD) [" + card.getExpirationDate().toLocalDate() + "]: ");
         String exp = scanner.nextLine();
         if (!exp.isBlank()) card.setExpirationDate(ZonedDateTime.parse(exp + "T00:00:00Z"));
+
+        System.out.print("Nuevo estado (ACTIVE/BLOCKED/EXPIRED) [" + card.getStatus() + "]: ");
+        String statusStr = scanner.nextLine().trim().toUpperCase();
+        if (!statusStr.isBlank()) card.setStatus(statusStr);
 
         card.setUpdatedAt(ZonedDateTime.now());
 
@@ -165,6 +173,7 @@ public class CardTestApp {
         System.out.println("Tipo: " + card.getCardType().getLabel());
         System.out.println("Últimos 4 dígitos: " + card.getCardNumber());
         System.out.println("Cuenta asociada: " + card.getAccountId());
+        System.out.println("Estado: " + card.getStatus());
         System.out.println("Expira: " + card.getExpirationDate().toLocalDate());
         System.out.println("Creado: " + card.getCreatedAt());
         System.out.println("Actualizado: " + card.getUpdatedAt());

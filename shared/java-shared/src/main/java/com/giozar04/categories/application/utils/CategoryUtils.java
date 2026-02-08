@@ -12,6 +12,7 @@ public class CategoryUtils {
     public static Map<String, Object> categoryToMap(Category category) {
         Map<String, Object> map = new HashMap<>();
         map.put("id", category.getId());
+        map.put("userId", category.getUserId());
         map.put("name", category.getName());
         map.put("type", category.getType() != null ? category.getType().getValue() : null);
         map.put("icon", category.getIcon());
@@ -30,6 +31,7 @@ public class CategoryUtils {
     public static Category mapToCategory(Map<String, Object> map) {
         Category category = new Category();
         category.setId(SharedUtils.parseLong(map.get("id")));
+        category.setUserId(SharedUtils.parseLong(map.get("userId")));
         category.setName((String) map.get("name"));
 
         Object typeObj = map.get("type");

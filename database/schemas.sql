@@ -113,78 +113,109 @@ CREATE INDEX idx_external_entities_name ON external_entities (name);
 -- ======================================================
 -- 5. CARDS
 -- ======================================================
-CREATE TABLE IF NOT EXISTS cards (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    account_id BIGINT NOT NULL,
-    name VARCHAR(100) NOT NULL,
-    card_type VARCHAR(20) NOT NULL,
-    card_number VARCHAR(4) NOT NULL,
-    expiration_date DATE NOT NULL,
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-
-    CONSTRAINT fk_cards_account 
-        FOREIGN KEY (account_id) REFERENCES accounts(id) ON DELETE CASCADE
-);
+CREATE TABLE IF NOT EXISTS
+    cards (
+        id BIGINT PRIMARY KEY AUTO_INCREMENT,
+        account_id BIGINT NOT NULL,
+        name VARCHAR(100) NOT NULL,
+        card_type VARCHAR(20) NOT NULL,
+        card_number VARCHAR(4) NOT NULL,
+        expiration_date DATE NOT NULL,
+        -- status ENUM('ACTIVE', 'BLOCKED', 'EXPIRED') DEFAULT 'ACTIVE',
+        -- Usamos VARCHAR en lugar de ENUM para mayor flexibilidad
+        status VARCHAR(20) DEFAULT 'ACTIVE',
+        created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        CONSTRAINT fk_cards_account FOREIGN KEY (account_id) REFERENCES accounts (id) ON DELETE CASCADE
+    );
 
 CREATE INDEX idx_cards_account_id ON cards (account_id);
+
 CREATE INDEX idx_cards_card_type ON cards (card_type);
 
 -- Validar que la tarjeta se pueda vincular a una cuenta bancaria
-DELIMITER //
+DELIMITER / /
+DROP TRIGGER IF EXISTS tr_before_card_insert / /
+CREATE TRIGGER tr_before_card_insert BEFORE
+INSERT
+    ON cards FOR EACH ROW BEGIN DECLARE v_bank_id BIGINT;
 
-DROP TRIGGER IF EXISTS tr_before_card_insert //
-CREATE TRIGGER tr_before_card_insert
-BEFORE INSERT ON cards
-FOR EACH ROW
-BEGIN
-    DECLARE v_bank_id BIGINT;
+-- Buscamos si la cuenta seleccionada tiene un vínculo bancario
+SELECT
+    bank_client_id INTO v_bank_id
+FROM
+    accounts
+WHERE
+    id = NEW.account_id;
 
-    -- Buscamos si la cuenta seleccionada tiene un vínculo bancario
-    SELECT bank_client_id INTO v_bank_id 
-    FROM accounts 
-    WHERE id = NEW.account_id;
+-- Si bank_client_id es NULL, significa que es Efectivo/Personal y bloqueamos
+IF v_bank_id IS NULL THEN SIGNAL SQLSTATE '45000'
+SET
+    MESSAGE_TEXT = 'Error: Solo se pueden vincular tarjetas a cuentas bancarias.';
 
-    -- Si bank_client_id es NULL, significa que es Efectivo/Personal y bloqueamos
-    IF v_bank_id IS NULL THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'Error: Solo se pueden vincular tarjetas a cuentas bancarias.';
-    END IF;
-END //
+END IF;
 
-DELIMITER ;
+END / / DELIMITER;
 
 -- ======================================================
 -- 6. CATEGORIES
 -- ======================================================
-CREATE TABLE IF NOT EXISTS
-    categories (
-        id BIGINT PRIMARY KEY AUTO_INCREMENT,
-        name VARCHAR(100) NOT NULL,
-        type VARCHAR(20) NOT NULL,
-        icon VARCHAR(100) NOT NULL,
-        created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-    );
+CREATE TABLE IF NOT EXISTS categories (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    user_id BIGINT NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    
+    -- OPCIÓN 1: VARCHAR + CHECK (Flexibilidad)
+    -- Es un texto con una regla "pegada" que imita al ENUM.
+    type VARCHAR(20) NOT NULL,
+    
+    -- OPCIÓN 2: ENUM (Rigidez/Optimización)
+    -- type ENUM('INCOME', 'EXPENSE', 'BOTH') NOT NULL,
 
+    icon VARCHAR(100) NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_categories_user 
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+
+    -- Tu restricción UNIQUE (user_id, name): 
+    -- Evita que tengas dos "Comida", pero permite que OTRO usuario tenga la suya.
+    CONSTRAINT unique_category_per_user 
+        UNIQUE (user_id, name),
+
+    -- LA REGLA "TIPO ENUM":
+    -- Obliga a que el VARCHAR solo acepte estas 3 palabras.
+    CONSTRAINT chk_category_type 
+        CHECK (type IN ('INCOME', 'EXPENSE', 'BOTH'))
+);
+
+CREATE INDEX idx_categories_user_id ON categories (user_id);
 CREATE INDEX idx_categories_type ON categories (type);
-
 CREATE INDEX idx_categories_name ON categories (name);
-
 -- ======================================================
--- 7. TAGS
+-- 7. TAGS (Versión Validada para Análisis)
 -- ======================================================
-CREATE TABLE IF NOT EXISTS
-    tags (
-        id BIGINT PRIMARY KEY AUTO_INCREMENT,
-        name VARCHAR(100) NOT NULL UNIQUE,
-        color VARCHAR(20) NOT NULL,
-        created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-    );
+CREATE TABLE IF NOT EXISTS tags (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    user_id BIGINT NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    color VARCHAR(20) NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
+    CONSTRAINT fk_tags_user 
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+
+    -- Llave única: El usuario 1 no puede repetir "#Cena", 
+    -- pero el usuario 2 sí puede tener su propio "#Cena".
+    CONSTRAINT unique_tag_per_user 
+        UNIQUE (user_id, name)
+);
+
+-- REINSTALANDO Y AJUSTANDO TUS ÍNDICES:
+CREATE INDEX idx_tags_user_id ON tags (user_id);
 CREATE INDEX idx_tags_name ON tags (name);
-
 CREATE INDEX idx_tags_color ON tags (color);
 
 -- ======================================================

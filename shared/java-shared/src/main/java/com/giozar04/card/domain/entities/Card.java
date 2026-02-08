@@ -14,15 +14,18 @@ public class Card implements Serializable {
     private CardTypes cardType;
     private String cardNumber;
     private ZonedDateTime expirationDate;
+    private String status;
     private ZonedDateTime createdAt;
     private ZonedDateTime updatedAt;
 
-    public Card(long id, long accountId, CardTypes cardType, String cardNumber, ZonedDateTime expirationDate, ZonedDateTime createdAt, ZonedDateTime updatedAt){
+    public Card(long id, long accountId, String name, CardTypes cardType, String cardNumber, ZonedDateTime expirationDate, String status, ZonedDateTime createdAt, ZonedDateTime updatedAt){
         this.id = id;
         this.accountId = accountId;
+        this.name = name;
         this.cardType = cardType;
         this.cardNumber = cardNumber;
         this.expirationDate = expirationDate;
+        this.status = status;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
@@ -93,6 +96,14 @@ public class Card implements Serializable {
 
     public void setUpdatedAt(ZonedDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     @Override

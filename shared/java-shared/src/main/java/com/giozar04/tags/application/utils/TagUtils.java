@@ -11,6 +11,7 @@ public class TagUtils {
     public static Map<String, Object> tagToMap(Tag tag) {
         Map<String, Object> map = new HashMap<>();
         map.put("id", tag.getId());
+        map.put("userId", tag.getUserId());
         map.put("name", tag.getName());
         map.put("color", tag.getColor());
 
@@ -28,6 +29,7 @@ public class TagUtils {
     public static Tag mapToTag(Map<String, Object> map) {
         Tag tag = new Tag();
         tag.setId(SharedUtils.parseLong(map.get("id")));
+        tag.setUserId(SharedUtils.parseLong(map.get("userId")));
         tag.setName((String) map.get("name"));
         tag.setColor((String) map.get("color"));
         tag.setCreatedAt(SharedUtils.parseZonedDateTime(map.get("createdAt")));
