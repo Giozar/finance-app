@@ -194,19 +194,28 @@ CREATE INDEX idx_categories_user_id ON categories (user_id);
 CREATE INDEX idx_categories_type ON categories (type);
 CREATE INDEX idx_categories_name ON categories (name);
 -- ======================================================
--- 7. TAGS
+-- 7. TAGS (Versión Validada para Análisis)
 -- ======================================================
-CREATE TABLE IF NOT EXISTS
-    tags (
-        id BIGINT PRIMARY KEY AUTO_INCREMENT,
-        name VARCHAR(100) NOT NULL UNIQUE,
-        color VARCHAR(20) NOT NULL,
-        created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-    );
+CREATE TABLE IF NOT EXISTS tags (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    user_id BIGINT NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    color VARCHAR(20) NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
+    CONSTRAINT fk_tags_user 
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+
+    -- Llave única: El usuario 1 no puede repetir "#Cena", 
+    -- pero el usuario 2 sí puede tener su propio "#Cena".
+    CONSTRAINT unique_tag_per_user 
+        UNIQUE (user_id, name)
+);
+
+-- REINSTALANDO Y AJUSTANDO TUS ÍNDICES:
+CREATE INDEX idx_tags_user_id ON tags (user_id);
 CREATE INDEX idx_tags_name ON tags (name);
-
 CREATE INDEX idx_tags_color ON tags (color);
 
 -- ======================================================

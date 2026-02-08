@@ -67,6 +67,10 @@ public class TagTestApp {
 
     private static void createTag(TagService service, Scanner scanner) {
         Tag tag = new Tag();
+        
+        System.out.print("ID del usuario dueño: ");
+        tag.setUserId(scanner.nextLong());
+        scanner.nextLine();
 
         System.out.print("Nombre de la etiqueta: ");
         tag.setName(scanner.nextLine());
@@ -87,6 +91,10 @@ public class TagTestApp {
         scanner.nextLine();
 
         Tag tag = service.getTagById(id);
+
+        System.out.print("Nuevo ID de usuario (" + tag.getUserId() + "): ");
+        String userIdStr = scanner.nextLine();
+        if (!userIdStr.isBlank()) tag.setUserId(Long.parseLong(userIdStr));
 
         System.out.print("Nuevo nombre (" + tag.getName() + "): ");
         String name = scanner.nextLine();
@@ -136,6 +144,7 @@ public class TagTestApp {
 
     private static void printTagDetails(Tag tag) {
         System.out.println("ID: " + tag.getId());
+        System.out.println("Usuario: " + tag.getUserId());
         System.out.println("Nombre: " + tag.getName());
         System.out.println("Color: " + tag.getColor());
         System.out.println("Creado: " + tag.getCreatedAt());

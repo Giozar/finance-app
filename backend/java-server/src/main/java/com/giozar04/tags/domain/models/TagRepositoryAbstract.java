@@ -27,7 +27,11 @@ public abstract class TagRepositoryAbstract implements TagRepositoryInterface {
         if (tag.getColor() == null || tag.getColor().isBlank()) {
             throw new IllegalArgumentException("El color de la etiqueta no puede estar vacío");
         }
+        if (tag.getUserId() <= 0) {
+            throw new IllegalArgumentException("ID de usuario inválido para la etiqueta");
+        }
     }
+
 
     protected void validateId(long id) {
         if (id <= 0) {
