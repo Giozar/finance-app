@@ -35,6 +35,10 @@ public abstract class CategoryRepositoryAbstract implements CategoryRepositoryIn
             throw new IllegalArgumentException("Tipo de categoría no válido: " + category.getType());
         }
 
+        if (category.getUserId() <= 0) {
+            throw new IllegalArgumentException("ID de usuario inválido para la categoría");
+        }
+
         if (category.getIcon() == null || category.getIcon().isBlank()) {
             throw new IllegalArgumentException("El ícono de la categoría no puede estar vacío");
         }

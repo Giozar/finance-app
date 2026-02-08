@@ -162,16 +162,35 @@ END / / DELIMITER;
 -- ======================================================
 CREATE TABLE IF NOT EXISTS categories (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    user_id BIGINT NOT NULL,
     name VARCHAR(100) NOT NULL,
-    type VARCHAR(20) NOT NULL, -- 'INCOME', 'EXPENSE', 'BOTH'
+    
+    -- OPCIÓN 1: VARCHAR + CHECK (Flexibilidad)
+    -- Es un texto con una regla "pegada" que imita al ENUM.
+    type VARCHAR(20) NOT NULL,
+    
+    -- OPCIÓN 2: ENUM (Rigidez/Optimización)
+    -- type ENUM('INCOME', 'EXPENSE', 'BOTH') NOT NULL,
+
     icon VARCHAR(100) NOT NULL,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    
-    -- Evita duplicados en el catálogo maestro
-    CONSTRAINT unique_category_name UNIQUE (name)
+
+    CONSTRAINT fk_categories_user 
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+
+    -- Tu restricción UNIQUE (user_id, name): 
+    -- Evita que tengas dos "Comida", pero permite que OTRO usuario tenga la suya.
+    CONSTRAINT unique_category_per_user 
+        UNIQUE (user_id, name),
+
+    -- LA REGLA "TIPO ENUM":
+    -- Obliga a que el VARCHAR solo acepte estas 3 palabras.
+    CONSTRAINT chk_category_type 
+        CHECK (type IN ('INCOME', 'EXPENSE', 'BOTH'))
 );
 
+CREATE INDEX idx_categories_user_id ON categories (user_id);
 CREATE INDEX idx_categories_type ON categories (type);
 CREATE INDEX idx_categories_name ON categories (name);
 -- ======================================================

@@ -69,13 +69,17 @@ public class CategoryTestApp {
     private static void createCategory(CategoryService service, Scanner scanner) {
         Category category = new Category();
 
+        System.out.print("ID del usuario dueño: ");
+        category.setUserId(scanner.nextLong());
+        scanner.nextLine();
+
         System.out.print("Nombre de la categoría: ");
         category.setName(scanner.nextLine());
 
-        System.out.print("Tipo (income/expense): ");
+        System.out.print("Tipo (income/expense/both): ");
         String type = scanner.nextLine().trim().toLowerCase();
-        while (!type.equals("income") && !type.equals("expense")) {
-            System.out.print("Tipo inválido. Ingrese 'income' o 'expense': ");
+        while (!type.equals("income") && !type.equals("expense") && !type.equals("both")) {
+            System.out.print("Tipo inválido. Ingrese 'income', 'expense' o 'both': ");
             type = scanner.nextLine().trim().toLowerCase();
         }
         category.setType(CategoryTypes.fromValue(type));
@@ -97,13 +101,23 @@ public class CategoryTestApp {
 
         Category category = service.getCategoryById(id);
 
+        System.out.print("Nuevo ID de usuario (" + category.getUserId() + "): ");
+        String userIdStr = scanner.nextLine();
+        if (!userIdStr.isBlank()) category.setUserId(Long.parseLong(userIdStr));
+
         System.out.print("Nuevo nombre (" + category.getName() + "): ");
         String name = scanner.nextLine();
         if (!name.isBlank()) category.setName(name);
 
-        System.out.print("Nuevo tipo (income/expense) [" + category.getType().getValue() + "]: ");
+        System.out.print("Nuevo tipo (income/expense/both) [" + category.getType().getValue() + "]: ");
         String type = scanner.nextLine().trim().toLowerCase();
-        if (!type.isBlank()) category.setType(CategoryTypes.fromValue(type));
+        if (!type.isBlank()) {
+            while (!type.equals("income") && !type.equals("expense") && !type.equals("both")) {
+                System.out.print("Tipo inválido. Ingrese 'income', 'expense' o 'both': ");
+                type = scanner.nextLine().trim().toLowerCase();
+            }
+            category.setType(CategoryTypes.fromValue(type));
+        }
 
         System.out.print("Nuevo ícono (" + category.getIcon() + "): ");
         String icon = scanner.nextLine();
@@ -149,6 +163,7 @@ public class CategoryTestApp {
 
     private static void printCategoryDetails(Category category) {
         System.out.println("ID: " + category.getId());
+        System.out.println("Usuario: " + category.getUserId());
         System.out.println("Nombre: " + category.getName());
         System.out.println("Tipo: " + category.getType().getLabel());
         System.out.println("Ícono: " + category.getIcon());
