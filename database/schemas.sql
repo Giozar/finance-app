@@ -160,20 +160,20 @@ END / / DELIMITER;
 -- ======================================================
 -- 6. CATEGORIES
 -- ======================================================
-CREATE TABLE IF NOT EXISTS
-    categories (
-        id BIGINT PRIMARY KEY AUTO_INCREMENT,
-        name VARCHAR(100) NOT NULL,
-        type VARCHAR(20) NOT NULL,
-        icon VARCHAR(100) NOT NULL,
-        created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-    );
+CREATE TABLE IF NOT EXISTS categories (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100) NOT NULL,
+    type VARCHAR(20) NOT NULL, -- 'INCOME', 'EXPENSE', 'BOTH'
+    icon VARCHAR(100) NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    -- Evita duplicados en el catálogo maestro
+    CONSTRAINT unique_category_name UNIQUE (name)
+);
 
 CREATE INDEX idx_categories_type ON categories (type);
-
 CREATE INDEX idx_categories_name ON categories (name);
-
 -- ======================================================
 -- 7. TAGS
 -- ======================================================
