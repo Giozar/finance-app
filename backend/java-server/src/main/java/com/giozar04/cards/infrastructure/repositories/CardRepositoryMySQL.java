@@ -20,13 +20,13 @@ import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
 public class CardRepositoryMySQL extends CardRepositoryAbstract {
 
     private static final String SQL_INSERT = """
-        INSERT INTO cards (account_id, name, card_type, card_number, expiration_date, created_at, updated_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO cards (account_id, name, card_type, card_number, expiration_date, status, created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     """;
 
     private static final String SQL_SELECT_BY_ID = "SELECT * FROM cards WHERE id = ?";
     private static final String SQL_UPDATE = """
-        UPDATE cards SET account_id = ?, name = ?, card_type = ?, card_number = ?, expiration_date = ?, updated_at = ?
+        UPDATE cards SET account_id = ?, name = ?, card_type = ?, card_number = ?, expiration_date = ?, status = ?, updated_at = ?
         WHERE id = ?
     """;
 
@@ -52,8 +52,9 @@ public class CardRepositoryMySQL extends CardRepositoryAbstract {
             stmt.setString(3, card.getCardType().getValue());
             stmt.setString(4, card.getCardNumber());
             stmt.setTimestamp(5, Timestamp.valueOf(card.getExpirationDate().toLocalDateTime()));
-            stmt.setTimestamp(6, Timestamp.valueOf(card.getCreatedAt().toLocalDateTime()));
-            stmt.setTimestamp(7, Timestamp.valueOf(card.getUpdatedAt().toLocalDateTime()));
+            stmt.setString(6, card.getStatus());
+            stmt.setTimestamp(7, Timestamp.valueOf(card.getCreatedAt().toLocalDateTime()));
+            stmt.setTimestamp(8, Timestamp.valueOf(card.getUpdatedAt().toLocalDateTime()));
 
             int affected = stmt.executeUpdate();
             if (affected == 0) throw new SQLException("No se pudo insertar la tarjeta");
@@ -109,8 +110,9 @@ public class CardRepositoryMySQL extends CardRepositoryAbstract {
             stmt.setString(3, card.getCardType().getValue());
             stmt.setString(4, card.getCardNumber());
             stmt.setTimestamp(5, Timestamp.valueOf(card.getExpirationDate().toLocalDateTime()));
-            stmt.setTimestamp(6, Timestamp.valueOf(card.getUpdatedAt().toLocalDateTime()));
-            stmt.setLong(7, id);
+            stmt.setString(6, card.getStatus());
+            stmt.setTimestamp(7, Timestamp.valueOf(card.getUpdatedAt().toLocalDateTime()));
+            stmt.setLong(8, id);
 
             int affected = stmt.executeUpdate();
             if (affected == 0) {
@@ -178,6 +180,7 @@ public class CardRepositoryMySQL extends CardRepositoryAbstract {
         card.setName(rs.getString("name"));
         card.setCardType(CardTypes.fromValue(rs.getString("card_type")));
         card.setCardNumber(rs.getString("card_number"));
+        card.setStatus(rs.getString("status"));
 
         Timestamp expiration = rs.getTimestamp("expiration_date");
         if (expiration != null) {
