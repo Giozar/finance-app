@@ -160,62 +160,56 @@ END / / DELIMITER;
 -- ======================================================
 -- 6. CATEGORIES
 -- ======================================================
-CREATE TABLE IF NOT EXISTS categories (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    user_id BIGINT NOT NULL,
-    name VARCHAR(100) NOT NULL,
-    
-    -- OPCIÓN 1: VARCHAR + CHECK (Flexibilidad)
-    -- Es un texto con una regla "pegada" que imita al ENUM.
-    type VARCHAR(20) NOT NULL,
-    
-    -- OPCIÓN 2: ENUM (Rigidez/Optimización)
-    -- type ENUM('INCOME', 'EXPENSE', 'BOTH') NOT NULL,
-
-    icon VARCHAR(100) NOT NULL,
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-
-    CONSTRAINT fk_categories_user 
-        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-
-    -- Tu restricción UNIQUE (user_id, name): 
-    -- Evita que tengas dos "Comida", pero permite que OTRO usuario tenga la suya.
-    CONSTRAINT unique_category_per_user 
-        UNIQUE (user_id, name),
-
-    -- LA REGLA "TIPO ENUM":
-    -- Obliga a que el VARCHAR solo acepte estas 3 palabras.
-    CONSTRAINT chk_category_type 
-        CHECK (type IN ('INCOME', 'EXPENSE', 'BOTH'))
-);
+CREATE TABLE IF NOT EXISTS
+    categories (
+        id BIGINT PRIMARY KEY AUTO_INCREMENT,
+        user_id BIGINT NOT NULL,
+        name VARCHAR(100) NOT NULL,
+        -- OPCIÓN 1: VARCHAR + CHECK (Flexibilidad)
+        -- Es un texto con una regla "pegada" que imita al ENUM.
+        type VARCHAR(20) NOT NULL,
+        -- OPCIÓN 2: ENUM (Rigidez/Optimización)
+        -- type ENUM('INCOME', 'EXPENSE', 'BOTH') NOT NULL,
+        icon VARCHAR(100) NOT NULL,
+        created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        CONSTRAINT fk_categories_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+        -- Tu restricción UNIQUE (user_id, name): 
+        -- Evita que tengas dos "Comida", pero permite que OTRO usuario tenga la suya.
+        CONSTRAINT unique_category_per_user UNIQUE (user_id, name),
+        -- LA REGLA "TIPO ENUM":
+        -- Obliga a que el VARCHAR solo acepte estas 3 palabras.
+        CONSTRAINT chk_category_type CHECK (type IN ('INCOME', 'EXPENSE', 'BOTH'))
+    );
 
 CREATE INDEX idx_categories_user_id ON categories (user_id);
+
 CREATE INDEX idx_categories_type ON categories (type);
+
 CREATE INDEX idx_categories_name ON categories (name);
--- ======================================================
--- 7. TAGS (Versión Validada para Análisis)
--- ======================================================
-CREATE TABLE IF NOT EXISTS tags (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    user_id BIGINT NOT NULL,
-    name VARCHAR(100) NOT NULL,
-    color VARCHAR(20) NOT NULL,
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
-    CONSTRAINT fk_tags_user 
-        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-
-    -- Llave única: El usuario 1 no puede repetir "#Cena", 
-    -- pero el usuario 2 sí puede tener su propio "#Cena".
-    CONSTRAINT unique_tag_per_user 
-        UNIQUE (user_id, name)
-);
+-- ======================================================
+-- 7. TAGS
+-- ======================================================
+CREATE TABLE IF NOT EXISTS
+    tags (
+        id BIGINT PRIMARY KEY AUTO_INCREMENT,
+        user_id BIGINT NOT NULL,
+        name VARCHAR(100) NOT NULL,
+        color VARCHAR(20) NOT NULL,
+        created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        CONSTRAINT fk_tags_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+        -- Llave única: El usuario 1 no puede repetir "#Cena", 
+        -- pero el usuario 2 sí puede tener su propio "#Cena".
+        CONSTRAINT unique_tag_per_user UNIQUE (user_id, name)
+    );
 
 -- REINSTALANDO Y AJUSTANDO TUS ÍNDICES:
 CREATE INDEX idx_tags_user_id ON tags (user_id);
+
 CREATE INDEX idx_tags_name ON tags (name);
+
 CREATE INDEX idx_tags_color ON tags (color);
 
 -- ======================================================
@@ -227,8 +221,11 @@ CREATE INDEX idx_tags_color ON tags (color);
 CREATE TABLE IF NOT EXISTS
     transactions (
         id BIGINT PRIMARY KEY AUTO_INCREMENT,
+        user_id BIGINT NOT NULL,
         parent_transaction_id BIGINT NULL,
+        -- operation_type ENUM('INCOME', 'EXPENSE', 'TRANSFER') NOT NULL,
         operation_type VARCHAR(10) NOT NULL,
+        -- payment_method ENUM('CARD', 'CASH', 'TRANSFER', 'QR', 'CODI', 'WALLET') NOT NULL,
         payment_method VARCHAR(20) NOT NULL,
         source_account_id BIGINT NULL,
         destination_account_id BIGINT NULL,
@@ -242,12 +239,18 @@ CREATE TABLE IF NOT EXISTS
         timezone VARCHAR(50) NOT NULL,
         created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        CONSTRAINT fk_tx_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
         CONSTRAINT fk_tx_parent FOREIGN KEY (parent_transaction_id) REFERENCES transactions (id) ON DELETE SET NULL,
         CONSTRAINT fk_tx_source_account FOREIGN KEY (source_account_id) REFERENCES accounts (id) ON DELETE SET NULL,
         CONSTRAINT fk_tx_destination_account FOREIGN KEY (destination_account_id) REFERENCES accounts (id) ON DELETE SET NULL,
         CONSTRAINT fk_tx_entity FOREIGN KEY (external_entity_id) REFERENCES external_entities (id) ON DELETE SET NULL,
         CONSTRAINT fk_tx_category FOREIGN KEY (category_id) REFERENCES categories (id)
     );
+
+-- Índices para optimización de consultas y reportes
+CREATE INDEX idx_tx_user_id ON transactions (user_id);
+
+CREATE INDEX idx_tx_date ON transactions (date);
 
 CREATE INDEX idx_tx_type ON transactions (operation_type);
 
@@ -258,6 +261,32 @@ CREATE INDEX idx_tx_source_account ON transactions (source_account_id);
 CREATE INDEX idx_tx_destination_account ON transactions (destination_account_id);
 
 CREATE INDEX idx_tx_entity ON transactions (external_entity_id);
+
+-- ======================================================
+-- Trigger de Validación (Autocorrección de Monto) 
+-- ======================================================
+
+DELIMITER //
+
+DROP TRIGGER IF EXISTS tr_before_transaction_insert_val //
+
+CREATE TRIGGER tr_before_transaction_insert_val
+BEFORE INSERT ON transactions
+FOR EACH ROW
+BEGIN
+    -- 1. Si el monto es negativo, lo pasamos a positivo (ABS)
+    IF NEW.amount < 0 THEN
+        SET NEW.amount = ABS(NEW.amount);
+    END IF;
+
+    -- 2. Bloqueamos montos en cero (no tienen sentido contable)
+    IF NEW.amount = 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Error: El monto de la transacción debe ser mayor a cero.';
+    END IF;
+END //
+
+DELIMITER ;
 
 -- ======================================================
 -- 9. TRANSACTION_TAGS
