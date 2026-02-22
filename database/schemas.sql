@@ -47,41 +47,255 @@ CREATE INDEX idx_bank_clients_client_number ON bank_clients (client_number);
 -- ======================================================
 -- 3. ACCOUNTS
 -- ======================================================
-CREATE TABLE IF NOT EXISTS
-    accounts (
-        id BIGINT PRIMARY KEY AUTO_INCREMENT,
-        user_id BIGINT NULL,
-        bank_client_id BIGINT NULL,
-        name VARCHAR(100) NOT NULL,
-        type VARCHAR(50) NOT NULL,
-        current_balance DECIMAL(14, 2) DEFAULT 0.00,
-        account_number VARCHAR(50),
-        clabe VARCHAR(50),
-        credit_limit DECIMAL(14, 2),
-        cutoff_day INT,
-        payment_day INT,
-        created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        CONSTRAINT fk_accounts_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
-        CONSTRAINT fk_accounts_bank_client FOREIGN KEY (bank_client_id) REFERENCES bank_clients (id) ON DELETE SET NULL,
-        -- Validar relación con usuario directamente, o es de un banco, nunca ambos.
-        CONSTRAINT chk_account_owner CHECK (
-            (
-                user_id IS NOT NULL
-                AND bank_client_id IS NULL
-            )
-            OR (
-                user_id IS NULL
-                AND bank_client_id IS NOT NULL
-            )
+-- ======================================================
+-- 3.1. ACCOUNTS
+-- ======================================================
+CREATE TABLE IF NOT EXISTS accounts (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    user_id BIGINT NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    type VARCHAR(20) NOT NULL, -- 'CASH', 'BANK', 'CREDIT', 'WALLET', 'BENEFIT'
+    current_balance DECIMAL(12, 2) NOT NULL DEFAULT 0.00,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_acc_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+CREATE INDEX idx_acc_user_type ON accounts (user_id, type);
+
+
+-- ======================================================
+-- 3.2. BANK_DETAILS (Extensión Bancaria y Vales)
+-- ======================================================
+CREATE TABLE IF NOT EXISTS bank_details (
+    account_id BIGINT PRIMARY KEY,
+    bank_client_id BIGINT NULL,
+    clabe VARCHAR(18) NULL,
+    account_number VARCHAR(20) NULL,
+    can_transfer_out BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_bank_acc_base FOREIGN KEY (account_id) REFERENCES accounts(id) ON DELETE CASCADE,
+    CONSTRAINT fk_bank_client FOREIGN KEY (bank_client_id) REFERENCES bank_clients(id) ON DELETE SET NULL
+);
+
+-- Índices de búsqueda operativa
+CREATE INDEX idx_bank_det_client ON bank_details (bank_client_id);
+CREATE INDEX idx_bank_det_clabe ON bank_details (clabe);
+
+-- ======================================================
+-- 3.3. CREDIT_DETAILS (Extensión de Crédito)
+-- ======================================================
+CREATE TABLE IF NOT EXISTS credit_details (
+    account_id BIGINT PRIMARY KEY,
+    bank_client_id BIGINT NOT NULL,
+    credit_limit DECIMAL(12, 2) NOT NULL,
+    cutoff_day INT NOT NULL,
+    payment_deadline_day INT NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_credit_acc_base FOREIGN KEY (account_id) REFERENCES accounts(id) ON DELETE CASCADE,
+    CONSTRAINT fk_credit_bank_client FOREIGN KEY (bank_client_id) REFERENCES bank_clients(id) ON DELETE RESTRICT,
+    CONSTRAINT chk_cutoff_day CHECK (cutoff_day BETWEEN 1 AND 31),
+    CONSTRAINT chk_payment_day CHECK (payment_deadline_day BETWEEN 1 AND 31),
+    CONSTRAINT chk_credit_limit CHECK (credit_limit >= 0)
+);
+-- Índices de gestión de deuda
+CREATE INDEX idx_credit_det_client ON credit_details (bank_client_id);
+
+
+-- ======================================================
+-- 3.4. SAVINGS_DETAILS (Extensión de Rendimientos)
+-- ======================================================
+-- annual_yield se guarda como fracción:
+--   0.150000 = 15% anual
+-- yield_cap_amount:
+--   NULL = sin límite
+--   >= 0 = monto máximo que genera rendimiento
+
+CREATE TABLE IF NOT EXISTS savings_details (
+    account_id BIGINT PRIMARY KEY,
+    annual_yield DECIMAL(9, 6) NOT NULL,
+    yield_cap_amount DECIMAL(12, 2) NULL, -- Monto máximo para generar rendimientos
+    last_yield_calculation DATE NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_savings_acc_base
+        FOREIGN KEY (account_id) REFERENCES accounts(id) ON DELETE CASCADE,
+
+    CONSTRAINT chk_savings_yield
+        CHECK (annual_yield >= 0 AND annual_yield <= 1),
+
+    CONSTRAINT chk_savings_cap
+        CHECK (yield_cap_amount IS NULL OR yield_cap_amount >= 0)
+);
+
+-- Índice para localizar cuentas pendientes de cálculo
+CREATE INDEX idx_savings_last_calc 
+    ON savings_details (last_yield_calculation);
+
+
+-- ======================================================
+-- 3.5. INVESTMENT_DETAILS (Posiciones de inversión a plazo)
+-- ======================================================
+-- Representa cada inversión/posición dentro de una cuenta contenedora (accounts).
+-- Ejemplo: una cuenta "CETESDirecto" (accounts) puede tener muchas inversiones (investment_details).
+
+CREATE TABLE IF NOT EXISTS investment_details (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+
+    -- Cuenta contenedora (ej. "CETESDirecto")
+    account_id BIGINT NOT NULL,
+
+    -- Tipo de instrumento (ej. CETES, BONDDIA)
+    instrument_type VARCHAR(20) NOT NULL,
+
+    -- Plazo en días (ej. 28, 91, 182). Para instrumentos sin plazo fijo (ej. BONDDIA), puede ser NULL.
+    term_days INT NULL,
+
+    -- Capital fijo invertido en esta posición (no cambia durante el plazo)
+    principal_amount DECIMAL(12, 2) NOT NULL,
+
+    -- Tasa anual fija para esta posición (fracción: 0.105000 = 10.5% anual)
+    annual_yield DECIMAL(9, 6) NOT NULL,
+
+    -- Base de cálculo de días (por defecto 360 para instrumentos tipo CETES; si no la necesitas, puedes fijarla en dominio)
+    day_count_basis SMALLINT NOT NULL DEFAULT 360,
+
+    -- Fechas del plazo (planificadas)
+    start_date DATE NOT NULL,
+    maturity_date DATE NOT NULL,
+
+    -- Control de ciclo de vida (fechas reales de procesamiento)
+    opened_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    matured_at DATETIME NULL,
+    cancelled_at DATETIME NULL,
+
+    -- Estado de la inversión
+    status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',   -- ACTIVE | MATURED | CANCELLED
+
+    -- Reinversión automática al vencimiento (si aplica)
+    auto_reinvest BOOLEAN NOT NULL DEFAULT FALSE,
+    reinvest_term_days INT NULL,
+    reinvest_annual_yield DECIMAL(9, 6) NULL,
+
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_investment_acc_base
+        FOREIGN KEY (account_id) REFERENCES accounts(id) ON DELETE CASCADE,
+
+    CONSTRAINT chk_investment_principal
+        CHECK (principal_amount > 0),
+
+    CONSTRAINT chk_investment_yield
+        CHECK (annual_yield >= 0 AND annual_yield <= 1),
+
+    CONSTRAINT chk_investment_basis
+        CHECK (day_count_basis IN (360, 365)),
+
+    CONSTRAINT chk_investment_dates
+        CHECK (maturity_date > start_date),
+
+    CONSTRAINT chk_investment_term_days
+        CHECK (term_days IS NULL OR term_days > 0),
+
+    CONSTRAINT chk_investment_reinvest_term
+        CHECK (reinvest_term_days IS NULL OR reinvest_term_days > 0),
+
+    CONSTRAINT chk_investment_reinvest_yield
+        CHECK (
+            reinvest_annual_yield IS NULL
+            OR (reinvest_annual_yield >= 0 AND reinvest_annual_yield <= 1)
         )
-    );
+);
 
-CREATE INDEX idx_accounts_user_id ON accounts (user_id);
+-- Índices operativos: listar por cuenta y procesar vencimientos
+CREATE INDEX idx_investment_account
+    ON investment_details (account_id);
 
-CREATE INDEX idx_accounts_bank_client_id ON accounts (bank_client_id);
+CREATE INDEX idx_investment_status_maturity
+    ON investment_details (status, maturity_date);
 
-CREATE INDEX idx_accounts_type ON accounts (type);
+CREATE INDEX idx_investment_instrument
+    ON investment_details (instrument_type, term_days);
+
+CREATE INDEX idx_investment_opened_at
+    ON investment_details (opened_at);
+
+CREATE INDEX idx_investment_matured_at
+    ON investment_details (matured_at);
+
+
+-- ======================================================
+-- 3.6. WALLET_CARD_LINKS (Relación Muchos a Muchos)
+-- ======================================================
+CREATE TABLE IF NOT EXISTS wallet_card_links (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    wallet_account_id BIGINT NOT NULL,
+    card_id BIGINT NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_wallet_link_acc FOREIGN KEY (wallet_account_id) REFERENCES accounts(id) ON DELETE CASCADE,
+    CONSTRAINT fk_wallet_link_card FOREIGN KEY (card_id) REFERENCES cards(id) ON DELETE CASCADE,
+    UNIQUE (wallet_account_id, card_id)
+);
+
+-- Índice inverso para wallets vinculadas a una tarjeta
+CREATE INDEX idx_wallet_link_card ON wallet_card_links (card_id);
+
+
+-- ======================================================
+-- 3.7. TRIGGER: VALIDACIÓN DE TRANSFERENCIAS
+-- ======================================================
+DELIMITER //
+
+DROP TRIGGER IF EXISTS tr_before_transaction_transfer_check //
+
+CREATE TRIGGER tr_before_transaction_transfer_check
+BEFORE INSERT ON transactions
+FOR EACH ROW
+BEGIN
+    DECLARE v_acc_type VARCHAR(20);
+    DECLARE v_can_transfer BOOLEAN;
+
+    IF NEW.operation_type = 'TRANSFER' THEN
+
+        -- Validaciones mínimas de integridad para transferencias
+        IF NEW.source_account_id IS NULL OR NEW.destination_account_id IS NULL THEN
+            SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Error: Transferencia requiere source_account_id y destination_account_id.';
+        END IF;
+
+        IF NEW.source_account_id = NEW.destination_account_id THEN
+            SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Error: Origen y destino no pueden ser iguales.';
+        END IF;
+
+        -- Obtener tipo de cuenta origen y bandera can_transfer_out (si existe)
+        SELECT a.type, COALESCE(bd.can_transfer_out, TRUE)
+        INTO v_acc_type, v_can_transfer
+        FROM accounts a
+        LEFT JOIN bank_details bd ON a.id = bd.account_id
+        WHERE a.id = NEW.source_account_id;
+
+        -- Si la cuenta origen no existe, el SELECT anterior no devuelve fila y MySQL lanza error genérico.
+        -- Esta validación adicional fuerza un error claro.
+        IF v_acc_type IS NULL THEN
+            SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Error: La cuenta origen no existe.';
+        END IF;
+
+        -- Bloqueo por tipo BENEFIT o flag deshabilitado
+        IF v_acc_type = 'BENEFIT' OR v_can_transfer = FALSE THEN
+            SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Restricción: Esta cuenta no permite transferencias salientes.';
+        END IF;
+
+    END IF;
+END //
+
+DELIMITER ;
 
 -- ======================================================
 -- CATÁLOGOS Y ENTIDADES EXTERNAS
@@ -291,14 +505,22 @@ DELIMITER ;
 -- ======================================================
 -- 9. TRANSACTION_TAGS
 -- ======================================================
-CREATE TABLE IF NOT EXISTS
-    transaction_tags (
-        transaction_id BIGINT NOT NULL,
-        tag_id BIGINT NOT NULL,
-        PRIMARY KEY (transaction_id, tag_id),
-        CONSTRAINT fk_tt_transaction FOREIGN KEY (transaction_id) REFERENCES transactions (id) ON DELETE CASCADE,
-        CONSTRAINT fk_tt_tag FOREIGN KEY (tag_id) REFERENCES tags (id) ON DELETE CASCADE
-    );
+CREATE TABLE IF NOT EXISTS transaction_tags (
+    transaction_id BIGINT NOT NULL,
+    tag_id BIGINT NOT NULL,
+    
+    -- Llave primaria compuesta: asegura unicidad y rapidez de búsqueda por transacción
+    PRIMARY KEY (transaction_id, tag_id),
+    
+    CONSTRAINT fk_tt_transaction 
+        FOREIGN KEY (transaction_id) REFERENCES transactions (id) ON DELETE CASCADE,
+    
+    CONSTRAINT fk_tt_tag 
+        FOREIGN KEY (tag_id) REFERENCES tags (id) ON DELETE CASCADE
+);
+
+-- Índice para optimizar búsquedas inversas (Estadísticas por Tag)
+CREATE INDEX idx_tt_tag_id ON transaction_tags (tag_id);
 
 -- ======================================================
 -- DETALLES ESPECÍFICOS DE PAGO
