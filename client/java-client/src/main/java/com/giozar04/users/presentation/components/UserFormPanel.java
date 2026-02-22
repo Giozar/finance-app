@@ -1,6 +1,7 @@
 package com.giozar04.users.presentation.components;
 
 import java.awt.BorderLayout;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.time.ZonedDateTime;
@@ -19,6 +20,8 @@ import com.giozar04.shared.utils.DialogUtil;
 import com.giozar04.shared.utils.FormValidatorUtils;
 import com.giozar04.users.domain.entities.User;
 import com.giozar04.users.infrastructure.services.UserService;
+import com.giozar04.users.presentation.views.UsersView;
+import com.giozar04.shared.components.MainContentPanel;
 
 public class UserFormPanel extends JPanel {
 
@@ -29,6 +32,7 @@ public class UserFormPanel extends JPanel {
 
     private final JButton saveButton;
     private final JButton cancelButton;
+    private final JButton backButton;
 
     private User currentUser;
 
@@ -61,7 +65,11 @@ public class UserFormPanel extends JPanel {
 
         saveButton.addActionListener(e -> handleSave());
         cancelButton.addActionListener(e -> clearForm());
+        
+        backButton = new JButton("Regresar");
+        backButton.addActionListener(e -> handleBack());
 
+        buttonPanel.add(backButton);
         buttonPanel.add(cancelButton);
         buttonPanel.add(saveButton);
         add(buttonPanel, BorderLayout.SOUTH);
@@ -126,5 +134,20 @@ public class UserFormPanel extends JPanel {
         emailField.clear();
         passwordField.clear();
         balanceField.clear();
+    }
+
+    private void handleBack() {
+        MainContentPanel mainPanel = getMainContentPanel();
+        if (mainPanel != null) {
+            mainPanel.setView(new UsersView());
+        }
+    }
+
+    private MainContentPanel getMainContentPanel() {
+        Container parent = getParent();
+        while (parent != null && !(parent instanceof MainContentPanel)) {
+            parent = parent.getParent();
+        }
+        return (MainContentPanel) parent;
     }
 }

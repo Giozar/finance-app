@@ -97,13 +97,13 @@ Haz esto en **servidor** y **cliente**.
 Compila los proyectos en el siguiente orden:
 
 ```bash
-cd java-shared
+cd shared/java-shared
 mvn clean install
 
-cd ../java-serve
+cd backend/java-server
 mvn clean install
 
-cd ../java-client
+cd client/java-client
 mvn clean install
 ```
 
@@ -117,7 +117,7 @@ Si en un futuro agregas campos nuevos a las clases compartidas, solo debes:
 
 1. Editar `java-shared`.
 2. Ejecutar `mvn clean install`.
-3. Volver a compilar `java-serve` y `java-client`.
+3. Volver a compilar `java-server` y `java-client`.
 
 ---
 
