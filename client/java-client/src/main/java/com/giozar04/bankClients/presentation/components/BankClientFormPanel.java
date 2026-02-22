@@ -1,6 +1,7 @@
 package com.giozar04.bankClients.presentation.components;
 
 import java.awt.BorderLayout;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.time.ZonedDateTime;
@@ -22,6 +23,8 @@ import com.giozar04.shared.utils.DialogUtil;
 import com.giozar04.shared.utils.FormValidatorUtils;
 import com.giozar04.users.domain.entities.User;
 import com.giozar04.users.infrastructure.services.UserService;
+import com.giozar04.bankClients.presentation.views.BankClientsView;
+import com.giozar04.shared.components.MainContentPanel;
 
 public class BankClientFormPanel extends JPanel {
 
@@ -32,6 +35,7 @@ public class BankClientFormPanel extends JPanel {
     private final FormComboBox<User> userComboBox;
     private final JButton saveButton;
     private final JButton cancelButton;
+    private final JButton backButton;
 
     private BankClient currentClient;
 
@@ -64,6 +68,10 @@ public class BankClientFormPanel extends JPanel {
         saveButton.addActionListener(e -> handleSave());
         cancelButton.addActionListener(e -> clearForm());
 
+        backButton = new JButton("Regresar");
+        backButton.addActionListener(e -> handleBack());
+
+        buttonPanel.add(backButton);
         buttonPanel.add(cancelButton);
         buttonPanel.add(saveButton);
 
@@ -149,5 +157,20 @@ public class BankClientFormPanel extends JPanel {
         bankNameField.clear();
         clientNumberField.clear();
         userComboBox.clearSelection();
+    }
+
+    private void handleBack() {
+        MainContentPanel mainPanel = getMainContentPanel();
+        if (mainPanel != null) {
+            mainPanel.setView(new BankClientsView());
+        }
+    }
+
+    private MainContentPanel getMainContentPanel() {
+        Container parent = getParent();
+        while (parent != null && !(parent instanceof MainContentPanel)) {
+            parent = parent.getParent();
+        }
+        return (MainContentPanel) parent;
     }
 }
