@@ -546,48 +546,67 @@ CREATE INDEX idx_wallet_card_card ON wallet_card_links (card_id);
 -- ======================================================
 -- 11. CARD_TRANSACTION_DETAILS
 -- ======================================================
-CREATE TABLE IF NOT EXISTS
-    card_transaction_details (
-        id BIGINT PRIMARY KEY AUTO_INCREMENT,
-        transaction_id BIGINT NOT NULL,
-        card_id BIGINT NOT NULL,
-        amount DECIMAL(12, 2) NOT NULL,
-        installment_months INT NULL,
-        interest_free BOOLEAN NOT NULL DEFAULT FALSE,
-        created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        CONSTRAINT fk_card_tx FOREIGN KEY (transaction_id) REFERENCES transactions (id) ON DELETE CASCADE,
-        CONSTRAINT fk_card_detail FOREIGN KEY (card_id) REFERENCES cards (id) ON DELETE CASCADE
-    );
+CREATE TABLE IF NOT EXISTS card_transaction_details (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    transaction_id BIGINT NOT NULL,
+    card_id BIGINT NOT NULL,
+    
+    -- Monto específico cargado a la tarjeta (útil en pagos mixtos)
+    amount DECIMAL(12, 2) NOT NULL,
+    
+    -- MSI: Si es NULL, es pago en una sola exhibición
+    installment_months INT NULL,
+    interest_free BOOLEAN NOT NULL DEFAULT FALSE,
+    
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
+    CONSTRAINT fk_card_tx FOREIGN KEY (transaction_id) REFERENCES transactions (id) ON DELETE CASCADE,
+    CONSTRAINT fk_card_detail FOREIGN KEY (card_id) REFERENCES cards (id) ON DELETE CASCADE,
+    
+    -- Validaciones de integridad
+    CONSTRAINT chk_card_amount CHECK (amount > 0),
+    CONSTRAINT chk_installments CHECK (installment_months IS NULL OR installment_months > 0)
+);
+
+-- Índices para reportes de MSI y consumo por plástico
 CREATE INDEX idx_card_tx ON card_transaction_details (transaction_id);
-
 CREATE INDEX idx_card_detail_card ON card_transaction_details (card_id);
+CREATE INDEX idx_card_msi ON card_transaction_details (interest_free, installment_months);
 
 -- ======================================================
 -- 12. WALLET_TRANSACTION_DETAILS
 -- ======================================================
-CREATE TABLE IF NOT EXISTS
-    wallet_transaction_details (
-        id BIGINT PRIMARY KEY AUTO_INCREMENT,
-        transaction_id BIGINT NOT NULL,
-        source_type VARCHAR(20) NOT NULL,
-        wallet_account_id BIGINT NOT NULL,
-        card_id BIGINT NULL,
-        amount DECIMAL(12, 2) NOT NULL,
-        cashback_percentage DECIMAL(5, 2) NULL,
-        created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        CONSTRAINT fk_wallet_tx FOREIGN KEY (transaction_id) REFERENCES transactions (id) ON DELETE CASCADE,
-        CONSTRAINT fk_wallet_account FOREIGN KEY (wallet_account_id) REFERENCES accounts (id) ON DELETE CASCADE,
-        CONSTRAINT fk_wallet_card FOREIGN KEY (card_id) REFERENCES cards (id) ON DELETE SET NULL
-    );
+CREATE TABLE IF NOT EXISTS wallet_transaction_details (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    transaction_id BIGINT NOT NULL,
+    
+    -- 'WALLET_BALANCE', 'LINKED_CARD', 'EXTERNAL_TRANSFER'
+    source_type VARCHAR(20) NOT NULL, 
+    
+    wallet_account_id BIGINT NOT NULL, -- Referencia a accounts (type='WALLET')
+    card_id BIGINT NULL,               -- Solo si source_type = 'LINKED_CARD'
+    
+    amount DECIMAL(12, 2) NOT NULL,
+    cashback_percentage DECIMAL(5, 2) NULL, -- Ej: 2.00 para 2%
+    
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
+    CONSTRAINT fk_wallet_tx FOREIGN KEY (transaction_id) REFERENCES transactions (id) ON DELETE CASCADE,
+    CONSTRAINT fk_wallet_account FOREIGN KEY (wallet_account_id) REFERENCES accounts (id) ON DELETE CASCADE,
+    CONSTRAINT fk_wallet_card FOREIGN KEY (card_id) REFERENCES cards (id) ON DELETE SET NULL,
+    
+    -- Validaciones
+    CONSTRAINT chk_wallet_amount CHECK (amount > 0),
+    CONSTRAINT chk_cashback CHECK (cashback_percentage BETWEEN 0 AND 100)
+);
+
+-- Índices para analítica de Cashback y uso de Wallet
 CREATE INDEX idx_wallet_transaction ON wallet_transaction_details (transaction_id);
-
 CREATE INDEX idx_wallet_payment_wallet ON wallet_transaction_details (wallet_account_id);
-
 CREATE INDEX idx_wallet_payment_card ON wallet_transaction_details (card_id);
+CREATE INDEX idx_wallet_cashback ON wallet_transaction_details (cashback_percentage);
 
 -- ======================================================
 -- AUTOMATIZACIÓN DE SALDOS (TRIGGERS)
