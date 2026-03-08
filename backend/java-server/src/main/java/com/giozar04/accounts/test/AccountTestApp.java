@@ -77,13 +77,13 @@ public class AccountTestApp {
             account.setBankClientId(scanner.nextLong());
             scanner.nextLine();
 
-            System.out.print("Tipo de cuenta (debit, credit o savings): ");
+            System.out.print("Tipo de cuenta (bank o credit): ");
             String tipo = scanner.nextLine().trim().toLowerCase();
-            while (!tipo.equals("debit") && !tipo.equals("credit") && !tipo.equals("savings")) {
-                System.out.print("Tipo inválido. Ingrese 'debit', 'credit' o 'savings': ");
+            while (!tipo.equals("bank") && !tipo.equals("credit")) {
+                System.out.print("Tipo inválido. Ingrese 'bank' o 'credit': ");
                 tipo = scanner.nextLine().trim().toLowerCase();
             }
-            account.setType(tipo);
+            account.setType(AccountTypes.fromValue(tipo));
 
             System.out.print("Nombre de la cuenta: ");
             account.setName(scanner.nextLine());
@@ -109,7 +109,7 @@ public class AccountTestApp {
             }
 
         } else {
-            account.setType(AccountTypes.CASH.name().toLowerCase());
+            account.setType(AccountTypes.CASH);
             account.setBankClientId(null);
             account.setAccountNumber(null);
             account.setClabe(null);
@@ -143,9 +143,15 @@ public class AccountTestApp {
         String name = scanner.nextLine();
         if (!name.isBlank()) account.setName(name);
 
-        System.out.print("Nuevo tipo (debit, credit, cash, savings) [" + account.getType() + "]: ");
+        System.out.print("Nuevo tipo (cash, bank, credit, wallet, benefit) [" + account.getType() + "]: ");
         String type = scanner.nextLine().trim().toLowerCase();
-        if (!type.isBlank()) account.setType(type);
+        if (!type.isBlank()) {
+            try {
+                account.setType(AccountTypes.fromValue(type));
+            } catch (Exception e) {
+                System.out.println("Tipo inválido. Ignorando cambio.");
+            }
+        }
 
         System.out.print("Nuevo balance (" + account.getCurrentBalance() + "): ");
         String balanceStr = scanner.nextLine();
@@ -159,7 +165,7 @@ public class AccountTestApp {
         String clabe = scanner.nextLine();
         if (!clabe.isBlank()) account.setClabe(clabe);
 
-        if ("credit".equals(account.getType())) {
+        if (account.getType() == AccountTypes.CREDIT) {
             System.out.print("Nuevo límite de crédito (" + account.getCreditLimit() + "): ");
             String limit = scanner.nextLine();
             if (!limit.isBlank()) account.setCreditLimit(Double.parseDouble(limit));
@@ -221,7 +227,7 @@ public class AccountTestApp {
             System.out.println("CLABE: " + account.getClabe());
         }
 
-        if ("credit".equals(account.getType())) {
+        if (account.getType() == AccountTypes.CREDIT) {
             System.out.println("Límite de crédito: " + account.getCreditLimit());
             System.out.println("Día de corte: " + account.getCutoffDay());
             System.out.println("Día de pago: " + account.getPaymentDay());

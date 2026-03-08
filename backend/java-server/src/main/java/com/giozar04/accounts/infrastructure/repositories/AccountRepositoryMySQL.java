@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.giozar04.accounts.domain.entities.Account;
+import com.giozar04.accounts.domain.enums.AccountTypes;
 import com.giozar04.accounts.domain.exceptions.AccountExceptions;
 import com.giozar04.accounts.domain.models.AccountRepositoryAbstract;
 import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
@@ -57,7 +58,7 @@ public class AccountRepositoryMySQL extends AccountRepositoryAbstract {
             }
 
             stmt.setString(2, account.getName());
-            stmt.setString(3, account.getType());
+            stmt.setString(3, account.getType() != null ? account.getType().getValue() : null);
             stmt.setDouble(4, account.getCurrentBalance());
             stmt.setString(5, account.getAccountNumber());
             stmt.setString(6, account.getClabe());
@@ -139,7 +140,7 @@ public class AccountRepositoryMySQL extends AccountRepositoryAbstract {
             }
 
             stmt.setString(2, account.getName());
-            stmt.setString(3, account.getType());
+            stmt.setString(3, account.getType() != null ? account.getType().getValue() : null);
             stmt.setDouble(4, account.getCurrentBalance());
             stmt.setString(5, account.getAccountNumber());
             stmt.setString(6, account.getClabe());
@@ -212,7 +213,11 @@ public class AccountRepositoryMySQL extends AccountRepositoryAbstract {
              ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
-                accounts.add(mapResultSetToAccount(rs));
+                try {
+                    accounts.add(mapResultSetToAccount(rs));
+                } catch (IllegalArgumentException e) {
+                    logger.error("Omitiendo cuenta inválida (posiblemente un tipo antiguo): " + e.getMessage());
+                }
             }
 
             return accounts;
@@ -230,7 +235,7 @@ public class AccountRepositoryMySQL extends AccountRepositoryAbstract {
         if (!rs.wasNull()) account.setBankClientId(bankClientId);
 
         account.setName(rs.getString("name"));
-        account.setType(rs.getString("type"));
+        account.setType(AccountTypes.fromValue(rs.getString("type")));
         account.setCurrentBalance(rs.getDouble("current_balance"));
         account.setAccountNumber(rs.getString("account_number"));
         account.setClabe(rs.getString("clabe"));

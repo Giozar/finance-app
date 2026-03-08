@@ -1,6 +1,7 @@
 package com.giozar04.accounts.presentation.components;
 
 import java.awt.BorderLayout;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.time.ZonedDateTime;
@@ -16,18 +17,24 @@ import javax.swing.border.EmptyBorder;
 import com.giozar04.accounts.domain.entities.Account;
 import com.giozar04.accounts.domain.enums.AccountTypes;
 import com.giozar04.accounts.infrastructure.services.AccountService;
+import com.giozar04.accounts.presentation.views.AccountsView;
 import com.giozar04.bankClient.domain.entities.BankClient;
 import com.giozar04.bankClients.infrastructure.services.BankClientService;
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
+import com.giozar04.shared.components.MainContentPanel;
 import com.giozar04.shared.components.forms.FormComboBox;
 import com.giozar04.shared.components.forms.FormField;
 import com.giozar04.shared.utils.DialogUtil;
 import com.giozar04.shared.utils.FormValidatorUtils;
+import com.giozar04.users.domain.entities.User;
+import com.giozar04.users.infrastructure.services.UserService;
 
 public class AccountFormPanel extends JPanel {
 
     private final BankClientService bankClientService = BankClientService.getInstance();
+    private final UserService userService = UserService.getInstance();
 
+    private final FormComboBox<User> userCombo;
     private final FormField nameField;
     private final FormComboBox<AccountTypes> typeCombo;
     private final FormComboBox<BankClient> bankClientCombo;
@@ -40,6 +47,7 @@ public class AccountFormPanel extends JPanel {
 
     private final JButton saveButton;
     private final JButton cancelButton;
+    private final JButton backButton;
 
     private Account currentAccount;
     private boolean clientsLoaded = false;
@@ -51,6 +59,10 @@ public class AccountFormPanel extends JPanel {
         JPanel formPanel = new JPanel();
         formPanel.setLayout(new BoxLayout(formPanel, BoxLayout.Y_AXIS));
         formPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
+
+        userCombo = new FormComboBox<>("Usuario propietario:", 400, 40);
+        userCombo.setPlaceholder("Selecciona un usuario...");
+        loadUsers();
 
         nameField = new FormField("Nombre:", false, 400, 40);
         typeCombo = new FormComboBox<>("Tipo de cuenta:", 400, 40);
@@ -68,6 +80,8 @@ public class AccountFormPanel extends JPanel {
         cutoffDayField = new FormField("Día de corte:", false, 400, 40);
         paymentDayField = new FormField("Día de pago:", false, 400, 40);
 
+        formPanel.add(userCombo);
+        formPanel.add(Box.createRigidArea(new Dimension(0, 10)));
         formPanel.add(nameField);
         formPanel.add(Box.createRigidArea(new Dimension(0, 10)));
         formPanel.add(typeCombo);
@@ -91,16 +105,28 @@ public class AccountFormPanel extends JPanel {
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         saveButton = new JButton("Guardar");
         cancelButton = new JButton("Cancelar");
+        backButton = new JButton("Regresar");
 
         saveButton.addActionListener(e -> handleSave());
         cancelButton.addActionListener(e -> clearForm());
+        backButton.addActionListener(e -> handleBack());
 
         buttonPanel.add(cancelButton);
         buttonPanel.add(saveButton);
+        buttonPanel.add(backButton);
         add(buttonPanel, BorderLayout.SOUTH);
 
         typeCombo.addActionListener(e -> updateFieldVisibility());
         updateFieldVisibility();
+    }
+
+    private void loadUsers() {
+        try {
+            List<User> users = userService.getAllUsers();
+            userCombo.setItems(users);
+        } catch (ClientOperationException ex) {
+            DialogUtil.showError(this, "Error al cargar los usuarios: " + ex.getMessage());
+        }
     }
 
     private void loadBankClients() {
@@ -134,6 +160,7 @@ public class AccountFormPanel extends JPanel {
     private void handleSave() {
         List<String> errors = new ArrayList<>();
 
+        User user = userCombo.getSelectedItem();
         String name = nameField.getValue().trim();
         String balanceStr = balanceField.getValue().trim();
         String accountNumber = accountNumberField.getValue().trim();
@@ -143,6 +170,9 @@ public class AccountFormPanel extends JPanel {
         String paymentDayStr = paymentDayField.getValue().trim();
         AccountTypes type = typeCombo.getSelectedItem();
 
+        if (user == null || !userCombo.isSelectionValid()) {
+            errors.add("Debe seleccionar un usuario propietario.");
+        }
         FormValidatorUtils.isRequired(name, "Nombre", errors);
         FormValidatorUtils.isPositiveNumber(balanceStr, "Balance actual", errors);
 
@@ -168,8 +198,9 @@ public class AccountFormPanel extends JPanel {
 
         double balance = Double.parseDouble(balanceStr);
         Account account = currentAccount != null ? currentAccount : new Account();
+        account.setUserId(user.getId());
         account.setName(name);
-        account.setType(type.name().toLowerCase());
+        account.setType(type);
         account.setCurrentBalance(balance);
 
         if (type != AccountTypes.CASH) {
@@ -214,8 +245,17 @@ public class AccountFormPanel extends JPanel {
 
     public void loadAccount(Account account) {
         this.currentAccount = account;
+        
+        for (int i = 0; i < userCombo.getItemCount(); i++) {
+            User u = userCombo.getItemAt(i);
+            if (u.getId() == account.getUserId()) {
+                userCombo.setSelectedItem(u);
+                break;
+            }
+        }
+        
         nameField.setValue(account.getName());
-        typeCombo.setSelectedItem(AccountTypes.valueOf(account.getType().toUpperCase()));
+        typeCombo.setSelectedItem(account.getType());
         balanceField.setValue(String.valueOf(account.getCurrentBalance()));
         accountNumberField.setValue(account.getAccountNumber());
         clabeField.setValue(account.getClabe());
@@ -242,6 +282,7 @@ public class AccountFormPanel extends JPanel {
 
     public void clearForm() {
         currentAccount = null;
+        userCombo.clearSelection();
         nameField.clear();
         balanceField.clear();
         accountNumberField.clear();
@@ -252,5 +293,20 @@ public class AccountFormPanel extends JPanel {
         typeCombo.setSelectedIndex(0);
         bankClientCombo.clearSelection();
         updateFieldVisibility();
+    }
+
+    private void handleBack() {
+        MainContentPanel mainPanel = getMainContentPanel();
+        if (mainPanel != null) {
+            mainPanel.setView(new AccountsView());
+        }
+    }
+
+    private MainContentPanel getMainContentPanel() {
+        Container parent = getParent();
+        while (parent != null && !(parent instanceof MainContentPanel)) {
+            parent = parent.getParent();
+        }
+        return (MainContentPanel) parent;
     }
 }

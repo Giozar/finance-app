@@ -27,12 +27,9 @@ public abstract class AccountRepositoryAbstract implements AccountRepositoryInte
             throw new IllegalArgumentException("El nombre de la cuenta no puede estar vacío");
         }
 
-        String type = account.getType();
-        AccountTypes tipoCuenta;
-        try {
-            tipoCuenta = AccountTypes.valueOf(type.toUpperCase());
-        } catch (IllegalArgumentException | NullPointerException e) {
-            throw new IllegalArgumentException("Tipo de cuenta inválido: " + type);
+        AccountTypes tipoCuenta = account.getType();
+        if (tipoCuenta == null) {
+            throw new IllegalArgumentException("El tipo de cuenta no puede ser nulo");
         }
 
         if (account.getCurrentBalance() < 0) {
@@ -46,7 +43,7 @@ public abstract class AccountRepositoryAbstract implements AccountRepositoryInte
             }
         }
 
-        if (tipoCuenta == AccountTypes.DEBIT || tipoCuenta == AccountTypes.CREDIT || tipoCuenta == AccountTypes.SAVINGS) {
+        if (tipoCuenta == AccountTypes.BANK || tipoCuenta == AccountTypes.CREDIT) {
             if (account.getBankClientId() == null) {
                 throw new IllegalArgumentException("Las cuentas de tipo " + tipoCuenta.name().toLowerCase() + " deben estar ligadas a un cliente de banco.");
             }
