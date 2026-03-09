@@ -404,32 +404,6 @@ CREATE INDEX idx_tx_destination_account ON transactions (destination_account_id)
 CREATE INDEX idx_tx_entity ON transactions (external_entity_id);
 
 -- ======================================================
--- Trigger de Validación (Autocorrección de Monto) 
--- ======================================================
-
-DELIMITER //
-
-DROP TRIGGER IF EXISTS tr_before_transaction_insert_val //
-
-CREATE TRIGGER tr_before_transaction_insert_val
-BEFORE INSERT ON transactions
-FOR EACH ROW
-BEGIN
-    -- 1. Si el monto es negativo, lo pasamos a positivo (ABS)
-    IF NEW.amount < 0 THEN
-        SET NEW.amount = ABS(NEW.amount);
-    END IF;
-
-    -- 2. Bloqueamos montos en cero (no tienen sentido contable)
-    IF NEW.amount = 0 THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'Error: El monto de la transacción debe ser mayor a cero.';
-    END IF;
-END //
-
-DELIMITER ;
-
--- ======================================================
 -- 9. TRANSACTION_TAGS
 -- ======================================================
 CREATE TABLE IF NOT EXISTS transaction_tags (
@@ -539,8 +513,33 @@ CREATE INDEX idx_wallet_cashback ON wallet_transaction_details (cashback_percent
 -- AUTOMATIZACIÓN DE SALDOS (TRIGGERS)
 -- ======================================================
 -- Aseguramos permisos para crear triggers
-SET
-    GLOBAL log_bin_trust_function_creators = 1;
+SET GLOBAL log_bin_trust_function_creators = 1;
+
+-- ======================================================
+-- Trigger de Validación (Autocorrección de Monto) 
+-- ======================================================
+
+DELIMITER //
+
+DROP TRIGGER IF EXISTS tr_before_transaction_insert_val //
+
+CREATE TRIGGER tr_before_transaction_insert_val
+BEFORE INSERT ON transactions
+FOR EACH ROW
+BEGIN
+    -- 1. Si el monto es negativo, lo pasamos a positivo (ABS)
+    IF NEW.amount < 0 THEN
+        SET NEW.amount = ABS(NEW.amount);
+    END IF;
+
+    -- 2. Bloqueamos montos en cero (no tienen sentido contable)
+    IF NEW.amount = 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Error: El monto de la transacción debe ser mayor a cero.';
+    END IF;
+END //
+
+DELIMITER ;
 
 DELIMITER / /
 CREATE TRIGGER tr_after_transaction_insert AFTER
