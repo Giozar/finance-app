@@ -1,3 +1,6 @@
+-- IMPORTANTE: para poder crear triggers el root tiene que establecer los permisos globales con 
+-- SET GLOBAL log_bin_trust_function_creators = 1;
+
 DROP DATABASE IF EXISTS finanzas;
 
 CREATE DATABASE IF NOT EXISTS finanzas;
@@ -226,6 +229,29 @@ CREATE INDEX idx_investment_opened_at
 CREATE INDEX idx_investment_matured_at
     ON investment_details (matured_at);
 
+-- ======================================================
+-- 5. CARDS
+-- ======================================================
+CREATE TABLE IF NOT EXISTS
+    cards (
+        id BIGINT PRIMARY KEY AUTO_INCREMENT,
+        account_id BIGINT NOT NULL,
+        name VARCHAR(100) NOT NULL,
+        card_type VARCHAR(20) NOT NULL,
+        card_number VARCHAR(4) NOT NULL,
+        expiration_date DATE NOT NULL,
+        -- status ENUM('ACTIVE', 'BLOCKED', 'EXPIRED') DEFAULT 'ACTIVE',
+        -- Usamos VARCHAR en lugar de ENUM para mayor flexibilidad
+        status VARCHAR(20) DEFAULT 'ACTIVE',
+        created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        CONSTRAINT fk_cards_account FOREIGN KEY (account_id) REFERENCES accounts (id) ON DELETE CASCADE
+    );
+
+CREATE INDEX idx_cards_account_id ON cards (account_id);
+
+CREATE INDEX idx_cards_card_type ON cards (card_type);
+
 
 -- ======================================================
 -- 3.6. WALLET_CARD_LINKS (Relación Muchos a Muchos)
@@ -244,58 +270,6 @@ CREATE TABLE IF NOT EXISTS wallet_card_links (
 -- Índice inverso para wallets vinculadas a una tarjeta
 CREATE INDEX idx_wallet_link_card ON wallet_card_links (card_id);
 
-
--- ======================================================
--- 3.7. TRIGGER: VALIDACIÓN DE TRANSFERENCIAS
--- ======================================================
-DELIMITER //
-
-DROP TRIGGER IF EXISTS tr_before_transaction_transfer_check //
-
-CREATE TRIGGER tr_before_transaction_transfer_check
-BEFORE INSERT ON transactions
-FOR EACH ROW
-BEGIN
-    DECLARE v_acc_type VARCHAR(20);
-    DECLARE v_can_transfer BOOLEAN;
-
-    IF NEW.operation_type = 'TRANSFER' THEN
-
-        -- Validaciones mínimas de integridad para transferencias
-        IF NEW.source_account_id IS NULL OR NEW.destination_account_id IS NULL THEN
-            SIGNAL SQLSTATE '45000'
-            SET MESSAGE_TEXT = 'Error: Transferencia requiere source_account_id y destination_account_id.';
-        END IF;
-
-        IF NEW.source_account_id = NEW.destination_account_id THEN
-            SIGNAL SQLSTATE '45000'
-            SET MESSAGE_TEXT = 'Error: Origen y destino no pueden ser iguales.';
-        END IF;
-
-        -- Obtener tipo de cuenta origen y bandera can_transfer_out (si existe)
-        SELECT a.type, COALESCE(bd.can_transfer_out, TRUE)
-        INTO v_acc_type, v_can_transfer
-        FROM accounts a
-        LEFT JOIN bank_details bd ON a.id = bd.account_id
-        WHERE a.id = NEW.source_account_id;
-
-        -- Si la cuenta origen no existe, el SELECT anterior no devuelve fila y MySQL lanza error genérico.
-        -- Esta validación adicional fuerza un error claro.
-        IF v_acc_type IS NULL THEN
-            SIGNAL SQLSTATE '45000'
-            SET MESSAGE_TEXT = 'Error: La cuenta origen no existe.';
-        END IF;
-
-        -- Bloqueo por tipo BENEFIT o flag deshabilitado
-        IF v_acc_type = 'BENEFIT' OR v_can_transfer = FALSE THEN
-            SIGNAL SQLSTATE '45000'
-            SET MESSAGE_TEXT = 'Restricción: Esta cuenta no permite transferencias salientes.';
-        END IF;
-
-    END IF;
-END //
-
-DELIMITER ;
 
 -- ======================================================
 -- CATÁLOGOS Y ENTIDADES EXTERNAS
@@ -323,53 +297,6 @@ CREATE INDEX idx_external_entities_user ON external_entities (user_id);
 CREATE INDEX idx_external_entities_type ON external_entities (type);
 
 CREATE INDEX idx_external_entities_name ON external_entities (name);
-
--- ======================================================
--- 5. CARDS
--- ======================================================
-CREATE TABLE IF NOT EXISTS
-    cards (
-        id BIGINT PRIMARY KEY AUTO_INCREMENT,
-        account_id BIGINT NOT NULL,
-        name VARCHAR(100) NOT NULL,
-        card_type VARCHAR(20) NOT NULL,
-        card_number VARCHAR(4) NOT NULL,
-        expiration_date DATE NOT NULL,
-        -- status ENUM('ACTIVE', 'BLOCKED', 'EXPIRED') DEFAULT 'ACTIVE',
-        -- Usamos VARCHAR en lugar de ENUM para mayor flexibilidad
-        status VARCHAR(20) DEFAULT 'ACTIVE',
-        created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        CONSTRAINT fk_cards_account FOREIGN KEY (account_id) REFERENCES accounts (id) ON DELETE CASCADE
-    );
-
-CREATE INDEX idx_cards_account_id ON cards (account_id);
-
-CREATE INDEX idx_cards_card_type ON cards (card_type);
-
--- Validar que la tarjeta se pueda vincular a una cuenta bancaria
-DELIMITER / /
-DROP TRIGGER IF EXISTS tr_before_card_insert / /
-CREATE TRIGGER tr_before_card_insert BEFORE
-INSERT
-    ON cards FOR EACH ROW BEGIN DECLARE v_bank_id BIGINT;
-
--- Buscamos si la cuenta seleccionada tiene un vínculo bancario
-SELECT
-    bank_client_id INTO v_bank_id
-FROM
-    accounts
-WHERE
-    id = NEW.account_id;
-
--- Si bank_client_id es NULL, significa que es Efectivo/Personal y bloqueamos
-IF v_bank_id IS NULL THEN SIGNAL SQLSTATE '45000'
-SET
-    MESSAGE_TEXT = 'Error: Solo se pueden vincular tarjetas a cuentas bancarias.';
-
-END IF;
-
-END / / DELIMITER;
 
 -- ======================================================
 -- 6. CATEGORIES
@@ -890,3 +817,92 @@ WHERE
 END IF;
 
 END / / DELIMITER;
+
+
+-- ======================================================
+-- 5 TRIGGER: CARDS
+-- ======================================================
+-- IMPORTANTE: para poder crear triggers el root tiene que establecer los permisos globales con 
+SET GLOBAL log_bin_trust_function_creators = 1;
+
+-- Validar que la tarjeta se pueda vincular a una cuenta bancaria
+DELIMITER / /
+DROP TRIGGER IF EXISTS tr_before_card_insert / /
+CREATE TRIGGER tr_before_card_insert BEFORE
+INSERT
+    ON cards FOR EACH ROW BEGIN DECLARE v_bank_id BIGINT;
+
+-- Buscamos si la cuenta seleccionada tiene un vínculo bancario
+SELECT
+    bank_client_id INTO v_bank_id
+FROM
+    accounts
+WHERE
+    id = NEW.account_id;
+
+-- Si bank_client_id es NULL, significa que es Efectivo/Personal y bloqueamos
+IF v_bank_id IS NULL THEN SIGNAL SQLSTATE '45000'
+SET
+    MESSAGE_TEXT = 'Error: Solo se pueden vincular tarjetas a cuentas bancarias.';
+
+END IF;
+
+END / / DELIMITER;
+
+
+
+
+-- ======================================================
+-- 3.7. TRIGGER: VALIDACIÓN DE TRANSFERENCIAS
+-- ======================================================
+-- IMPORTANTE: para poder crear triggers el root tiene que establecer los permisos globales con 
+SET GLOBAL log_bin_trust_function_creators = 1;
+
+DELIMITER //
+
+DROP TRIGGER IF EXISTS tr_before_transaction_transfer_check //
+
+CREATE TRIGGER tr_before_transaction_transfer_check
+BEFORE INSERT ON transactions
+FOR EACH ROW
+BEGIN
+    DECLARE v_acc_type VARCHAR(20);
+    DECLARE v_can_transfer BOOLEAN;
+
+    IF NEW.operation_type = 'TRANSFER' THEN
+
+        -- Validaciones mínimas de integridad para transferencias
+        IF NEW.source_account_id IS NULL OR NEW.destination_account_id IS NULL THEN
+            SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Error: Transferencia requiere source_account_id y destination_account_id.';
+        END IF;
+
+        IF NEW.source_account_id = NEW.destination_account_id THEN
+            SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Error: Origen y destino no pueden ser iguales.';
+        END IF;
+
+        -- Obtener tipo de cuenta origen y bandera can_transfer_out (si existe)
+        SELECT a.type, COALESCE(bd.can_transfer_out, TRUE)
+        INTO v_acc_type, v_can_transfer
+        FROM accounts a
+        LEFT JOIN bank_details bd ON a.id = bd.account_id
+        WHERE a.id = NEW.source_account_id;
+
+        -- Si la cuenta origen no existe, el SELECT anterior no devuelve fila y MySQL lanza error genérico.
+        -- Esta validación adicional fuerza un error claro.
+        IF v_acc_type IS NULL THEN
+            SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Error: La cuenta origen no existe.';
+        END IF;
+
+        -- Bloqueo por tipo BENEFIT o flag deshabilitado
+        IF v_acc_type = 'BENEFIT' OR v_can_transfer = FALSE THEN
+            SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Restricción: Esta cuenta no permite transferencias salientes.';
+        END IF;
+
+    END IF;
+END //
+
+DELIMITER ;
