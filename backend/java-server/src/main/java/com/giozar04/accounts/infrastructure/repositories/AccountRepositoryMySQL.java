@@ -50,18 +50,33 @@ public class AccountRepositoryMySQL extends AccountRepositoryAbstract {
         ON DUPLICATE KEY UPDATE bank_client_id = VALUES(bank_client_id), credit_limit = VALUES(credit_limit), cutoff_day = VALUES(cutoff_day), payment_deadline_day = VALUES(payment_deadline_day), updated_at = VALUES(updated_at)
     """;
 
+    // -- SAVINGS --
+    private static final String SQL_INSERT_SAVINGS = """
+        INSERT INTO savings_details (account_id, annual_yield, yield_cap_amount, last_yield_calculation, created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?)
+    """;
+
+    private static final String SQL_UPDATE_SAVINGS = """
+        INSERT INTO savings_details (account_id, annual_yield, yield_cap_amount, last_yield_calculation, created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?)
+        ON DUPLICATE KEY UPDATE annual_yield = VALUES(annual_yield), yield_cap_amount = VALUES(yield_cap_amount),
+        last_yield_calculation = VALUES(last_yield_calculation), updated_at = VALUES(updated_at)
+    """;
+
     // Delete details on update if we switch from a type that requires them to a type that doesn't
     private static final String SQL_DELETE_BANK_DETAILS = "DELETE FROM bank_details WHERE account_id = ?";
     private static final String SQL_DELETE_CREDIT_DETAILS = "DELETE FROM credit_details WHERE account_id = ?";
-
+    private static final String SQL_DELETE_SAVINGS_DETAILS = "DELETE FROM savings_details WHERE account_id = ?";
 
     private static final String SQL_SELECT_BASE = """
         SELECT a.id, a.user_id, a.name, a.type, a.current_balance, a.created_at, a.updated_at,
                bd.bank_client_id AS bd_client_id, bd.clabe, bd.account_number, bd.can_transfer_out,
-               cd.bank_client_id AS cd_client_id, cd.credit_limit, cd.cutoff_day, cd.payment_deadline_day
+               cd.bank_client_id AS cd_client_id, cd.credit_limit, cd.cutoff_day, cd.payment_deadline_day,
+               sd.annual_yield, sd.yield_cap_amount, sd.last_yield_calculation
         FROM accounts a
         LEFT JOIN bank_details bd ON a.id = bd.account_id
         LEFT JOIN credit_details cd ON a.id = cd.account_id
+        LEFT JOIN savings_details sd ON a.id = sd.account_id
     """;
 
     private static final String SQL_SELECT_BY_ID = SQL_SELECT_BASE + " WHERE a.id = ?";
@@ -105,17 +120,22 @@ public class AccountRepositoryMySQL extends AccountRepositoryAbstract {
             }
 
             // 2. Insert Details Based on Type
-            boolean isLinked = account.getType() != AccountTypes.CASH;
+            boolean isLinked = account.getType() != AccountTypes.CASH && account.getType() != AccountTypes.SAVINGS;
             boolean isCredit = account.getType() == AccountTypes.CREDIT;
+            boolean isSavings = account.getType() == AccountTypes.SAVINGS;
 
-            // Notice that the UI supports clabe and account_number for all linked types (BANK, WALLET, BENEFIT, e.t.c)
-            if (isLinked && !isCredit) {
+            // Determinar si debe guardar en bank_details (DEBIT, CREDIT, WALLET, BENEFIT)
+            if (isLinked) {
                 try (PreparedStatement stmt = conn.prepareStatement(SQL_INSERT_BANK)) {
                     stmt.setLong(1, account.getId());
                     if (account.getBankClientId() != null) stmt.setLong(2, account.getBankClientId()); else stmt.setNull(2, Types.BIGINT);
                     stmt.setString(3, account.getClabe());
                     stmt.setString(4, account.getAccountNumber());
-                    stmt.setBoolean(5, account.getCanTransferOut() != null ? account.getCanTransferOut() : true);
+                    // BENEFIT = vales (can_transfer_out=false por defecto), DEBIT = true
+                    boolean canTransfer = account.getType() == AccountTypes.BENEFIT
+                        ? (account.getCanTransferOut() != null ? account.getCanTransferOut() : false)
+                        : (account.getCanTransferOut() != null ? account.getCanTransferOut() : true);
+                    stmt.setBoolean(5, canTransfer);
                     stmt.setTimestamp(6, createdTs);
                     stmt.setTimestamp(7, updatedTs);
                     stmt.executeUpdate();
@@ -123,7 +143,6 @@ public class AccountRepositoryMySQL extends AccountRepositoryAbstract {
             }
 
             if (isCredit) {
-                // By your UI, credit needs BankClient, Limit, Cutoff, Payment.
                 try (PreparedStatement stmt = conn.prepareStatement(SQL_INSERT_CREDIT)) {
                     stmt.setLong(1, account.getId());
                     if (account.getBankClientId() != null) stmt.setLong(2, account.getBankClientId()); else stmt.setNull(2, Types.BIGINT);
@@ -134,21 +153,17 @@ public class AccountRepositoryMySQL extends AccountRepositoryAbstract {
                     stmt.setTimestamp(7, updatedTs);
                     stmt.executeUpdate();
                 }
+            }
 
-                // If UI meant credit to ALSO have CLABE and Account Number, we could also insert into bank_details.
-                // Assuming "credit_details" replaces the need for bank_details for credit cards 
-                // but if we had data for CLABE let's also save it in bank details
-                if (account.getAccountNumber() != null || account.getClabe() != null) {
-                    try (PreparedStatement stmt = conn.prepareStatement(SQL_INSERT_BANK)) {
-                        stmt.setLong(1, account.getId());
-                        if (account.getBankClientId() != null) stmt.setLong(2, account.getBankClientId()); else stmt.setNull(2, Types.BIGINT);
-                        stmt.setString(3, account.getClabe());
-                        stmt.setString(4, account.getAccountNumber());
-                        stmt.setBoolean(5, account.getCanTransferOut() != null ? account.getCanTransferOut() : true);
-                        stmt.setTimestamp(6, createdTs);
-                        stmt.setTimestamp(7, updatedTs);
-                        stmt.executeUpdate();
-                    }
+            if (isSavings) {
+                try (PreparedStatement stmt = conn.prepareStatement(SQL_INSERT_SAVINGS)) {
+                    stmt.setLong(1, account.getId());
+                    stmt.setDouble(2, account.getAnnualYield());
+                    if (account.getYieldCapAmount() != null) stmt.setDouble(3, account.getYieldCapAmount()); else stmt.setNull(3, Types.DECIMAL);
+                    if (account.getLastYieldCalculation() != null) stmt.setDate(4, java.sql.Date.valueOf(account.getLastYieldCalculation())); else stmt.setNull(4, Types.DATE);
+                    stmt.setTimestamp(5, createdTs);
+                    stmt.setTimestamp(6, updatedTs);
+                    stmt.executeUpdate();
                 }
             }
 
@@ -208,26 +223,32 @@ public class AccountRepositoryMySQL extends AccountRepositoryAbstract {
                 }
             }
 
-            boolean isLinked = account.getType() != AccountTypes.CASH;
+            boolean isLinked = account.getType() != AccountTypes.CASH && account.getType() != AccountTypes.SAVINGS;
             boolean isCredit = account.getType() == AccountTypes.CREDIT;
+            boolean isSavings = account.getType() == AccountTypes.SAVINGS;
 
-            // Clear details conditionally
+            // Limpiar detalles que ya no aplican si el tipo cambió
             if (!isLinked) {
-                try (PreparedStatement stmt = conn.prepareStatement(SQL_DELETE_BANK_DETAILS)) { stmt.setLong(1, id); stmt.executeUpdate(); }
-                try (PreparedStatement stmt = conn.prepareStatement(SQL_DELETE_CREDIT_DETAILS)) { stmt.setLong(1, id); stmt.executeUpdate(); }
+                try (PreparedStatement s = conn.prepareStatement(SQL_DELETE_BANK_DETAILS)) { s.setLong(1, id); s.executeUpdate(); }
             }
-            if (isLinked && !isCredit) {
-                try (PreparedStatement stmt = conn.prepareStatement(SQL_DELETE_CREDIT_DETAILS)) { stmt.setLong(1, id); stmt.executeUpdate(); }
+            if (!isCredit) {
+                try (PreparedStatement s = conn.prepareStatement(SQL_DELETE_CREDIT_DETAILS)) { s.setLong(1, id); s.executeUpdate(); }
+            }
+            if (!isSavings) {
+                try (PreparedStatement s = conn.prepareStatement(SQL_DELETE_SAVINGS_DETAILS)) { s.setLong(1, id); s.executeUpdate(); }
             }
 
             if (isLinked) {
-                // Bank Details
+                // Bank Details (DEBIT, CREDIT, WALLET, BENEFIT)
                 try (PreparedStatement stmt = conn.prepareStatement(SQL_UPDATE_BANK)) {
                     stmt.setLong(1, id);
                     if (account.getBankClientId() != null) stmt.setLong(2, account.getBankClientId()); else stmt.setNull(2, Types.BIGINT);
                     stmt.setString(3, account.getClabe());
                     stmt.setString(4, account.getAccountNumber());
-                    stmt.setBoolean(5, account.getCanTransferOut() != null ? account.getCanTransferOut() : true);
+                    boolean canTransfer = account.getType() == AccountTypes.BENEFIT
+                        ? (account.getCanTransferOut() != null ? account.getCanTransferOut() : false)
+                        : (account.getCanTransferOut() != null ? account.getCanTransferOut() : true);
+                    stmt.setBoolean(5, canTransfer);
                     stmt.setTimestamp(6, createdTs);
                     stmt.setTimestamp(7, updatedTs);
                     stmt.executeUpdate();
@@ -244,6 +265,18 @@ public class AccountRepositoryMySQL extends AccountRepositoryAbstract {
                     if (account.getPaymentDay() != null) stmt.setInt(5, account.getPaymentDay()); else stmt.setNull(5, Types.INTEGER);
                     stmt.setTimestamp(6, createdTs);
                     stmt.setTimestamp(7, updatedTs);
+                    stmt.executeUpdate();
+                }
+            }
+
+            if (isSavings) {
+                try (PreparedStatement stmt = conn.prepareStatement(SQL_UPDATE_SAVINGS)) {
+                    stmt.setLong(1, id);
+                    stmt.setDouble(2, account.getAnnualYield());
+                    if (account.getYieldCapAmount() != null) stmt.setDouble(3, account.getYieldCapAmount()); else stmt.setNull(3, Types.DECIMAL);
+                    if (account.getLastYieldCalculation() != null) stmt.setDate(4, java.sql.Date.valueOf(account.getLastYieldCalculation())); else stmt.setNull(4, Types.DATE);
+                    stmt.setTimestamp(5, createdTs);
+                    stmt.setTimestamp(6, updatedTs);
                     stmt.executeUpdate();
                 }
             }
@@ -320,29 +353,40 @@ public class AccountRepositoryMySQL extends AccountRepositoryAbstract {
         account.setType(AccountTypes.fromValue(rs.getString("type")));
         account.setCurrentBalance(rs.getDouble("current_balance"));
 
-        // Dependiendo de cómo lo creamos, el bank_client_id podría estar en bd o cd.
+        // bank_client_id: puede estar en bank_details o credit_details
         long bdClientId = rs.getLong("bd_client_id");
+        boolean bdClientNull = rs.wasNull();
         long cdClientId = rs.getLong("cd_client_id");
-        if (!rs.wasNull()) {
-           account.setBankClientId(cdClientId != 0 ? cdClientId : (bdClientId != 0 ? bdClientId : null));
+        boolean cdClientNull = rs.wasNull();
+
+        if (!cdClientNull && cdClientId != 0) {
+            account.setBankClientId(cdClientId);
+        } else if (!bdClientNull && bdClientId != 0) {
+            account.setBankClientId(bdClientId);
         }
 
         account.setAccountNumber(rs.getString("account_number"));
         account.setClabe(rs.getString("clabe"));
 
-        // Optional values from bd
+        // bank_details
         boolean transfer = rs.getBoolean("can_transfer_out");
         if (!rs.wasNull()) account.setCanTransferOut(transfer);
 
-        // Optional values from cd
+        // credit_details
         double creditLimit = rs.getDouble("credit_limit");
         if (!rs.wasNull()) account.setCreditLimit(creditLimit);
-
         int cutoff = rs.getInt("cutoff_day");
         if (!rs.wasNull()) account.setCutoffDay(cutoff);
-
         int payment = rs.getInt("payment_deadline_day");
         if (!rs.wasNull()) account.setPaymentDay(payment);
+
+        // savings_details
+        double annualYield = rs.getDouble("annual_yield");
+        if (!rs.wasNull()) account.setAnnualYield(annualYield);
+        double yieldCap = rs.getDouble("yield_cap_amount");
+        if (!rs.wasNull()) account.setYieldCapAmount(yieldCap);
+        java.sql.Date lastCalc = rs.getDate("last_yield_calculation");
+        if (lastCalc != null) account.setLastYieldCalculation(lastCalc.toString());
 
         Timestamp createdTs = rs.getTimestamp("created_at");
         if (createdTs != null) account.setCreatedAt(ZonedDateTime.of(createdTs.toLocalDateTime(), java.time.ZoneId.systemDefault()));

@@ -19,10 +19,13 @@ public class AccountUtils {
         map.put("currentBalance", account.getCurrentBalance());
         map.put("accountNumber", account.getAccountNumber());
         map.put("clabe", account.getClabe());
+        map.put("canTransferOut", account.getCanTransferOut());
         map.put("creditLimit", account.getCreditLimit());
         map.put("cutoffDay", account.getCutoffDay());
         map.put("paymentDay", account.getPaymentDay());
-        map.put("canTransferOut", account.getCanTransferOut());
+        map.put("annualYield", account.getAnnualYield());
+        map.put("yieldCapAmount", account.getYieldCapAmount());
+        map.put("lastYieldCalculation", account.getLastYieldCalculation());
 
         if (account.getCreatedAt() != null) {
             map.put("createdAt", account.getCreatedAt().format(SharedUtils.getFormatter()));
@@ -58,8 +61,13 @@ public class AccountUtils {
         if (canTransferOutObj != null) {
             account.setCanTransferOut(Boolean.parseBoolean(canTransferOutObj.toString()));
         } else {
-            account.setCanTransferOut(true); // Default true
+            account.setCanTransferOut(true);
         }
+
+        account.setAnnualYield(SharedUtils.parseNullableDouble(map.get("annualYield")));
+        account.setYieldCapAmount(SharedUtils.parseNullableDouble(map.get("yieldCapAmount")));
+        Object lyc = map.get("lastYieldCalculation");
+        if (lyc != null) account.setLastYieldCalculation(lyc.toString());
 
         account.setCreatedAt(SharedUtils.parseZonedDateTime(map.get("createdAt")));
         account.setUpdatedAt(SharedUtils.parseZonedDateTime(map.get("updatedAt")));

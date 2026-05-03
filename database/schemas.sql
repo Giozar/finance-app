@@ -54,10 +54,10 @@ CREATE INDEX idx_bank_clients_client_number ON bank_clients (client_number);
 -- 3.1. ACCOUNTS
 -- ======================================================
 CREATE TABLE IF NOT EXISTS accounts (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    id BIGINT PRIMARY KEY AUTO_INCREMENT, 
     user_id BIGINT NOT NULL,
     name VARCHAR(100) NOT NULL,
-    type VARCHAR(20) NOT NULL, -- 'CASH', 'BANK', 'CREDIT', 'WALLET', 'BENEFIT'
+    type VARCHAR(20) NOT NULL, -- 'CASH', 'DEBIT', 'CREDIT', 'SAVINGS', 'INVESTMENT', 'BENEFIT' y 'WALLET'
     current_balance DECIMAL(12, 2) NOT NULL DEFAULT 0.00,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

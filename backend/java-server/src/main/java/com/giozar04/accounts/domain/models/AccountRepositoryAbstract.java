@@ -40,26 +40,37 @@ public abstract class AccountRepositoryAbstract implements AccountRepositoryInte
             throw new IllegalArgumentException("El balance actual no puede ser negativo");
         }
 
-        // Validaciones específicas por tipo
-        if (tipoCuenta == AccountTypes.CREDIT) {
-            if (account.getCreditLimit() == null || account.getCutoffDay() == null || account.getPaymentDay() == null) {
-                throw new IllegalArgumentException("Las cuentas de crédito requieren límite, día de corte y día de pago.");
-            }
-        }
+        // Tipos que usan bank_details y requieren CLABE + número de cuenta
+        boolean usesBankDetails = tipoCuenta == AccountTypes.DEBIT
+                || tipoCuenta == AccountTypes.CREDIT
+                || tipoCuenta == AccountTypes.WALLET
+                || tipoCuenta == AccountTypes.BENEFIT;
 
-        if (tipoCuenta == AccountTypes.BANK || tipoCuenta == AccountTypes.CREDIT) {
-            if (account.getBankClientId() == null) {
-                throw new IllegalArgumentException("Las cuentas de tipo " + tipoCuenta.name().toLowerCase() + " deben estar ligadas a un cliente de banco.");
-            }
+        if (usesBankDetails) {
             if (account.getClabe() == null || account.getClabe().isBlank()
                 || account.getAccountNumber() == null || account.getAccountNumber().isBlank()) {
                 throw new IllegalArgumentException("Las cuentas bancarias deben tener número de cuenta y CLABE.");
             }
         }
 
-        if (tipoCuenta == AccountTypes.CASH) {
-            if (account.getBankClientId() != null) {
-                throw new IllegalArgumentException("Las cuentas de efectivo no deben estar ligadas a un cliente de banco.");
+        // DEBIT y BENEFIT usan bank_client_id pero no es mandatorio si viene null
+        // CREDIT requiere bank_client_id obligatoriamente
+        if (tipoCuenta == AccountTypes.CREDIT) {
+            if (account.getBankClientId() == null) {
+                throw new IllegalArgumentException("Las cuentas de crédito deben estar ligadas a un cliente de banco.");
+            }
+            if (account.getCreditLimit() == null || account.getCutoffDay() == null || account.getPaymentDay() == null) {
+                throw new IllegalArgumentException("Las cuentas de crédito requieren límite, día de corte y día de pago.");
+            }
+        }
+
+        // SAVINGS requiere tasa de rendimiento
+        if (tipoCuenta == AccountTypes.SAVINGS) {
+            if (account.getAnnualYield() == null) {
+                throw new IllegalArgumentException("Las cuentas de ahorro requieren una tasa de rendimiento anual.");
+            }
+            if (account.getAnnualYield() < 0 || account.getAnnualYield() > 1) {
+                throw new IllegalArgumentException("La tasa de rendimiento debe estar entre 0 y 1 (ej. 0.15 = 15%).");
             }
         }
     }

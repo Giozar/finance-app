@@ -10,16 +10,22 @@ public class Account implements Serializable {
 
     private long id;
     private long userId;
-    private Long bankClientId; // Puede ser null para cuentas de efectivo
+    private Long bankClientId;
     private String name;
     private AccountTypes type;
     private double currentBalance;
+    // bank_details fields
     private String accountNumber;
     private String clabe;
+    private Boolean canTransferOut = true;
+    // credit_details fields
     private Double creditLimit;
     private Integer cutoffDay;
     private Integer paymentDay;
-    private Boolean canTransferOut = true;
+    // savings_details fields
+    private Double annualYield;
+    private Double yieldCapAmount;
+    private String lastYieldCalculation; // DATE as String "yyyy-MM-dd"
     private ZonedDateTime createdAt;
     private ZonedDateTime updatedAt;
 
@@ -61,6 +67,15 @@ public class Account implements Serializable {
 
     public Boolean getCanTransferOut() { return canTransferOut; }
     public void setCanTransferOut(Boolean canTransferOut) { this.canTransferOut = canTransferOut; }
+
+    public Double getAnnualYield() { return annualYield; }
+    public void setAnnualYield(Double annualYield) { this.annualYield = annualYield; }
+
+    public Double getYieldCapAmount() { return yieldCapAmount; }
+    public void setYieldCapAmount(Double yieldCapAmount) { this.yieldCapAmount = yieldCapAmount; }
+
+    public String getLastYieldCalculation() { return lastYieldCalculation; }
+    public void setLastYieldCalculation(String lastYieldCalculation) { this.lastYieldCalculation = lastYieldCalculation; }
 
     public ZonedDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(ZonedDateTime createdAt) { this.createdAt = createdAt; }
