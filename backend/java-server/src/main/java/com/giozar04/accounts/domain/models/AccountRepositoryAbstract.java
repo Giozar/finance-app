@@ -23,6 +23,10 @@ public abstract class AccountRepositoryAbstract implements AccountRepositoryInte
     protected void validateAccount(Account account) {
         Objects.requireNonNull(account, "La cuenta no puede ser nula");
 
+        if(account.getUserId() <= 0){
+            throw new IllegalArgumentException("El ID del usuario debe ser mayor a cero");
+        }
+
         if (account.getName() == null || account.getName().isBlank()) {
             throw new IllegalArgumentException("El nombre de la cuenta no puede estar vacío");
         }

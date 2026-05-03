@@ -74,7 +74,9 @@ CREATE TABLE IF NOT EXISTS bank_details (
     bank_client_id BIGINT NULL,
     clabe VARCHAR(18) NULL,
     account_number VARCHAR(20) NULL,
-    can_transfer_out BOOLEAN NOT NULL DEFAULT TRUE,
+    can_transfer_out BOOLEAN NOT NULL DEFAULT TRUE, 
+    -- si es true, se puede retirar dinero de la cuenta 
+    -- si es false, solo se puede depositar dinero en la cuenta
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT fk_bank_acc_base FOREIGN KEY (account_id) REFERENCES accounts(id) ON DELETE CASCADE,
