@@ -259,19 +259,44 @@ CREATE INDEX idx_cards_card_type ON cards (card_type);
 -- 3.6. WALLET_CARD_LINKS (Relación Muchos a Muchos)
 -- ======================================================
 CREATE TABLE IF NOT EXISTS wallet_card_links (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    wallet_account_id BIGINT NOT NULL,
+    account_id BIGINT NOT NULL,
     card_id BIGINT NOT NULL,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    CONSTRAINT fk_wallet_link_acc FOREIGN KEY (wallet_account_id) REFERENCES accounts(id) ON DELETE CASCADE,
-    CONSTRAINT fk_wallet_link_card FOREIGN KEY (card_id) REFERENCES cards(id) ON DELETE CASCADE,
-    UNIQUE (wallet_account_id, card_id)
+
+    PRIMARY KEY (account_id, card_id),
+
+    CONSTRAINT fk_wallet_link_acc
+        FOREIGN KEY (account_id) REFERENCES accounts(id) ON DELETE CASCADE,
+
+    CONSTRAINT fk_wallet_link_card
+        FOREIGN KEY (card_id) REFERENCES cards(id) ON DELETE CASCADE
 );
 
--- Índice inverso para wallets vinculadas a una tarjeta
-CREATE INDEX idx_wallet_link_card ON wallet_card_links (card_id);
+CREATE INDEX idx_wallet_link_card 
+    ON wallet_card_links (card_id);
 
+-- --------------------------------------------
+-- 3.7. ACCOUNT_CASHBACK_SETTINGS (Configuración de Cashback por Cuenta)
+-- --------------------------------------------
+-- Tabla donde se configura si una cuenta (wallet) tiene activo el cashback y su tasa.
+
+CREATE TABLE IF NOT EXISTS account_cashback_settings (
+    account_id BIGINT PRIMARY KEY,
+    default_cashback_rate DECIMAL(9, 6) NULL,
+    cashback_enabled BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_cashback_account
+        FOREIGN KEY (account_id) REFERENCES accounts(id) ON DELETE CASCADE,
+
+    CONSTRAINT chk_cashback_rate
+        CHECK (
+            default_cashback_rate IS NULL
+            OR (default_cashback_rate >= 0 AND default_cashback_rate <= 1)
+        )
+);
 
 -- ======================================================
 -- CATÁLOGOS Y ENTIDADES EXTERNAS
@@ -431,20 +456,23 @@ CREATE INDEX idx_tt_tag_id ON transaction_tags (tag_id);
 -- ======================================================
 -- 10. WALLET_CARD_LINKS
 -- ======================================================
-CREATE TABLE IF NOT EXISTS
-    wallet_card_links (
-        id BIGINT PRIMARY KEY AUTO_INCREMENT,
-        wallet_account_id BIGINT NOT NULL,
-        card_id BIGINT NOT NULL,
-        created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        CONSTRAINT fk_wallet_card_wallet FOREIGN KEY (wallet_account_id) REFERENCES accounts (id) ON DELETE CASCADE,
-        CONSTRAINT fk_wallet_card_card FOREIGN KEY (card_id) REFERENCES cards (id) ON DELETE CASCADE
-    );
+CREATE TABLE IF NOT EXISTS wallet_card_links (
+    account_id BIGINT NOT NULL,
+    card_id BIGINT NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
-CREATE INDEX idx_wallet_card_wallet ON wallet_card_links (wallet_account_id);
+    PRIMARY KEY (account_id, card_id),
 
-CREATE INDEX idx_wallet_card_card ON wallet_card_links (card_id);
+    CONSTRAINT fk_wallet_link_acc
+        FOREIGN KEY (account_id) REFERENCES accounts(id) ON DELETE CASCADE,
+
+    CONSTRAINT fk_wallet_link_card
+        FOREIGN KEY (card_id) REFERENCES cards(id) ON DELETE CASCADE
+);
+
+CREATE INDEX idx_wallet_link_card 
+    ON wallet_card_links (card_id);
 
 -- ======================================================
 -- 11. CARD_TRANSACTION_DETAILS
