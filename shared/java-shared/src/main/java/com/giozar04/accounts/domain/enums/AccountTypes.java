@@ -6,7 +6,8 @@ public enum AccountTypes {
     CREDIT("CREDIT", "Crédito"),
     WALLET("WALLET", "Billetera Virtual"),
     BENEFIT("BENEFIT", "Prestación/Vale"),
-    SAVINGS("SAVINGS", "Ahorro con Rendimiento");
+    SAVINGS("SAVINGS", "Ahorro con Rendimiento"),
+    INVESTMENT("INVESTMENT", "Inversión a Plazo");
 
     private final String value;
     private final String label;

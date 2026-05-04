@@ -8,27 +8,35 @@ import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 
 import com.giozar04.accounts.domain.entities.Account;
+import com.giozar04.shared.components.forms.FormDateField;
 import com.giozar04.shared.components.forms.FormField;
+import com.giozar04.shared.components.forms.PercentageField;
 import com.giozar04.shared.utils.FormValidatorUtils;
 
 /**
  * Subpanel para campos de savings_details (SAVINGS).
- * Gestiona: tasa de rendimiento anual (fracción 0.0–1.0),
- * monto tope para rendimiento (opcional) y fecha del último cálculo (solo lectura/referencia).
+ * Gestiona: tasa de rendimiento anual, monto tope para rendimiento (opcional)
+ * y fecha del último cálculo de rendimiento.
+ *
+ * Usa {@link PercentageField} para la tasa (el usuario ve %, la BD recibe fracción)
+ * y {@link FormDateField} para la fecha (selector visual, devuelve "yyyy-MM-dd").
  */
 public class SavingsDetailsSubPanel extends JPanel {
 
-    private final FormField annualYieldField;    // Fracción ej. "0.15" = 15% anual
-    private final FormField yieldCapAmountField; // Opcional: monto tope
-    private final FormField lastYieldCalcField;  // Informativo, ej. "2025-01-01"
+    private static final int FIELD_W = 500;
+    private static final int FIELD_H = 40;
+
+    private final PercentageField annualYieldField;
+    private final FormField       yieldCapAmountField;
+    private final FormDateField   lastYieldCalcField;
 
     public SavingsDetailsSubPanel() {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setOpaque(false);
 
-        annualYieldField    = new FormField("Rendimiento anual (ej. 0.15 = 15%):", false, 400, 40);
-        yieldCapAmountField = new FormField("Monto tope para rendimiento (opcional):", false, 400, 40);
-        lastYieldCalcField  = new FormField("Último cálculo de rendimiento (yyyy-MM-dd):", false, 400, 40);
+        annualYieldField    = new PercentageField("Rendimiento anual:", FIELD_W, FIELD_H + 10);
+        yieldCapAmountField = new FormField("Monto tope rendimiento ($, opcional):", false, FIELD_W, FIELD_H);
+        lastYieldCalcField  = new FormDateField("Último cálculo de rendimiento:", FIELD_W, FIELD_H + 10);
 
         add(annualYieldField);
         add(Box.createRigidArea(new Dimension(0, 10)));
@@ -38,19 +46,13 @@ public class SavingsDetailsSubPanel extends JPanel {
     }
 
     public void validate(List<String> errors) {
-        String yieldStr = annualYieldField.getValue().trim();
-        FormValidatorUtils.isRequired(yieldStr, "Rendimiento anual", errors);
-        if (!yieldStr.isEmpty()) {
-            try {
-                double val = Double.parseDouble(yieldStr);
-                if (val < 0 || val > 1) {
-                    errors.add("El rendimiento anual debe ser una fracción entre 0 y 1 (ej. 0.15 = 15%).");
-                }
-            } catch (NumberFormatException e) {
-                errors.add("El rendimiento anual debe ser un número válido (ej. 0.15).");
-            }
+        // Tasa anual
+        double fraction = annualYieldField.getFraction();
+        if (fraction < 0 || fraction > 1) {
+            errors.add("El rendimiento anual debe estar entre 0 % y 100 %.");
         }
 
+        // Monto tope (opcional)
         String capStr = yieldCapAmountField.getValue().trim();
         if (!capStr.isEmpty()) {
             try {
@@ -62,27 +64,36 @@ public class SavingsDetailsSubPanel extends JPanel {
                 errors.add("El monto tope para rendimiento debe ser un número válido.");
             }
         }
+
+        // La fecha del último cálculo es opcional, FormDateField siempre tiene valor válido
     }
 
     public void applyTo(Account account) {
-        account.setAnnualYield(Double.valueOf(annualYieldField.getValue().trim()));
+        account.setAnnualYield(annualYieldField.getFraction());
 
         String capStr = yieldCapAmountField.getValue().trim();
         account.setYieldCapAmount(capStr.isEmpty() ? null : Double.valueOf(capStr));
 
-        String lastCalc = lastYieldCalcField.getValue().trim();
-        account.setLastYieldCalculation(lastCalc.isEmpty() ? null : lastCalc);
+        // Solo guardamos fecha si fue cargada desde BD (el campo siempre tiene una fecha por defecto)
+        account.setLastYieldCalculation(lastYieldCalcField.getDateString());
     }
 
     public void loadFrom(Account account) {
-        annualYieldField.setValue(account.getAnnualYield() != null ? account.getAnnualYield().toString() : "");
-        yieldCapAmountField.setValue(account.getYieldCapAmount() != null ? account.getYieldCapAmount().toString() : "");
-        lastYieldCalcField.setValue(account.getLastYieldCalculation() != null ? account.getLastYieldCalculation() : "");
+        annualYieldField.setFraction(account.getAnnualYield());
+
+        yieldCapAmountField.setValue(
+                account.getYieldCapAmount() != null ? account.getYieldCapAmount().toString() : "");
+
+        if (account.getLastYieldCalculation() != null) {
+            lastYieldCalcField.setDateString(account.getLastYieldCalculation());
+        } else {
+            lastYieldCalcField.clearToToday();
+        }
     }
 
     public void clear() {
         annualYieldField.clear();
         yieldCapAmountField.clear();
-        lastYieldCalcField.clear();
+        lastYieldCalcField.clearToToday();
     }
 }

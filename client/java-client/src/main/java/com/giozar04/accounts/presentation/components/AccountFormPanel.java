@@ -20,6 +20,7 @@ import com.giozar04.accounts.infrastructure.services.AccountService;
 import com.giozar04.accounts.presentation.components.subpanels.BankDetailsSubPanel;
 import com.giozar04.accounts.presentation.components.subpanels.CreditDetailsSubPanel;
 import com.giozar04.accounts.presentation.components.subpanels.SavingsDetailsSubPanel;
+import com.giozar04.accounts.presentation.components.subpanels.InvestmentDetailsSubPanel;
 import com.giozar04.accounts.presentation.views.AccountsView;
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
 import com.giozar04.shared.components.MainContentPanel;
@@ -53,6 +54,7 @@ public class AccountFormPanel extends JPanel {
     private final BankDetailsSubPanel   bankDetailsPanel;
     private final CreditDetailsSubPanel creditDetailsPanel;
     private final SavingsDetailsSubPanel savingsDetailsPanel;
+    private final InvestmentDetailsSubPanel investmentDetailsPanel;
 
     // --- Botones ---
     private final JButton saveButton;
@@ -87,6 +89,7 @@ public class AccountFormPanel extends JPanel {
         bankDetailsPanel    = new BankDetailsSubPanel();
         creditDetailsPanel  = new CreditDetailsSubPanel();
         savingsDetailsPanel = new SavingsDetailsSubPanel();
+        investmentDetailsPanel = new InvestmentDetailsSubPanel();
 
         // Construir el panel
         formPanel.add(userCombo);
@@ -102,6 +105,8 @@ public class AccountFormPanel extends JPanel {
         formPanel.add(creditDetailsPanel);
         formPanel.add(Box.createRigidArea(new Dimension(0, 10)));
         formPanel.add(savingsDetailsPanel);
+        formPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+        formPanel.add(investmentDetailsPanel);
 
         add(formPanel, BorderLayout.CENTER);
 
@@ -151,10 +156,12 @@ public class AccountFormPanel extends JPanel {
                                  || type == AccountTypes.BENEFIT;
         boolean usesCreditDetails = type == AccountTypes.CREDIT;
         boolean usesSavings       = type == AccountTypes.SAVINGS;
+        boolean usesInvestment    = type == AccountTypes.INVESTMENT;
 
         bankDetailsPanel.setVisible(usesBankDetails);
         creditDetailsPanel.setVisible(usesCreditDetails);
         savingsDetailsPanel.setVisible(usesSavings);
+        investmentDetailsPanel.setVisible(usesInvestment);
 
         revalidate();
         repaint();
@@ -191,6 +198,9 @@ public class AccountFormPanel extends JPanel {
         if (type == AccountTypes.SAVINGS) {
             savingsDetailsPanel.validate(errors);
         }
+        if (type == AccountTypes.INVESTMENT) {
+            investmentDetailsPanel.validate(errors);
+        }
 
         if (!errors.isEmpty()) {
             DialogUtil.showError(this, FormValidatorUtils.formatErrorMessage(errors));
@@ -215,6 +225,19 @@ public class AccountFormPanel extends JPanel {
         account.setAnnualYield(null);
         account.setYieldCapAmount(null);
         account.setLastYieldCalculation(null);
+        
+        // Limpiar investment_details
+        account.setInstrumentType(null);
+        account.setTermDays(null);
+        account.setPrincipalAmount(null);
+        account.setInvestmentAnnualYield(null);
+        account.setDayCountBasis(null);
+        account.setStartDate(null);
+        account.setMaturityDate(null);
+        account.setInvestmentStatus(null);
+        account.setAutoReinvest(null);
+        account.setReinvestTermDays(null);
+        account.setReinvestAnnualYield(null);
 
         // Aplicar subpaneles según tipo
         if (usesBankDetails) {
@@ -225,6 +248,9 @@ public class AccountFormPanel extends JPanel {
         }
         if (type == AccountTypes.SAVINGS) {
             savingsDetailsPanel.applyTo(account);
+        }
+        if (type == AccountTypes.INVESTMENT) {
+            investmentDetailsPanel.applyTo(account);
         }
 
         if (currentAccount == null) {
@@ -269,6 +295,7 @@ public class AccountFormPanel extends JPanel {
         bankDetailsPanel.loadFrom(account);
         creditDetailsPanel.loadFrom(account);
         savingsDetailsPanel.loadFrom(account);
+        investmentDetailsPanel.loadFrom(account);
 
         updateSubPanelVisibility();
     }
@@ -286,6 +313,7 @@ public class AccountFormPanel extends JPanel {
         bankDetailsPanel.clear();
         creditDetailsPanel.clear();
         savingsDetailsPanel.clear();
+        investmentDetailsPanel.clear();
         updateSubPanelVisibility();
     }
 

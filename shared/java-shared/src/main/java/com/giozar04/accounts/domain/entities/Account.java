@@ -26,6 +26,18 @@ public class Account implements Serializable {
     private Double annualYield;
     private Double yieldCapAmount;
     private String lastYieldCalculation; // DATE as String "yyyy-MM-dd"
+    // investment_details fields
+    private String instrumentType;   // ej. CETES, BONDDIA
+    private Integer termDays;        // plazo en días (nullable para instrumentos sin plazo fijo)
+    private Double principalAmount;  // capital invertido
+    private Double investmentAnnualYield; // tasa anual (fracción, ej. 0.105 = 10.5%)
+    private Integer dayCountBasis;   // 360 o 365
+    private String startDate;        // DATE as String "yyyy-MM-dd"
+    private String maturityDate;     // DATE as String "yyyy-MM-dd"
+    private String investmentStatus; // ACTIVE, MATURED, CANCELLED
+    private Boolean autoReinvest;
+    private Integer reinvestTermDays;
+    private Double reinvestAnnualYield;
     private ZonedDateTime createdAt;
     private ZonedDateTime updatedAt;
 
@@ -76,6 +88,40 @@ public class Account implements Serializable {
 
     public String getLastYieldCalculation() { return lastYieldCalculation; }
     public void setLastYieldCalculation(String lastYieldCalculation) { this.lastYieldCalculation = lastYieldCalculation; }
+
+    // --- investment_details getters/setters ---
+    public String getInstrumentType() { return instrumentType; }
+    public void setInstrumentType(String instrumentType) { this.instrumentType = instrumentType; }
+
+    public Integer getTermDays() { return termDays; }
+    public void setTermDays(Integer termDays) { this.termDays = termDays; }
+
+    public Double getPrincipalAmount() { return principalAmount; }
+    public void setPrincipalAmount(Double principalAmount) { this.principalAmount = principalAmount; }
+
+    public Double getInvestmentAnnualYield() { return investmentAnnualYield; }
+    public void setInvestmentAnnualYield(Double investmentAnnualYield) { this.investmentAnnualYield = investmentAnnualYield; }
+
+    public Integer getDayCountBasis() { return dayCountBasis; }
+    public void setDayCountBasis(Integer dayCountBasis) { this.dayCountBasis = dayCountBasis; }
+
+    public String getStartDate() { return startDate; }
+    public void setStartDate(String startDate) { this.startDate = startDate; }
+
+    public String getMaturityDate() { return maturityDate; }
+    public void setMaturityDate(String maturityDate) { this.maturityDate = maturityDate; }
+
+    public String getInvestmentStatus() { return investmentStatus; }
+    public void setInvestmentStatus(String investmentStatus) { this.investmentStatus = investmentStatus; }
+
+    public Boolean getAutoReinvest() { return autoReinvest; }
+    public void setAutoReinvest(Boolean autoReinvest) { this.autoReinvest = autoReinvest; }
+
+    public Integer getReinvestTermDays() { return reinvestTermDays; }
+    public void setReinvestTermDays(Integer reinvestTermDays) { this.reinvestTermDays = reinvestTermDays; }
+
+    public Double getReinvestAnnualYield() { return reinvestAnnualYield; }
+    public void setReinvestAnnualYield(Double reinvestAnnualYield) { this.reinvestAnnualYield = reinvestAnnualYield; }
 
     public ZonedDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(ZonedDateTime createdAt) { this.createdAt = createdAt; }
