@@ -6,7 +6,9 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -21,7 +23,13 @@ import com.giozar04.accounts.presentation.components.subpanels.BankDetailsSubPan
 import com.giozar04.accounts.presentation.components.subpanels.CreditDetailsSubPanel;
 import com.giozar04.accounts.presentation.components.subpanels.SavingsDetailsSubPanel;
 import com.giozar04.accounts.presentation.components.subpanels.InvestmentDetailsSubPanel;
+import com.giozar04.accounts.presentation.components.subpanels.CashbackSettingsPanel;
+import com.giozar04.accounts.presentation.components.subpanels.WalletCardLinksPanel;
 import com.giozar04.accounts.presentation.views.AccountsView;
+import com.giozar04.accountCashbackSettings.domain.entities.AccountCashbackSetting;
+import com.giozar04.accountCashbackSettings.infrastructure.services.AccountCashbackSettingService;
+import com.giozar04.walletCardLinks.domain.entities.WalletCardLink;
+import com.giozar04.walletCardLinks.infrastructure.services.WalletCardLinkService;
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
 import com.giozar04.shared.components.MainContentPanel;
 import com.giozar04.shared.components.forms.FormComboBox;
@@ -55,6 +63,8 @@ public class AccountFormPanel extends JPanel {
     private final CreditDetailsSubPanel creditDetailsPanel;
     private final SavingsDetailsSubPanel savingsDetailsPanel;
     private final InvestmentDetailsSubPanel investmentDetailsPanel;
+    private final CashbackSettingsPanel cashbackSettingsPanel;
+    private final WalletCardLinksPanel walletCardLinksPanel;
 
     // --- Botones ---
     private final JButton saveButton;
@@ -63,6 +73,8 @@ public class AccountFormPanel extends JPanel {
 
     // --- Estado ---
     private Account currentAccount;
+    private boolean hasExistingCashback = false;
+    private List<WalletCardLink> existingWalletLinks = new ArrayList<>();
 
     public AccountFormPanel() {
         setLayout(new BorderLayout(10, 10));
@@ -90,6 +102,8 @@ public class AccountFormPanel extends JPanel {
         creditDetailsPanel  = new CreditDetailsSubPanel();
         savingsDetailsPanel = new SavingsDetailsSubPanel();
         investmentDetailsPanel = new InvestmentDetailsSubPanel();
+        cashbackSettingsPanel = new CashbackSettingsPanel();
+        walletCardLinksPanel = new WalletCardLinksPanel();
 
         // Construir el panel
         formPanel.add(userCombo);
@@ -107,6 +121,10 @@ public class AccountFormPanel extends JPanel {
         formPanel.add(savingsDetailsPanel);
         formPanel.add(Box.createRigidArea(new Dimension(0, 10)));
         formPanel.add(investmentDetailsPanel);
+        formPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+        formPanel.add(cashbackSettingsPanel);
+        formPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+        formPanel.add(walletCardLinksPanel);
 
         add(formPanel, BorderLayout.CENTER);
 
@@ -127,7 +145,18 @@ public class AccountFormPanel extends JPanel {
 
         // Escuchar cambio de tipo para mostrar/ocultar subpaneles
         typeCombo.addActionListener(e -> updateSubPanelVisibility());
+        userCombo.addActionListener(e -> handleUserChanged());
         updateSubPanelVisibility();
+    }
+
+    private void handleUserChanged() {
+        User user = userCombo.getSelectedItem();
+        AccountTypes type = typeCombo.getSelectedItem();
+        if (user != null && type == AccountTypes.WALLET) {
+            walletCardLinksPanel.loadCardsForUser(user.getId());
+        } else {
+            walletCardLinksPanel.clear();
+        }
     }
 
     // ------------------------------------------------------------------
@@ -157,11 +186,28 @@ public class AccountFormPanel extends JPanel {
         boolean usesCreditDetails = type == AccountTypes.CREDIT;
         boolean usesSavings       = type == AccountTypes.SAVINGS;
         boolean usesInvestment    = type == AccountTypes.INVESTMENT;
+        boolean usesCashback      = type == AccountTypes.DEBIT
+                                 || type == AccountTypes.CREDIT
+                                 || type == AccountTypes.WALLET;
+        boolean usesWalletCardLinks = type == AccountTypes.WALLET;
 
         bankDetailsPanel.setVisible(usesBankDetails);
         creditDetailsPanel.setVisible(usesCreditDetails);
         savingsDetailsPanel.setVisible(usesSavings);
         investmentDetailsPanel.setVisible(usesInvestment);
+        cashbackSettingsPanel.setVisible(usesCashback);
+        walletCardLinksPanel.setVisible(usesWalletCardLinks);
+
+        if (usesWalletCardLinks) {
+            User user = userCombo.getSelectedItem();
+            if (user != null) {
+                walletCardLinksPanel.loadCardsForUser(user.getId());
+            } else {
+                walletCardLinksPanel.clear();
+            }
+        } else {
+            walletCardLinksPanel.clear();
+        }
 
         revalidate();
         repaint();
@@ -200,6 +246,13 @@ public class AccountFormPanel extends JPanel {
         }
         if (type == AccountTypes.INVESTMENT) {
             investmentDetailsPanel.validate(errors);
+        }
+
+        boolean usesCashback = type == AccountTypes.DEBIT
+                            || type == AccountTypes.CREDIT
+                            || type == AccountTypes.WALLET;
+        if (usesCashback) {
+            cashbackSettingsPanel.validate(errors);
         }
 
         if (!errors.isEmpty()) {
@@ -259,11 +312,58 @@ public class AccountFormPanel extends JPanel {
         account.setUpdatedAt(ZonedDateTime.now());
 
         try {
+            Account savedAccount;
             if (currentAccount == null) {
-                AccountService.getInstance().createAccount(account);
+                savedAccount = AccountService.getInstance().createAccount(account);
+            } else {
+                savedAccount = AccountService.getInstance().updateAccountById(account.getId(), account);
+            }
+            long accountId = savedAccount.getId();
+
+            // Guardar/Actualizar configuración de cashback
+            if (usesCashback) {
+                AccountCashbackSetting cashbackSetting = new AccountCashbackSetting();
+                cashbackSetting.setAccountId(accountId);
+                cashbackSettingsPanel.applyTo(cashbackSetting);
+
+                if (hasExistingCashback) {
+                    AccountCashbackSettingService.getInstance().updateAccountCashbackSettingByAccountId(accountId, cashbackSetting);
+                } else {
+                    AccountCashbackSettingService.getInstance().createAccountCashbackSetting(cashbackSetting);
+                }
+            }
+
+            // Sincronizar vínculos de tarjetas si es WALLET
+            if (type == AccountTypes.WALLET) {
+                List<Long> selectedCards = walletCardLinksPanel.getSelectedCardIds();
+                
+                Map<Long, WalletCardLink> existingByCardId = new HashMap<>();
+                for (WalletCardLink link : existingWalletLinks) {
+                    existingByCardId.put(link.getCardId(), link);
+                }
+
+                // Crear nuevos vínculos
+                for (Long cardId : selectedCards) {
+                    if (!existingByCardId.containsKey(cardId)) {
+                        WalletCardLink newLink = new WalletCardLink();
+                        newLink.setWalletAccountId(accountId);
+                        newLink.setCardId(cardId);
+                        WalletCardLinkService.getInstance().createWalletCardLink(newLink);
+                    }
+                }
+
+                // Eliminar vínculos desmarcados
+                for (Map.Entry<Long, WalletCardLink> entry : existingByCardId.entrySet()) {
+                    Long cardId = entry.getKey();
+                    if (!selectedCards.contains(cardId)) {
+                        WalletCardLinkService.getInstance().deleteWalletCardLinkById(entry.getValue().getId());
+                    }
+                }
+            }
+
+            if (currentAccount == null) {
                 DialogUtil.showSuccess(this, "Cuenta creada exitosamente.");
             } else {
-                AccountService.getInstance().updateAccountById(account.getId(), account);
                 DialogUtil.showSuccess(this, "Cuenta actualizada exitosamente.");
             }
             clearForm();
@@ -298,6 +398,40 @@ public class AccountFormPanel extends JPanel {
         investmentDetailsPanel.loadFrom(account);
 
         updateSubPanelVisibility();
+
+        // Cargar cashback si aplica
+        AccountTypes type = account.getType();
+        if (type == AccountTypes.DEBIT || type == AccountTypes.CREDIT || type == AccountTypes.WALLET) {
+            try {
+                AccountCashbackSetting setting = AccountCashbackSettingService.getInstance()
+                        .getAccountCashbackSettingByAccountId(account.getId());
+                cashbackSettingsPanel.loadFrom(setting);
+                hasExistingCashback = true;
+            } catch (Exception ex) {
+                cashbackSettingsPanel.loadFrom(null);
+                hasExistingCashback = false;
+            }
+        } else {
+            cashbackSettingsPanel.clear();
+            hasExistingCashback = false;
+        }
+
+        // Cargar vínculos de tarjeta si aplica
+        if (type == AccountTypes.WALLET) {
+            try {
+                existingWalletLinks = WalletCardLinkService.getInstance().getAllByWalletId(account.getId());
+                List<Long> cardIds = new ArrayList<>();
+                for (WalletCardLink link : existingWalletLinks) {
+                    cardIds.add(link.getCardId());
+                }
+                walletCardLinksPanel.setSelectedCardIds(cardIds);
+            } catch (Exception ex) {
+                existingWalletLinks = new ArrayList<>();
+                DialogUtil.showError(this, "Error al cargar vínculos de tarjeta: " + ex.getMessage());
+            }
+        } else {
+            existingWalletLinks = new ArrayList<>();
+        }
     }
 
     // ------------------------------------------------------------------
@@ -306,6 +440,8 @@ public class AccountFormPanel extends JPanel {
 
     public void clearForm() {
         currentAccount = null;
+        hasExistingCashback = false;
+        existingWalletLinks = new ArrayList<>();
         userCombo.clearSelection();
         nameField.clear();
         balanceField.clear();
@@ -314,6 +450,8 @@ public class AccountFormPanel extends JPanel {
         creditDetailsPanel.clear();
         savingsDetailsPanel.clear();
         investmentDetailsPanel.clear();
+        cashbackSettingsPanel.clear();
+        walletCardLinksPanel.clear();
         updateSubPanelVisibility();
     }
 

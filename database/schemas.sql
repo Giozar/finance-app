@@ -81,7 +81,7 @@ CREATE TABLE IF NOT EXISTS bank_details (
     clabe VARCHAR(18) NULL,
     account_number VARCHAR(20) NULL,
     can_transfer_out BOOLEAN NOT NULL DEFAULT TRUE,
-    -- si es true, se puede retirar dinero de la cuenta 
+    -- si es true, se puede retirar dinero de la cuenta
     -- si es false, solo se puede depositar dinero en la cuenta
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -110,6 +110,7 @@ CREATE TABLE IF NOT EXISTS credit_details (
     CONSTRAINT chk_payment_day CHECK (payment_deadline_day BETWEEN 1 AND 31),
     CONSTRAINT chk_credit_limit CHECK (credit_limit >= 0)
 );
+
 -- Índices de gestión de deuda
 CREATE INDEX idx_credit_det_client ON credit_details (bank_client_id);
 
@@ -183,8 +184,10 @@ CREATE TABLE IF NOT EXISTS investment_details (
     auto_reinvest BOOLEAN NOT NULL DEFAULT FALSE,
     reinvest_term_days INT NULL,
     reinvest_annual_yield DECIMAL(9, 6) NULL,
+
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
     CONSTRAINT fk_investment_acc_base
         FOREIGN KEY (account_id) REFERENCES accounts(id) ON DELETE CASCADE,
     CONSTRAINT chk_investment_principal
@@ -223,8 +226,8 @@ CREATE TABLE IF NOT EXISTS cards (
     card_type VARCHAR(20) NOT NULL,
     card_number VARCHAR(4) NOT NULL,
     expiration_date DATE NOT NULL,
-        -- status ENUM('ACTIVE', 'BLOCKED', 'EXPIRED') DEFAULT 'ACTIVE',
-        -- Usamos VARCHAR en lugar de ENUM para mayor flexibilidad
+    -- status ENUM('ACTIVE', 'BLOCKED', 'EXPIRED') DEFAULT 'ACTIVE',
+    -- Usamos VARCHAR en lugar de ENUM para mayor flexibilidad
     status VARCHAR(20) DEFAULT 'ACTIVE',
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -280,7 +283,7 @@ CREATE TABLE IF NOT EXISTS account_cashback_settings (
 -- ======================================================
 CREATE TABLE IF NOT EXISTS external_entities (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    user_id BIGINT NOT NULL,
+    user_id BIGINT NOT NULL, -- Propiedad privada
     name VARCHAR(100) NOT NULL,
     type VARCHAR(20) NOT NULL, -- 'store', 'service', 'person'
     contact VARCHAR(200),
@@ -312,7 +315,7 @@ CREATE TABLE IF NOT EXISTS categories (
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT fk_categories_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
-        -- Tu restricción UNIQUE (user_id, name): 
+        -- Tu restricción UNIQUE (user_id, name):
         -- Evita que tengas dos "Comida", pero permite que OTRO usuario tenga la suya.
     CONSTRAINT unique_category_per_user UNIQUE (user_id, name),
         -- LA REGLA "TIPO ENUM":
@@ -335,7 +338,7 @@ CREATE TABLE IF NOT EXISTS tags (
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT fk_tags_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
-        -- Llave única: El usuario 1 no puede repetir "#Cena", 
+        -- Llave única: El usuario 1 no puede repetir "#Cena",
         -- pero el usuario 2 sí puede tener su propio "#Cena".
     CONSTRAINT unique_tag_per_user UNIQUE (user_id, name)
 );
@@ -393,7 +396,7 @@ CREATE INDEX idx_tx_entity ON transactions (external_entity_id);
 CREATE TABLE IF NOT EXISTS transaction_tags (
     transaction_id BIGINT NOT NULL,
     tag_id BIGINT NOT NULL,
-    
+
     -- Llave primaria compuesta: asegura unicidad y rapidez de búsqueda por transacción
     PRIMARY KEY (transaction_id, tag_id),
     CONSTRAINT fk_tt_transaction
@@ -412,10 +415,10 @@ CREATE TABLE IF NOT EXISTS card_transaction_details (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     transaction_id BIGINT NOT NULL,
     card_id BIGINT NOT NULL,
-    
+
     -- Monto específico cargado a la tarjeta (útil en pagos mixtos)
     amount DECIMAL(12, 2) NOT NULL,
-    
+
     -- MSI: Si es NULL, es pago en una sola exhibición
     installment_months INT NULL,
     interest_free BOOLEAN NOT NULL DEFAULT FALSE,
@@ -423,7 +426,7 @@ CREATE TABLE IF NOT EXISTS card_transaction_details (
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT fk_card_tx FOREIGN KEY (transaction_id) REFERENCES transactions (id) ON DELETE CASCADE,
     CONSTRAINT fk_card_detail FOREIGN KEY (card_id) REFERENCES cards (id) ON DELETE CASCADE,
-    
+
     -- Validaciones de integridad
     CONSTRAINT chk_card_amount CHECK (amount > 0),
     CONSTRAINT chk_installments CHECK (installment_months IS NULL OR installment_months > 0)
@@ -450,7 +453,7 @@ CREATE TABLE IF NOT EXISTS wallet_transaction_details (
     CONSTRAINT fk_wallet_tx FOREIGN KEY (transaction_id) REFERENCES transactions (id) ON DELETE CASCADE,
     CONSTRAINT fk_wallet_account FOREIGN KEY (wallet_account_id) REFERENCES accounts (id) ON DELETE CASCADE,
     CONSTRAINT fk_wallet_card FOREIGN KEY (card_id) REFERENCES cards (id) ON DELETE SET NULL,
-    
+
     -- Validaciones
     CONSTRAINT chk_wallet_amount CHECK (amount > 0),
     CONSTRAINT chk_cashback CHECK (cashback_percentage BETWEEN 0 AND 100)

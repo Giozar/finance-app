@@ -36,12 +36,12 @@ public class WalletCardLinkService {
     @SuppressWarnings("unchecked")
     public List<WalletCardLink> getAllByWalletId(Long walletAccountId) throws ClientOperationException {
         Message message = new Message();
-        message.setType("GET_WALLET_CARD_LINKS_BY_WALLET_ID");
+        message.setType("GET_LINKS_BY_WALLET_ACCOUNT_ID");
         message.addData("walletAccountId", walletAccountId);
 
         serverConnectionService.sendMessage(message);
         try {
-            Message response = serverConnectionService.waitForMessage("GET_WALLET_CARD_LINKS_BY_WALLET_ID");
+            Message response = serverConnectionService.waitForMessage("GET_LINKS_BY_WALLET_ACCOUNT_ID");
             ServerResponseValidator.validateResponse(response);
             Object raw = response.getData("walletCardLinks");
 
@@ -62,4 +62,39 @@ public class WalletCardLinkService {
             throw new ClientOperationException("Error al obtener vínculos de tarjeta", e);
         }
     }
+
+    @SuppressWarnings("unchecked")
+    public WalletCardLink createWalletCardLink(WalletCardLink link) throws ClientOperationException {
+        Message message = new Message();
+        message.setType("CREATE_WALLET_CARD_LINK");
+        message.addData("walletCardLink", WalletCardLinkUtils.toMap(link));
+
+        serverConnectionService.sendMessage(message);
+        try {
+            Message response = serverConnectionService.waitForMessage("CREATE_WALLET_CARD_LINK");
+            ServerResponseValidator.validateResponse(response);
+            logger.info("Vínculo wallet-tarjeta creado exitosamente: " + response);
+            return WalletCardLinkUtils.fromMap((Map<String, Object>) response.getData("walletCardLink"));
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new ClientOperationException("Error al esperar respuesta del servidor", e);
+        }
+    }
+
+    public void deleteWalletCardLinkById(Long id) throws ClientOperationException {
+        Message message = new Message();
+        message.setType("DELETE_WALLET_CARD_LINK");
+        message.addData("id", id);
+
+        serverConnectionService.sendMessage(message);
+        try {
+            Message response = serverConnectionService.waitForMessage("DELETE_WALLET_CARD_LINK");
+            ServerResponseValidator.validateResponse(response);
+            logger.info("Vínculo wallet-tarjeta eliminado exitosamente: " + response);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new ClientOperationException("Error al esperar respuesta del servidor", e);
+        }
+    }
 }
+
