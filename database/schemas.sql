@@ -661,6 +661,52 @@ BEGIN
     END IF;
 END //
 
+DELIMITER //
+
+-- ======================================================
+-- TRIGGER 6.1: Sincronización al CREAR una cuenta (INSERT)
+-- ======================================================
+DROP TRIGGER IF EXISTS tr_sync_global_balance_insert //
+
+CREATE TRIGGER tr_sync_global_balance_insert
+AFTER INSERT ON accounts
+FOR EACH ROW
+BEGIN
+    -- Solo actualizamos si la cuenta se crea con un saldo inicial diferente de cero
+    IF NEW.current_balance <> 0 THEN
+        UPDATE users
+        SET global_balance = (
+            SELECT COALESCE(SUM(current_balance), 0.00)
+            FROM accounts
+            WHERE user_id = NEW.user_id
+        )
+        WHERE id = NEW.user_id;
+    END IF;
+END //
+
+-- ======================================================
+-- TRIGGER 6.2: Sincronización al ELIMINAR una cuenta (DELETE)
+-- ======================================================
+DROP TRIGGER IF EXISTS tr_sync_global_balance_delete //
+
+CREATE TRIGGER tr_sync_global_balance_delete
+AFTER DELETE ON accounts
+FOR EACH ROW
+BEGIN
+    -- Solo actualizamos si la cuenta eliminada tenía dinero
+    IF OLD.current_balance <> 0 THEN
+        UPDATE users
+        SET global_balance = (
+            SELECT COALESCE(SUM(current_balance), 0.00)
+            FROM accounts
+            WHERE user_id = OLD.user_id
+        )
+        WHERE id = OLD.user_id;
+    END IF;
+END //
+
+DELIMITER ;
+
 -- ======================================================
 -- TRIGGER 7: Validar que la tarjeta se vincule a cuenta bancaria
 -- ======================================================
