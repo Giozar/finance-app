@@ -1,10 +1,13 @@
 package com.giozar04.accounts.domain.enums;
 
 public enum AccountTypes {
-    DEBIT("debit", "Débito"),
-    CREDIT("credit", "Crédito"),
-    SAVINGS("savings", "Ahorro"),
-    CASH("cash", "Efectivo");
+    CASH("CASH", "Efectivo"),
+    DEBIT("DEBIT", "Débito Bancario"),
+    CREDIT("CREDIT", "Crédito"),
+    WALLET("WALLET", "Billetera Virtual"),
+    BENEFIT("BENEFIT", "Prestación/Vale"),
+    SAVINGS("SAVINGS", "Ahorro con Rendimiento"),
+    INVESTMENT("INVESTMENT", "Inversión a Plazo");
 
     private final String value;
     private final String label;

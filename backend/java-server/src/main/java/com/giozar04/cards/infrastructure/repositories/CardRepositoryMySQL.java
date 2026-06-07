@@ -51,8 +51,9 @@ public class CardRepositoryMySQL extends CardRepositoryAbstract {
             stmt.setString(2, card.getName());
             stmt.setString(3, card.getCardType().getValue());
             stmt.setString(4, card.getCardNumber());
-            stmt.setTimestamp(5, Timestamp.valueOf(card.getExpirationDate().toLocalDateTime()));
-            stmt.setString(6, card.getStatus());
+            stmt.setDate(5, java.sql.Date.valueOf(card.getExpirationDate().toLocalDate()));
+            // status usa DEFAULT 'ACTIVE' en BD; si viene null se envía como null y la BD aplica el default
+            stmt.setString(6, card.getStatus() != null ? card.getStatus() : "ACTIVE");
             stmt.setTimestamp(7, Timestamp.valueOf(card.getCreatedAt().toLocalDateTime()));
             stmt.setTimestamp(8, Timestamp.valueOf(card.getUpdatedAt().toLocalDateTime()));
 
@@ -71,7 +72,8 @@ public class CardRepositoryMySQL extends CardRepositoryAbstract {
 
         } catch (SQLException e) {
             rollback();
-            throw new CardExceptions.CardCreationException("Error al crear la tarjeta", e);
+            logger.error("Error de base de datos al crear tarjeta: " + e.getMessage(), e);
+            throw new CardExceptions.CardCreationException("Error al crear la tarjeta: " + e.getMessage(), e);
         }
     }
 
@@ -109,8 +111,8 @@ public class CardRepositoryMySQL extends CardRepositoryAbstract {
             stmt.setString(2, card.getName());
             stmt.setString(3, card.getCardType().getValue());
             stmt.setString(4, card.getCardNumber());
-            stmt.setTimestamp(5, Timestamp.valueOf(card.getExpirationDate().toLocalDateTime()));
-            stmt.setString(6, card.getStatus());
+            stmt.setDate(5, java.sql.Date.valueOf(card.getExpirationDate().toLocalDate()));
+            stmt.setString(6, card.getStatus() != null ? card.getStatus() : "ACTIVE");
             stmt.setTimestamp(7, Timestamp.valueOf(card.getUpdatedAt().toLocalDateTime()));
             stmt.setLong(8, id);
 
@@ -182,9 +184,9 @@ public class CardRepositoryMySQL extends CardRepositoryAbstract {
         card.setCardNumber(rs.getString("card_number"));
         card.setStatus(rs.getString("status"));
 
-        Timestamp expiration = rs.getTimestamp("expiration_date");
+        java.sql.Date expiration = rs.getDate("expiration_date");
         if (expiration != null) {
-            card.setExpirationDate(ZonedDateTime.of(expiration.toLocalDateTime(), zone));
+            card.setExpirationDate(ZonedDateTime.of(expiration.toLocalDate().atStartOfDay(), zone));
         }
 
         Timestamp created = rs.getTimestamp("created_at");

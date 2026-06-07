@@ -19,6 +19,7 @@ import com.giozar04.tags.infrastructure.services.TagService;
 import com.giozar04.transactions.infrastructure.services.TransactionService;
 import com.giozar04.users.infrastructure.services.UserService;
 import com.giozar04.walletCardLinks.infrastructure.services.WalletCardLinkService;
+import com.giozar04.accountCashbackSettings.infrastructure.services.AccountCashbackSettingService;
 import com.giozar04.walletTransactionDetails.infrastructure.services.WalletTransactionDetailService;
 
 public class ApplicationInitializer {
@@ -87,6 +88,9 @@ public class ApplicationInitializer {
 
             WalletCardLinkService.connectService(connectionService);
             System.out.println("✅ Servicio de vínculos tarjeta-wallet conectado correctamente.");
+
+            AccountCashbackSettingService.connectService(connectionService);
+            System.out.println("✅ Servicio de configuración de cashback conectado correctamente.");
 
             WalletTransactionDetailService.connectService(connectionService);
             System.out.println("✅ Servicio de detalles de transacciones con wallet conectado correctamente.");

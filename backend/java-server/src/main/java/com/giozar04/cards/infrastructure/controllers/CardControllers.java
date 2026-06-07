@@ -29,17 +29,31 @@ public class CardControllers {
         return (ClientConnection clientConnection, Message message) -> {
             LOGGER.info("Procesando solicitud de creación de tarjeta");
 
-            Map<String, Object> data = (Map<String, Object>) message.getData("card");
-            if (data == null) {
-                return Message.createErrorMessage(CardMessageTypes.CREATE_CARD, "Datos de tarjeta no proporcionados");
+            try {
+                Map<String, Object> data = (Map<String, Object>) message.getData("card");
+                if (data == null) {
+                    return Message.createErrorMessage(CardMessageTypes.CREATE_CARD, "Datos de tarjeta no proporcionados");
+                }
+
+                LOGGER.info("Datos recibidos para crear tarjeta: " + data);
+                Card card = CardUtils.mapToCard(data);
+                LOGGER.info("Tarjeta parseada: accountId=" + card.getAccountId()
+                        + " name=" + card.getName()
+                        + " cardType=" + card.getCardType()
+                        + " cardNumber=" + card.getCardNumber()
+                        + " expirationDate=" + card.getExpirationDate());
+
+                Card created = cardService.createCard(card);
+
+                Message response = Message.createSuccessMessage(CardMessageTypes.CREATE_CARD, "Tarjeta creada exitosamente");
+                response.addData("card", CardUtils.cardToMap(created));
+                return response;
+
+            } catch (Exception e) {
+                LOGGER.error("Error al crear tarjeta", e);
+                return Message.createErrorMessage(CardMessageTypes.CREATE_CARD,
+                        "Error al crear la tarjeta: " + e.getMessage());
             }
-
-            Card card = CardUtils.mapToCard(data);
-            Card created = cardService.createCard(card);
-
-            Message response = Message.createSuccessMessage(CardMessageTypes.CREATE_CARD, "Tarjeta creada exitosamente");
-            response.addData("card", CardUtils.cardToMap(created));
-            return response;
         };
     }
 

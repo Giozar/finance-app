@@ -4,7 +4,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.sql.Timestamp;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -16,21 +15,29 @@ import com.giozar04.walletCardLinks.domain.entities.WalletCardLink;
 import com.giozar04.walletCardLinks.domain.exceptions.WalletCardLinkExceptions;
 import com.giozar04.walletCardLinks.domain.models.WalletCardLinkRepositoryAbstract;
 
+/**
+ * Repositorio MySQL para wallet_card_links.
+ *
+ * La tabla real (schemas.sql) usa clave compuesta (account_id, card_id) sin columna id propia.
+ * El campo WalletCardLink.id se mapea al card_id para compatibilidad con los controladores.
+ */
 public class WalletCardLinkRepositoryMySQL extends WalletCardLinkRepositoryAbstract {
 
-    private static final String SQL_INSERT = """
-        INSERT INTO wallet_card_links (wallet_account_id, card_id, created_at, updated_at)
-        VALUES (?, ?, ?, ?)
-    """;
+    // La tabla usa 'account_id' (no 'wallet_account_id')
+    private static final String SQL_INSERT =
+        "INSERT INTO wallet_card_links (account_id, card_id, created_at, updated_at) VALUES (?, ?, ?, ?)";
 
-    private static final String SQL_SELECT_BY_ID = "SELECT * FROM wallet_card_links WHERE id = ?";
-    private static final String SQL_UPDATE = """
-        UPDATE wallet_card_links SET wallet_account_id = ?, card_id = ?, updated_at = ?
-        WHERE id = ?
-    """;
-    private static final String SQL_DELETE = "DELETE FROM wallet_card_links WHERE id = ?";
-    private static final String SQL_SELECT_ALL = "SELECT * FROM wallet_card_links";
-    private static final String SQL_SELECT_BY_WALLET = "SELECT * FROM wallet_card_links WHERE wallet_account_id = ?";
+    private static final String SQL_SELECT_BY_CARD_ID =
+        "SELECT * FROM wallet_card_links WHERE card_id = ?";
+
+    private static final String SQL_DELETE_BY_PK =
+        "DELETE FROM wallet_card_links WHERE account_id = ? AND card_id = ?";
+
+    private static final String SQL_SELECT_ALL =
+        "SELECT * FROM wallet_card_links";
+
+    private static final String SQL_SELECT_BY_WALLET =
+        "SELECT * FROM wallet_card_links WHERE account_id = ?";
 
     public WalletCardLinkRepositoryMySQL(DatabaseConnectionInterface databaseConnection) {
         super(databaseConnection);
@@ -44,7 +51,7 @@ public class WalletCardLinkRepositoryMySQL extends WalletCardLinkRepositoryAbstr
         if (link.getUpdatedAt() == null) link.setUpdatedAt(ZonedDateTime.now());
 
         try (Connection conn = databaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
+             PreparedStatement stmt = conn.prepareStatement(SQL_INSERT)) {
 
             stmt.setLong(1, link.getWalletAccountId());
             stmt.setLong(2, link.getCardId());
@@ -54,14 +61,11 @@ public class WalletCardLinkRepositoryMySQL extends WalletCardLinkRepositoryAbstr
             int affected = stmt.executeUpdate();
             if (affected == 0) throw new SQLException("No se pudo insertar el enlace wallet-card");
 
-            try (ResultSet keys = stmt.getGeneratedKeys()) {
-                if (keys.next()) {
-                    link.setId(keys.getLong(1));
-                }
-            }
+            // No hay id autoincremental; usamos cardId como identificador del vinculo
+            link.setId(link.getCardId());
 
             databaseConnection.commitTransaction();
-            logger.info("Enlace wallet-card creado con ID: " + link.getId());
+            logger.info("Enlace wallet-card creado: account_id=" + link.getWalletAccountId() + ", card_id=" + link.getCardId());
             return link;
 
         } catch (SQLException e) {
@@ -70,64 +74,54 @@ public class WalletCardLinkRepositoryMySQL extends WalletCardLinkRepositoryAbstr
         }
     }
 
+    /**
+     * Obtiene un vínculo usando card_id como identificador único del vínculo
+     * (cada tarjeta solo puede estar vinculada a una wallet a la vez).
+     */
     @Override
-    public WalletCardLink getLinkById(long id) {
-        validateId(id);
+    public WalletCardLink getLinkById(long cardId) {
+        validateId(cardId);
 
         try (Connection conn = databaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(SQL_SELECT_BY_ID)) {
+             PreparedStatement stmt = conn.prepareStatement(SQL_SELECT_BY_CARD_ID)) {
 
-            stmt.setLong(1, id);
+            stmt.setLong(1, cardId);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     return mapResultSet(rs);
                 } else {
-                    throw new WalletCardLinkExceptions.NotFoundException("Enlace no encontrado con ID: " + id, null);
+                    throw new WalletCardLinkExceptions.NotFoundException("Enlace no encontrado con card_id: " + cardId, null);
                 }
             }
 
         } catch (SQLException e) {
-            throw new WalletCardLinkExceptions.RetrievalException("Error al obtener el enlace con ID: " + id, e);
+            throw new WalletCardLinkExceptions.RetrievalException("Error al obtener enlace con card_id: " + cardId, e);
         }
     }
 
+    /**
+     * Actualización: elimina el vínculo existente y crea uno nuevo.
+     */
     @Override
     public WalletCardLink updateLinkById(long id, WalletCardLink link) {
-        validateId(id);
-        validateLink(link);
-        link.setUpdatedAt(ZonedDateTime.now());
+        deleteLinkById(id);
+        return createLink(link);
+    }
+
+    /**
+     * Elimina un vínculo usando card_id para localizar el wallet_account_id y borrar la PK compuesta.
+     */
+    @Override
+    public void deleteLinkById(long cardId) {
+        validateId(cardId);
+
+        WalletCardLink link = getLinkById(cardId);
 
         try (Connection conn = databaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(SQL_UPDATE)) {
+             PreparedStatement stmt = conn.prepareStatement(SQL_DELETE_BY_PK)) {
 
             stmt.setLong(1, link.getWalletAccountId());
             stmt.setLong(2, link.getCardId());
-            stmt.setTimestamp(3, Timestamp.valueOf(link.getUpdatedAt().toLocalDateTime()));
-            stmt.setLong(4, id);
-
-            int affected = stmt.executeUpdate();
-            if (affected == 0) {
-                throw new WalletCardLinkExceptions.NotFoundException("No se encontró el enlace para actualizar", null);
-            }
-
-            databaseConnection.commitTransaction();
-            link.setId(id);
-            return link;
-
-        } catch (SQLException e) {
-            rollback();
-            throw new WalletCardLinkExceptions.UpdateException("Error al actualizar el enlace", e);
-        }
-    }
-
-    @Override
-    public void deleteLinkById(long id) {
-        validateId(id);
-
-        try (Connection conn = databaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(SQL_DELETE)) {
-
-            stmt.setLong(1, id);
 
             int affected = stmt.executeUpdate();
             if (affected == 0) {
@@ -135,7 +129,7 @@ public class WalletCardLinkRepositoryMySQL extends WalletCardLinkRepositoryAbstr
             }
 
             databaseConnection.commitTransaction();
-            logger.info("Enlace wallet-card eliminado con ID: " + id);
+            logger.info("Enlace wallet-card eliminado: account_id=" + link.getWalletAccountId() + ", card_id=" + cardId);
 
         } catch (SQLException e) {
             rollback();
@@ -187,9 +181,10 @@ public class WalletCardLinkRepositoryMySQL extends WalletCardLinkRepositoryAbstr
         WalletCardLink link = new WalletCardLink();
         ZoneId zone = ZoneId.systemDefault();
 
-        link.setId(rs.getLong("id"));
-        link.setWalletAccountId(rs.getLong("wallet_account_id"));
+        // La tabla usa 'account_id', no 'wallet_account_id', y no hay columna 'id'
+        link.setWalletAccountId(rs.getLong("account_id"));
         link.setCardId(rs.getLong("card_id"));
+        link.setId(link.getCardId()); // cardId como identificador del vinculo
 
         Timestamp created = rs.getTimestamp("created_at");
         if (created != null) {
