@@ -1,5 +1,5 @@
-# The client project has the following structure:
-├── .
+# The backend project has the following structure:
+── .
 ├── database
 │   ├── schemas.sql
 ├── GENERAL.md
@@ -7,6 +7,7 @@
 │   ├── java-server
 │   │   ├── pom.xml
 │   │   ├── .gitignore
+│   │   ├── GENERALBACKEND.md
 │   │   ├── src
 │   │   │   ├── main
 │   │   │   │   ├── resources
