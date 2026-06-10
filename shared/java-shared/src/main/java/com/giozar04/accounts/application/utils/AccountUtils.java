@@ -21,6 +21,7 @@ public class AccountUtils {
         map.put("clabe", account.getClabe());
         map.put("canTransferOut", account.getCanTransferOut());
         map.put("creditLimit", account.getCreditLimit());
+        map.put("creditUsed", account.getCreditUsed());
         map.put("cutoffDay", account.getCutoffDay());
         map.put("paymentDay", account.getPaymentDay());
         map.put("annualYield", account.getAnnualYield());
@@ -70,6 +71,7 @@ public class AccountUtils {
         if (clabe != null && !"null".equals(clabe.toString())) account.setClabe(clabe.toString());
         
         account.setCreditLimit(SharedUtils.parseNullableDouble(map.get("creditLimit")));
+        account.setCreditUsed(SharedUtils.parseNullableDouble(map.get("creditUsed")));
         account.setCutoffDay(SharedUtils.parseNullableInt(map.get("cutoffDay")));
         account.setPaymentDay(SharedUtils.parseNullableInt(map.get("paymentDay")));
         

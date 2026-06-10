@@ -20,6 +20,7 @@ public class Account implements Serializable {
     private Boolean canTransferOut = true;
     // credit_details fields
     private Double creditLimit;
+    private Double creditUsed;
     private Integer cutoffDay;
     private Integer paymentDay;
     // savings_details fields
@@ -70,6 +71,9 @@ public class Account implements Serializable {
 
     public Double getCreditLimit() { return creditLimit; }
     public void setCreditLimit(Double creditLimit) { this.creditLimit = creditLimit; }
+
+    public Double getCreditUsed() { return creditUsed; }
+    public void setCreditUsed(Double creditUsed) { this.creditUsed = creditUsed; }
 
     public Integer getCutoffDay() { return cutoffDay; }
     public void setCutoffDay(Integer cutoffDay) { this.cutoffDay = cutoffDay; }

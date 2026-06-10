@@ -22,6 +22,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import com.giozar04.accounts.domain.entities.Account;
 import com.giozar04.accounts.infrastructure.services.AccountService;
 import com.giozar04.accounts.presentation.components.AccountFormPanel;
+import com.giozar04.accounts.presentation.views.AccountDetailView;
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
 import com.giozar04.shared.components.MainContentPanel;
 import com.giozar04.shared.components.table.ColumnDefinition;
@@ -163,7 +164,11 @@ public class AccountsView extends JPanel implements PopupMenuActionHandler {
 
     @Override
     public void onViewDetails(int rowIndex) {
-        JOptionPane.showMessageDialog(this, "Función no implementada.");
+        Account account = tablePanel.getItemAt(rowIndex);
+        MainContentPanel main = getMainContentPanel();
+        if (main != null) {
+            main.setView(AccountDetailView.create(account));
+        }
     }
 
     @Override

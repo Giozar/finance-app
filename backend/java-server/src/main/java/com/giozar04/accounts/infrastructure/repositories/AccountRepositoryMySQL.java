@@ -72,28 +72,24 @@ public class AccountRepositoryMySQL extends AccountRepositoryAbstract {
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """;
 
-    private static final String SQL_UPSERT_INVESTMENT = """
-        INSERT INTO investment_details
-            (account_id, instrument_type, term_days, principal_amount, annual_yield,
-             day_count_basis, start_date, maturity_date, status, auto_reinvest,
-             reinvest_term_days, reinvest_annual_yield, created_at, updated_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ON DUPLICATE KEY UPDATE
-            instrument_type        = VALUES(instrument_type),
-            term_days              = VALUES(term_days),
-            principal_amount       = VALUES(principal_amount),
-            annual_yield           = VALUES(annual_yield),
-            day_count_basis        = VALUES(day_count_basis),
-            start_date             = VALUES(start_date),
-            maturity_date          = VALUES(maturity_date),
-            status                 = VALUES(status),
-            auto_reinvest          = VALUES(auto_reinvest),
-            reinvest_term_days     = VALUES(reinvest_term_days),
-            reinvest_annual_yield  = VALUES(reinvest_annual_yield),
-            updated_at             = VALUES(updated_at)
+    private static final String SQL_UPDATE_INVESTMENT = """
+        UPDATE investment_details
+        SET instrument_type       = ?,
+            term_days             = ?,
+            principal_amount      = ?,
+            annual_yield          = ?,
+            day_count_basis       = ?,
+            start_date            = ?,
+            maturity_date         = ?,
+            status                = ?,
+            auto_reinvest         = ?,
+            reinvest_term_days    = ?,
+            reinvest_annual_yield = ?,
+            updated_at            = ?
+        WHERE account_id = ?
     """;
 
-    // Delete details on update if we switch from a type that requires them to a type that doesn't
+
     private static final String SQL_DELETE_BANK_DETAILS      = "DELETE FROM bank_details WHERE account_id = ?";
     private static final String SQL_DELETE_CREDIT_DETAILS    = "DELETE FROM credit_details WHERE account_id = ?";
     private static final String SQL_DELETE_SAVINGS_DETAILS   = "DELETE FROM savings_details WHERE account_id = ?";
@@ -103,7 +99,7 @@ public class AccountRepositoryMySQL extends AccountRepositoryAbstract {
     private static final String SQL_SELECT_BASE = """
         SELECT a.id, a.user_id, a.name, a.type, a.current_balance, a.created_at, a.updated_at,
                bd.bank_client_id AS bd_client_id, bd.clabe, bd.account_number, bd.can_transfer_out,
-               cd.bank_client_id AS cd_client_id, cd.credit_limit, cd.cutoff_day, cd.payment_deadline_day,
+               cd.bank_client_id AS cd_client_id, cd.credit_limit, cd.credit_used, cd.cutoff_day, cd.payment_deadline_day,
                sd.annual_yield, sd.yield_cap_amount, sd.last_yield_calculation,
                inv.instrument_type, inv.term_days, inv.principal_amount,
                inv.annual_yield AS inv_annual_yield, inv.day_count_basis,
@@ -366,26 +362,25 @@ public class AccountRepositoryMySQL extends AccountRepositoryAbstract {
             }
 
             if (isInvestment) {
-                try (PreparedStatement stmt = conn.prepareStatement(SQL_UPSERT_INVESTMENT)) {
-                    stmt.setLong(1, id);
-                    stmt.setString(2, account.getInstrumentType());
-                    if (account.getTermDays() != null) stmt.setInt(3, account.getTermDays()); else stmt.setNull(3, Types.INTEGER);
-                    stmt.setDouble(4, account.getPrincipalAmount());
-                    stmt.setDouble(5, account.getInvestmentAnnualYield());
-                    stmt.setInt(6, account.getDayCountBasis() != null ? account.getDayCountBasis() : 360);
-                    
+                try (PreparedStatement stmt = conn.prepareStatement(SQL_UPDATE_INVESTMENT)) {
+                    stmt.setString(1, account.getInstrumentType());
+                    if (account.getTermDays() != null) stmt.setInt(2, account.getTermDays()); else stmt.setNull(2, Types.INTEGER);
+                    stmt.setDouble(3, account.getPrincipalAmount());
+                    stmt.setDouble(4, account.getInvestmentAnnualYield());
+                    stmt.setInt(5, account.getDayCountBasis() != null ? account.getDayCountBasis() : 360);
+
                     String sd = account.getStartDate();
-                    if (sd != null && !sd.trim().isEmpty()) stmt.setDate(7, java.sql.Date.valueOf(sd.trim())); else stmt.setNull(7, Types.DATE);
-                    
+                    if (sd != null && !sd.trim().isEmpty()) stmt.setDate(6, java.sql.Date.valueOf(sd.trim())); else stmt.setNull(6, Types.DATE);
+
                     String md = account.getMaturityDate();
-                    if (md != null && !md.trim().isEmpty()) stmt.setDate(8, java.sql.Date.valueOf(md.trim())); else stmt.setNull(8, Types.DATE);
-                    
-                    stmt.setString(9, account.getInvestmentStatus() != null ? account.getInvestmentStatus() : "ACTIVE");
-                    stmt.setBoolean(10, account.getAutoReinvest() != null ? account.getAutoReinvest() : false);
-                    if (account.getReinvestTermDays() != null) stmt.setInt(11, account.getReinvestTermDays()); else stmt.setNull(11, Types.INTEGER);
-                    if (account.getReinvestAnnualYield() != null) stmt.setDouble(12, account.getReinvestAnnualYield()); else stmt.setNull(12, Types.DECIMAL);
-                    stmt.setTimestamp(13, createdTs);
-                    stmt.setTimestamp(14, updatedTs);
+                    if (md != null && !md.trim().isEmpty()) stmt.setDate(7, java.sql.Date.valueOf(md.trim())); else stmt.setNull(7, Types.DATE);
+
+                    stmt.setString(8, account.getInvestmentStatus() != null ? account.getInvestmentStatus() : "ACTIVE");
+                    stmt.setBoolean(9, account.getAutoReinvest() != null ? account.getAutoReinvest() : false);
+                    if (account.getReinvestTermDays() != null) stmt.setInt(10, account.getReinvestTermDays()); else stmt.setNull(10, Types.INTEGER);
+                    if (account.getReinvestAnnualYield() != null) stmt.setDouble(11, account.getReinvestAnnualYield()); else stmt.setNull(11, Types.DECIMAL);
+                    stmt.setTimestamp(12, updatedTs);
+                    stmt.setLong(13, id);  // WHERE account_id = ?
                     stmt.executeUpdate();
                 }
             }
@@ -489,6 +484,8 @@ public class AccountRepositoryMySQL extends AccountRepositoryAbstract {
         // credit_details
         double creditLimit = rs.getDouble("credit_limit");
         if (!rs.wasNull()) account.setCreditLimit(creditLimit);
+        double creditUsed = rs.getDouble("credit_used");
+        if (!rs.wasNull()) account.setCreditUsed(creditUsed);
         int cutoff = rs.getInt("cutoff_day");
         if (!rs.wasNull()) account.setCutoffDay(cutoff);
         int payment = rs.getInt("payment_deadline_day");
