@@ -100,6 +100,7 @@ CREATE TABLE IF NOT EXISTS credit_details (
     account_id BIGINT PRIMARY KEY,
     bank_client_id BIGINT NOT NULL,
     credit_limit DECIMAL(12, 2) NOT NULL,
+    credit_used DECIMAL(12, 2) NOT NULL DEFAULT 0.00,
     cutoff_day INT NOT NULL,
     payment_deadline_day INT NOT NULL,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -108,7 +109,9 @@ CREATE TABLE IF NOT EXISTS credit_details (
     CONSTRAINT fk_credit_bank_client FOREIGN KEY (bank_client_id) REFERENCES bank_clients(id) ON DELETE RESTRICT,
     CONSTRAINT chk_cutoff_day CHECK (cutoff_day BETWEEN 1 AND 31),
     CONSTRAINT chk_payment_day CHECK (payment_deadline_day BETWEEN 1 AND 31),
-    CONSTRAINT chk_credit_limit CHECK (credit_limit >= 0)
+    CONSTRAINT chk_credit_limit CHECK (credit_limit >= 0),
+    CONSTRAINT chk_credit_used CHECK (credit_used >= 0),
+    CONSTRAINT chk_credit_used_limit CHECK (credit_used <= credit_limit)
 );
 -- Índices de gestión de deuda
 CREATE INDEX idx_credit_det_client ON credit_details (bank_client_id);
@@ -710,6 +713,7 @@ DELIMITER ;
 -- ======================================================
 -- TRIGGER 7: Validar que la tarjeta se vincule a cuenta bancaria
 -- ======================================================
+DELIMITER //
 DROP TRIGGER IF EXISTS tr_before_card_insert //
 
 CREATE TRIGGER tr_before_card_insert
@@ -777,6 +781,133 @@ BEGIN
         END IF;
 
     END IF;
+END //
+
+DELIMITER ;
+
+-- ======================================================
+-- TRIGGER 9: ACTUALIZACIÓN DE CRÉDITO USADO
+-- ======================================================
+DELIMITER //
+
+DROP TRIGGER IF EXISTS tr_after_transaction_credit_balance //
+
+CREATE TRIGGER tr_after_transaction_credit_balance
+AFTER INSERT ON transactions
+FOR EACH ROW
+BEGIN
+    DECLARE v_source_type VARCHAR(20);
+    DECLARE v_destination_type VARCHAR(20);
+
+    DECLARE v_credit_limit DECIMAL(12, 2);
+    DECLARE v_credit_used DECIMAL(12, 2);
+    DECLARE v_current_balance DECIMAL(12, 2);
+
+    DECLARE v_amount_to_credit DECIMAL(12, 2);
+    DECLARE v_remaining_amount DECIMAL(12, 2);
+    DECLARE v_payment_amount DECIMAL(12, 2);
+    DECLARE v_overpayment DECIMAL(12, 2);
+
+    -- Obtener tipo de cuenta origen
+    IF NEW.source_account_id IS NOT NULL THEN
+        SELECT type
+        INTO v_source_type
+        FROM accounts
+        WHERE id = NEW.source_account_id;
+    END IF;
+
+    -- Obtener tipo de cuenta destino
+    IF NEW.destination_account_id IS NOT NULL THEN
+        SELECT type
+        INTO v_destination_type
+        FROM accounts
+        WHERE id = NEW.destination_account_id;
+    END IF;
+
+    -- ======================================================
+    -- 1. GASTO O TRANSFERENCIA SALIENTE DESDE CUENTA CREDIT
+    -- ======================================================
+    IF NEW.source_account_id IS NOT NULL
+       AND v_source_type = 'CREDIT'
+       AND NEW.operation_type IN ('EXPENSE', 'TRANSFER') THEN
+
+        SELECT cd.credit_limit, cd.credit_used, a.current_balance
+        INTO v_credit_limit, v_credit_used, v_current_balance
+        FROM credit_details cd
+        INNER JOIN accounts a ON a.id = cd.account_id
+        WHERE cd.account_id = NEW.source_account_id;
+
+        -- Primero se consume saldo a favor si existe
+        IF v_current_balance >= NEW.amount THEN
+
+            UPDATE accounts
+            SET current_balance = current_balance - NEW.amount
+            WHERE id = NEW.source_account_id;
+
+        ELSE
+
+            SET v_remaining_amount = NEW.amount - v_current_balance;
+            SET v_amount_to_credit = v_credit_used + v_remaining_amount;
+
+            -- Validar que no exceda el límite de crédito
+            IF v_amount_to_credit > v_credit_limit THEN
+                SIGNAL SQLSTATE '45000'
+                SET MESSAGE_TEXT = 'Error: La operación excede el límite de crédito disponible.';
+            END IF;
+
+            -- Consumir todo el saldo a favor
+            UPDATE accounts
+            SET current_balance = 0
+            WHERE id = NEW.source_account_id;
+
+            -- Aumentar crédito usado
+            UPDATE credit_details
+            SET credit_used = credit_used + v_remaining_amount
+            WHERE account_id = NEW.source_account_id;
+
+        END IF;
+
+    END IF;
+
+    -- ======================================================
+    -- 2. PAGO O INGRESO HACIA CUENTA CREDIT
+    -- ======================================================
+    IF NEW.destination_account_id IS NOT NULL
+       AND v_destination_type = 'CREDIT'
+       AND NEW.operation_type IN ('INCOME', 'TRANSFER') THEN
+
+        SELECT cd.credit_used
+        INTO v_credit_used
+        FROM credit_details cd
+        WHERE cd.account_id = NEW.destination_account_id;
+
+        SET v_payment_amount = NEW.amount;
+
+        -- Si el pago cubre parcialmente o exactamente la deuda
+        IF v_payment_amount <= v_credit_used THEN
+
+            UPDATE credit_details
+            SET credit_used = credit_used - v_payment_amount
+            WHERE account_id = NEW.destination_account_id;
+
+        ELSE
+
+            SET v_overpayment = v_payment_amount - v_credit_used;
+
+            -- Liquidar deuda
+            UPDATE credit_details
+            SET credit_used = 0
+            WHERE account_id = NEW.destination_account_id;
+
+            -- El excedente se vuelve saldo a favor
+            UPDATE accounts
+            SET current_balance = current_balance + v_overpayment
+            WHERE id = NEW.destination_account_id;
+
+        END IF;
+
+    END IF;
+
 END //
 
 DELIMITER ;
