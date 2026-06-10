@@ -1,5 +1,4 @@
-# The client project has the following structure:
-
+# The project has the following structure:
 ├── .
 ├── database
 │   ├── schemas.sql
@@ -8,6 +7,7 @@
 │   ├── java-server
 │   │   ├── pom.xml
 │   │   ├── .gitignore
+│   │   ├── GENERALBACKEND.md
 │   │   ├── src
 │   │   │   ├── main
 │   │   │   │   ├── resources
@@ -293,6 +293,7 @@
 │   │   ├── pom.xml
 │   │   ├── README.md
 │   │   ├── .gitignore
+│   │   ├── GENERALSHARED.md
 │   │   ├── src
 │   │   │   ├── main
 │   │   │   │   ├── java
@@ -437,6 +438,7 @@
 ├── .gitignore
 ├── client
 │   ├── java-client
+│   │   ├── GENERALCLIENT.md
 │   │   ├── pom.xml
 │   │   ├── .gitignore
 │   │   ├── src
@@ -503,6 +505,7 @@
 │   │   │   │   │   │   │   │   │   │   ├── GenericTableModel.java
 │   │   │   │   │   │   │   │   │   │   ├── PopupMenuActionHandler.java
 │   │   │   │   │   │   │   │   │   │   ├── ColumnDefinition.java
+│   │   │   │   │   │   │   │   │   ├── CreditUsagePanel.java
 │   │   │   │   │   │   │   │   │   ├── SidebarPanel.java
 │   │   │   │   │   │   │   │   │   ├── DatePickerComponent.java
 │   │   │   │   │   │   │   │   ├── layouts
@@ -566,6 +569,16 @@
 │   │   │   │   │   │   │   │   │   │   ├── AccountFormPanel.java
 │   │   │   │   │   │   │   │   │   ├── views
 │   │   │   │   │   │   │   │   │   │   ├── CreateAccountView.java
+│   │   │   │   │   │   │   │   │   │   ├── AccountDetailView.java
+│   │   │   │   │   │   │   │   │   │   ├── detail
+│   │   │   │   │   │   │   │   │   │   │   ├── BenefitAccountDetailView.java
+│   │   │   │   │   │   │   │   │   │   │   ├── SavingsAccountDetailView.java
+│   │   │   │   │   │   │   │   │   │   │   ├── WalletAccountDetailView.java
+│   │   │   │   │   │   │   │   │   │   │   ├── DebitAccountDetailView.java
+│   │   │   │   │   │   │   │   │   │   │   ├── BaseAccountDetailView.java
+│   │   │   │   │   │   │   │   │   │   │   ├── InvestmentAccountDetailView.java
+│   │   │   │   │   │   │   │   │   │   │   ├── CreditAccountDetailView.java
+│   │   │   │   │   │   │   │   │   │   │   ├── CashAccountDetailView.java
 │   │   │   │   │   │   │   │   │   │   ├── AccountsView.java
 │   │   │   │   │   │   │   ├── serverConnection
 │   │   │   │   │   │   │   │   ├── application

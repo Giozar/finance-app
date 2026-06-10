@@ -1,9 +1,10 @@
-# The shared project has the following structure:
+# The shared project has the following structure: 
 ├── shared
 │   ├── java-shared
 │   │   ├── pom.xml
 │   │   ├── README.md
 │   │   ├── .gitignore
+│   │   ├── GENERALSHARED.md
 │   │   ├── src
 │   │   │   ├── main
 │   │   │   │   ├── java
