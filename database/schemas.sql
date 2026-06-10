@@ -362,6 +362,7 @@ CREATE TABLE IF NOT EXISTS transactions (
     operation_type VARCHAR(10) NOT NULL,
         -- payment_method ENUM('CARD', 'CASH', 'TRANSFER', 'QR', 'CODI', 'WALLET') NOT NULL,
     payment_method VARCHAR(20) NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'COMPLETED', -- 'PENDING', 'COMPLETED', 'FAILED', 'CANCELLED'
     source_account_id BIGINT NULL,
     destination_account_id BIGINT NULL,
     external_entity_id BIGINT NULL,
@@ -369,6 +370,7 @@ CREATE TABLE IF NOT EXISTS transactions (
     amount DECIMAL(12, 2) NOT NULL,
     concept VARCHAR(100) NOT NULL,
     description TEXT NULL,
+    receipt_url VARCHAR(255) NULL,
     comments TEXT NULL,
     date DATETIME NOT NULL,
     timezone VARCHAR(50) NOT NULL,
@@ -493,40 +495,73 @@ BEGIN
 END //
 
 -- ======================================================
--- TRIGGER 2: Actualizar saldos al insertar transacción
+-- TRIGGER 2: Actualización de saldos después de insertar transacción
 -- ======================================================
-DROP TRIGGER IF EXISTS tr_after_transaction_insert //
 
-CREATE TRIGGER tr_after_transaction_insert
+DROP TRIGGER IF EXISTS tr_after_transaction_insert_master //
+
+CREATE TRIGGER tr_after_transaction_insert_master
 AFTER INSERT ON transactions
 FOR EACH ROW
 BEGIN
-    -- Los pagos tipo WALLET se ignoran aquí (se manejan en su propio trigger)
+    DECLARE v_source_type VARCHAR(20) DEFAULT NULL;
+    DECLARE v_dest_type VARCHAR(20) DEFAULT NULL;
+    DECLARE v_credit_used DECIMAL(12,2);
+    DECLARE v_payment_amount DECIMAL(12,2);
+    DECLARE v_overpayment DECIMAL(12,2);
+
+    -- 1. Obtener tipos de cuenta
+    IF NEW.source_account_id IS NOT NULL THEN
+        SELECT type INTO v_source_type FROM accounts WHERE id = NEW.source_account_id;
+    END IF;
+    
+    IF NEW.destination_account_id IS NOT NULL THEN
+        SELECT type INTO v_dest_type FROM accounts WHERE id = NEW.destination_account_id;
+    END IF;
+
+    -- 2. Ignoramos Wallet porque tiene su propio Trigger (Trigger 5)
     IF NEW.payment_method <> 'WALLET' THEN
-        -- GASTO
-        IF NEW.operation_type = 'EXPENSE' AND NEW.source_account_id IS NOT NULL THEN
-            UPDATE accounts
-            SET current_balance = current_balance - NEW.amount
-            WHERE id = NEW.source_account_id;
 
-        -- INGRESO
-        ELSEIF NEW.operation_type = 'INCOME' AND NEW.destination_account_id IS NOT NULL THEN
-            UPDATE accounts
-            SET current_balance = current_balance + NEW.amount
-            WHERE id = NEW.destination_account_id;
-
-        -- TRANSFERENCIA
-        ELSEIF NEW.operation_type = 'TRANSFER'
-            AND NEW.source_account_id IS NOT NULL
-            AND NEW.destination_account_id IS NOT NULL THEN
-            UPDATE accounts
-            SET current_balance = current_balance - NEW.amount
-            WHERE id = NEW.source_account_id;
-
-            UPDATE accounts
-            SET current_balance = current_balance + NEW.amount
-            WHERE id = NEW.destination_account_id;
+        -- ==========================================
+        -- LOGICA PARA LA CUENTA ORIGEN (Sale dinero)
+        -- ==========================================
+        IF NEW.source_account_id IS NOT NULL AND NEW.operation_type IN ('EXPENSE', 'TRANSFER') THEN
+            IF v_source_type = 'CREDIT' THEN
+                -- Es tarjeta de crédito: aumenta la deuda
+                UPDATE credit_details SET credit_used = credit_used + NEW.amount 
+                WHERE account_id = NEW.source_account_id;
+            ELSE
+                -- Es débito/efectivo: resta el dinero
+                UPDATE accounts SET current_balance = current_balance - NEW.amount 
+                WHERE id = NEW.source_account_id;
+            END IF;
         END IF;
+
+        -- ==========================================
+        -- LOGICA PARA LA CUENTA DESTINO (Entra dinero)
+        -- ==========================================
+        IF NEW.destination_account_id IS NOT NULL AND NEW.operation_type IN ('INCOME', 'TRANSFER') THEN
+            IF v_dest_type = 'CREDIT' THEN
+                -- Es un PAGO a la tarjeta de crédito
+                SELECT credit_used INTO v_credit_used FROM credit_details WHERE account_id = NEW.destination_account_id;
+                SET v_payment_amount = NEW.amount;
+                
+                IF v_payment_amount <= v_credit_used THEN
+                    -- Cubre la deuda parcial o totalmente
+                    UPDATE credit_details SET credit_used = credit_used - v_payment_amount WHERE account_id = NEW.destination_account_id;
+                ELSE
+                    -- Pagó de más (Saldo a favor)
+                    SET v_overpayment = v_payment_amount - v_credit_used;
+                    UPDATE credit_details SET credit_used = 0 WHERE account_id = NEW.destination_account_id;
+                    UPDATE accounts SET current_balance = current_balance + v_overpayment WHERE id = NEW.destination_account_id;
+                END IF;
+            ELSE
+                -- Es depósito normal (débito, cash, ahorro)
+                UPDATE accounts SET current_balance = current_balance + NEW.amount 
+                WHERE id = NEW.destination_account_id;
+            END IF;
+        END IF;
+
     END IF;
 END //
 
@@ -781,133 +816,6 @@ BEGIN
         END IF;
 
     END IF;
-END //
-
-DELIMITER ;
-
--- ======================================================
--- TRIGGER 9: ACTUALIZACIÓN DE CRÉDITO USADO
--- ======================================================
-DELIMITER //
-
-DROP TRIGGER IF EXISTS tr_after_transaction_credit_balance //
-
-CREATE TRIGGER tr_after_transaction_credit_balance
-AFTER INSERT ON transactions
-FOR EACH ROW
-BEGIN
-    DECLARE v_source_type VARCHAR(20);
-    DECLARE v_destination_type VARCHAR(20);
-
-    DECLARE v_credit_limit DECIMAL(12, 2);
-    DECLARE v_credit_used DECIMAL(12, 2);
-    DECLARE v_current_balance DECIMAL(12, 2);
-
-    DECLARE v_amount_to_credit DECIMAL(12, 2);
-    DECLARE v_remaining_amount DECIMAL(12, 2);
-    DECLARE v_payment_amount DECIMAL(12, 2);
-    DECLARE v_overpayment DECIMAL(12, 2);
-
-    -- Obtener tipo de cuenta origen
-    IF NEW.source_account_id IS NOT NULL THEN
-        SELECT type
-        INTO v_source_type
-        FROM accounts
-        WHERE id = NEW.source_account_id;
-    END IF;
-
-    -- Obtener tipo de cuenta destino
-    IF NEW.destination_account_id IS NOT NULL THEN
-        SELECT type
-        INTO v_destination_type
-        FROM accounts
-        WHERE id = NEW.destination_account_id;
-    END IF;
-
-    -- ======================================================
-    -- 9.1. GASTO O TRANSFERENCIA SALIENTE DESDE CUENTA CREDIT
-    -- ======================================================
-    IF NEW.source_account_id IS NOT NULL
-       AND v_source_type = 'CREDIT'
-       AND NEW.operation_type IN ('EXPENSE', 'TRANSFER') THEN
-
-        SELECT cd.credit_limit, cd.credit_used, a.current_balance
-        INTO v_credit_limit, v_credit_used, v_current_balance
-        FROM credit_details cd
-        INNER JOIN accounts a ON a.id = cd.account_id
-        WHERE cd.account_id = NEW.source_account_id;
-
-        -- Primero se consume saldo a favor si existe
-        IF v_current_balance >= NEW.amount THEN
-
-            UPDATE accounts
-            SET current_balance = current_balance - NEW.amount
-            WHERE id = NEW.source_account_id;
-
-        ELSE
-
-            SET v_remaining_amount = NEW.amount - v_current_balance;
-            SET v_amount_to_credit = v_credit_used + v_remaining_amount;
-
-            -- Validar que no exceda el límite de crédito
-            IF v_amount_to_credit > v_credit_limit THEN
-                SIGNAL SQLSTATE '45000'
-                SET MESSAGE_TEXT = 'Error: La operación excede el límite de crédito disponible.';
-            END IF;
-
-            -- Consumir todo el saldo a favor
-            UPDATE accounts
-            SET current_balance = 0
-            WHERE id = NEW.source_account_id;
-
-            -- Aumentar crédito usado
-            UPDATE credit_details
-            SET credit_used = credit_used + v_remaining_amount
-            WHERE account_id = NEW.source_account_id;
-
-        END IF;
-
-    END IF;
-
-    -- ======================================================
-    -- 9.2. PAGO O INGRESO HACIA CUENTA CREDIT
-    -- ======================================================
-    IF NEW.destination_account_id IS NOT NULL
-       AND v_destination_type = 'CREDIT'
-       AND NEW.operation_type IN ('INCOME', 'TRANSFER') THEN
-
-        SELECT cd.credit_used
-        INTO v_credit_used
-        FROM credit_details cd
-        WHERE cd.account_id = NEW.destination_account_id;
-
-        SET v_payment_amount = NEW.amount;
-
-        -- Si el pago cubre parcialmente o exactamente la deuda
-        IF v_payment_amount <= v_credit_used THEN
-
-            UPDATE credit_details
-            SET credit_used = credit_used - v_payment_amount
-            WHERE account_id = NEW.destination_account_id;
-
-        ELSE
-
-            SET v_overpayment = v_payment_amount - v_credit_used;
-
-            -- Liquidar deuda
-            UPDATE credit_details
-            SET credit_used = 0
-            WHERE account_id = NEW.destination_account_id;
-
-            -- El excedente se vuelve saldo a favor
-            UPDATE accounts
-            SET current_balance = current_balance + v_overpayment
-            WHERE id = NEW.destination_account_id;
-
-        END IF;
-
-    END IF;
-
 END //
 
 DELIMITER ;
