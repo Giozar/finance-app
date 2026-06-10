@@ -825,7 +825,7 @@ BEGIN
     END IF;
 
     -- ======================================================
-    -- 1. GASTO O TRANSFERENCIA SALIENTE DESDE CUENTA CREDIT
+    -- 9.1. GASTO O TRANSFERENCIA SALIENTE DESDE CUENTA CREDIT
     -- ======================================================
     IF NEW.source_account_id IS NOT NULL
        AND v_source_type = 'CREDIT'
@@ -870,7 +870,7 @@ BEGIN
     END IF;
 
     -- ======================================================
-    -- 2. PAGO O INGRESO HACIA CUENTA CREDIT
+    -- 9.2. PAGO O INGRESO HACIA CUENTA CREDIT
     -- ======================================================
     IF NEW.destination_account_id IS NOT NULL
        AND v_destination_type = 'CREDIT'
