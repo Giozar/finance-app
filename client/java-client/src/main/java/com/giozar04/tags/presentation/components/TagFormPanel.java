@@ -16,14 +16,20 @@ import javax.swing.border.EmptyBorder;
 
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
 import com.giozar04.shared.components.forms.ColorPickerField;
+import com.giozar04.shared.components.forms.FormComboBox;
 import com.giozar04.shared.components.forms.FormField;
 import com.giozar04.shared.utils.DialogUtil;
 import com.giozar04.shared.utils.FormValidatorUtils;
 import com.giozar04.tags.domain.entities.Tag;
 import com.giozar04.tags.infrastructure.services.TagService;
+import com.giozar04.users.domain.entities.User;
+import com.giozar04.users.infrastructure.services.UserService;
 
 public class TagFormPanel extends JPanel {
 
+    private final UserService userService = UserService.getInstance();
+
+    private final FormComboBox<User> userCombo;
     private final FormField nameField;
     private final ColorPickerField colorPicker;
 
@@ -40,9 +46,15 @@ public class TagFormPanel extends JPanel {
         formPanel.setLayout(new BoxLayout(formPanel, BoxLayout.Y_AXIS));
         formPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
 
+        userCombo = new FormComboBox<>("Usuario propietario:", 400, 40);
+        userCombo.setPlaceholder("Selecciona un usuario...");
+        loadUsers();
+
         nameField = new FormField("Nombre de la etiqueta:", false, 400, 40);
         colorPicker = new ColorPickerField("Color:", 400, 40);
 
+        formPanel.add(userCombo);
+        formPanel.add(Box.createRigidArea(new Dimension(0, 10)));
         formPanel.add(nameField);
         formPanel.add(Box.createRigidArea(new Dimension(0, 10)));
         formPanel.add(colorPicker);
@@ -61,12 +73,25 @@ public class TagFormPanel extends JPanel {
         add(buttonPanel, BorderLayout.SOUTH);
     }
 
+    private void loadUsers() {
+        try {
+            List<User> users = userService.getAllUsers();
+            userCombo.setItems(users);
+        } catch (ClientOperationException ex) {
+            DialogUtil.showError(this, "Error al cargar los usuarios: " + ex.getMessage());
+        }
+    }
+
     private void handleSave() {
         List<String> errors = new ArrayList<>();
 
         String name = nameField.getValue().trim();
         String colorHex = colorPicker.getColorHex();
 
+        User user = userCombo.getSelectedItem();
+        if (user == null || !userCombo.isSelectionValid()) {
+            errors.add("Debe seleccionar un usuario propietario.");
+        }
         FormValidatorUtils.isRequired(name, "Nombre", errors);
         if (colorHex == null) {
             errors.add("Debe seleccionar un color.");
@@ -78,6 +103,7 @@ public class TagFormPanel extends JPanel {
         }
 
         Tag tag = currentTag != null ? currentTag : new Tag();
+        tag.setUserId(user.getId());
         tag.setName(name);
         tag.setColor(colorHex);
 
@@ -102,6 +128,13 @@ public class TagFormPanel extends JPanel {
 
     public void loadTag(Tag tag) {
         this.currentTag = tag;
+        for (int i = 0; i < userCombo.getItemCount(); i++) {
+            User u = userCombo.getItemAt(i);
+            if (u.getId() == tag.getUserId()) {
+                userCombo.setSelectedItem(u);
+                break;
+            }
+        }
         nameField.setValue(tag.getName());
         if (tag.getColor() != null) {
             colorPicker.setColor(Color.decode(tag.getColor()));
@@ -110,6 +143,7 @@ public class TagFormPanel extends JPanel {
 
     public void clearForm() {
         currentTag = null;
+        userCombo.clearSelection();
         nameField.clear();
         colorPicker.clear();
     }

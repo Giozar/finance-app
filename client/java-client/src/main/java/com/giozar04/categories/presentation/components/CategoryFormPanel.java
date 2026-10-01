@@ -21,9 +21,14 @@ import com.giozar04.shared.components.forms.FormComboBox;
 import com.giozar04.shared.components.forms.FormField;
 import com.giozar04.shared.utils.DialogUtil;
 import com.giozar04.shared.utils.FormValidatorUtils;
+import com.giozar04.users.domain.entities.User;
+import com.giozar04.users.infrastructure.services.UserService;
 
 public class CategoryFormPanel extends JPanel {
 
+    private final UserService userService = UserService.getInstance();
+
+    private final FormComboBox<User> userCombo;
     private final FormField nameField;
     private final FormComboBox<CategoryTypes> typeCombo;
     private final FormField iconField;
@@ -41,6 +46,10 @@ public class CategoryFormPanel extends JPanel {
         formPanel.setLayout(new BoxLayout(formPanel, BoxLayout.Y_AXIS));
         formPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
 
+        userCombo = new FormComboBox<>("Usuario propietario:", 400, 40);
+        userCombo.setPlaceholder("Selecciona un usuario...");
+        loadUsers();
+
         nameField = new FormField("Nombre:", false, 400, 40);
 
         typeCombo = new FormComboBox<>("Tipo:", 400, 40);
@@ -49,6 +58,8 @@ public class CategoryFormPanel extends JPanel {
 
         iconField = new FormField("Ícono (emoji o texto):", false, 400, 40);
 
+        formPanel.add(userCombo);
+        formPanel.add(Box.createRigidArea(new Dimension(0, 10)));
         formPanel.add(nameField);
         formPanel.add(Box.createRigidArea(new Dimension(0, 10)));
         formPanel.add(typeCombo);
@@ -69,6 +80,15 @@ public class CategoryFormPanel extends JPanel {
         add(buttonPanel, BorderLayout.SOUTH);
     }
 
+    private void loadUsers() {
+        try {
+            List<User> users = userService.getAllUsers();
+            userCombo.setItems(users);
+        } catch (ClientOperationException ex) {
+            DialogUtil.showError(this, "Error al cargar los usuarios: " + ex.getMessage());
+        }
+    }
+
     private void handleSave() {
         List<String> errors = new ArrayList<>();
 
@@ -76,6 +96,10 @@ public class CategoryFormPanel extends JPanel {
         CategoryTypes type = typeCombo.getSelectedItem();
         String icon = iconField.getValue().trim();
 
+        User user = userCombo.getSelectedItem();
+        if (user == null || !userCombo.isSelectionValid()) {
+            errors.add("Debe seleccionar un usuario propietario.");
+        }
         FormValidatorUtils.isRequired(name, "Nombre", errors);
         FormValidatorUtils.isRequired(icon, "Ícono", errors);
 
@@ -89,6 +113,7 @@ public class CategoryFormPanel extends JPanel {
         }
 
         Category category = currentCategory != null ? currentCategory : new Category();
+        category.setUserId(user.getId());
         category.setName(name);
         category.setType(type);
         category.setIcon(icon);
@@ -114,6 +139,13 @@ public class CategoryFormPanel extends JPanel {
 
     public void loadCategory(Category category) {
         this.currentCategory = category;
+        for (int i = 0; i < userCombo.getItemCount(); i++) {
+            User u = userCombo.getItemAt(i);
+            if (u.getId() == category.getUserId()) {
+                userCombo.setSelectedItem(u);
+                break;
+            }
+        }
         nameField.setValue(category.getName());
         iconField.setValue(category.getIcon());
         typeCombo.setSelectedItem(category.getType());
@@ -121,6 +153,7 @@ public class CategoryFormPanel extends JPanel {
 
     public void clearForm() {
         currentCategory = null;
+        userCombo.clearSelection();
         nameField.clear();
         iconField.clear();
         typeCombo.clearSelection();

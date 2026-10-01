@@ -21,9 +21,14 @@ import com.giozar04.shared.components.forms.FormComboBox;
 import com.giozar04.shared.components.forms.FormField;
 import com.giozar04.shared.utils.DialogUtil;
 import com.giozar04.shared.utils.FormValidatorUtils;
+import com.giozar04.users.domain.entities.User;
+import com.giozar04.users.infrastructure.services.UserService;
 
 public class ExternalEntityFormPanel extends JPanel {
 
+    private final UserService userService = UserService.getInstance();
+
+    private final FormComboBox<User> userCombo;
     private final FormField nameField;
     private final FormComboBox<ExternalEntityTypes> typeCombo;
     private final FormField contactField;
@@ -41,6 +46,10 @@ public class ExternalEntityFormPanel extends JPanel {
         formPanel.setLayout(new BoxLayout(formPanel, BoxLayout.Y_AXIS));
         formPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
 
+        userCombo = new FormComboBox<>("Usuario propietario:", 400, 40);
+        userCombo.setPlaceholder("Selecciona un usuario...");
+        loadUsers();
+
         nameField = new FormField("Nombre:", false, 400, 40);
 
         typeCombo = new FormComboBox<>("Tipo:", 400, 40);
@@ -49,6 +58,8 @@ public class ExternalEntityFormPanel extends JPanel {
 
         contactField = new FormField("Contacto (opcional):", false, 400, 40);
 
+        formPanel.add(userCombo);
+        formPanel.add(Box.createRigidArea(new Dimension(0, 10)));
         formPanel.add(nameField);
         formPanel.add(Box.createRigidArea(new Dimension(0, 10)));
         formPanel.add(typeCombo);
@@ -69,6 +80,15 @@ public class ExternalEntityFormPanel extends JPanel {
         add(buttonPanel, BorderLayout.SOUTH);
     }
 
+    private void loadUsers() {
+        try {
+            List<User> users = userService.getAllUsers();
+            userCombo.setItems(users);
+        } catch (ClientOperationException ex) {
+            DialogUtil.showError(this, "Error al cargar los usuarios: " + ex.getMessage());
+        }
+    }
+
     private void handleSave() {
         List<String> errors = new ArrayList<>();
 
@@ -76,6 +96,10 @@ public class ExternalEntityFormPanel extends JPanel {
         ExternalEntityTypes type = typeCombo.getSelectedItem();
         String contact = contactField.getValue().trim();
 
+        User user = userCombo.getSelectedItem();
+        if (user == null || !userCombo.isSelectionValid()) {
+            errors.add("Debe seleccionar un usuario propietario.");
+        }
         FormValidatorUtils.isRequired(name, "Nombre", errors);
 
         if (!typeCombo.isSelectionValid()) {
@@ -88,6 +112,7 @@ public class ExternalEntityFormPanel extends JPanel {
         }
 
         ExternalEntity entity = currentEntity != null ? currentEntity : new ExternalEntity();
+        entity.setUserId(user.getId());
         entity.setName(name);
         entity.setType(type);
         entity.setContact(contact.isEmpty() ? null : contact);
@@ -113,6 +138,13 @@ public class ExternalEntityFormPanel extends JPanel {
 
     public void loadExternalEntity(ExternalEntity entity) {
         this.currentEntity = entity;
+        for (int i = 0; i < userCombo.getItemCount(); i++) {
+            User u = userCombo.getItemAt(i);
+            if (u.getId() == entity.getUserId()) {
+                userCombo.setSelectedItem(u);
+                break;
+            }
+        }
         nameField.setValue(entity.getName());
         contactField.setValue(entity.getContact() != null ? entity.getContact() : "");
         typeCombo.setSelectedItem(entity.getType());
@@ -120,6 +152,7 @@ public class ExternalEntityFormPanel extends JPanel {
 
     public void clearForm() {
         currentEntity = null;
+        userCombo.clearSelection();
         nameField.clear();
         contactField.clear();
         typeCombo.clearSelection();

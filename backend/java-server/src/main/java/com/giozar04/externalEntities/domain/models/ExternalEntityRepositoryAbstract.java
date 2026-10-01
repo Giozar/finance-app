@@ -35,6 +35,10 @@ public abstract class ExternalEntityRepositoryAbstract implements ExternalEntity
             throw new IllegalArgumentException("Tipo de entidad externa no válido: " + entity.getType());
         }
 
+        if (entity.getUserId() <= 0) {
+            throw new IllegalArgumentException("ID de usuario inválido para la entidad externa");
+        }
+
         if (entity.getContact() != null && entity.getContact().length() > 200) {
             throw new IllegalArgumentException("El campo de contacto no debe superar los 200 caracteres");
         }
