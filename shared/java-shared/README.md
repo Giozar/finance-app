@@ -99,10 +99,10 @@ Compila los proyectos en el siguiente orden:
 ```bash
 cd shared/java-shared
 mvn clean install
-
+cd ../../
 cd backend/java-server
 mvn clean install
-
+cd ../../
 cd client/java-client
 mvn clean install
 ```
