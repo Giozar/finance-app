@@ -155,6 +155,9 @@ src/main/java/com/giozar04/walletCardLinks/application/ports/input/WalletCardLin
 src/main/java/com/giozar04/walletCardLinks/application/ports/output/WalletCardLinkGateway.java
 src/main/java/com/giozar04/walletCardLinks/application/usecases/WalletCardLinkUseCase.java
 src/main/java/com/giozar04/walletCardLinks/infrastructure/transport/socket/WalletCardLinkService.java
-src/main/java/com/giozar04/walletTransactionDetails/infrastructure/services/WalletTransactionDetailService.java
+src/main/java/com/giozar04/walletTransactionDetails/application/ports/input/WalletTransactionDetailOperations.java
+src/main/java/com/giozar04/walletTransactionDetails/application/ports/output/WalletTransactionDetailGateway.java
+src/main/java/com/giozar04/walletTransactionDetails/application/usecases/WalletTransactionDetailUseCase.java
+src/main/java/com/giozar04/walletTransactionDetails/infrastructure/transport/socket/WalletTransactionDetailService.java
 src/test/java/TestTable.java
 ```

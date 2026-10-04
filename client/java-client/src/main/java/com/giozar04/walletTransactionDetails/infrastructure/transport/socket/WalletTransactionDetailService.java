@@ -1,9 +1,10 @@
-package com.giozar04.walletTransactionDetails.infrastructure.services;
+package com.giozar04.walletTransactionDetails.infrastructure.transport.socket;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.giozar04.walletTransactionDetails.application.ports.output.WalletTransactionDetailGateway;
 import com.giozar04.logging.infrastructure.ConsoleLogger;
 import com.giozar04.messages.infrastructure.transport.Message;
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
@@ -12,7 +13,7 @@ import com.giozar04.serverConnection.application.validators.ServerResponseValida
 import com.giozar04.walletTransactionDetails.infrastructure.serialization.WalletTransactionDetailMapper;
 import com.giozar04.walletTransactionDetails.domain.entities.WalletTransactionDetail;
 
-public class WalletTransactionDetailService {
+public class WalletTransactionDetailService implements WalletTransactionDetailGateway {
 
     private final ServerConnectionService serverConnectionService;
     private static final ConsoleLogger logger = ConsoleLogger.getInstance();

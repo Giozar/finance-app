@@ -41,7 +41,9 @@ import com.giozar04.walletCardLinks.application.ports.input.WalletCardLinkOperat
 import com.giozar04.accountCashbackSettings.infrastructure.transport.socket.AccountCashbackSettingService;
 import com.giozar04.accountCashbackSettings.application.usecases.AccountCashbackSettingUseCase;
 import com.giozar04.accountCashbackSettings.application.ports.input.AccountCashbackSettingOperations;
-import com.giozar04.walletTransactionDetails.infrastructure.services.WalletTransactionDetailService;
+import com.giozar04.walletTransactionDetails.infrastructure.transport.socket.WalletTransactionDetailService;
+import com.giozar04.walletTransactionDetails.application.usecases.WalletTransactionDetailUseCase;
+import com.giozar04.walletTransactionDetails.application.ports.input.WalletTransactionDetailOperations;
 
 public class ApplicationInitializer {
 
@@ -124,6 +126,7 @@ public class ApplicationInitializer {
             System.out.println("✅ Servicio de configuración de cashback conectado correctamente.");
 
             WalletTransactionDetailService.connectService(connectionService);
+            ClientUseCases.register(WalletTransactionDetailOperations.class, new WalletTransactionDetailUseCase(WalletTransactionDetailService.getInstance()));
             System.out.println("✅ Servicio de detalles de transacciones con wallet conectado correctamente.");
 
             AccountReconciliationService.connectService(connectionService);
