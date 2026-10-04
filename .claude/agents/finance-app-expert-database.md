@@ -32,7 +32,7 @@ otros módulos: coordínalo con sus especialistas o indica exactamente qué debe
 ## Datos clave del script
 - Se ejecuta completo: `mysql -u root -p < database/schemas.sql`. **Hace `DROP DATABASE IF EXISTS finanzas`**, por lo que borra todos los datos.
 - Activa `SET GLOBAL log_bin_trust_function_creators = 1` para poder crear triggers y procedimientos.
-- Requiere MySQL 8.0.16+ (CHECK aplicados) y usa `FOLLOWS` en triggers (5.7.2+). Las migraciones que hacen `DROP CHECK` requieren 8.0.19+.
+- Requiere MySQL 8.0.19 o superior (versión mínima del proyecto, documentada en el README): aplica los `CHECK` (8.0.16+), usa `FOLLOWS` en triggers (5.7.2+) y las migraciones con `DROP CHECK` necesitan 8.0.19+.
 - `schemas.sql` es la **fuente de verdad**. Los `sql/<feature>.sql` del backend son documentación por feature.
 - **`database/migrations/`**: scripts incrementales (`AAAA-MM-DD_<nombre>.sql`) para BDs con datos existentes; no borran la BD. Cada cambio en `schemas.sql` que deba aplicarse sobre datos reales lleva su migración aquí. Existentes (en orden de aplicación):
   1. `2026-10-03_reallocation.sql`: `operation_type` a VARCHAR(20), normaliza a mayúsculas, TRANSFER → REALLOCATION / WIRE_TRANSFER, añade `chk_tx_operation_type` y `chk_tx_payment_method`, y recrea los triggers 2, 3, 4 y 8 (elimina el nombre viejo `tr_before_transaction_transfer_check`).
@@ -238,7 +238,7 @@ Todos en MAYÚSCULAS.
 
 # Transactions
 
-Modelo actual (rediseño del 2026-10-05). Ya no hay restricción de "en rediseño": se modifica con las mismas reglas que el resto del esquema, pero cualquier cambio en reglas de saldos obliga a revisar `v_account_reconciliation` y `sp_reconcile_account`.
+Modelo actual (rediseño del 2026-10-05). Se modifica con las mismas reglas que el resto del esquema, pero cualquier cambio en reglas de saldos obliga a revisar `v_account_reconciliation` y `sp_reconcile_account`.
 
 **Agregado**: `transactions` (raíz) + `card_transaction_details` (si CARD) + `wallet_transaction_details` (si WALLET) + `transaction_tags`. Los hijos se borran en CASCADE con la transacción. Orden de escritura en el backend (misma transacción SQL): primero INSERT en `transactions` (con `source_account_id` ya fijado), luego los detalles y los tags; las validaciones de detalles (triggers 5.3/5.4 y 10/10.1) leen el padre ya insertado.
 
