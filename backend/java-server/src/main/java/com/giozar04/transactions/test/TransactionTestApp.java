@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-import com.giozar04.accounts.infrastructure.repositories.AccountRepositoryMySQL;
+import com.giozar04.accounts.infrastructure.persistence.mysql.AccountRepositoryMySQL;
 import com.giozar04.cardTransactionDetails.domain.entities.CardTransactionDetail;
 import com.giozar04.cardTransactionDetails.infrastructure.repositories.CardTransactionDetailRepositoryMySQL;
 import com.giozar04.cards.infrastructure.repositories.CardRepositoryMySQL;

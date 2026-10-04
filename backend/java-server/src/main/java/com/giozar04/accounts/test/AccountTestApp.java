@@ -3,10 +3,10 @@ package com.giozar04.accounts.test;
 import java.time.ZonedDateTime;
 import java.util.Scanner;
 
-import com.giozar04.accounts.application.services.AccountService;
+import com.giozar04.accounts.application.usecases.AccountUseCase;
 import com.giozar04.accounts.domain.entities.Account;
 import com.giozar04.accounts.domain.enums.AccountTypes;
-import com.giozar04.accounts.infrastructure.repositories.AccountRepositoryMySQL;
+import com.giozar04.accounts.infrastructure.persistence.mysql.AccountRepositoryMySQL;
 import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
 import com.giozar04.databases.infrastructure.repositories.DatabaseConnectionMySQL;
 
@@ -28,7 +28,7 @@ public class AccountTestApp {
             dbConnection.connect();
 
             AccountRepositoryMySQL repository = new AccountRepositoryMySQL(dbConnection);
-            AccountService service = new AccountService(repository);
+            AccountUseCase service = new AccountUseCase(repository);
 
             Scanner scanner = new Scanner(System.in);
             boolean exit = false;
@@ -66,7 +66,7 @@ public class AccountTestApp {
         }
     }
 
-    private static void createAccount(AccountService service, Scanner scanner) {
+    private static void createAccount(AccountUseCase service, Scanner scanner) {
         Account account = new Account();
 
         System.out.print("¿Desea ligar la cuenta a un cliente de banco? (s/n): ");
@@ -132,7 +132,7 @@ public class AccountTestApp {
         System.out.println("Cuenta creada con ID: " + created.getId());
     }
 
-    private static void updateAccount(AccountService service, Scanner scanner) {
+    private static void updateAccount(AccountUseCase service, Scanner scanner) {
         System.out.print("ID de cuenta a actualizar (long): ");
         long id = scanner.nextLong();
         scanner.nextLine();
@@ -185,7 +185,7 @@ public class AccountTestApp {
         System.out.println("Cuenta actualizada.");
     }
 
-    private static void deleteAccount(AccountService service, Scanner scanner) {
+    private static void deleteAccount(AccountUseCase service, Scanner scanner) {
         System.out.print("ID de cuenta a eliminar (long): ");
         long id = scanner.nextLong();
         scanner.nextLine();
@@ -194,7 +194,7 @@ public class AccountTestApp {
         System.out.println("Cuenta eliminada.");
     }
 
-    private static void getAllAccounts(AccountService service) {
+    private static void getAllAccounts(AccountUseCase service) {
         var accounts = service.getAllAccounts();
         if (accounts.isEmpty()) {
             System.out.println("No hay cuentas registradas.");
@@ -203,7 +203,7 @@ public class AccountTestApp {
         accounts.forEach(AccountTestApp::printAccountDetails);
     }
 
-    private static void getAccountById(AccountService service, Scanner scanner) {
+    private static void getAccountById(AccountUseCase service, Scanner scanner) {
         System.out.print("ID de cuenta (long): ");
         long id = scanner.nextLong();
         scanner.nextLine();

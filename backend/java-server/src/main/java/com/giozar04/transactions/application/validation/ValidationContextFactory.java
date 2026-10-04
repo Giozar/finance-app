@@ -2,7 +2,7 @@ package com.giozar04.transactions.application.validation;
 
 import java.util.Objects;
 
-import com.giozar04.accounts.domain.interfaces.AccountRepositoryInterface;
+import com.giozar04.accounts.application.ports.output.AccountRepository;
 import com.giozar04.cards.domain.interfaces.CardRepositoryInterface;
 import com.giozar04.categories.application.ports.output.CategoryRepository;
 import com.giozar04.externalEntities.application.ports.output.ExternalEntityRepository;
@@ -14,14 +14,14 @@ import com.giozar04.walletCardLinks.domain.interfaces.WalletCardLinkRepositoryIn
  */
 public class ValidationContextFactory {
 
-    private final AccountRepositoryInterface accountRepository;
+    private final AccountRepository accountRepository;
     private final CardRepositoryInterface cardRepository;
     private final WalletCardLinkRepositoryInterface walletCardLinkRepository;
     private final CategoryRepository categoryRepository;
     private final ExternalEntityRepository externalEntityRepository;
     private final TagRepository tagRepository;
 
-    public ValidationContextFactory(AccountRepositoryInterface accountRepository,
+    public ValidationContextFactory(AccountRepository accountRepository,
                                     CardRepositoryInterface cardRepository,
                                     WalletCardLinkRepositoryInterface walletCardLinkRepository,
                                     CategoryRepository categoryRepository,

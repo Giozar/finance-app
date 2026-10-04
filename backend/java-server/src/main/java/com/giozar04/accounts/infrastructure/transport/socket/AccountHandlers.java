@@ -1,15 +1,15 @@
-package com.giozar04.accounts.infrastructure.handlers;
+package com.giozar04.accounts.infrastructure.transport.socket;
 
-import com.giozar04.accounts.application.services.AccountService;
-import com.giozar04.accounts.infrastructure.controllers.AccountControllers;
+import com.giozar04.accounts.application.ports.input.AccountOperations;
+import com.giozar04.accounts.infrastructure.transport.socket.AccountControllers;
 import com.giozar04.servers.application.services.ServerService;
 import com.giozar04.servers.domain.interfaces.ServerRegisterHandlers;
 
 public class AccountHandlers implements ServerRegisterHandlers {
 
-    private final AccountService accountService;
+    private final AccountOperations accountService;
 
-    public AccountHandlers(AccountService accountService) {
+    public AccountHandlers(AccountOperations accountService) {
         this.accountService = accountService;
     }
 

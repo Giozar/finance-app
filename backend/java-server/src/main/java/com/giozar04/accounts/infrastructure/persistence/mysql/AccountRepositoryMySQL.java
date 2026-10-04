@@ -1,4 +1,4 @@
-package com.giozar04.accounts.infrastructure.repositories;
+package com.giozar04.accounts.infrastructure.persistence.mysql;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -18,10 +18,10 @@ import com.giozar04.accounts.application.exceptions.AccountDeletionException;
 import com.giozar04.accounts.application.exceptions.AccountNotFoundException;
 import com.giozar04.accounts.application.exceptions.AccountRetrievalException;
 import com.giozar04.accounts.application.exceptions.AccountUpdateException;
-import com.giozar04.accounts.domain.models.AccountRepositoryAbstract;
+import com.giozar04.accounts.infrastructure.persistence.mysql.AbstractAccountJdbcRepository;
 import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
 
-public class AccountRepositoryMySQL extends AccountRepositoryAbstract {
+public class AccountRepositoryMySQL extends AbstractAccountJdbcRepository {
 
     private static final String SQL_INSERT_ACCOUNT = """
         INSERT INTO accounts (user_id, name, type, current_balance, created_at, updated_at)
@@ -142,7 +142,7 @@ public class AccountRepositoryMySQL extends AccountRepositoryAbstract {
         Timestamp updatedTs = Timestamp.valueOf(account.getUpdatedAt().toLocalDateTime());
 
         try (Connection conn = databaseConnection.getConnection()) {
-            
+
             // 1. Insert Base Account
             try (PreparedStatement stmt = conn.prepareStatement(SQL_INSERT_ACCOUNT, Statement.RETURN_GENERATED_KEYS)) {
                 stmt.setLong(1, account.getUserId());
@@ -207,10 +207,10 @@ public class AccountRepositoryMySQL extends AccountRepositoryAbstract {
                     stmt.setLong(1, account.getId());
                     stmt.setDouble(2, account.getAnnualYield());
                     if (account.getYieldCapAmount() != null) stmt.setDouble(3, account.getYieldCapAmount()); else stmt.setNull(3, Types.DECIMAL);
-                    
+
                     String lyc = account.getLastYieldCalculation();
                     if (lyc != null && !lyc.trim().isEmpty()) stmt.setDate(4, java.sql.Date.valueOf(lyc.trim())); else stmt.setNull(4, Types.DATE);
-                    
+
                     stmt.setTimestamp(5, createdTs);
                     stmt.setTimestamp(6, updatedTs);
                     stmt.executeUpdate();
@@ -226,13 +226,13 @@ public class AccountRepositoryMySQL extends AccountRepositoryAbstract {
                     stmt.setDouble(4, account.getPrincipalAmount());
                     stmt.setDouble(5, account.getInvestmentAnnualYield());
                     stmt.setInt(6, account.getDayCountBasis() != null ? account.getDayCountBasis() : 360);
-                    
+
                     String sd = account.getStartDate();
                     if (sd != null && !sd.trim().isEmpty()) stmt.setDate(7, java.sql.Date.valueOf(sd.trim())); else stmt.setNull(7, Types.DATE);
-                    
+
                     String md = account.getMaturityDate();
                     if (md != null && !md.trim().isEmpty()) stmt.setDate(8, java.sql.Date.valueOf(md.trim())); else stmt.setNull(8, Types.DATE);
-                    
+
                     stmt.setString(9, account.getInvestmentStatus() != null ? account.getInvestmentStatus() : "ACTIVE");
                     stmt.setBoolean(10, account.getAutoReinvest() != null ? account.getAutoReinvest() : false);
                     if (account.getReinvestTermDays() != null) stmt.setInt(11, account.getReinvestTermDays()); else stmt.setNull(11, Types.INTEGER);
@@ -284,7 +284,7 @@ public class AccountRepositoryMySQL extends AccountRepositoryAbstract {
         validateId(id);
         validateAccount(account);
         account.setUpdatedAt(ZonedDateTime.now());
-        
+
         Timestamp createdTs = Timestamp.valueOf(account.getCreatedAt() != null ? account.getCreatedAt().toLocalDateTime() : ZonedDateTime.now().toLocalDateTime());
         Timestamp updatedTs = Timestamp.valueOf(account.getUpdatedAt().toLocalDateTime());
 
@@ -361,10 +361,10 @@ public class AccountRepositoryMySQL extends AccountRepositoryAbstract {
                     stmt.setLong(1, id);
                     stmt.setDouble(2, account.getAnnualYield());
                     if (account.getYieldCapAmount() != null) stmt.setDouble(3, account.getYieldCapAmount()); else stmt.setNull(3, Types.DECIMAL);
-                    
+
                     String lyc = account.getLastYieldCalculation();
                     if (lyc != null && !lyc.trim().isEmpty()) stmt.setDate(4, java.sql.Date.valueOf(lyc.trim())); else stmt.setNull(4, Types.DATE);
-                    
+
                     stmt.setTimestamp(5, createdTs);
                     stmt.setTimestamp(6, updatedTs);
                     stmt.executeUpdate();

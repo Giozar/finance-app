@@ -3,10 +3,11 @@ package com.giozar04.bootstrap;
 import java.io.IOException;
 import java.util.List;
 
-import com.giozar04.accounts.application.services.AccountService;
-import com.giozar04.accounts.domain.interfaces.AccountRepositoryInterface;
-import com.giozar04.accounts.infrastructure.handlers.AccountHandlers;
-import com.giozar04.accounts.infrastructure.repositories.AccountRepositoryMySQL;
+import com.giozar04.accounts.application.usecases.AccountUseCase;
+import com.giozar04.accounts.application.ports.input.AccountOperations;
+import com.giozar04.accounts.application.ports.output.AccountRepository;
+import com.giozar04.accounts.infrastructure.transport.socket.AccountHandlers;
+import com.giozar04.accounts.infrastructure.persistence.mysql.AccountRepositoryMySQL;
 import com.giozar04.bankClients.application.usecases.BankClientUseCase;
 import com.giozar04.bankClients.application.ports.input.BankClientOperations;
 import com.giozar04.bankClients.application.ports.output.BankClientRepository;
@@ -96,9 +97,9 @@ public class ApplicationInitializer {
         BankClientOperations bankClientService = new BankClientUseCase(bankClientRepository);
 
         // Inicializar repositorios y servicios de cuentas
-        AccountRepositoryInterface accountRepository =
+        AccountRepository accountRepository =
                 new AccountRepositoryMySQL(dbConnection);
-        AccountService accountService = new AccountService(accountRepository);
+        AccountOperations accountService = new AccountUseCase(accountRepository);
 
         // Inicializar repositorios y servicios de tarjetas
         CardRepositoryInterface cardRepository =

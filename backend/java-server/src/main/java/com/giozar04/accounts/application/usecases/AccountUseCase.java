@@ -1,15 +1,16 @@
-package com.giozar04.accounts.application.services;
+package com.giozar04.accounts.application.usecases;
 
 import java.util.List;
 
 import com.giozar04.accounts.domain.entities.Account;
-import com.giozar04.accounts.domain.interfaces.AccountRepositoryInterface;
+import com.giozar04.accounts.application.ports.output.AccountRepository;
+import com.giozar04.accounts.application.ports.input.AccountOperations;
 
-public class AccountService implements AccountRepositoryInterface {
+public class AccountUseCase implements AccountOperations {
 
-    private final AccountRepositoryInterface accountRepository;
+    private final AccountRepository accountRepository;
 
-    public AccountService(AccountRepositoryInterface accountRepository) {
+    public AccountUseCase(AccountRepository accountRepository) {
         this.accountRepository = accountRepository;
     }
 

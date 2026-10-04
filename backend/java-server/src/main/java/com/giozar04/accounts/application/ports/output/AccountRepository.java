@@ -1,10 +1,10 @@
-package com.giozar04.accounts.domain.interfaces;
+package com.giozar04.accounts.application.ports.output;
 
 import java.util.List;
 
 import com.giozar04.accounts.domain.entities.Account;
 
-public interface AccountRepositoryInterface {
+public interface AccountRepository {
     Account createAccount(Account account);
     Account getAccountById(long id);
     Account updateAccountById(long id, Account account);

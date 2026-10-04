@@ -1,26 +1,14 @@
-package com.giozar04.accounts.domain.models;
+package com.giozar04.accounts.domain.policies;
 
 import java.util.List;
 import java.util.Objects;
-
 import com.giozar04.accounts.domain.entities.Account;
 import com.giozar04.accounts.domain.enums.AccountTypes;
-import com.giozar04.accounts.domain.interfaces.AccountRepositoryInterface;
-import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
-import com.giozar04.logging.infrastructure.ConsoleLogger;
 
+public final class AccountPolicy {
+    private AccountPolicy() {}
 
-public abstract class AccountRepositoryAbstract implements AccountRepositoryInterface {
-
-    protected final DatabaseConnectionInterface databaseConnection;
-    protected final ConsoleLogger logger = ConsoleLogger.getInstance();
-
-    protected AccountRepositoryAbstract(DatabaseConnectionInterface databaseConnection) {
-        this.databaseConnection = Objects.requireNonNull(databaseConnection, 
-            "La conexión a la base de datos no puede ser nula");
-    }
-
-    protected void validateAccount(Account account) {
+    public static void validateAccount(Account account) {
         Objects.requireNonNull(account, "La cuenta no puede ser nula");
 
         if(account.getUserId() <= 0){
@@ -75,12 +63,7 @@ public abstract class AccountRepositoryAbstract implements AccountRepositoryInte
         }
     }
 
-    /**
-     * Solo al crear: la deuda inicial de un crédito (credit_used) debe estar entre 0 y el límite.
-     * Igual que los CHECK chk_credit_used y chk_credit_used_limit. Al editar no aplica:
-     * credit_used lo mueven los triggers de transacciones.
-     */
-    protected void validateInitialCreditUsed(Account account) {
+    public static void validateInitialCreditUsed(Account account) {
         if (account.getType() != AccountTypes.CREDIT || account.getCreditUsed() == null) {
             return;
         }
@@ -94,27 +77,9 @@ public abstract class AccountRepositoryAbstract implements AccountRepositoryInte
         }
     }
 
-    protected void validateId(long id) {
+    public static void validateId(long id) {
         if (id <= 0) {
             throw new IllegalArgumentException("El ID debe ser mayor que cero");
         }
     }
-
-    @Override
-    public abstract Account createAccount(Account account);
-
-    @Override
-    public abstract Account getAccountById(long id);
-
-    @Override
-    public abstract Account updateAccountById(long id, Account account);
-
-    @Override
-    public abstract void deleteAccountById(long id);
-
-    @Override
-    public abstract List<Account> getAllAccounts();
-
-    @Override
-    public abstract List<Account> getAccountsByUserId(long userId);
 }

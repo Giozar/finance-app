@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 import com.giozar04.accounts.domain.entities.Account;
 import com.giozar04.accounts.application.exceptions.AccountNotFoundException;
-import com.giozar04.accounts.domain.interfaces.AccountRepositoryInterface;
+import com.giozar04.accounts.application.ports.output.AccountRepository;
 import com.giozar04.card.domain.entities.Card;
 import com.giozar04.card.application.exceptions.CardNotFoundException;
 import com.giozar04.cards.domain.interfaces.CardRepositoryInterface;
@@ -35,7 +35,7 @@ import com.giozar04.walletCardLinks.domain.interfaces.WalletCardLinkRepositoryIn
  */
 public class ValidationContext {
 
-    private final AccountRepositoryInterface accountRepository;
+    private final AccountRepository accountRepository;
     private final CardRepositoryInterface cardRepository;
     private final WalletCardLinkRepositoryInterface walletCardLinkRepository;
     private final CategoryRepository categoryRepository;
@@ -49,7 +49,7 @@ public class ValidationContext {
     private final Map<Long, Optional<ExternalEntity>> externalEntities = new HashMap<>();
     private final Map<Long, Optional<Tag>> tags = new HashMap<>();
 
-    public ValidationContext(AccountRepositoryInterface accountRepository,
+    public ValidationContext(AccountRepository accountRepository,
                              CardRepositoryInterface cardRepository,
                              WalletCardLinkRepositoryInterface walletCardLinkRepository,
                              CategoryRepository categoryRepository,

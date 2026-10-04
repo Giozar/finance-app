@@ -1,10 +1,10 @@
-package com.giozar04.accounts.infrastructure.controllers;
+package com.giozar04.accounts.infrastructure.transport.socket;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import com.giozar04.accounts.application.services.AccountService;
+import com.giozar04.accounts.application.ports.input.AccountOperations;
 import com.giozar04.accounts.infrastructure.serialization.AccountMapper;
 import com.giozar04.accounts.domain.entities.Account;
 import com.giozar04.logging.infrastructure.ConsoleLogger;
@@ -26,7 +26,7 @@ public class AccountControllers {
     }
 
     @SuppressWarnings("unchecked")
-    public static MessageHandler createAccountController(AccountService accountService) {
+    public static MessageHandler createAccountController(AccountOperations accountService) {
         return (ClientConnection clientConnection, Message message) -> {
             LOGGER.info("Procesando solicitud de creación de cuenta");
 
@@ -46,7 +46,7 @@ public class AccountControllers {
         };
     }
 
-    public static MessageHandler getAccountController(AccountService accountService) {
+    public static MessageHandler getAccountController(AccountOperations accountService) {
         return (ClientConnection clientConnection, Message message) -> {
             LOGGER.info("Procesando solicitud de obtención de cuenta");
 
@@ -64,7 +64,7 @@ public class AccountControllers {
         };
     }
 
-    public static MessageHandler updateAccountController(AccountService accountService) {
+    public static MessageHandler updateAccountController(AccountOperations accountService) {
         return (ClientConnection clientConnection, Message message) -> {
             LOGGER.info("Procesando solicitud de actualización de cuenta");
 
@@ -91,7 +91,7 @@ public class AccountControllers {
         };
     }
 
-    public static MessageHandler deleteAccountController(AccountService accountService) {
+    public static MessageHandler deleteAccountController(AccountOperations accountService) {
         return (ClientConnection clientConnection, Message message) -> {
             LOGGER.info("Procesando solicitud de eliminación de cuenta");
 
@@ -108,7 +108,7 @@ public class AccountControllers {
         };
     }
 
-    public static MessageHandler getAllAccountsController(AccountService accountService) {
+    public static MessageHandler getAllAccountsController(AccountOperations accountService) {
         return (ClientConnection clientConnection, Message message) -> {
             LOGGER.info("Procesando solicitud de obtención de todas las cuentas");
 
@@ -128,7 +128,7 @@ public class AccountControllers {
         };
     }
 
-    public static MessageHandler getAccountsByUserController(AccountService accountService) {
+    public static MessageHandler getAccountsByUserController(AccountOperations accountService) {
         return (ClientConnection clientConnection, Message message) -> {
             LOGGER.info("Procesando solicitud de obtención de cuentas por usuario");
 
