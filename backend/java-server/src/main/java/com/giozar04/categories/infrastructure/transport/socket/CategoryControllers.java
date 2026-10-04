@@ -1,10 +1,10 @@
-package com.giozar04.categories.infrastructure.controllers;
+package com.giozar04.categories.infrastructure.transport.socket;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import com.giozar04.categories.application.services.CategoryService;
+import com.giozar04.categories.application.ports.input.CategoryOperations;
 import com.giozar04.categories.infrastructure.serialization.CategoryMapper;
 import com.giozar04.categories.domain.entities.Category;
 import com.giozar04.logging.infrastructure.ConsoleLogger;
@@ -26,7 +26,7 @@ public class CategoryControllers {
     }
 
     @SuppressWarnings("unchecked")
-    public static MessageHandler createCategoryController(CategoryService categoryService) {
+    public static MessageHandler createCategoryController(CategoryOperations categoryService) {
         return (ClientConnection client, Message message) -> {
             LOGGER.info("Procesando creación de categoría");
 
@@ -44,7 +44,7 @@ public class CategoryControllers {
         };
     }
 
-    public static MessageHandler getCategoryController(CategoryService categoryService) {
+    public static MessageHandler getCategoryController(CategoryOperations categoryService) {
         return (ClientConnection client, Message message) -> {
             LOGGER.info("Procesando obtención de categoría");
 
@@ -61,7 +61,7 @@ public class CategoryControllers {
     }
 
     @SuppressWarnings("unchecked")
-    public static MessageHandler updateCategoryController(CategoryService categoryService) {
+    public static MessageHandler updateCategoryController(CategoryOperations categoryService) {
         return (ClientConnection client, Message message) -> {
             LOGGER.info("Procesando actualización de categoría");
 
@@ -83,7 +83,7 @@ public class CategoryControllers {
         };
     }
 
-    public static MessageHandler deleteCategoryController(CategoryService categoryService) {
+    public static MessageHandler deleteCategoryController(CategoryOperations categoryService) {
         return (ClientConnection client, Message message) -> {
             LOGGER.info("Procesando eliminación de categoría");
 
@@ -97,7 +97,7 @@ public class CategoryControllers {
         };
     }
 
-    public static MessageHandler getAllCategoriesController(CategoryService categoryService) {
+    public static MessageHandler getAllCategoriesController(CategoryOperations categoryService) {
         return (ClientConnection client, Message message) -> {
             LOGGER.info("Procesando obtención de todas las categorías");
 
@@ -116,7 +116,7 @@ public class CategoryControllers {
         };
     }
 
-    public static MessageHandler getCategoriesByUserController(CategoryService categoryService) {
+    public static MessageHandler getCategoriesByUserController(CategoryOperations categoryService) {
         return (ClientConnection client, Message message) -> {
             LOGGER.info("Procesando obtención de categorías por usuario");
 

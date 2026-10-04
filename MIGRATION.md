@@ -31,7 +31,7 @@ comparados y compilación independiente de shared, backend y client.
 | --- | --- |
 | tags | Migrada; puertos, caso de uso, política y adaptadores verificados |
 | users | Migrada; puertos, política y adaptadores verificados |
-| categories | Pendiente |
+| categories | Migrada; puertos, política y adaptadores verificados |
 | externalEntities | Pendiente |
 | bankClients | Pendiente |
 | accounts | Pendiente |

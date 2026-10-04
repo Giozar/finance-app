@@ -1,4 +1,4 @@
-package com.giozar04.categories.infrastructure.repositories;
+package com.giozar04.categories.infrastructure.persistence.mysql;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -18,10 +18,10 @@ import com.giozar04.categories.application.exceptions.CategoryDeletionException;
 import com.giozar04.categories.application.exceptions.CategoryNotFoundException;
 import com.giozar04.categories.application.exceptions.CategoryRetrievalException;
 import com.giozar04.categories.application.exceptions.CategoryUpdateException;
-import com.giozar04.categories.domain.models.CategoryRepositoryAbstract;
+import com.giozar04.categories.infrastructure.persistence.mysql.AbstractCategoryJdbcRepository;
 import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
 
-public class CategoryRepositoryMySQL extends CategoryRepositoryAbstract {
+public class CategoryRepositoryMySQL extends AbstractCategoryJdbcRepository {
 
     private static final String SQL_INSERT = """
         INSERT INTO categories (user_id, name, type, icon, created_at, updated_at)

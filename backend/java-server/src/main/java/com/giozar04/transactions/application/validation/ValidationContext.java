@@ -17,7 +17,7 @@ import com.giozar04.card.application.exceptions.CardNotFoundException;
 import com.giozar04.cards.domain.interfaces.CardRepositoryInterface;
 import com.giozar04.categories.domain.entities.Category;
 import com.giozar04.categories.application.exceptions.CategoryNotFoundException;
-import com.giozar04.categories.domain.interfaces.CategoryRepositoryInterface;
+import com.giozar04.categories.application.ports.output.CategoryRepository;
 import com.giozar04.externalEntities.domain.entities.ExternalEntity;
 import com.giozar04.externalEntities.application.exceptions.ExternalEntityNotFoundException;
 import com.giozar04.externalEntities.domain.interfaces.ExternalEntityRepositoryInterface;
@@ -38,7 +38,7 @@ public class ValidationContext {
     private final AccountRepositoryInterface accountRepository;
     private final CardRepositoryInterface cardRepository;
     private final WalletCardLinkRepositoryInterface walletCardLinkRepository;
-    private final CategoryRepositoryInterface categoryRepository;
+    private final CategoryRepository categoryRepository;
     private final ExternalEntityRepositoryInterface externalEntityRepository;
     private final TagRepository tagRepository;
 
@@ -52,7 +52,7 @@ public class ValidationContext {
     public ValidationContext(AccountRepositoryInterface accountRepository,
                              CardRepositoryInterface cardRepository,
                              WalletCardLinkRepositoryInterface walletCardLinkRepository,
-                             CategoryRepositoryInterface categoryRepository,
+                             CategoryRepository categoryRepository,
                              ExternalEntityRepositoryInterface externalEntityRepository,
                              TagRepository tagRepository) {
         this.accountRepository = Objects.requireNonNull(accountRepository, "El repositorio de cuentas no puede ser nulo");

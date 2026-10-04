@@ -1,15 +1,15 @@
-package com.giozar04.categories.infrastructure.handlers;
+package com.giozar04.categories.infrastructure.transport.socket;
 
-import com.giozar04.categories.application.services.CategoryService;
-import com.giozar04.categories.infrastructure.controllers.CategoryControllers;
+import com.giozar04.categories.application.ports.input.CategoryOperations;
+import com.giozar04.categories.infrastructure.transport.socket.CategoryControllers;
 import com.giozar04.servers.application.services.ServerService;
 import com.giozar04.servers.domain.interfaces.ServerRegisterHandlers;
 
 public class CategoryHandlers implements ServerRegisterHandlers {
 
-    private final CategoryService categoryService;
+    private final CategoryOperations categoryService;
 
-    public CategoryHandlers(CategoryService categoryService) {
+    public CategoryHandlers(CategoryOperations categoryService) {
         this.categoryService = categoryService;
     }
 

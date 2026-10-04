@@ -18,10 +18,11 @@ import com.giozar04.cards.application.services.CardService;
 import com.giozar04.cards.domain.interfaces.CardRepositoryInterface;
 import com.giozar04.cards.infrastructure.handlers.CardHandlers;
 import com.giozar04.cards.infrastructure.repositories.CardRepositoryMySQL;
-import com.giozar04.categories.application.services.CategoryService;
-import com.giozar04.categories.domain.interfaces.CategoryRepositoryInterface;
-import com.giozar04.categories.infrastructure.handlers.CategoryHandlers;
-import com.giozar04.categories.infrastructure.repositories.CategoryRepositoryMySQL;
+import com.giozar04.categories.application.usecases.CategoryUseCase;
+import com.giozar04.categories.application.ports.input.CategoryOperations;
+import com.giozar04.categories.application.ports.output.CategoryRepository;
+import com.giozar04.categories.infrastructure.transport.socket.CategoryHandlers;
+import com.giozar04.categories.infrastructure.persistence.mysql.CategoryRepositoryMySQL;
 import com.giozar04.configs.DatabaseConfig;
 import com.giozar04.configs.ServerConfig;
 import com.giozar04.databases.application.services.TransactionalExecutor;
@@ -103,9 +104,9 @@ public class ApplicationInitializer {
         CardService cardService = new CardService(cardRepository);
 
         // Inicializar repositorios y servicios de categorías
-        CategoryRepositoryInterface categoryRepository =
+        CategoryRepository categoryRepository =
                 new CategoryRepositoryMySQL(dbConnection);
-        CategoryService categoryService = new CategoryService(categoryRepository);
+        CategoryOperations categoryService = new CategoryUseCase(categoryRepository);
 
         // Inicializar repositorios y servicios de etiquetas
         TagRepository tagRepository =

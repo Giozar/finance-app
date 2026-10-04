@@ -3,10 +3,10 @@ package com.giozar04.categories.test;
 import java.time.ZonedDateTime;
 import java.util.Scanner;
 
-import com.giozar04.categories.application.services.CategoryService;
+import com.giozar04.categories.application.usecases.CategoryUseCase;
 import com.giozar04.categories.domain.entities.Category;
 import com.giozar04.categories.domain.enums.CategoryTypes;
-import com.giozar04.categories.infrastructure.repositories.CategoryRepositoryMySQL;
+import com.giozar04.categories.infrastructure.persistence.mysql.CategoryRepositoryMySQL;
 import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
 import com.giozar04.databases.infrastructure.repositories.DatabaseConnectionMySQL;
 
@@ -28,7 +28,7 @@ public class CategoryTestApp {
             dbConnection.connect();
 
             CategoryRepositoryMySQL repository = new CategoryRepositoryMySQL(dbConnection);
-            CategoryService service = new CategoryService(repository);
+            CategoryUseCase service = new CategoryUseCase(repository);
 
             Scanner scanner = new Scanner(System.in);
             boolean exit = false;
@@ -66,7 +66,7 @@ public class CategoryTestApp {
         }
     }
 
-    private static void createCategory(CategoryService service, Scanner scanner) {
+    private static void createCategory(CategoryUseCase service, Scanner scanner) {
         Category category = new Category();
 
         System.out.print("ID del usuario dueño: ");
@@ -94,7 +94,7 @@ public class CategoryTestApp {
         System.out.println("Categoría creada con ID: " + created.getId());
     }
 
-    private static void updateCategory(CategoryService service, Scanner scanner) {
+    private static void updateCategory(CategoryUseCase service, Scanner scanner) {
         System.out.print("ID de la categoría a actualizar: ");
         long id = scanner.nextLong();
         scanner.nextLine();
@@ -129,7 +129,7 @@ public class CategoryTestApp {
         System.out.println("Categoría actualizada.");
     }
 
-    private static void deleteCategory(CategoryService service, Scanner scanner) {
+    private static void deleteCategory(CategoryUseCase service, Scanner scanner) {
         System.out.print("ID de categoría a eliminar: ");
         long id = scanner.nextLong();
         scanner.nextLine();
@@ -138,7 +138,7 @@ public class CategoryTestApp {
         System.out.println("Categoría eliminada.");
     }
 
-    private static void getAllCategories(CategoryService service) {
+    private static void getAllCategories(CategoryUseCase service) {
         var categories = service.getAllCategories();
         if (categories.isEmpty()) {
             System.out.println("No hay categorías registradas.");
@@ -148,7 +148,7 @@ public class CategoryTestApp {
         categories.forEach(CategoryTestApp::printCategoryDetails);
     }
 
-    private static void getCategoryById(CategoryService service, Scanner scanner) {
+    private static void getCategoryById(CategoryUseCase service, Scanner scanner) {
         System.out.print("ID de categoría: ");
         long id = scanner.nextLong();
         scanner.nextLine();

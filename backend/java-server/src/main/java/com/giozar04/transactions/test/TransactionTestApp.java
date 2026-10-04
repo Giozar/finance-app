@@ -11,7 +11,7 @@ import com.giozar04.accounts.infrastructure.repositories.AccountRepositoryMySQL;
 import com.giozar04.cardTransactionDetails.domain.entities.CardTransactionDetail;
 import com.giozar04.cardTransactionDetails.infrastructure.repositories.CardTransactionDetailRepositoryMySQL;
 import com.giozar04.cards.infrastructure.repositories.CardRepositoryMySQL;
-import com.giozar04.categories.infrastructure.repositories.CategoryRepositoryMySQL;
+import com.giozar04.categories.infrastructure.persistence.mysql.CategoryRepositoryMySQL;
 import com.giozar04.databases.application.services.TransactionalExecutor;
 import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
 import com.giozar04.databases.infrastructure.repositories.DatabaseConnectionMySQL;

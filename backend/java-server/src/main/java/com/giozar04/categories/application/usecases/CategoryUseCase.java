@@ -1,15 +1,16 @@
-package com.giozar04.categories.application.services;
+package com.giozar04.categories.application.usecases;
 
 import java.util.List;
 
 import com.giozar04.categories.domain.entities.Category;
-import com.giozar04.categories.domain.interfaces.CategoryRepositoryInterface;
+import com.giozar04.categories.application.ports.output.CategoryRepository;
+import com.giozar04.categories.application.ports.input.CategoryOperations;
 
-public class CategoryService implements CategoryRepositoryInterface {
+public class CategoryUseCase implements CategoryOperations {
 
-    private final CategoryRepositoryInterface categoryRepository;
+    private final CategoryRepository categoryRepository;
 
-    public CategoryService(CategoryRepositoryInterface categoryRepository) {
+    public CategoryUseCase(CategoryRepository categoryRepository) {
         this.categoryRepository = categoryRepository;
     }
 
