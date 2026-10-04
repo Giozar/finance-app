@@ -25,11 +25,12 @@ import com.giozar04.tags.domain.entities.Tag;
 import com.giozar04.tags.application.ports.input.TagOperations;
 import com.giozar04.bootstrap.ClientUseCases;
 import com.giozar04.users.domain.entities.User;
-import com.giozar04.users.infrastructure.services.UserService;
+import com.giozar04.users.application.ports.input.UserOperations;
+import com.giozar04.bootstrap.ClientUseCases;
 
 public class TagFormPanel extends JPanel {
 
-    private final UserService userService = UserService.getInstance();
+    private final UserOperations userService = ClientUseCases.get(UserOperations.class);
 
     private final FormComboBox<User> userCombo;
     private final FormField nameField;

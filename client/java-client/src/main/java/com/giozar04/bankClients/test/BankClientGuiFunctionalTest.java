@@ -10,7 +10,7 @@ import com.giozar04.bankClients.presentation.views.BankClientsView;
 import com.giozar04.configs.ServerConnectionConfig;
 import com.giozar04.serverConnection.application.services.ServerConnectionService;
 import com.giozar04.shared.components.MainContentPanel;
-import com.giozar04.users.infrastructure.services.UserService;
+import com.giozar04.users.infrastructure.transport.socket.UserService;
 
 public class BankClientGuiFunctionalTest {
 

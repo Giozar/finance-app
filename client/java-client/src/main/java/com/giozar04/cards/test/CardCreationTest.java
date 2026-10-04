@@ -13,7 +13,7 @@ import com.giozar04.cards.infrastructure.services.CardService;
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
 import com.giozar04.serverConnection.application.services.ServerConnectionService;
 import com.giozar04.users.domain.entities.User;
-import com.giozar04.users.infrastructure.services.UserService;
+import com.giozar04.users.infrastructure.transport.socket.UserService;
 
 public class CardCreationTest {
 

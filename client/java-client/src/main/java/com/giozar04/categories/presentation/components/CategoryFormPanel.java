@@ -23,11 +23,12 @@ import com.giozar04.shared.components.forms.FormField;
 import com.giozar04.shared.utils.DialogUtil;
 import com.giozar04.shared.utils.FormValidatorUtils;
 import com.giozar04.users.domain.entities.User;
-import com.giozar04.users.infrastructure.services.UserService;
+import com.giozar04.users.application.ports.input.UserOperations;
+import com.giozar04.bootstrap.ClientUseCases;
 
 public class CategoryFormPanel extends JPanel {
 
-    private final UserService userService = UserService.getInstance();
+    private final UserOperations userService = ClientUseCases.get(UserOperations.class);
 
     private final FormComboBox<User> userCombo;
     private final FormField nameField;

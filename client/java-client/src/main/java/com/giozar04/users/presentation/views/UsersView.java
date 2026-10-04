@@ -28,17 +28,18 @@ import com.giozar04.shared.components.table.OptionsCellRenderer;
 import com.giozar04.shared.components.table.PopupMenuActionHandler;
 import com.giozar04.shared.utils.DialogUtil;
 import com.giozar04.users.domain.entities.User;
-import com.giozar04.users.infrastructure.services.UserService;
+import com.giozar04.users.application.ports.input.UserOperations;
+import com.giozar04.bootstrap.ClientUseCases;
 import com.giozar04.users.presentation.components.UserFormPanel;
 
 public class UsersView extends JPanel implements PopupMenuActionHandler {
 
     private JTextField searchField;
     private GenericTablePanel<User> tablePanel;
-    private final UserService userService;
+    private final UserOperations userService;
 
     public UsersView() {
-        userService = UserService.getInstance();
+        userService = ClientUseCases.get(UserOperations.class);
 
         setLayout(new BorderLayout());
         setBorder(new EmptyBorder(10, 10, 10, 10));

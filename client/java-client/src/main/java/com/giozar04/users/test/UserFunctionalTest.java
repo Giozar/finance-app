@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Scanner;
 
 import com.giozar04.serverConnection.application.services.ServerConnectionService;
-import com.giozar04.users.infrastructure.services.UserService;
+import com.giozar04.users.infrastructure.transport.socket.UserService;
 import com.giozar04.users.domain.entities.User;
 import com.giozar04.configs.ServerConnectionConfig;
 

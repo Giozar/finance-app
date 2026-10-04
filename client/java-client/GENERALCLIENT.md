@@ -121,7 +121,10 @@ src/main/java/com/giozar04/transactions/presentation/form/TransactionFormDataPro
 src/main/java/com/giozar04/transactions/presentation/form/TransactionFormSection.java
 src/main/java/com/giozar04/transactions/presentation/views/CreateTransactionView.java
 src/main/java/com/giozar04/transactions/presentation/views/TransactionsView.java
-src/main/java/com/giozar04/users/infrastructure/services/UserService.java
+src/main/java/com/giozar04/users/application/ports/input/UserOperations.java
+src/main/java/com/giozar04/users/application/ports/output/UserGateway.java
+src/main/java/com/giozar04/users/application/usecases/UserUseCase.java
+src/main/java/com/giozar04/users/infrastructure/transport/socket/UserService.java
 src/main/java/com/giozar04/users/presentation/components/UserFormPanel.java
 src/main/java/com/giozar04/users/presentation/views/CreateUserView.java
 src/main/java/com/giozar04/users/presentation/views/UsersView.java

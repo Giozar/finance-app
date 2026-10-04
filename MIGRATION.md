@@ -49,6 +49,7 @@ comparados y compilación independiente de shared, backend y client.
 
 | Feature | Estado |
 | --- | --- |
+| users | Migrada; puerto de entrada, caso de uso, puerto de salida y adaptador socket verificados |
 | tags | Migrada; puerto de entrada, caso de uso, puerto de salida y adaptador socket verificados |
 
 La compilación de consumidores durante shared no representa la migración interna de backend/client.

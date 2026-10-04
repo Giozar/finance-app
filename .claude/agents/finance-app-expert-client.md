@@ -8,6 +8,8 @@ model: inherit
 
 ## Migración vigente
 
+- `users`: `UserOperations` → `UserUseCase` → `UserGateway` → `UserService` (socket).
+
 - `tags`: `TagOperations` → `TagUseCase` → `TagGateway` → `TagService` (socket).
 
 Consulte [ARCHITECTURE.md](../../ARCHITECTURE.md), [MIGRATION.md](../../MIGRATION.md)

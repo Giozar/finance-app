@@ -20,7 +20,9 @@ import com.giozar04.tags.infrastructure.transport.socket.TagService;
 import com.giozar04.tags.application.usecases.TagUseCase;
 import com.giozar04.tags.application.ports.input.TagOperations;
 import com.giozar04.transactions.infrastructure.services.TransactionService;
-import com.giozar04.users.infrastructure.services.UserService;
+import com.giozar04.users.infrastructure.transport.socket.UserService;
+import com.giozar04.users.application.usecases.UserUseCase;
+import com.giozar04.users.application.ports.input.UserOperations;
 import com.giozar04.walletCardLinks.infrastructure.services.WalletCardLinkService;
 import com.giozar04.accountCashbackSettings.infrastructure.services.AccountCashbackSettingService;
 import com.giozar04.walletTransactionDetails.infrastructure.services.WalletTransactionDetailService;
@@ -63,6 +65,7 @@ public class ApplicationInitializer {
     private boolean initializeServices() {
         try {
             this.userService = UserService.connectService(connectionService);
+            ClientUseCases.register(UserOperations.class, new UserUseCase(UserService.getInstance()));
             System.out.println("✅ Servicio de usuarios conectado correctamente.");
 
             this.bankClientService = BankClientService.connectService(connectionService);

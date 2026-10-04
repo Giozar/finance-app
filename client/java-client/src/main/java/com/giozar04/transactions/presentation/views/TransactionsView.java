@@ -38,7 +38,8 @@ import com.giozar04.transactions.presentation.components.TransactionFormPanel;
 import com.giozar04.transactions.presentation.components.TransactionNameLookup;
 import com.giozar04.transactions.presentation.components.TransactionTypeCellRenderer;
 import com.giozar04.users.domain.entities.User;
-import com.giozar04.users.infrastructure.services.UserService;
+import com.giozar04.users.application.ports.input.UserOperations;
+import com.giozar04.bootstrap.ClientUseCases;
 
 /**
  * Listado de transacciones con filtros por usuario (consulta al servidor), tipo, estado y texto (en memoria).
@@ -160,7 +161,7 @@ public class TransactionsView extends JPanel implements PopupMenuActionHandler {
 
     private void loadUsers() {
         try {
-            userFilter.setItems(UserService.getInstance().getAllUsers());
+            userFilter.setItems(ClientUseCases.get(UserOperations.class).getAllUsers());
         } catch (ClientOperationException e) {
             DialogUtil.showError(this, "Error al cargar los usuarios: " + e.getMessage());
         }

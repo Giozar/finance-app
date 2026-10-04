@@ -12,7 +12,8 @@ import com.giozar04.transactions.domain.enums.TransactionStatus;
 import com.giozar04.transactions.presentation.form.TransactionFormContext;
 import com.giozar04.transactions.presentation.form.TransactionFormDataProvider;
 import com.giozar04.users.domain.entities.User;
-import com.giozar04.users.infrastructure.services.UserService;
+import com.giozar04.users.application.ports.input.UserOperations;
+import com.giozar04.bootstrap.ClientUseCases;
 
 /**
  * Sección 1 – Operación: usuario propietario, tipo de operación y estado (por defecto COMPLETED).
@@ -52,7 +53,7 @@ public class OperationSection extends AbstractTransactionSection {
 
     private void loadUsers() {
         try {
-            userCombo.setItems(UserService.getInstance().getAllUsers());
+            userCombo.setItems(ClientUseCases.get(UserOperations.class).getAllUsers());
         } catch (ClientOperationException ex) {
             DialogUtil.showError(this, "Error al cargar los usuarios: " + ex.getMessage());
         }

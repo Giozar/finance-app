@@ -19,7 +19,8 @@ import com.giozar04.shared.components.forms.FormField;
 import com.giozar04.shared.utils.DialogUtil;
 import com.giozar04.shared.utils.FormValidatorUtils;
 import com.giozar04.users.domain.entities.User;
-import com.giozar04.users.infrastructure.services.UserService;
+import com.giozar04.users.application.ports.input.UserOperations;
+import com.giozar04.bootstrap.ClientUseCases;
 import com.giozar04.users.presentation.views.UsersView;
 import com.giozar04.shared.components.MainContentPanel;
 
@@ -108,10 +109,10 @@ public class UserFormPanel extends JPanel {
 
         try {
             if (currentUser == null) {
-                UserService.getInstance().createUser(user);
+                ClientUseCases.get(UserOperations.class).createUser(user);
                 DialogUtil.showSuccess(this, "Usuario creado exitosamente.");
             } else {
-                UserService.getInstance().updateUserById(user.getId(), user);
+                ClientUseCases.get(UserOperations.class).updateUserById(user.getId(), user);
                 DialogUtil.showSuccess(this, "Usuario actualizado exitosamente.");
             }
             clearForm();

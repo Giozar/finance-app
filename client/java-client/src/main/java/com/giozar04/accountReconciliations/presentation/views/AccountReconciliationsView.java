@@ -26,7 +26,8 @@ import com.giozar04.shared.components.table.ColumnDefinition;
 import com.giozar04.shared.components.table.GenericTablePanel;
 import com.giozar04.shared.utils.DialogUtil;
 import com.giozar04.users.domain.entities.User;
-import com.giozar04.users.infrastructure.services.UserService;
+import com.giozar04.users.application.ports.input.UserOperations;
+import com.giozar04.bootstrap.ClientUseCases;
 
 /**
  * Vista de conciliación de cuentas: compara el saldo esperado según el historial
@@ -38,7 +39,7 @@ public class AccountReconciliationsView extends JPanel {
     private static final String STATUS_UNBALANCED = "Descuadrada";
 
     private final AccountReconciliationService reconciliationService;
-    private final UserService userService;
+    private final UserOperations userService;
 
     private FormComboBox<User> userCombo;
     private GenericTablePanel<AccountReconciliation> tablePanel;
@@ -46,7 +47,7 @@ public class AccountReconciliationsView extends JPanel {
 
     public AccountReconciliationsView() {
         reconciliationService = AccountReconciliationService.getInstance();
-        userService = UserService.getInstance();
+        userService = ClientUseCases.get(UserOperations.class);
 
         setLayout(new BorderLayout());
         setBorder(new EmptyBorder(10, 10, 10, 10));

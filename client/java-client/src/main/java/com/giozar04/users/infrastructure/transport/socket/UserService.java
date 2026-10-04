@@ -1,9 +1,10 @@
-package com.giozar04.users.infrastructure.services;
+package com.giozar04.users.infrastructure.transport.socket;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.giozar04.users.application.ports.output.UserGateway;
 import com.giozar04.logging.infrastructure.ConsoleLogger;
 import com.giozar04.messages.infrastructure.transport.Message;
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
@@ -17,7 +18,7 @@ import com.giozar04.users.infrastructure.serialization.UserParsingException;
 import com.giozar04.users.application.exceptions.UserRetrievalException;
 import com.giozar04.users.application.exceptions.UserUpdateException;
 
-public class UserService {
+public class UserService implements UserGateway {
 
     private final ServerConnectionService serverConnectionService;
     private static final ConsoleLogger logger = ConsoleLogger.getInstance();
