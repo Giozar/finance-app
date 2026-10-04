@@ -73,9 +73,22 @@ Su estado actual no es válido como referencia.
 `client/java-client/src/main/java/com/giozar04/<feature>/`
 
 ## Features existentes (en alcance)
-Con vistas: `users`, `accounts`, `bankClients`, `cards`, `categories`, `tags`, `externalEntities`, `dashboard`.
+Con vistas: `users`, `accounts`, `bankClients`, `cards`, `categories`, `tags`, `externalEntities`, `dashboard`,
+`accountReconciliations` (solo `AccountReconciliationsView`, sin formulario; entrada de menú "Conciliación").
 Solo servicio (sin vistas propias): `accountCashbackSettings`, `walletCardLinks`, `walletTransactionDetails`,
 `cardTransactionDetails`.
+
+Notas de `accountReconciliations` y `accounts`:
+- `AccountReconciliationService`: `getAllAccountReconciliations()`, `getAccountReconciliationsByUserId(long)`,
+  `getAccountReconciliationByAccountId(long)`, `reconcileAccount(long)`.
+- `AccountReconciliationsView`: filtro por usuario (`FormComboBox<User>` con placeholder "Todos los usuarios"),
+  botón "Actualizar" y botón "Ajustar saldo de la cuenta seleccionada" (selección vía
+  `GenericTablePanel.getTable()`; habilitado solo si la fila está descuadrada).
+- `Account.openingBalance` / `openingCreditUsed` son de **solo lectura** (los fija la BD): se muestran en
+  `BaseAccountDetailView` ("Saldo inicial") y `CreditAccountDetailView` ("Deuda inicial"); **nunca** se añaden a
+  formularios.
+- Importes en vistas: `String.format("$%,.2f", valor)`.
+- Navegación: `SidebarPanel` (array `menuItems`) + `case` en `AppLayout.navigate(...)`.
 
 ## Transversales
 - `bootstrap/ApplicationInitializer.java`: conecta `ServerConnectionService`, inicializa cada servicio con

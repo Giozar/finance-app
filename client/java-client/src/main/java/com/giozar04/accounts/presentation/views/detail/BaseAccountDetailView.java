@@ -106,11 +106,19 @@ public abstract class BaseAccountDetailView extends JPanel {
         balanceLabel.setForeground(new Color(30, 30, 50));
         balanceLabel.setAlignmentX(LEFT_ALIGNMENT);
 
+        // Saldo inicial (solo lectura, lo fija la base de datos)
+        JLabel openingBalanceLabel = new JLabel(String.format("Saldo inicial: $%,.2f", account.getOpeningBalance()));
+        openingBalanceLabel.setFont(new Font("SansSerif", Font.PLAIN, 11));
+        openingBalanceLabel.setForeground(new Color(110, 110, 125));
+        openingBalanceLabel.setAlignmentX(LEFT_ALIGNMENT);
+
         panel.add(typeLabel);
         panel.add(Box.createRigidArea(new Dimension(0, 4)));
         panel.add(title);
         panel.add(Box.createRigidArea(new Dimension(0, 6)));
         panel.add(balanceLabel);
+        panel.add(Box.createRigidArea(new Dimension(0, 2)));
+        panel.add(openingBalanceLabel);
         panel.add(Box.createRigidArea(new Dimension(0, 12)));
         panel.add(new JSeparator(SwingConstants.HORIZONTAL));
 

@@ -6,6 +6,7 @@ import java.awt.Component;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import com.giozar04.accountReconciliations.presentation.views.AccountReconciliationsView;
 import com.giozar04.accounts.presentation.views.AccountsView;
 import com.giozar04.bankClients.presentation.views.BankClientsView;
 import com.giozar04.cards.presentation.views.CardsView;
@@ -46,6 +47,7 @@ public class AppLayout extends JPanel {
             case "Usuarios" -> setContent(new UsersView());
             case "Clientes" -> setContent(new BankClientsView());
             case "Cuentas" -> setContent(new AccountsView());
+            case "Conciliación" -> setContent(new AccountReconciliationsView());
             case "Tarjetas" -> setContent(new CardsView());
             case "Categorías" -> setContent(new CategoriesView());
             case "Etiquetas" -> setContent(new TagsView());

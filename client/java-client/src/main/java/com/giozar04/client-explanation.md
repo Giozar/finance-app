@@ -218,7 +218,8 @@ The complete process for creating a new feature in the client project can be sum
 6. Create the main views inside presentation/views.
 7. Reuse existing resources from shared whenever possible.
 8. Register and initialize the service in ApplicationInitializer.
-9. Verify that backend and RMI/shared resources exist and are compatible.
+9. Add the menu entry in SidebarPanel (menuItems) and its case in AppLayout.navigate(...).
+10. Verify that backend and RMI/shared resources exist and are compatible.
 ```
 
 In general, the application flow works as follows: `ApplicationInitializer` starts the application, `ServerConnectionService` establishes communication with the backend, feature services perform the required operations, and presentation components render and manage information for the user interface.

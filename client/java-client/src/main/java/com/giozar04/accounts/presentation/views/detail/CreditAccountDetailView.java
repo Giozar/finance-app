@@ -65,7 +65,7 @@ public class CreditAccountDetailView extends BaseAccountDetailView {
         card.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(215, 215, 230), 1, true),
                 new EmptyBorder(14, 16, 16, 16)));
-        card.setMaximumSize(new Dimension(Integer.MAX_VALUE, 180));
+        card.setMaximumSize(new Dimension(Integer.MAX_VALUE, 200));
         card.setAlignmentX(LEFT_ALIGNMENT);
 
         JLabel cardTitle = new JLabel("Crédito disponible");
@@ -93,6 +93,17 @@ public class CreditAccountDetailView extends BaseAccountDetailView {
         card.add(bar);
         card.add(Box.createRigidArea(new Dimension(0, 6)));
         card.add(limitLabel);
+
+        // Deuda inicial (solo lectura, la fija la base de datos)
+        Double openingCreditUsed = account.getOpeningCreditUsed();
+        JLabel openingDebtLabel = new JLabel(openingCreditUsed != null
+                ? String.format("Deuda inicial: $%,.2f", openingCreditUsed)
+                : "Deuda inicial: —");
+        openingDebtLabel.setFont(new Font("SansSerif", Font.PLAIN, 11));
+        openingDebtLabel.setForeground(new Color(110, 110, 125));
+        openingDebtLabel.setAlignmentX(LEFT_ALIGNMENT);
+        card.add(Box.createRigidArea(new Dimension(0, 2)));
+        card.add(openingDebtLabel);
 
         return card;
     }

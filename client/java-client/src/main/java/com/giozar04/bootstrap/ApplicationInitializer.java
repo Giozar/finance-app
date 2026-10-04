@@ -5,6 +5,7 @@ import java.io.IOException;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
+import com.giozar04.accountReconciliations.infrastructure.services.AccountReconciliationService;
 import com.giozar04.accounts.infrastructure.services.AccountService;
 import com.giozar04.bankClients.infrastructure.services.BankClientService;
 import com.giozar04.cardTransactionDetails.infrastructure.services.CardTransactionDetailService;
@@ -94,6 +95,9 @@ public class ApplicationInitializer {
 
             WalletTransactionDetailService.connectService(connectionService);
             System.out.println("✅ Servicio de detalles de transacciones con wallet conectado correctamente.");
+
+            AccountReconciliationService.connectService(connectionService);
+            System.out.println("✅ Servicio de conciliación de cuentas conectado correctamente.");
 
             return true;
         } catch (Exception e) {
