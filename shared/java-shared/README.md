@@ -13,11 +13,11 @@ Paquete raíz: `com.giozar04.<feature>` (no existe el prefijo `com.giozar04.shar
 Features:
 - `users`, `accounts`, `accountCashbackSettings`, `accountReconciliations`, `bankClient`, `card`, `cardTransactionDetails`
 - `walletCardLinks`, `walletTransactionDetails`, `categories`, `tags`, `externalEntities`
-- `transactions` (en rediseño)
+- `transactions`: raíz de agregado (`Transaction` con `tagIds` y `cardDetail`/`walletDetail` anidados; `TransactionUtils.transactionToMap/mapToTransaction`)
 
 Transversales:
 - `messages/domain/models/Message.java` – mensaje cliente ↔ servidor.
-- `json/utils/JsonUtils.java` – serialización JSON.
+- `json/utils/JsonUtils.java` – serialización JSON (escapa/desescapa strings; el literal `null` se lee como `null`).
 - `shared/utils/SharedUtils.java` – parseo seguro y formato de fechas.
 - `logging/CustomLogger.java` – logger del proyecto.
 

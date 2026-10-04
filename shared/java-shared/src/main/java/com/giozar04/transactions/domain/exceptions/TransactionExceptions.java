@@ -41,4 +41,9 @@ public class TransactionExceptions {
     public static class TransactionParsingException extends RuntimeException {
         public TransactionParsingException(String message, Throwable cause) { super(message, cause); }
     }
+
+    public static class TransactionValidationException extends RuntimeException {
+        public TransactionValidationException(String message) { super(message); }
+        public TransactionValidationException(String message, Throwable cause) { super(message, cause); }
+    }
 }

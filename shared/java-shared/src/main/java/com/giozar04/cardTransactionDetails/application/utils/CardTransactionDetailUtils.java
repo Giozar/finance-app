@@ -33,7 +33,8 @@ public class CardTransactionDetailUtils {
         detail.setCardId(SharedUtils.parseLong(map.get("cardId")));
         detail.setAmount(SharedUtils.parseBigDecimal(map.get("amount")));
         detail.setInstallmentMonths(SharedUtils.parseNullableInt(map.get("installmentMonths")));
-        detail.setInterestFree(Boolean.parseBoolean(map.get("interestFree").toString()));
+        Object interestFreeObj = map.get("interestFree");
+        detail.setInterestFree(interestFreeObj != null && Boolean.parseBoolean(interestFreeObj.toString()));
         detail.setCreatedAt(SharedUtils.parseZonedDateTime(map.get("createdAt")));
         detail.setUpdatedAt(SharedUtils.parseZonedDateTime(map.get("updatedAt")));
         return detail;

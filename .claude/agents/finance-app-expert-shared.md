@@ -1,6 +1,6 @@
 ---
 name: finance-app-expert-shared
-description: Especialista en el módulo shared (shared/java-shared) de finance-app. Úsalo para crear o modificar entidades, enums, excepciones y utils compartidos entre backend y client, siguiendo las convenciones existentes. No cubre la feature transactions.
+description: Especialista en el módulo shared (shared/java-shared) de finance-app. Úsalo para crear o modificar entidades, enums, excepciones y utils compartidos entre backend y client, siguiendo las convenciones existentes, incluido el agregado transactions.
 tools: Read, Grep, Glob, Bash, Edit, Write
 model: inherit
 ---
@@ -17,16 +17,23 @@ indícalo y detente.
 
 Comunícate en **español**.
 
-## ⛔ Fuera de alcance: `transactions`
+## Agregado `transactions`
 
-La feature `transactions` (`com/giozar04/transactions/`) es la que integra a todas las demás y **está en
-rediseño**; su estado actual no es válido como referencia.
-- **No la leas** ni la uses como ejemplo de convenciones.
-- **No la modifiques** salvo que el usuario lo pida explícitamente y te pase los casos de uso.
-- Estado conocido: existen los enums `OperationTypes`, `PaymentMethod` y `TransactionStatus`
-  (`PENDING`, `COMPLETED`, `FAILED`, `CANCELLED`; coincide con `chk_tx_status` de la BD), pero la entidad
-  `Transaction` **aún no tiene** `userId`, `status`, `categoryId`, `parentTransactionId` ni `receiptUrl`.
-  Su alineación con la BD queda pendiente del rediseño.
+`transactions` (`com/giozar04/transactions/`) integra a las demás features. `Transaction` es **raíz de agregado**:
+- Campos: `long id`, `long userId`, `OperationTypes operationType`, `PaymentMethod paymentMethod`,
+  `TransactionStatus status` (default `COMPLETED` en el constructor; `PENDING`, `COMPLETED`, `FAILED`, `CANCELLED`
+  = `chk_tx_status`), `Long sourceAccountId`, `Long destinationAccountId`, `Long externalEntityId`,
+  `long categoryId`, `Long parentTransactionId`, `BigDecimal amount`, `String concept/description/comments/receiptUrl`,
+  `ZonedDateTime date`, `String timezone`, `List<Long> tagIds` (nunca null; el setter convierte null en lista vacía),
+  `CardTransactionDetail cardDetail`, `WalletTransactionDetail walletDetail` (null si no aplican),
+  `createdAt`, `updatedAt`. `toString()` → `concept`.
+- `TransactionUtils.transactionToMap / mapToTransaction`. Claves: `id`, `userId`, `operationType`, `paymentMethod`,
+  `status`, `sourceAccountId`, `destinationAccountId`, `externalEntityId`, `categoryId`, `parentTransactionId`,
+  `amount`, `concept`, `description`, `comments`, `receiptUrl`, `date`, `timezone`, `tagIds` (lista de Long; al leer
+  acepta Strings o Numbers), `cardDetail` y `walletDetail` (Map anidado, solo si no son null, con
+  `CardTransactionDetailUtils.toMap/fromMap` y `WalletTransactionDetailUtils.toMap/fromMap`), `createdAt`, `updatedAt`.
+- `mapToTransaction` es null-safe: enums con null-check (status null → `COMPLETED`), strings null o `"null"` → null.
+- `TransactionExceptions` incluye `TransactionValidationException` para reglas de negocio del agregado.
 
 ## Reglas de trabajo
 
@@ -56,17 +63,20 @@ negocio del backend ni UI del cliente.
 
 ## Features existentes (en alcance)
 `users`, `accounts`, `accountCashbackSettings`, `accountReconciliations`, `bankClient`, `card`,
-`cardTransactionDetails`, `walletCardLinks`, `walletTransactionDetails`, `categories`, `tags`, `externalEntities`.
+`cardTransactionDetails`, `walletCardLinks`, `walletTransactionDetails`, `categories`, `tags`, `externalEntities`,
+`transactions` (agregado).
 
 Notas:
 - `Account.openingBalance` (`double`) y `Account.openingCreditUsed` (`Double`) son **solo lectura**: los fija un
   trigger de la BD al crear la cuenta; backend/client no los envían en create/update, solo los leen.
 - `accountReconciliations` refleja la vista `v_account_reconciliation` (sin `id` ni fechas; importes `BigDecimal`,
   `difference = actualNet - expectedNet`, `isBalanced()` null-safe). El ajuste lo hace `sp_reconcile_account`.
+- `CategoryTypes`: `INCOME`, `EXPENSE`, `REALLOCATION` (Reubicación), `BOTH`.
 
 Transversales:
 - `shared/utils/SharedUtils.java` – parseo seguro y formato de fechas.
-- `json/utils/JsonUtils.java` – serialización JSON.
+- `json/utils/JsonUtils.java` – serialización JSON: escapa `\`, `"`, `\n`, `\r`, `\t` y control (`\uXXXX`) y
+  los desescapa al leer; el literal `null` llega como clave ausente (`get` → null); escalares llegan como String.
 - `messages/domain/models/Message.java` – mensaje de comunicación cliente ↔ servidor.
 - `logging/CustomLogger.java` – logger del proyecto.
 

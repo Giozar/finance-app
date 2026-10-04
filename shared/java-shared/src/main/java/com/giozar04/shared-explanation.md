@@ -93,6 +93,10 @@ application
     └── FeatureNameUtils.java
 ```
 
+### Aggregates with nested details
+
+Some entities act as aggregate roots and carry related data inside them. For example, `Transaction` holds `tagIds` (`List<Long>`, never null) and optional `cardDetail` / `walletDetail` objects. In `TransactionUtils.transactionToMap()` these details are written as nested maps using the detail feature's own utils (`CardTransactionDetailUtils`, `WalletTransactionDetailUtils`), and `mapToTransaction()` rebuilds them only when the nested map is present. Reuse the detail utils instead of duplicating their keys.
+
 ## Simple Feature Example
 
 A simple feature such as `users` may not require enums:

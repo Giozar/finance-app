@@ -3,6 +3,7 @@ package com.giozar04.categories.domain.enums;
 public enum CategoryTypes {
     INCOME("INCOME", "Ingreso"),
     EXPENSE("EXPENSE", "Gasto"),
+    REALLOCATION("REALLOCATION", "Reubicación"),
     BOTH("BOTH", "Ambos");
 
     private final String value;
