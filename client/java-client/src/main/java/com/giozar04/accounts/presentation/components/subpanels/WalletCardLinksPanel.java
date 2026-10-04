@@ -22,7 +22,8 @@ import javax.swing.table.AbstractTableModel;
 
 import com.giozar04.accounts.domain.entities.Account;
 import com.giozar04.accounts.domain.enums.AccountTypes;
-import com.giozar04.accounts.infrastructure.services.AccountService;
+import com.giozar04.accounts.application.ports.input.AccountOperations;
+import com.giozar04.bootstrap.ClientUseCases;
 import com.giozar04.bankClient.domain.entities.BankClient;
 import com.giozar04.bankClients.application.ports.input.BankClientOperations;
 import com.giozar04.bootstrap.ClientUseCases;
@@ -132,7 +133,7 @@ public class WalletCardLinksPanel extends JPanel {
             Set<Long> previouslySelected = new HashSet<>(getSelectedCardIds());
 
             // 1. Obtener todas las cuentas del sistema
-            List<Account> allAccounts = AccountService.getInstance().getAllAccounts();
+            List<Account> allAccounts = ClientUseCases.get(AccountOperations.class).getAllAccounts();
 
             // Filtrar cuentas del usuario y que admitan tarjetas (DEBIT, CREDIT, BENEFIT)
             List<Account> userCardAccounts = new ArrayList<>();

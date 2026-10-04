@@ -18,7 +18,8 @@ import javax.swing.border.EmptyBorder;
 
 import com.giozar04.accounts.domain.entities.Account;
 import com.giozar04.accounts.domain.enums.AccountTypes;
-import com.giozar04.accounts.infrastructure.services.AccountService;
+import com.giozar04.accounts.application.ports.input.AccountOperations;
+import com.giozar04.bootstrap.ClientUseCases;
 import com.giozar04.accounts.presentation.components.subpanels.BankDetailsSubPanel;
 import com.giozar04.accounts.presentation.components.subpanels.CreditDetailsSubPanel;
 import com.giozar04.accounts.presentation.components.subpanels.SavingsDetailsSubPanel;
@@ -339,9 +340,9 @@ public class AccountFormPanel extends JPanel {
         try {
             Account savedAccount;
             if (currentAccount == null) {
-                savedAccount = AccountService.getInstance().createAccount(account);
+                savedAccount = ClientUseCases.get(AccountOperations.class).createAccount(account);
             } else {
-                savedAccount = AccountService.getInstance().updateAccountById(account.getId(), account);
+                savedAccount = ClientUseCases.get(AccountOperations.class).updateAccountById(account.getId(), account);
             }
             long accountId = savedAccount.getId();
 

@@ -11,7 +11,8 @@ import com.giozar04.accountCashbackSettings.domain.entities.AccountCashbackSetti
 import com.giozar04.accountCashbackSettings.infrastructure.services.AccountCashbackSettingService;
 import com.giozar04.accounts.domain.entities.Account;
 import com.giozar04.accounts.domain.enums.AccountTypes;
-import com.giozar04.accounts.infrastructure.services.AccountService;
+import com.giozar04.accounts.application.ports.input.AccountOperations;
+import com.giozar04.bootstrap.ClientUseCases;
 import com.giozar04.card.domain.entities.Card;
 import com.giozar04.card.domain.enums.CardTypes;
 import com.giozar04.cards.infrastructure.services.CardService;
@@ -88,7 +89,7 @@ public class TransactionFormDataProvider {
             return;
         }
         try {
-            accounts = new ArrayList<>(AccountService.getInstance().getAccountsByUserId(newUserId));
+            accounts = new ArrayList<>(ClientUseCases.get(AccountOperations.class).getAccountsByUserId(newUserId));
         } catch (ClientOperationException | RuntimeException e) {
             reportError("Error al cargar las cuentas del usuario: " + e.getMessage());
         }

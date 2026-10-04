@@ -5,7 +5,7 @@ import java.util.Scanner;
 
 import com.giozar04.accounts.domain.entities.Account;
 import com.giozar04.accounts.domain.enums.AccountTypes;
-import com.giozar04.accounts.infrastructure.services.AccountService;
+import com.giozar04.accounts.infrastructure.transport.socket.AccountService;
 import com.giozar04.configs.ServerConnectionConfig;
 import com.giozar04.serverConnection.application.services.ServerConnectionService;
 

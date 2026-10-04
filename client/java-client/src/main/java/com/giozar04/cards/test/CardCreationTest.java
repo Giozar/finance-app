@@ -6,7 +6,7 @@ import java.util.List;
 
 import com.giozar04.accounts.domain.entities.Account;
 import com.giozar04.accounts.domain.enums.AccountTypes;
-import com.giozar04.accounts.infrastructure.services.AccountService;
+import com.giozar04.accounts.infrastructure.transport.socket.AccountService;
 import com.giozar04.card.domain.entities.Card;
 import com.giozar04.card.domain.enums.CardTypes;
 import com.giozar04.cards.infrastructure.services.CardService;

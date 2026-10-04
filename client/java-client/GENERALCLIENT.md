@@ -12,7 +12,10 @@ src/main/java/com/giozar04/Main.java
 src/main/java/com/giozar04/accountCashbackSettings/infrastructure/services/AccountCashbackSettingService.java
 src/main/java/com/giozar04/accountReconciliations/infrastructure/services/AccountReconciliationService.java
 src/main/java/com/giozar04/accountReconciliations/presentation/views/AccountReconciliationsView.java
-src/main/java/com/giozar04/accounts/infrastructure/services/AccountService.java
+src/main/java/com/giozar04/accounts/application/ports/input/AccountOperations.java
+src/main/java/com/giozar04/accounts/application/ports/output/AccountGateway.java
+src/main/java/com/giozar04/accounts/application/usecases/AccountUseCase.java
+src/main/java/com/giozar04/accounts/infrastructure/transport/socket/AccountService.java
 src/main/java/com/giozar04/accounts/presentation/components/AccountFormPanel.java
 src/main/java/com/giozar04/accounts/presentation/components/subpanels/BankDetailsSubPanel.java
 src/main/java/com/giozar04/accounts/presentation/components/subpanels/CashbackSettingsPanel.java

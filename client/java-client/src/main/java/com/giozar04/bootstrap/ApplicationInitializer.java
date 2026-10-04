@@ -6,7 +6,9 @@ import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
 import com.giozar04.accountReconciliations.infrastructure.services.AccountReconciliationService;
-import com.giozar04.accounts.infrastructure.services.AccountService;
+import com.giozar04.accounts.infrastructure.transport.socket.AccountService;
+import com.giozar04.accounts.application.usecases.AccountUseCase;
+import com.giozar04.accounts.application.ports.input.AccountOperations;
 import com.giozar04.bankClients.infrastructure.transport.socket.BankClientService;
 import com.giozar04.bankClients.application.usecases.BankClientUseCase;
 import com.giozar04.bankClients.application.ports.input.BankClientOperations;
@@ -79,6 +81,7 @@ public class ApplicationInitializer {
             System.out.println("✅ Servicio de clientes bancarios conectado correctamente.");
 
             this.accountService = AccountService.connectService(connectionService);
+            ClientUseCases.register(AccountOperations.class, new AccountUseCase(AccountService.getInstance()));
             System.out.println("✅ Servicios de cuentas conectado correctamente");
 
             this.cardService = CardService.connectService(connectionService);

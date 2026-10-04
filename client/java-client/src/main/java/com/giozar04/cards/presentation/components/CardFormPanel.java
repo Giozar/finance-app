@@ -16,7 +16,8 @@ import javax.swing.border.EmptyBorder;
 
 import com.giozar04.accounts.domain.entities.Account;
 import com.giozar04.accounts.domain.enums.AccountTypes;
-import com.giozar04.accounts.infrastructure.services.AccountService;
+import com.giozar04.accounts.application.ports.input.AccountOperations;
+import com.giozar04.bootstrap.ClientUseCases;
 import com.giozar04.card.domain.entities.Card;
 import com.giozar04.card.domain.enums.CardTypes;
 import com.giozar04.cards.infrastructure.services.CardService;
@@ -45,7 +46,7 @@ public class CardFormPanel extends JPanel {
 
     // --- Servicios ---
     private final UserOperations    userService    = ClientUseCases.get(UserOperations.class);
-    private final AccountService accountService = AccountService.getInstance();
+    private final AccountOperations accountService = ClientUseCases.get(AccountOperations.class);
 
     // --- Campos del formulario ---
     private final FormComboBox<User>      userCombo;

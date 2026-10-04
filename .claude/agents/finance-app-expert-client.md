@@ -8,6 +8,8 @@ model: inherit
 
 ## Migración vigente
 
+- `accounts`: `AccountOperations` → `AccountUseCase` → `AccountGateway` → `AccountService` (socket).
+
 - `bankClients`: `BankClientOperations` → `BankClientUseCase` → `BankClientGateway` → `BankClientService` (socket).
 
 - `externalEntities`: `ExternalEntityOperations` → `ExternalEntityUseCase` → `ExternalEntityGateway` → `ExternalEntityService` (socket).

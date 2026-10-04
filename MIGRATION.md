@@ -49,6 +49,7 @@ comparados y compilación independiente de shared, backend y client.
 
 | Feature | Estado |
 | --- | --- |
+| accounts | Migrada; puerto de entrada, caso de uso, puerto de salida y adaptador socket verificados |
 | bankClients | Migrada; puerto de entrada, caso de uso, puerto de salida y adaptador socket verificados |
 | externalEntities | Migrada; puerto de entrada, caso de uso, puerto de salida y adaptador socket verificados |
 | categories | Migrada; puerto de entrada, caso de uso, puerto de salida y adaptador socket verificados |

@@ -6,7 +6,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.giozar04.accounts.domain.entities.Account;
-import com.giozar04.accounts.infrastructure.services.AccountService;
+import com.giozar04.accounts.application.ports.input.AccountOperations;
+import com.giozar04.bootstrap.ClientUseCases;
 import com.giozar04.card.domain.entities.Card;
 import com.giozar04.cards.infrastructure.services.CardService;
 import com.giozar04.categories.domain.entities.Category;
@@ -44,7 +45,7 @@ public class TransactionNameLookup {
     /** Carga cuentas, entidades externas y categorías. */
     public static TransactionNameLookup load() throws ClientOperationException {
         TransactionNameLookup lookup = new TransactionNameLookup();
-        for (Account account : AccountService.getInstance().getAllAccounts()) {
+        for (Account account : ClientUseCases.get(AccountOperations.class).getAllAccounts()) {
             lookup.accounts.put(account.getId(), account);
         }
         for (ExternalEntity entity : ClientUseCases.get(ExternalEntityOperations.class).getAllExternalEntities()) {

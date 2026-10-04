@@ -20,7 +20,8 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 
 import com.giozar04.accounts.domain.entities.Account;
-import com.giozar04.accounts.infrastructure.services.AccountService;
+import com.giozar04.accounts.application.ports.input.AccountOperations;
+import com.giozar04.bootstrap.ClientUseCases;
 import com.giozar04.accounts.presentation.components.AccountFormPanel;
 import com.giozar04.accounts.presentation.views.AccountDetailView;
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
@@ -34,12 +35,12 @@ import com.giozar04.shared.utils.DialogUtil;
 
 public class AccountsView extends JPanel implements PopupMenuActionHandler {
 
-    private final AccountService accountService;
+    private final AccountOperations accountService;
     private JTextField searchField;
     private GenericTablePanel<Account> tablePanel;
 
     public AccountsView() {
-        accountService = AccountService.getInstance();
+        accountService = ClientUseCases.get(AccountOperations.class);
 
         setLayout(new BorderLayout());
         setBorder(new EmptyBorder(10, 10, 10, 10));

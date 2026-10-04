@@ -1,4 +1,4 @@
-package com.giozar04.accounts.infrastructure.services;
+package com.giozar04.accounts.infrastructure.transport.socket;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,6 +11,7 @@ import com.giozar04.accounts.application.exceptions.AccountDeletionException;
 import com.giozar04.accounts.infrastructure.serialization.AccountParsingException;
 import com.giozar04.accounts.application.exceptions.AccountRetrievalException;
 import com.giozar04.accounts.application.exceptions.AccountUpdateException;
+import com.giozar04.accounts.application.ports.output.AccountGateway;
 import com.giozar04.logging.infrastructure.ConsoleLogger;
 import com.giozar04.messages.infrastructure.transport.Message;
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
@@ -18,7 +19,7 @@ import com.giozar04.serverConnection.application.services.ServerConnectionServic
 import com.giozar04.serverConnection.application.validators.ServerResponseValidator;
 
 
-public class AccountService {
+public class AccountService implements AccountGateway {
 
     private final ServerConnectionService serverConnectionService;
     private static final ConsoleLogger logger = ConsoleLogger.getInstance();

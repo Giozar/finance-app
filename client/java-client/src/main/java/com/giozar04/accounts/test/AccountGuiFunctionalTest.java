@@ -5,7 +5,7 @@ import java.io.IOException;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
-import com.giozar04.accounts.infrastructure.services.AccountService;
+import com.giozar04.accounts.infrastructure.transport.socket.AccountService;
 import com.giozar04.accounts.presentation.views.AccountsView;
 import com.giozar04.bankClients.infrastructure.transport.socket.BankClientService;
 import com.giozar04.configs.ServerConnectionConfig;
