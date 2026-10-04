@@ -51,7 +51,10 @@ src/main/java/com/giozar04/bankClients/test/BankClientFunctionalTest.java
 src/main/java/com/giozar04/bankClients/test/BankClientGuiFunctionalTest.java
 src/main/java/com/giozar04/bootstrap/ApplicationInitializer.java
 src/main/java/com/giozar04/bootstrap/ClientUseCases.java
-src/main/java/com/giozar04/cardTransactionDetails/infrastructure/services/CardTransactionDetailService.java
+src/main/java/com/giozar04/cardTransactionDetails/application/ports/input/CardTransactionDetailOperations.java
+src/main/java/com/giozar04/cardTransactionDetails/application/ports/output/CardTransactionDetailGateway.java
+src/main/java/com/giozar04/cardTransactionDetails/application/usecases/CardTransactionDetailUseCase.java
+src/main/java/com/giozar04/cardTransactionDetails/infrastructure/transport/socket/CardTransactionDetailService.java
 src/main/java/com/giozar04/cards/application/ports/input/CardOperations.java
 src/main/java/com/giozar04/cards/application/ports/output/CardGateway.java
 src/main/java/com/giozar04/cards/application/usecases/CardUseCase.java
