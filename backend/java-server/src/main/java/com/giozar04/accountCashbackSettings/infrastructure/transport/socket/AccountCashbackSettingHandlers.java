@@ -1,15 +1,15 @@
-package com.giozar04.accountCashbackSettings.infrastructure.handlers;
+package com.giozar04.accountCashbackSettings.infrastructure.transport.socket;
 
-import com.giozar04.accountCashbackSettings.application.services.AccountCashbackSettingService;
-import com.giozar04.accountCashbackSettings.infrastructure.controllers.AccountCashbackSettingControllers;
+import com.giozar04.accountCashbackSettings.application.ports.input.AccountCashbackSettingOperations;
+import com.giozar04.accountCashbackSettings.infrastructure.transport.socket.AccountCashbackSettingControllers;
 import com.giozar04.servers.application.services.ServerService;
 import com.giozar04.servers.domain.interfaces.ServerRegisterHandlers;
 
 public class AccountCashbackSettingHandlers implements ServerRegisterHandlers {
 
-    private final AccountCashbackSettingService service;
+    private final AccountCashbackSettingOperations service;
 
-    public AccountCashbackSettingHandlers(AccountCashbackSettingService service) {
+    public AccountCashbackSettingHandlers(AccountCashbackSettingOperations service) {
         this.service = service;
     }
 

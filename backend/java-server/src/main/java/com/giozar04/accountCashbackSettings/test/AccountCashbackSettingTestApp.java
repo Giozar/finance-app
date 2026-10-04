@@ -5,9 +5,9 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Scanner;
 
-import com.giozar04.accountCashbackSettings.application.services.AccountCashbackSettingService;
+import com.giozar04.accountCashbackSettings.application.usecases.AccountCashbackSettingUseCase;
 import com.giozar04.accountCashbackSettings.domain.entities.AccountCashbackSetting;
-import com.giozar04.accountCashbackSettings.infrastructure.repositories.AccountCashbackSettingRepositoryMySQL;
+import com.giozar04.accountCashbackSettings.infrastructure.persistence.mysql.AccountCashbackSettingRepositoryMySQL;
 import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
 import com.giozar04.databases.infrastructure.repositories.DatabaseConnectionMySQL;
 
@@ -30,8 +30,8 @@ public class AccountCashbackSettingTestApp {
 
             AccountCashbackSettingRepositoryMySQL repository =
                 new AccountCashbackSettingRepositoryMySQL(dbConnection);
-            AccountCashbackSettingService service =
-                new AccountCashbackSettingService(repository);
+            AccountCashbackSettingUseCase service =
+                new AccountCashbackSettingUseCase(repository);
 
             Scanner scanner = new Scanner(System.in);
             boolean exit = false;
@@ -69,7 +69,7 @@ public class AccountCashbackSettingTestApp {
         }
     }
 
-    private static void createSetting(AccountCashbackSettingService service, Scanner scanner) {
+    private static void createSetting(AccountCashbackSettingUseCase service, Scanner scanner) {
         AccountCashbackSetting setting = new AccountCashbackSetting();
 
         System.out.print("Account ID de la cuenta (DEBIT, CREDIT o WALLET): ");
@@ -93,7 +93,7 @@ public class AccountCashbackSettingTestApp {
         printSetting(created);
     }
 
-    private static void getSetting(AccountCashbackSettingService service, Scanner scanner) {
+    private static void getSetting(AccountCashbackSettingUseCase service, Scanner scanner) {
         System.out.print("Account ID: ");
         long accountId = scanner.nextLong();
         scanner.nextLine();
@@ -102,7 +102,7 @@ public class AccountCashbackSettingTestApp {
         printSetting(setting);
     }
 
-    private static void updateSetting(AccountCashbackSettingService service, Scanner scanner) {
+    private static void updateSetting(AccountCashbackSettingUseCase service, Scanner scanner) {
         System.out.print("Account ID a actualizar: ");
         long accountId = scanner.nextLong();
         scanner.nextLine();
@@ -124,7 +124,7 @@ public class AccountCashbackSettingTestApp {
         printSetting(updated);
     }
 
-    private static void deleteSetting(AccountCashbackSettingService service, Scanner scanner) {
+    private static void deleteSetting(AccountCashbackSettingUseCase service, Scanner scanner) {
         System.out.print("Account ID a eliminar: ");
         long accountId = scanner.nextLong();
         scanner.nextLine();
@@ -133,7 +133,7 @@ public class AccountCashbackSettingTestApp {
         System.out.println("Configuración de cashback eliminada para accountId: " + accountId);
     }
 
-    private static void getAllSettings(AccountCashbackSettingService service) {
+    private static void getAllSettings(AccountCashbackSettingUseCase service) {
         List<AccountCashbackSetting> settings = service.getAllAccountCashbackSettings();
         if (settings.isEmpty()) {
             System.out.println("No hay configuraciones de cashback registradas.");

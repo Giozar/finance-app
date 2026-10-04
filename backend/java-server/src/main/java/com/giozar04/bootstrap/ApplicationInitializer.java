@@ -59,14 +59,15 @@ import com.giozar04.users.application.ports.input.UserOperations;
 import com.giozar04.users.application.ports.output.UserRepository;
 import com.giozar04.users.infrastructure.transport.socket.UserHandlers;
 import com.giozar04.users.infrastructure.persistence.mysql.UserRepositoryMySQL;
-import com.giozar04.accountCashbackSettings.application.services.AccountCashbackSettingService;
+import com.giozar04.accountCashbackSettings.application.usecases.AccountCashbackSettingUseCase;
+import com.giozar04.accountCashbackSettings.application.ports.input.AccountCashbackSettingOperations;
 import com.giozar04.accountReconciliations.application.services.AccountReconciliationService;
 import com.giozar04.accountReconciliations.domain.interfaces.AccountReconciliationRepositoryInterface;
 import com.giozar04.accountReconciliations.infrastructure.handlers.AccountReconciliationHandlers;
 import com.giozar04.accountReconciliations.infrastructure.repositories.AccountReconciliationRepositoryMySQL;
-import com.giozar04.accountCashbackSettings.domain.interfaces.AccountCashbackSettingRepositoryInterface;
-import com.giozar04.accountCashbackSettings.infrastructure.handlers.AccountCashbackSettingHandlers;
-import com.giozar04.accountCashbackSettings.infrastructure.repositories.AccountCashbackSettingRepositoryMySQL;
+import com.giozar04.accountCashbackSettings.application.ports.output.AccountCashbackSettingRepository;
+import com.giozar04.accountCashbackSettings.infrastructure.transport.socket.AccountCashbackSettingHandlers;
+import com.giozar04.accountCashbackSettings.infrastructure.persistence.mysql.AccountCashbackSettingRepositoryMySQL;
 import com.giozar04.walletCardLinks.application.services.WalletCardLinkService;
 import com.giozar04.walletCardLinks.domain.interfaces.WalletCardLinkRepositoryInterface;
 import com.giozar04.walletCardLinks.infrastructure.handlers.WalletCardLinkHandlers;
@@ -154,10 +155,10 @@ public class ApplicationInitializer {
                 new TransactionValidator(TransactionRules.defaultRules()));
 
         // Inicializar repositorios y servicios de configuraciones de cashback
-        AccountCashbackSettingRepositoryInterface accountCashbackSettingRepository =
+        AccountCashbackSettingRepository accountCashbackSettingRepository =
                 new AccountCashbackSettingRepositoryMySQL(dbConnection);
-        AccountCashbackSettingService accountCashbackSettingService =
-                new AccountCashbackSettingService(accountCashbackSettingRepository);
+        AccountCashbackSettingUseCase accountCashbackSettingService =
+                new AccountCashbackSettingUseCase(accountCashbackSettingRepository);
 
         // Inicializar repositorios y servicios de reconciliación de cuentas
         AccountReconciliationRepositoryInterface accountReconciliationRepository =

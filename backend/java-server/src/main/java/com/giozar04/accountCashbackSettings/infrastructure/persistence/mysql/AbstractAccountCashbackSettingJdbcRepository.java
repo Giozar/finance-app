@@ -1,46 +1,31 @@
-package com.giozar04.accountCashbackSettings.domain.models;
+package com.giozar04.accountCashbackSettings.infrastructure.persistence.mysql;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
 
 import com.giozar04.accountCashbackSettings.domain.entities.AccountCashbackSetting;
-import com.giozar04.accountCashbackSettings.domain.interfaces.AccountCashbackSettingRepositoryInterface;
+import com.giozar04.accountCashbackSettings.application.ports.output.AccountCashbackSettingRepository;
+import com.giozar04.accountCashbackSettings.domain.policies.AccountCashbackSettingPolicy;
 import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
 import com.giozar04.logging.infrastructure.ConsoleLogger;
 
-public abstract class AccountCashbackSettingRepositoryAbstract implements AccountCashbackSettingRepositoryInterface {
+public abstract class AbstractAccountCashbackSettingJdbcRepository implements AccountCashbackSettingRepository {
 
     protected final DatabaseConnectionInterface databaseConnection;
     protected final ConsoleLogger logger = ConsoleLogger.getInstance();
 
-    protected AccountCashbackSettingRepositoryAbstract(DatabaseConnectionInterface databaseConnection) {
+    protected AbstractAccountCashbackSettingJdbcRepository(DatabaseConnectionInterface databaseConnection) {
         this.databaseConnection = Objects.requireNonNull(databaseConnection,
                 "La conexión a base de datos no puede ser nula");
     }
 
     protected void validateSetting(AccountCashbackSetting setting) {
-        Objects.requireNonNull(setting, "La configuración de cashback no puede ser nula");
-
-        if (setting.getAccountId() <= 0) {
-            throw new IllegalArgumentException("El accountId debe ser mayor que cero");
-        }
-
-        BigDecimal rate = setting.getDefaultCashbackRate();
-        if (rate != null) {
-            if (rate.compareTo(BigDecimal.ZERO) < 0) {
-                throw new IllegalArgumentException("defaultCashbackRate no puede ser negativo");
-            }
-            if (rate.compareTo(BigDecimal.ONE) > 0) {
-                throw new IllegalArgumentException("defaultCashbackRate no puede ser mayor a 1 (100%)");
-            }
-        }
+        AccountCashbackSettingPolicy.validateSetting(setting);
     }
 
     protected void validateAccountId(long accountId) {
-        if (accountId <= 0) {
-            throw new IllegalArgumentException("El accountId debe ser mayor que cero");
-        }
+        AccountCashbackSettingPolicy.validateAccountId(accountId);
     }
 
     @Override

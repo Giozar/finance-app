@@ -1,4 +1,4 @@
-package com.giozar04.accountCashbackSettings.infrastructure.repositories;
+package com.giozar04.accountCashbackSettings.infrastructure.persistence.mysql;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
@@ -17,10 +17,10 @@ import com.giozar04.accountCashbackSettings.application.exceptions.AccountCashba
 import com.giozar04.accountCashbackSettings.application.exceptions.AccountCashbackSettingNotFoundException;
 import com.giozar04.accountCashbackSettings.application.exceptions.AccountCashbackSettingRetrievalException;
 import com.giozar04.accountCashbackSettings.application.exceptions.AccountCashbackSettingUpdateException;
-import com.giozar04.accountCashbackSettings.domain.models.AccountCashbackSettingRepositoryAbstract;
+import com.giozar04.accountCashbackSettings.infrastructure.persistence.mysql.AbstractAccountCashbackSettingJdbcRepository;
 import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
 
-public class AccountCashbackSettingRepositoryMySQL extends AccountCashbackSettingRepositoryAbstract {
+public class AccountCashbackSettingRepositoryMySQL extends AbstractAccountCashbackSettingJdbcRepository {
 
     private static final String SQL_INSERT = """
         INSERT INTO account_cashback_settings (account_id, cashback_enabled, default_cashback_rate, created_at, updated_at)

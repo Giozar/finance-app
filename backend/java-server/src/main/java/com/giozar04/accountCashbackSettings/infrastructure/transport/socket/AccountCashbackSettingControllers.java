@@ -1,10 +1,10 @@
-package com.giozar04.accountCashbackSettings.infrastructure.controllers;
+package com.giozar04.accountCashbackSettings.infrastructure.transport.socket;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import com.giozar04.accountCashbackSettings.application.services.AccountCashbackSettingService;
+import com.giozar04.accountCashbackSettings.application.ports.input.AccountCashbackSettingOperations;
 import com.giozar04.accountCashbackSettings.infrastructure.serialization.AccountCashbackSettingMapper;
 import com.giozar04.accountCashbackSettings.domain.entities.AccountCashbackSetting;
 import com.giozar04.logging.infrastructure.ConsoleLogger;
@@ -25,7 +25,7 @@ public class AccountCashbackSettingControllers {
     }
 
     @SuppressWarnings("unchecked")
-    public static MessageHandler createSettingController(AccountCashbackSettingService service) {
+    public static MessageHandler createSettingController(AccountCashbackSettingOperations service) {
         return (ClientConnection client, Message message) -> {
             LOGGER.info("Creando configuración de cashback");
 
@@ -45,7 +45,7 @@ public class AccountCashbackSettingControllers {
         };
     }
 
-    public static MessageHandler getSettingController(AccountCashbackSettingService service) {
+    public static MessageHandler getSettingController(AccountCashbackSettingOperations service) {
         return (ClientConnection client, Message message) -> {
             LOGGER.info("Obteniendo configuración de cashback por accountId");
 
@@ -65,7 +65,7 @@ public class AccountCashbackSettingControllers {
     }
 
     @SuppressWarnings("unchecked")
-    public static MessageHandler updateSettingController(AccountCashbackSettingService service) {
+    public static MessageHandler updateSettingController(AccountCashbackSettingOperations service) {
         return (ClientConnection client, Message message) -> {
             LOGGER.info("Actualizando configuración de cashback");
 
@@ -91,7 +91,7 @@ public class AccountCashbackSettingControllers {
         };
     }
 
-    public static MessageHandler deleteSettingController(AccountCashbackSettingService service) {
+    public static MessageHandler deleteSettingController(AccountCashbackSettingOperations service) {
         return (ClientConnection client, Message message) -> {
             LOGGER.info("Eliminando configuración de cashback");
 
@@ -107,7 +107,7 @@ public class AccountCashbackSettingControllers {
         };
     }
 
-    public static MessageHandler getAllSettingsController(AccountCashbackSettingService service) {
+    public static MessageHandler getAllSettingsController(AccountCashbackSettingOperations service) {
         return (ClientConnection client, Message message) -> {
             LOGGER.info("Obteniendo todas las configuraciones de cashback");
 

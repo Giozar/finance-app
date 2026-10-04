@@ -1,15 +1,16 @@
-package com.giozar04.accountCashbackSettings.application.services;
+package com.giozar04.accountCashbackSettings.application.usecases;
 
 import java.util.List;
 
 import com.giozar04.accountCashbackSettings.domain.entities.AccountCashbackSetting;
-import com.giozar04.accountCashbackSettings.domain.interfaces.AccountCashbackSettingRepositoryInterface;
+import com.giozar04.accountCashbackSettings.application.ports.output.AccountCashbackSettingRepository;
+import com.giozar04.accountCashbackSettings.application.ports.input.AccountCashbackSettingOperations;
 
-public class AccountCashbackSettingService implements AccountCashbackSettingRepositoryInterface {
+public class AccountCashbackSettingUseCase implements AccountCashbackSettingOperations {
 
-    private final AccountCashbackSettingRepositoryInterface repository;
+    private final AccountCashbackSettingRepository repository;
 
-    public AccountCashbackSettingService(AccountCashbackSettingRepositoryInterface repository) {
+    public AccountCashbackSettingUseCase(AccountCashbackSettingRepository repository) {
         this.repository = repository;
     }
 
