@@ -41,10 +41,15 @@ src/main/java/com/giozar04/json/utils/JsonUtils.java
 src/main/java/com/giozar04/logging/CustomLogger.java
 src/main/java/com/giozar04/messages/domain/models/Message.java
 src/main/java/com/giozar04/shared-explanation.md
+src/main/java/com/giozar04/shared/infrastructure/serialization/ValueParser.java
 src/main/java/com/giozar04/shared/utils/SharedUtils.java
-src/main/java/com/giozar04/tags/application/utils/TagUtils.java
+src/main/java/com/giozar04/tags/application/exceptions/TagCreationException.java
+src/main/java/com/giozar04/tags/application/exceptions/TagDeletionException.java
+src/main/java/com/giozar04/tags/application/exceptions/TagNotFoundException.java
+src/main/java/com/giozar04/tags/application/exceptions/TagRetrievalException.java
+src/main/java/com/giozar04/tags/application/exceptions/TagUpdateException.java
 src/main/java/com/giozar04/tags/domain/entities/Tag.java
-src/main/java/com/giozar04/tags/domain/exceptions/TagExceptions.java
+src/main/java/com/giozar04/tags/infrastructure/serialization/TagMapper.java
 src/main/java/com/giozar04/transactions/application/utils/TransactionUtils.java
 src/main/java/com/giozar04/transactions/domain/entities/Transaction.java
 src/main/java/com/giozar04/transactions/domain/enums/OperationTypes.java
@@ -62,4 +67,5 @@ src/main/java/com/giozar04/walletTransactionDetails/domain/entities/WalletTransa
 src/main/java/com/giozar04/walletTransactionDetails/domain/enums/WalletTransactionSourceType.java
 src/main/java/com/giozar04/walletTransactionDetails/domain/exceptions/WalletTransactionDetailExceptions.java
 src/test/java/com/giozar04/contracts/ContractProbe.java
+src/test/resources/contracts.json
 ```

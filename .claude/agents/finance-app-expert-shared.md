@@ -8,6 +8,18 @@ model: inherit
 
 ## Migración vigente
 
+### Estado por feature
+
+| Feature | Estructura |
+| --- | --- |
+| `tags` | Migrada: `TagMapper.toMap/fromMap`; excepciones en `application/exceptions` |
+| Resto | Estructura anterior hasta su commit; consulte `MIGRATION.md` |
+
+Las secciones «Estructura de una feature» y «Convenciones» más abajo describen
+las features pendientes. En las migradas, `ARCHITECTURE.md` y
+`shared-explanation.md` definen la estructura. No vuelva a crear `TagUtils` ni
+`TagExceptions`.
+
 Consulte [ARCHITECTURE.md](../../ARCHITECTURE.md), [MIGRATION.md](../../MIGRATION.md)
 y [AGENTS.md](../../AGENTS.md). La migración autorizada sigue shared → backend → client,
 por feature y con commits locales. Las convenciones siguientes describen el código

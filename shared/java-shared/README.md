@@ -23,16 +23,18 @@ Transversales:
 - `shared/utils/SharedUtils.java` – parseo seguro y formato de fechas.
 - `logging/CustomLogger.java` – logger del proyecto.
 
-Cada feature sigue la estructura:
+Las features migradas siguen esta estructura, creando solo las carpetas necesarias:
 
-```
+```text
 <feature>/
-├─ application/utils/<Feature>Utils.java
-└─ domain/
-   ├─ entities/<Feature>.java
-   ├─ enums/<Feature>Types.java        (opcional)
-   └─ exceptions/<Feature>Exceptions.java
+├─ domain/entities/ y domain/enums/
+├─ application/exceptions/<Entity><Operation>Exception.java
+└─ infrastructure/serialization/<Entity>Mapper.java
 ```
+
+`tags` es la referencia ya migrada: `TagMapper.toMap/fromMap`. Las features
+pendientes conservan `application/utils` y contenedores `domain/exceptions` hasta
+su commit. Consulte `MIGRATION.md` en la raíz para el estado exacto.
 
 Enums: cada constante tiene `(value, label)`; `value` se guarda en MAYÚSCULAS y es igual al nombre de la constante (ej. `INCOME("INCOME", "Ingreso")`), debe coincidir con los CHECK de la base de datos; `label` es el texto en español para UI; `fromValue` no distingue mayúsculas/minúsculas.
 

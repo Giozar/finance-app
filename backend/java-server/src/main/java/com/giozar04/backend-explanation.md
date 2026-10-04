@@ -2,7 +2,7 @@
 
 # Implementing a New Feature in the Backend
 
-The project is organized using a layered architecture and divided into different modules. At a high level, the system consists of a backend, a frontend, and a shared RMI module containing common elements used by both sides of the application. Because of this, some classes or definitions are not located directly inside the backend but rather inside the shared project.
+The project is organized using a layered architecture and divided into different modules. At a high level, the system consists of a backend, a frontend, and a shared module containing common elements used by both sides of the application. Because of this, some classes or definitions are not located directly inside the backend but rather inside the shared project.
 
 Within the backend, each main functionality is organized as an independent feature. This approach keeps the code modular, organized, and easy to extend. To create a new feature, navigate to the following path:
 

@@ -9,7 +9,7 @@ import com.giozar04.messages.domain.models.Message;
 import com.giozar04.servers.domain.handlers.MessageHandler;
 import com.giozar04.servers.domain.models.ClientConnection;
 import com.giozar04.tags.application.services.TagService;
-import com.giozar04.tags.application.utils.TagUtils;
+import com.giozar04.tags.infrastructure.serialization.TagMapper;
 import com.giozar04.tags.domain.entities.Tag;
 
 public class TagControllers {
@@ -35,11 +35,11 @@ public class TagControllers {
                 return Message.createErrorMessage(TagMessageTypes.CREATE_TAG, "Datos no proporcionados");
             }
 
-            Tag tag = TagUtils.mapToTag(data);
+            Tag tag = TagMapper.fromMap(data);
             Tag created = tagService.createTag(tag);
 
             Message response = Message.createSuccessMessage(TagMessageTypes.CREATE_TAG, "Etiqueta creada exitosamente");
-            response.addData("tag", TagUtils.tagToMap(created));
+            response.addData("tag", TagMapper.toMap(created));
             return response;
         };
     }
@@ -55,7 +55,7 @@ public class TagControllers {
 
             Tag tag = tagService.getTagById(id);
             Message response = Message.createSuccessMessage(TagMessageTypes.GET_TAG, "Etiqueta obtenida exitosamente");
-            response.addData("tag", TagUtils.tagToMap(tag));
+            response.addData("tag", TagMapper.toMap(tag));
             return response;
         };
     }
@@ -75,10 +75,10 @@ public class TagControllers {
                 return Message.createErrorMessage(TagMessageTypes.UPDATE_TAG, "Datos no proporcionados");
             }
 
-            Tag updated = tagService.updateTagById(id, TagUtils.mapToTag(data));
+            Tag updated = tagService.updateTagById(id, TagMapper.fromMap(data));
 
             Message response = Message.createSuccessMessage(TagMessageTypes.UPDATE_TAG, "Etiqueta actualizada exitosamente");
-            response.addData("tag", TagUtils.tagToMap(updated));
+            response.addData("tag", TagMapper.toMap(updated));
             return response;
         };
     }
@@ -105,7 +105,7 @@ public class TagControllers {
             List<Map<String, Object>> result = new ArrayList<>();
 
             for (Tag t : tags) {
-                result.add(TagUtils.tagToMap(t));
+                result.add(TagMapper.toMap(t));
             }
 
             Message response = Message.createSuccessMessage(TagMessageTypes.GET_ALL_TAGS, "Etiquetas obtenidas exitosamente");
@@ -129,7 +129,7 @@ public class TagControllers {
             List<Map<String, Object>> result = new ArrayList<>();
 
             for (Tag item : items) {
-                result.add(TagUtils.tagToMap(item));
+                result.add(TagMapper.toMap(item));
             }
 
             Message response = Message.createSuccessMessage(TagMessageTypes.GET_TAGS_BY_USER, "Etiquetas del usuario obtenidas exitosamente");

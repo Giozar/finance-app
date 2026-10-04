@@ -22,7 +22,7 @@ import com.giozar04.externalEntities.domain.entities.ExternalEntity;
 import com.giozar04.externalEntities.domain.exceptions.ExternalEntityExceptions;
 import com.giozar04.externalEntities.domain.interfaces.ExternalEntityRepositoryInterface;
 import com.giozar04.tags.domain.entities.Tag;
-import com.giozar04.tags.domain.exceptions.TagExceptions;
+import com.giozar04.tags.application.exceptions.TagNotFoundException;
 import com.giozar04.tags.domain.interfaces.TagRepositoryInterface;
 import com.giozar04.walletCardLinks.domain.entities.WalletCardLink;
 import com.giozar04.walletCardLinks.domain.interfaces.WalletCardLinkRepositoryInterface;
@@ -90,7 +90,7 @@ public class ValidationContext {
     public Tag tag(Long id) {
         if (id == null || id <= 0) return null;
         return tags.computeIfAbsent(id, k -> find(() -> tagRepository.getTagById(k),
-                TagExceptions.TagNotFoundException.class)).orElse(null);
+                TagNotFoundException.class)).orElse(null);
     }
 
     /** true si la tarjeta está en wallet_card_links para esa wallet. */

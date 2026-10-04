@@ -13,7 +13,11 @@ import java.util.List;
 
 import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
 import com.giozar04.tags.domain.entities.Tag;
-import com.giozar04.tags.domain.exceptions.TagExceptions;
+import com.giozar04.tags.application.exceptions.TagCreationException;
+import com.giozar04.tags.application.exceptions.TagDeletionException;
+import com.giozar04.tags.application.exceptions.TagNotFoundException;
+import com.giozar04.tags.application.exceptions.TagRetrievalException;
+import com.giozar04.tags.application.exceptions.TagUpdateException;
 import com.giozar04.tags.domain.models.TagRepositoryAbstract;
 
 public class TagRepositoryMySQL extends TagRepositoryAbstract {
@@ -68,7 +72,7 @@ public class TagRepositoryMySQL extends TagRepositoryAbstract {
 
         } catch (SQLException e) {
             rollback();
-            throw new TagExceptions.TagCreationException("Error al crear la etiqueta", e);
+            throw new TagCreationException("Error al crear la etiqueta", e);
         }
     }
 
@@ -84,12 +88,12 @@ public class TagRepositoryMySQL extends TagRepositoryAbstract {
                 if (rs.next()) {
                     return mapResultSetToTag(rs);
                 } else {
-                    throw new TagExceptions.TagNotFoundException("Etiqueta no encontrada con ID: " + id, null);
+                    throw new TagNotFoundException("Etiqueta no encontrada con ID: " + id, null);
                 }
             }
 
         } catch (SQLException e) {
-            throw new TagExceptions.TagRetrievalException("Error al obtener la etiqueta con ID: " + id, e);
+            throw new TagRetrievalException("Error al obtener la etiqueta con ID: " + id, e);
         }
     }
 
@@ -110,7 +114,7 @@ public class TagRepositoryMySQL extends TagRepositoryAbstract {
 
             int affected = stmt.executeUpdate();
             if (affected == 0) {
-                throw new TagExceptions.TagNotFoundException("Etiqueta no encontrada con ID: " + id, null);
+                throw new TagNotFoundException("Etiqueta no encontrada con ID: " + id, null);
             }
 
             databaseConnection.commitTransaction();
@@ -119,7 +123,7 @@ public class TagRepositoryMySQL extends TagRepositoryAbstract {
 
         } catch (SQLException e) {
             rollback();
-            throw new TagExceptions.TagUpdateException("Error al actualizar etiqueta con ID: " + id, e);
+            throw new TagUpdateException("Error al actualizar etiqueta con ID: " + id, e);
         }
     }
 
@@ -134,7 +138,7 @@ public class TagRepositoryMySQL extends TagRepositoryAbstract {
 
             int affected = stmt.executeUpdate();
             if (affected == 0) {
-                throw new TagExceptions.TagNotFoundException("Etiqueta no encontrada con ID: " + id, null);
+                throw new TagNotFoundException("Etiqueta no encontrada con ID: " + id, null);
             }
 
             databaseConnection.commitTransaction();
@@ -142,7 +146,7 @@ public class TagRepositoryMySQL extends TagRepositoryAbstract {
 
         } catch (SQLException e) {
             rollback();
-            throw new TagExceptions.TagDeletionException("Error al eliminar etiqueta con ID: " + id, e);
+            throw new TagDeletionException("Error al eliminar etiqueta con ID: " + id, e);
         }
     }
 
@@ -161,7 +165,7 @@ public class TagRepositoryMySQL extends TagRepositoryAbstract {
             return tags;
 
         } catch (SQLException e) {
-            throw new TagExceptions.TagRetrievalException("Error al obtener todas las etiquetas", e);
+            throw new TagRetrievalException("Error al obtener todas las etiquetas", e);
         }
     }
 
@@ -183,7 +187,7 @@ public class TagRepositoryMySQL extends TagRepositoryAbstract {
             return list;
 
         } catch (SQLException e) {
-            throw new TagExceptions.TagRetrievalException("Error al obtener las etiquetas del usuario con ID: " + userId, e);
+            throw new TagRetrievalException("Error al obtener las etiquetas del usuario con ID: " + userId, e);
         }
     }
 

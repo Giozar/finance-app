@@ -9,9 +9,12 @@ import com.giozar04.messages.domain.models.Message;
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
 import com.giozar04.serverConnection.application.services.ServerConnectionService;
 import com.giozar04.serverConnection.application.validators.ServerResponseValidator;
-import com.giozar04.tags.application.utils.TagUtils;
+import com.giozar04.tags.infrastructure.serialization.TagMapper;
 import com.giozar04.tags.domain.entities.Tag;
-import com.giozar04.tags.domain.exceptions.TagExceptions;
+import com.giozar04.tags.application.exceptions.TagCreationException;
+import com.giozar04.tags.application.exceptions.TagDeletionException;
+import com.giozar04.tags.application.exceptions.TagRetrievalException;
+import com.giozar04.tags.application.exceptions.TagUpdateException;
 
 public class TagService {
 
@@ -38,17 +41,17 @@ public class TagService {
     public Tag createTag(Tag tag) throws ClientOperationException {
         Message message = new Message();
         message.setType("CREATE_TAG");
-        message.addData("tag", TagUtils.tagToMap(tag));
+        message.addData("tag", TagMapper.toMap(tag));
 
         serverConnectionService.sendMessage(message);
         try {
             Message response = serverConnectionService.waitForMessage("CREATE_TAG");
             ServerResponseValidator.validateResponse(response);
             logger.info("Etiqueta creada exitosamente: " + response);
-            return TagUtils.mapToTag((Map<String, Object>) response.getData("tag"));
+            return TagMapper.fromMap((Map<String, Object>) response.getData("tag"));
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new TagExceptions.TagCreationException("Error al esperar respuesta del servidor", e);
+            throw new TagCreationException("Error al esperar respuesta del servidor", e);
         }
     }
 
@@ -57,17 +60,17 @@ public class TagService {
         Message message = new Message();
         message.setType("UPDATE_TAG");
         message.addData("id", id);
-        message.addData("tag", TagUtils.tagToMap(tag));
+        message.addData("tag", TagMapper.toMap(tag));
 
         serverConnectionService.sendMessage(message);
         try {
             Message response = serverConnectionService.waitForMessage("UPDATE_TAG");
             ServerResponseValidator.validateResponse(response);
             logger.info("Etiqueta actualizada correctamente: " + response);
-            return TagUtils.mapToTag((Map<String, Object>) response.getData("tag"));
+            return TagMapper.fromMap((Map<String, Object>) response.getData("tag"));
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new TagExceptions.TagUpdateException("Error al esperar respuesta del servidor", e);
+            throw new TagUpdateException("Error al esperar respuesta del servidor", e);
         }
     }
 
@@ -83,7 +86,7 @@ public class TagService {
             logger.info("Etiqueta eliminada exitosamente: " + response);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new TagExceptions.TagDeletionException("Error al esperar respuesta del servidor", e);
+            throw new TagDeletionException("Error al esperar respuesta del servidor", e);
         }
     }
 
@@ -100,25 +103,25 @@ public class TagService {
             Object raw = response.getData("tags");
 
             if (raw == null) {
-                throw new TagExceptions.TagRetrievalException("Lista de etiquetas vacía", null);
+                throw new TagRetrievalException("Lista de etiquetas vacía", null);
             }
 
             if (raw instanceof List<?> rawList) {
                 List<Tag> tags = new ArrayList<>();
                 for (Object item : rawList) {
                     if (item instanceof Map<?, ?> map) {
-                        tags.add(TagUtils.mapToTag((Map<String, Object>) map));
+                        tags.add(TagMapper.fromMap((Map<String, Object>) map));
                     }
                 }
                 logger.info("Etiquetas obtenidas correctamente. Total: " + tags.size());
                 return tags;
             } else {
-                throw new TagExceptions.TagRetrievalException("Formato inesperado: " + raw.getClass().getName(), null);
+                throw new TagRetrievalException("Formato inesperado: " + raw.getClass().getName(), null);
             }
 
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new TagExceptions.TagRetrievalException("Error al esperar respuesta del servidor", e);
+            throw new TagRetrievalException("Error al esperar respuesta del servidor", e);
         }
     }
 
@@ -136,25 +139,25 @@ public class TagService {
             Object raw = response.getData("tags");
 
             if (raw == null) {
-                throw new TagExceptions.TagRetrievalException("Lista de etiquetas vacía", null);
+                throw new TagRetrievalException("Lista de etiquetas vacía", null);
             }
 
             if (raw instanceof List<?> rawList) {
                 List<Tag> tags = new ArrayList<>();
                 for (Object item : rawList) {
                     if (item instanceof Map<?, ?> map) {
-                        tags.add(TagUtils.mapToTag((Map<String, Object>) map));
+                        tags.add(TagMapper.fromMap((Map<String, Object>) map));
                     }
                 }
                 logger.info("Etiquetas del usuario obtenidas correctamente. Total: " + tags.size());
                 return tags;
             } else {
-                throw new TagExceptions.TagRetrievalException("Formato inesperado: " + raw.getClass().getName(), null);
+                throw new TagRetrievalException("Formato inesperado: " + raw.getClass().getName(), null);
             }
 
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new TagExceptions.TagRetrievalException("Error al esperar respuesta del servidor", e);
+            throw new TagRetrievalException("Error al esperar respuesta del servidor", e);
         }
     }
 }

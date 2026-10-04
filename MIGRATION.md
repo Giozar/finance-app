@@ -7,7 +7,7 @@ Referencia funcional inicial: `a68517e`.
 
 | Feature | Estado |
 | --- | --- |
-| tags | Pendiente |
+| tags | Migrada; contratos y consumidores verificados |
 | users | Pendiente |
 | categories | Pendiente |
 | externalEntities | Pendiente |
