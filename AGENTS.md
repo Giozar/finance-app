@@ -72,12 +72,11 @@ vocabulario y las reglas de compatibilidad están en [ARCHITECTURE.md](ARCHITECT
 
 ## Verificación
 
-Compile en orden de dependencias; backend y client usan el JAR instalado de shared:
+Compile desde la raíz y en orden de dependencias, porque backend y client usan el JAR
+instalado de shared. El comando deja la terminal en la raíz al terminar:
 
 ```bash
-(cd shared/java-shared && mvn clean install)
-(cd backend/java-server && mvn clean test-compile)
-(cd client/java-client && mvn clean test-compile)
+(cd shared/java-shared && mvn clean install) && (cd backend/java-server && mvn clean install) && (cd client/java-client && mvn clean install)
 ```
 
 Las pruebas de `src/test` son programas `main` sin JUnit: `mvn test` no las ejecuta.
@@ -85,15 +84,15 @@ Después de compilar, ejecútelas cuando el cambio toque contratos o casos de us
 
 ```bash
 # Shared: el protocolo debe coincidir con la línea base src/test/resources/contracts.json
-cd shared/java-shared
-java -cp target/classes:target/test-classes com.giozar04.contracts.ContractProbe > /tmp/contracts.out.json
-python3 -c 'import json; o=json.load(open("/tmp/contracts.out.json"))["data"]; r=json.load(open("src/test/resources/contracts.json")); d=[k for k in set(o)|set(r) if k not in o or k not in r or json.loads(o[k])!=r[k]]; print("diferencias:", sorted(d))'
+(cd shared/java-shared \
+  && java -cp target/classes:target/test-classes com.giozar04.contracts.ContractProbe > /tmp/contracts.out.json \
+  && python3 -c 'import json; o=json.load(open("/tmp/contracts.out.json"))["data"]; r=json.load(open("src/test/resources/contracts.json")); d=[k for k in set(o)|set(r) if k not in o or k not in r or json.loads(o[k])!=r[k]]; print("diferencias:", sorted(d))')
 
 # Backend: casos de uso sin JDBC ni sockets (terminan sin salida si pasan)
-cd backend/java-server
-CP=target/classes:target/test-classes:$HOME/.m2/repository/com/giozar04/java-shared/1.0-SNAPSHOT/java-shared-1.0-SNAPSHOT.jar
-java -cp "$CP" com.giozar04.tags.TagUseCaseProbe
-java -cp "$CP" com.giozar04.transactions.TransactionUseCaseProbe
+(cd backend/java-server \
+  && CP=target/classes:target/test-classes:$HOME/.m2/repository/com/giozar04/java-shared/1.0-SNAPSHOT/java-shared-1.0-SNAPSHOT.jar \
+  && java -cp "$CP" com.giozar04.tags.TagUseCaseProbe \
+  && java -cp "$CP" com.giozar04.transactions.TransactionUseCaseProbe)
 ```
 
 Si cambia intencionalmente un contrato, actualice `contracts.json` en el mismo cambio

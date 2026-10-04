@@ -107,11 +107,15 @@ server.port=8080
 
 ## 3. Compilar
 
+Desde la raíz del repositorio, copie y ejecute este comando. Compila los tres
+proyectos en orden y, al terminar (o si alguno falla), deja la terminal en la raíz:
+
 ```bash
-(cd shared/java-shared && mvn clean install)
-(cd backend/java-server && mvn clean compile)
-(cd client/java-client && mvn clean compile)
+(cd shared/java-shared && mvn clean install) && (cd backend/java-server && mvn clean install) && (cd client/java-client && mvn clean install)
 ```
+
+Cada `cd` va entre paréntesis, así que solo se aplica a su compilación. El `&&`
+detiene la cadena si un proyecto falla.
 
 `mvn install` en shared publica `com.giozar04:java-shared:1.0-SNAPSHOT` en el
 repositorio local de Maven (`~/.m2`), desde donde lo toman backend y client.
