@@ -1,25 +1,14 @@
-package com.giozar04.cards.domain.models;
+package com.giozar04.cards.domain.policies;
 
 import java.util.List;
 import java.util.Objects;
-
 import com.giozar04.card.domain.entities.Card;
 import com.giozar04.card.domain.enums.CardTypes;
-import com.giozar04.cards.domain.interfaces.CardRepositoryInterface;
-import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
-import com.giozar04.logging.infrastructure.ConsoleLogger;
 
-public abstract class CardRepositoryAbstract implements CardRepositoryInterface {
+public final class CardPolicy {
+    private CardPolicy() {}
 
-    protected final DatabaseConnectionInterface databaseConnection;
-    protected final ConsoleLogger logger = ConsoleLogger.getInstance();
-
-    protected CardRepositoryAbstract(DatabaseConnectionInterface databaseConnection) {
-        this.databaseConnection = Objects.requireNonNull(databaseConnection,
-                "La conexión a base de datos no puede ser nula");
-    }
-
-    protected void validateCard(Card card) {
+    public static void validateCard(Card card) {
         Objects.requireNonNull(card, "La tarjeta no puede ser nula");
 
         if (card.getName() == null || card.getName().isBlank()) {
@@ -60,27 +49,9 @@ public abstract class CardRepositoryAbstract implements CardRepositoryInterface 
         card.setStatus(status);
     }
 
-    protected void validateId(long id) {
+    public static void validateId(long id) {
         if (id <= 0) {
             throw new IllegalArgumentException("El ID debe ser mayor que cero");
         }
     }
-
-    @Override
-    public abstract Card createCard(Card card);
-
-    @Override
-    public abstract Card getCardById(long id);
-
-    @Override
-    public abstract Card updateCardById(long id, Card card);
-
-    @Override
-    public abstract void deleteCardById(long id);
-
-    @Override
-    public abstract List<Card> getAllCards();
-
-    @Override
-    public abstract List<Card> getCardsByAccountId(long accountId);
 }

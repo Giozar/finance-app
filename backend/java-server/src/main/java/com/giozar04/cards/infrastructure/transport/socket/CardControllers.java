@@ -1,4 +1,4 @@
-package com.giozar04.cards.infrastructure.controllers;
+package com.giozar04.cards.infrastructure.transport.socket;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,7 +6,7 @@ import java.util.Map;
 
 import com.giozar04.card.infrastructure.serialization.CardMapper;
 import com.giozar04.card.domain.entities.Card;
-import com.giozar04.cards.application.services.CardService;
+import com.giozar04.cards.application.ports.input.CardOperations;
 import com.giozar04.logging.infrastructure.ConsoleLogger;
 import com.giozar04.messages.infrastructure.transport.Message;
 import com.giozar04.servers.domain.handlers.MessageHandler;
@@ -26,7 +26,7 @@ public class CardControllers {
     }
 
     @SuppressWarnings("unchecked")
-    public static MessageHandler createCardController(CardService cardService) {
+    public static MessageHandler createCardController(CardOperations cardService) {
         return (ClientConnection clientConnection, Message message) -> {
             LOGGER.info("Procesando solicitud de creación de tarjeta");
 
@@ -58,7 +58,7 @@ public class CardControllers {
         };
     }
 
-    public static MessageHandler getCardController(CardService cardService) {
+    public static MessageHandler getCardController(CardOperations cardService) {
         return (ClientConnection clientConnection, Message message) -> {
             LOGGER.info("Procesando solicitud de obtención de tarjeta");
 
@@ -75,7 +75,7 @@ public class CardControllers {
     }
 
     @SuppressWarnings("unchecked")
-    public static MessageHandler updateCardController(CardService cardService) {
+    public static MessageHandler updateCardController(CardOperations cardService) {
         return (ClientConnection clientConnection, Message message) -> {
             LOGGER.info("Procesando solicitud de actualización de tarjeta");
 
@@ -98,7 +98,7 @@ public class CardControllers {
         };
     }
 
-    public static MessageHandler deleteCardController(CardService cardService) {
+    public static MessageHandler deleteCardController(CardOperations cardService) {
         return (ClientConnection clientConnection, Message message) -> {
             LOGGER.info("Procesando solicitud de eliminación de tarjeta");
 
@@ -112,7 +112,7 @@ public class CardControllers {
         };
     }
 
-    public static MessageHandler getAllCardsController(CardService cardService) {
+    public static MessageHandler getAllCardsController(CardOperations cardService) {
         return (ClientConnection clientConnection, Message message) -> {
             LOGGER.info("Procesando solicitud de obtención de todas las tarjetas");
 
@@ -131,7 +131,7 @@ public class CardControllers {
         };
     }
 
-    public static MessageHandler getCardsByAccountController(CardService cardService) {
+    public static MessageHandler getCardsByAccountController(CardOperations cardService) {
         return (ClientConnection clientConnection, Message message) -> {
             LOGGER.info("Procesando solicitud de obtención de tarjetas por cuenta");
 

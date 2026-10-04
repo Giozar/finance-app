@@ -1,4 +1,4 @@
-package com.giozar04.cards.infrastructure.repositories;
+package com.giozar04.cards.infrastructure.persistence.mysql;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -18,10 +18,10 @@ import com.giozar04.card.application.exceptions.CardDeletionException;
 import com.giozar04.card.application.exceptions.CardNotFoundException;
 import com.giozar04.card.application.exceptions.CardRetrievalException;
 import com.giozar04.card.application.exceptions.CardUpdateException;
-import com.giozar04.cards.domain.models.CardRepositoryAbstract;
+import com.giozar04.cards.infrastructure.persistence.mysql.AbstractCardJdbcRepository;
 import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
 
-public class CardRepositoryMySQL extends CardRepositoryAbstract {
+public class CardRepositoryMySQL extends AbstractCardJdbcRepository {
 
     private static final String SQL_INSERT = """
         INSERT INTO cards (account_id, name, card_type, card_number, expiration_date, status, created_at, updated_at)

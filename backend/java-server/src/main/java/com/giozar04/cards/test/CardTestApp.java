@@ -5,8 +5,8 @@ import java.util.Scanner;
 
 import com.giozar04.card.domain.entities.Card;
 import com.giozar04.card.domain.enums.CardTypes;
-import com.giozar04.cards.application.services.CardService;
-import com.giozar04.cards.infrastructure.repositories.CardRepositoryMySQL;
+import com.giozar04.cards.application.usecases.CardUseCase;
+import com.giozar04.cards.infrastructure.persistence.mysql.CardRepositoryMySQL;
 import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
 import com.giozar04.databases.infrastructure.repositories.DatabaseConnectionMySQL;
 
@@ -28,7 +28,7 @@ public class CardTestApp {
             dbConnection.connect();
 
             CardRepositoryMySQL repository = new CardRepositoryMySQL(dbConnection);
-            CardService service = new CardService(repository);
+            CardUseCase service = new CardUseCase(repository);
 
             Scanner scanner = new Scanner(System.in);
             boolean exit = false;
@@ -66,7 +66,7 @@ public class CardTestApp {
         }
     }
 
-    private static void createCard(CardService service, Scanner scanner) {
+    private static void createCard(CardUseCase service, Scanner scanner) {
         Card card = new Card();
 
         System.out.print("ID de cuenta asociada: ");
@@ -102,7 +102,7 @@ public class CardTestApp {
         System.out.println("Tarjeta creada con ID: " + created.getId());
     }
 
-    private static void updateCard(CardService service, Scanner scanner) {
+    private static void updateCard(CardUseCase service, Scanner scanner) {
         System.out.print("ID de la tarjeta a actualizar: ");
         long id = scanner.nextLong();
         scanner.nextLine();
@@ -135,7 +135,7 @@ public class CardTestApp {
         System.out.println("Tarjeta actualizada.");
     }
 
-    private static void deleteCard(CardService service, Scanner scanner) {
+    private static void deleteCard(CardUseCase service, Scanner scanner) {
         System.out.print("ID de tarjeta a eliminar: ");
         long id = scanner.nextLong();
         scanner.nextLine();
@@ -144,7 +144,7 @@ public class CardTestApp {
         System.out.println("Tarjeta eliminada.");
     }
 
-    private static void getAllCards(CardService service) {
+    private static void getAllCards(CardUseCase service) {
         var cards = service.getAllCards();
         if (cards.isEmpty()) {
             System.out.println("No hay tarjetas registradas.");
@@ -154,7 +154,7 @@ public class CardTestApp {
         cards.forEach(CardTestApp::printCardDetails);
     }
 
-    private static void getCardById(CardService service, Scanner scanner) {
+    private static void getCardById(CardUseCase service, Scanner scanner) {
         System.out.print("ID de tarjeta: ");
         long id = scanner.nextLong();
         scanner.nextLine();

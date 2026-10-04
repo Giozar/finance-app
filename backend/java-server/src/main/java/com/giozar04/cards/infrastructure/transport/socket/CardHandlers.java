@@ -1,15 +1,15 @@
-package com.giozar04.cards.infrastructure.handlers;
+package com.giozar04.cards.infrastructure.transport.socket;
 
-import com.giozar04.cards.application.services.CardService;
-import com.giozar04.cards.infrastructure.controllers.CardControllers;
+import com.giozar04.cards.application.ports.input.CardOperations;
+import com.giozar04.cards.infrastructure.transport.socket.CardControllers;
 import com.giozar04.servers.application.services.ServerService;
 import com.giozar04.servers.domain.interfaces.ServerRegisterHandlers;
 
 public class CardHandlers implements ServerRegisterHandlers {
 
-    private final CardService cardService;
+    private final CardOperations cardService;
 
-    public CardHandlers(CardService cardService) {
+    public CardHandlers(CardOperations cardService) {
         this.cardService = cardService;
     }
 

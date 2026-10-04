@@ -1,10 +1,10 @@
-package com.giozar04.cards.domain.interfaces;
+package com.giozar04.cards.application.ports.input;
 
 import java.util.List;
 
 import com.giozar04.card.domain.entities.Card;
 
-public interface CardRepositoryInterface {
+public interface CardOperations {
     Card createCard(Card card);
     Card getCardById(long id);
     Card updateCardById(long id, Card card);

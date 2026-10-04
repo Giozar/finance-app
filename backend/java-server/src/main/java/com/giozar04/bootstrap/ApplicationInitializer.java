@@ -16,10 +16,11 @@ import com.giozar04.bankClients.infrastructure.persistence.mysql.BankClientRepos
 import com.giozar04.cardTransactionDetails.application.services.CardTransactionDetailService;
 import com.giozar04.cardTransactionDetails.infrastructure.handlers.CardTransactionDetailHandlers;
 import com.giozar04.cardTransactionDetails.infrastructure.repositories.CardTransactionDetailRepositoryMySQL;
-import com.giozar04.cards.application.services.CardService;
-import com.giozar04.cards.domain.interfaces.CardRepositoryInterface;
-import com.giozar04.cards.infrastructure.handlers.CardHandlers;
-import com.giozar04.cards.infrastructure.repositories.CardRepositoryMySQL;
+import com.giozar04.cards.application.usecases.CardUseCase;
+import com.giozar04.cards.application.ports.input.CardOperations;
+import com.giozar04.cards.application.ports.output.CardRepository;
+import com.giozar04.cards.infrastructure.transport.socket.CardHandlers;
+import com.giozar04.cards.infrastructure.persistence.mysql.CardRepositoryMySQL;
 import com.giozar04.categories.application.usecases.CategoryUseCase;
 import com.giozar04.categories.application.ports.input.CategoryOperations;
 import com.giozar04.categories.application.ports.output.CategoryRepository;
@@ -102,9 +103,9 @@ public class ApplicationInitializer {
         AccountOperations accountService = new AccountUseCase(accountRepository);
 
         // Inicializar repositorios y servicios de tarjetas
-        CardRepositoryInterface cardRepository =
+        CardRepository cardRepository =
                 new CardRepositoryMySQL(dbConnection);
-        CardService cardService = new CardService(cardRepository);
+        CardOperations cardService = new CardUseCase(cardRepository);
 
         // Inicializar repositorios y servicios de categorías
         CategoryRepository categoryRepository =

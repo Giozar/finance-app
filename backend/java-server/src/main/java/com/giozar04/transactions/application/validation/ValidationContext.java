@@ -14,7 +14,7 @@ import com.giozar04.accounts.application.exceptions.AccountNotFoundException;
 import com.giozar04.accounts.application.ports.output.AccountRepository;
 import com.giozar04.card.domain.entities.Card;
 import com.giozar04.card.application.exceptions.CardNotFoundException;
-import com.giozar04.cards.domain.interfaces.CardRepositoryInterface;
+import com.giozar04.cards.application.ports.output.CardRepository;
 import com.giozar04.categories.domain.entities.Category;
 import com.giozar04.categories.application.exceptions.CategoryNotFoundException;
 import com.giozar04.categories.application.ports.output.CategoryRepository;
@@ -36,7 +36,7 @@ import com.giozar04.walletCardLinks.domain.interfaces.WalletCardLinkRepositoryIn
 public class ValidationContext {
 
     private final AccountRepository accountRepository;
-    private final CardRepositoryInterface cardRepository;
+    private final CardRepository cardRepository;
     private final WalletCardLinkRepositoryInterface walletCardLinkRepository;
     private final CategoryRepository categoryRepository;
     private final ExternalEntityRepository externalEntityRepository;
@@ -50,7 +50,7 @@ public class ValidationContext {
     private final Map<Long, Optional<Tag>> tags = new HashMap<>();
 
     public ValidationContext(AccountRepository accountRepository,
-                             CardRepositoryInterface cardRepository,
+                             CardRepository cardRepository,
                              WalletCardLinkRepositoryInterface walletCardLinkRepository,
                              CategoryRepository categoryRepository,
                              ExternalEntityRepository externalEntityRepository,

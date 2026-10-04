@@ -1,15 +1,16 @@
-package com.giozar04.cards.application.services;
+package com.giozar04.cards.application.usecases;
 
 import java.util.List;
 
 import com.giozar04.card.domain.entities.Card;
-import com.giozar04.cards.domain.interfaces.CardRepositoryInterface;
+import com.giozar04.cards.application.ports.output.CardRepository;
+import com.giozar04.cards.application.ports.input.CardOperations;
 
-public class CardService implements CardRepositoryInterface {
+public class CardUseCase implements CardOperations {
 
-    private final CardRepositoryInterface cardRepository;
+    private final CardRepository cardRepository;
 
-    public CardService(CardRepositoryInterface cardRepository) {
+    public CardUseCase(CardRepository cardRepository) {
         this.cardRepository = cardRepository;
     }
 
