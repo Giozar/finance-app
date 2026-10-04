@@ -1,4 +1,4 @@
-package com.giozar04.walletCardLinks.infrastructure.repositories;
+package com.giozar04.walletCardLinks.infrastructure.persistence.mysql;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -16,7 +16,7 @@ import com.giozar04.walletCardLinks.application.exceptions.WalletCardLinkCreatio
 import com.giozar04.walletCardLinks.application.exceptions.WalletCardLinkDeletionException;
 import com.giozar04.walletCardLinks.application.exceptions.WalletCardLinkNotFoundException;
 import com.giozar04.walletCardLinks.application.exceptions.WalletCardLinkRetrievalException;
-import com.giozar04.walletCardLinks.domain.models.WalletCardLinkRepositoryAbstract;
+import com.giozar04.walletCardLinks.infrastructure.persistence.mysql.AbstractWalletCardLinkJdbcRepository;
 
 /**
  * Repositorio MySQL para wallet_card_links.
@@ -24,7 +24,7 @@ import com.giozar04.walletCardLinks.domain.models.WalletCardLinkRepositoryAbstra
  * La tabla real (schemas.sql) usa clave compuesta (account_id, card_id) sin columna id propia.
  * El campo WalletCardLink.id se mapea al card_id para compatibilidad con los controladores.
  */
-public class WalletCardLinkRepositoryMySQL extends WalletCardLinkRepositoryAbstract {
+public class WalletCardLinkRepositoryMySQL extends AbstractWalletCardLinkJdbcRepository {
 
     // La tabla usa 'account_id' (no 'wallet_account_id')
     private static final String SQL_INSERT =

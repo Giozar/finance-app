@@ -37,7 +37,7 @@ comparados y compilación independiente de shared, backend y client.
 | accounts | Migrada; puertos, política y adaptadores verificados |
 | cards | Migrada; puertos, política y adaptadores verificados |
 | accountCashbackSettings | Migrada; puertos, política y adaptadores verificados |
-| walletCardLinks | Pendiente |
+| walletCardLinks | Migrada; puertos, política y adaptadores verificados |
 | cardTransactionDetails | Pendiente |
 | walletTransactionDetails | Pendiente |
 | transactions | Pendiente |

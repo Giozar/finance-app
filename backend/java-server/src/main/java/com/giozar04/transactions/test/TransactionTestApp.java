@@ -28,7 +28,7 @@ import com.giozar04.transactions.domain.enums.OperationTypes;
 import com.giozar04.transactions.domain.enums.PaymentMethod;
 import com.giozar04.transactions.domain.enums.TransactionStatus;
 import com.giozar04.transactions.infrastructure.repositories.TransactionRepositoryMySQL;
-import com.giozar04.walletCardLinks.infrastructure.repositories.WalletCardLinkRepositoryMySQL;
+import com.giozar04.walletCardLinks.infrastructure.persistence.mysql.WalletCardLinkRepositoryMySQL;
 import com.giozar04.walletTransactionDetails.infrastructure.repositories.WalletTransactionDetailRepositoryMySQL;
 
 public class TransactionTestApp {

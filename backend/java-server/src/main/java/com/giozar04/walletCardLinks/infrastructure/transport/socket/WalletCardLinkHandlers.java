@@ -1,15 +1,15 @@
-package com.giozar04.walletCardLinks.infrastructure.handlers;
+package com.giozar04.walletCardLinks.infrastructure.transport.socket;
 
 import com.giozar04.servers.application.services.ServerService;
 import com.giozar04.servers.domain.interfaces.ServerRegisterHandlers;
-import com.giozar04.walletCardLinks.application.services.WalletCardLinkService;
-import com.giozar04.walletCardLinks.infrastructure.controllers.WalletCardLinkControllers;
+import com.giozar04.walletCardLinks.application.ports.input.WalletCardLinkOperations;
+import com.giozar04.walletCardLinks.infrastructure.transport.socket.WalletCardLinkControllers;
 
 public class WalletCardLinkHandlers implements ServerRegisterHandlers {
 
-    private final WalletCardLinkService service;
+    private final WalletCardLinkOperations service;
 
-    public WalletCardLinkHandlers(WalletCardLinkService service) {
+    public WalletCardLinkHandlers(WalletCardLinkOperations service) {
         this.service = service;
     }
 

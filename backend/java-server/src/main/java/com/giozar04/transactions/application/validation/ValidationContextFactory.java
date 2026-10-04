@@ -7,7 +7,7 @@ import com.giozar04.cards.application.ports.output.CardRepository;
 import com.giozar04.categories.application.ports.output.CategoryRepository;
 import com.giozar04.externalEntities.application.ports.output.ExternalEntityRepository;
 import com.giozar04.tags.application.ports.output.TagRepository;
-import com.giozar04.walletCardLinks.domain.interfaces.WalletCardLinkRepositoryInterface;
+import com.giozar04.walletCardLinks.application.ports.output.WalletCardLinkRepository;
 
 /**
  * Crea un {@link ValidationContext} nuevo (caché vacía) por petición.
@@ -16,14 +16,14 @@ public class ValidationContextFactory {
 
     private final AccountRepository accountRepository;
     private final CardRepository cardRepository;
-    private final WalletCardLinkRepositoryInterface walletCardLinkRepository;
+    private final WalletCardLinkRepository walletCardLinkRepository;
     private final CategoryRepository categoryRepository;
     private final ExternalEntityRepository externalEntityRepository;
     private final TagRepository tagRepository;
 
     public ValidationContextFactory(AccountRepository accountRepository,
                                     CardRepository cardRepository,
-                                    WalletCardLinkRepositoryInterface walletCardLinkRepository,
+                                    WalletCardLinkRepository walletCardLinkRepository,
                                     CategoryRepository categoryRepository,
                                     ExternalEntityRepository externalEntityRepository,
                                     TagRepository tagRepository) {

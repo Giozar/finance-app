@@ -1,10 +1,10 @@
-package com.giozar04.walletCardLinks.domain.interfaces;
+package com.giozar04.walletCardLinks.application.ports.input;
 
 import java.util.List;
 
 import com.giozar04.walletCardLinks.domain.entities.WalletCardLink;
 
-public interface WalletCardLinkRepositoryInterface {
+public interface WalletCardLinkOperations {
     WalletCardLink createLink(WalletCardLink link);
     WalletCardLink getLinkById(long id);
     WalletCardLink updateLinkById(long id, WalletCardLink link);

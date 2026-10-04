@@ -1,4 +1,4 @@
-package com.giozar04.walletCardLinks.domain.models;
+package com.giozar04.walletCardLinks.infrastructure.persistence.mysql;
 
 import java.util.List;
 import java.util.Objects;
@@ -6,33 +6,24 @@ import java.util.Objects;
 import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
 import com.giozar04.logging.infrastructure.ConsoleLogger;
 import com.giozar04.walletCardLinks.domain.entities.WalletCardLink;
-import com.giozar04.walletCardLinks.domain.interfaces.WalletCardLinkRepositoryInterface;
+import com.giozar04.walletCardLinks.application.ports.output.WalletCardLinkRepository;
+import com.giozar04.walletCardLinks.domain.policies.WalletCardLinkPolicy;
 
-public abstract class WalletCardLinkRepositoryAbstract implements WalletCardLinkRepositoryInterface {
+public abstract class AbstractWalletCardLinkJdbcRepository implements WalletCardLinkRepository {
 
     protected final DatabaseConnectionInterface databaseConnection;
     protected final ConsoleLogger logger = ConsoleLogger.getInstance();
 
-    protected WalletCardLinkRepositoryAbstract(DatabaseConnectionInterface databaseConnection) {
+    protected AbstractWalletCardLinkJdbcRepository(DatabaseConnectionInterface databaseConnection) {
         this.databaseConnection = Objects.requireNonNull(databaseConnection, "La conexión a base de datos no puede ser nula");
     }
 
     protected void validateLink(WalletCardLink link) {
-        Objects.requireNonNull(link, "El enlace wallet-tarjeta no puede ser nulo");
-
-        if (link.getWalletAccountId() <= 0) {
-            throw new IllegalArgumentException("El ID de la cuenta wallet debe ser mayor que cero");
-        }
-
-        if (link.getCardId() <= 0) {
-            throw new IllegalArgumentException("El ID de la tarjeta debe ser mayor que cero");
-        }
+        WalletCardLinkPolicy.validateLink(link);
     }
 
     protected void validateId(long id) {
-        if (id <= 0) {
-            throw new IllegalArgumentException("El ID debe ser mayor que cero");
-        }
+        WalletCardLinkPolicy.validateId(id);
     }
 
     @Override

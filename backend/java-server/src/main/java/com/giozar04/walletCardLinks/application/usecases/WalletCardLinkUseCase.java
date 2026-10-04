@@ -1,15 +1,16 @@
-package com.giozar04.walletCardLinks.application.services;
+package com.giozar04.walletCardLinks.application.usecases;
 
 import java.util.List;
 
 import com.giozar04.walletCardLinks.domain.entities.WalletCardLink;
-import com.giozar04.walletCardLinks.domain.interfaces.WalletCardLinkRepositoryInterface;
+import com.giozar04.walletCardLinks.application.ports.output.WalletCardLinkRepository;
+import com.giozar04.walletCardLinks.application.ports.input.WalletCardLinkOperations;
 
-public class WalletCardLinkService implements WalletCardLinkRepositoryInterface {
+public class WalletCardLinkUseCase implements WalletCardLinkOperations {
 
-    private final WalletCardLinkRepositoryInterface repository;
+    private final WalletCardLinkRepository repository;
 
-    public WalletCardLinkService(WalletCardLinkRepositoryInterface repository) {
+    public WalletCardLinkUseCase(WalletCardLinkRepository repository) {
         this.repository = repository;
     }
 

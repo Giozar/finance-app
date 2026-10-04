@@ -1,4 +1,4 @@
-package com.giozar04.walletCardLinks.infrastructure.controllers;
+package com.giozar04.walletCardLinks.infrastructure.transport.socket;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,7 +8,7 @@ import com.giozar04.logging.infrastructure.ConsoleLogger;
 import com.giozar04.messages.infrastructure.transport.Message;
 import com.giozar04.servers.domain.handlers.MessageHandler;
 import com.giozar04.servers.domain.models.ClientConnection;
-import com.giozar04.walletCardLinks.application.services.WalletCardLinkService;
+import com.giozar04.walletCardLinks.application.ports.input.WalletCardLinkOperations;
 import com.giozar04.walletCardLinks.infrastructure.serialization.WalletCardLinkMapper;
 import com.giozar04.walletCardLinks.domain.entities.WalletCardLink;
 
@@ -26,7 +26,7 @@ public class WalletCardLinkControllers {
     }
 
     @SuppressWarnings("unchecked")
-    public static MessageHandler createLinkController(WalletCardLinkService service) {
+    public static MessageHandler createLinkController(WalletCardLinkOperations service) {
         return (ClientConnection client, Message message) -> {
             LOGGER.info("Creando vínculo wallet-tarjeta");
 
@@ -44,7 +44,7 @@ public class WalletCardLinkControllers {
         };
     }
 
-    public static MessageHandler getLinkController(WalletCardLinkService service) {
+    public static MessageHandler getLinkController(WalletCardLinkOperations service) {
         return (ClientConnection client, Message message) -> {
             LOGGER.info("Obteniendo vínculo por ID");
 
@@ -61,7 +61,7 @@ public class WalletCardLinkControllers {
     }
 
     @SuppressWarnings("unchecked")
-    public static MessageHandler updateLinkController(WalletCardLinkService service) {
+    public static MessageHandler updateLinkController(WalletCardLinkOperations service) {
         return (ClientConnection client, Message message) -> {
             LOGGER.info("Actualizando vínculo");
 
@@ -83,7 +83,7 @@ public class WalletCardLinkControllers {
         };
     }
 
-    public static MessageHandler deleteLinkController(WalletCardLinkService service) {
+    public static MessageHandler deleteLinkController(WalletCardLinkOperations service) {
         return (ClientConnection client, Message message) -> {
             LOGGER.info("Eliminando vínculo wallet-tarjeta");
 
@@ -97,7 +97,7 @@ public class WalletCardLinkControllers {
         };
     }
 
-    public static MessageHandler getAllLinksController(WalletCardLinkService service) {
+    public static MessageHandler getAllLinksController(WalletCardLinkOperations service) {
         return (ClientConnection client, Message message) -> {
             LOGGER.info("Obteniendo todos los vínculos");
 
@@ -116,7 +116,7 @@ public class WalletCardLinkControllers {
         };
     }
 
-    public static MessageHandler getLinksByWalletController(WalletCardLinkService service) {
+    public static MessageHandler getLinksByWalletController(WalletCardLinkOperations service) {
         return (ClientConnection client, Message message) -> {
             LOGGER.info("Obteniendo vínculos por walletAccountId");
 

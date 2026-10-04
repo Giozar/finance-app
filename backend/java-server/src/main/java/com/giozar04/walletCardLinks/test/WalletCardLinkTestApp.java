@@ -5,9 +5,9 @@ import java.util.Scanner;
 
 import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
 import com.giozar04.databases.infrastructure.repositories.DatabaseConnectionMySQL;
-import com.giozar04.walletCardLinks.application.services.WalletCardLinkService;
+import com.giozar04.walletCardLinks.application.usecases.WalletCardLinkUseCase;
 import com.giozar04.walletCardLinks.domain.entities.WalletCardLink;
-import com.giozar04.walletCardLinks.infrastructure.repositories.WalletCardLinkRepositoryMySQL;
+import com.giozar04.walletCardLinks.infrastructure.persistence.mysql.WalletCardLinkRepositoryMySQL;
 
 public class WalletCardLinkTestApp {
 
@@ -27,7 +27,7 @@ public class WalletCardLinkTestApp {
             dbConnection.connect();
 
             WalletCardLinkRepositoryMySQL repository = new WalletCardLinkRepositoryMySQL(dbConnection);
-            WalletCardLinkService service = new WalletCardLinkService(repository);
+            WalletCardLinkUseCase service = new WalletCardLinkUseCase(repository);
 
             Scanner scanner = new Scanner(System.in);
             boolean exit = false;
@@ -63,7 +63,7 @@ public class WalletCardLinkTestApp {
         }
     }
 
-    private static void createLink(WalletCardLinkService service, Scanner scanner) {
+    private static void createLink(WalletCardLinkUseCase service, Scanner scanner) {
         WalletCardLink link = new WalletCardLink();
 
         System.out.print("ID de la cuenta tipo wallet: ");
@@ -80,7 +80,7 @@ public class WalletCardLinkTestApp {
         System.out.println("Vínculo creado con ID: " + created.getId());
     }
 
-    private static void getLinksByWallet(WalletCardLinkService service, Scanner scanner) {
+    private static void getLinksByWallet(WalletCardLinkUseCase service, Scanner scanner) {
         System.out.print("ID de la cuenta wallet: ");
         long walletId = scanner.nextLong();
         scanner.nextLine();
@@ -94,7 +94,7 @@ public class WalletCardLinkTestApp {
         links.forEach(WalletCardLinkTestApp::printLink);
     }
 
-    private static void getAllLinks(WalletCardLinkService service) {
+    private static void getAllLinks(WalletCardLinkUseCase service) {
         var links = service.getAllLinks();
         if (links.isEmpty()) {
             System.out.println("No hay vínculos registrados.");
@@ -104,7 +104,7 @@ public class WalletCardLinkTestApp {
         links.forEach(WalletCardLinkTestApp::printLink);
     }
 
-    private static void deleteLink(WalletCardLinkService service, Scanner scanner) {
+    private static void deleteLink(WalletCardLinkUseCase service, Scanner scanner) {
         System.out.print("ID del vínculo a eliminar: ");
         long id = scanner.nextLong();
         scanner.nextLine();

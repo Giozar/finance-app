@@ -68,10 +68,11 @@ import com.giozar04.accountReconciliations.infrastructure.repositories.AccountRe
 import com.giozar04.accountCashbackSettings.application.ports.output.AccountCashbackSettingRepository;
 import com.giozar04.accountCashbackSettings.infrastructure.transport.socket.AccountCashbackSettingHandlers;
 import com.giozar04.accountCashbackSettings.infrastructure.persistence.mysql.AccountCashbackSettingRepositoryMySQL;
-import com.giozar04.walletCardLinks.application.services.WalletCardLinkService;
-import com.giozar04.walletCardLinks.domain.interfaces.WalletCardLinkRepositoryInterface;
-import com.giozar04.walletCardLinks.infrastructure.handlers.WalletCardLinkHandlers;
-import com.giozar04.walletCardLinks.infrastructure.repositories.WalletCardLinkRepositoryMySQL;
+import com.giozar04.walletCardLinks.application.usecases.WalletCardLinkUseCase;
+import com.giozar04.walletCardLinks.application.ports.input.WalletCardLinkOperations;
+import com.giozar04.walletCardLinks.application.ports.output.WalletCardLinkRepository;
+import com.giozar04.walletCardLinks.infrastructure.transport.socket.WalletCardLinkHandlers;
+import com.giozar04.walletCardLinks.infrastructure.persistence.mysql.WalletCardLinkRepositoryMySQL;
 import com.giozar04.walletTransactionDetails.application.services.WalletTransactionDetailService;
 import com.giozar04.walletTransactionDetails.infrastructure.handlers.WalletTransactionDetailHandlers;
 import com.giozar04.walletTransactionDetails.infrastructure.repositories.WalletTransactionDetailRepositoryMySQL;
@@ -135,9 +136,9 @@ public class ApplicationInitializer {
         WalletTransactionDetailService walletTransactionDetailService = new WalletTransactionDetailService(walletTransactionDetailRepository);
 
         // Inicializar repositorios y servicios de vínculos wallet-tarjeta
-        WalletCardLinkRepositoryInterface walletCardLinkRepository =
+        WalletCardLinkRepository walletCardLinkRepository =
                 new WalletCardLinkRepositoryMySQL(dbConnection);
-        WalletCardLinkService walletCardLinkService = new WalletCardLinkService(walletCardLinkRepository);
+        WalletCardLinkOperations walletCardLinkService = new WalletCardLinkUseCase(walletCardLinkRepository);
 
         // Inicializar repositorios y servicios de transacciones (agregado: transacción + detalle + tags)
         TransactionalExecutor transactionalExecutor = new TransactionalExecutor(dbConnection);

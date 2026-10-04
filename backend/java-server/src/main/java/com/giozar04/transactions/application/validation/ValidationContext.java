@@ -25,7 +25,7 @@ import com.giozar04.tags.domain.entities.Tag;
 import com.giozar04.tags.application.exceptions.TagNotFoundException;
 import com.giozar04.tags.application.ports.output.TagRepository;
 import com.giozar04.walletCardLinks.domain.entities.WalletCardLink;
-import com.giozar04.walletCardLinks.domain.interfaces.WalletCardLinkRepositoryInterface;
+import com.giozar04.walletCardLinks.application.ports.output.WalletCardLinkRepository;
 
 /**
  * Datos de consulta para validar/normalizar UNA petición. Usa las interfaces de repositorio
@@ -37,7 +37,7 @@ public class ValidationContext {
 
     private final AccountRepository accountRepository;
     private final CardRepository cardRepository;
-    private final WalletCardLinkRepositoryInterface walletCardLinkRepository;
+    private final WalletCardLinkRepository walletCardLinkRepository;
     private final CategoryRepository categoryRepository;
     private final ExternalEntityRepository externalEntityRepository;
     private final TagRepository tagRepository;
@@ -51,7 +51,7 @@ public class ValidationContext {
 
     public ValidationContext(AccountRepository accountRepository,
                              CardRepository cardRepository,
-                             WalletCardLinkRepositoryInterface walletCardLinkRepository,
+                             WalletCardLinkRepository walletCardLinkRepository,
                              CategoryRepository categoryRepository,
                              ExternalEntityRepository externalEntityRepository,
                              TagRepository tagRepository) {
