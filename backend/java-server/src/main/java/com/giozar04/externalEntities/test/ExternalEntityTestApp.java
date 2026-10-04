@@ -5,10 +5,10 @@ import java.util.Scanner;
 
 import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
 import com.giozar04.databases.infrastructure.repositories.DatabaseConnectionMySQL;
-import com.giozar04.externalEntities.application.services.ExternalEntityService;
+import com.giozar04.externalEntities.application.usecases.ExternalEntityUseCase;
 import com.giozar04.externalEntities.domain.entities.ExternalEntity;
 import com.giozar04.externalEntities.domain.enums.ExternalEntityTypes;
-import com.giozar04.externalEntities.infrastructure.repositories.ExternalEntityRepositoryMySQL;
+import com.giozar04.externalEntities.infrastructure.persistence.mysql.ExternalEntityRepositoryMySQL;
 
 public class ExternalEntityTestApp {
 
@@ -28,7 +28,7 @@ public class ExternalEntityTestApp {
             dbConnection.connect();
 
             ExternalEntityRepositoryMySQL repository = new ExternalEntityRepositoryMySQL(dbConnection);
-            ExternalEntityService service = new ExternalEntityService(repository);
+            ExternalEntityUseCase service = new ExternalEntityUseCase(repository);
 
             Scanner scanner = new Scanner(System.in);
             boolean exit = false;
@@ -66,7 +66,7 @@ public class ExternalEntityTestApp {
         }
     }
 
-    private static void createEntity(ExternalEntityService service, Scanner scanner) {
+    private static void createEntity(ExternalEntityUseCase service, Scanner scanner) {
         ExternalEntity entity = new ExternalEntity();
 
         System.out.print("Nombre de la entidad externa: ");
@@ -91,7 +91,7 @@ public class ExternalEntityTestApp {
         System.out.println("Entidad externa creada con ID: " + created.getId());
     }
 
-    private static void updateEntity(ExternalEntityService service, Scanner scanner) {
+    private static void updateEntity(ExternalEntityUseCase service, Scanner scanner) {
         System.out.print("ID de la entidad a actualizar: ");
         long id = scanner.nextLong();
         scanner.nextLine();
@@ -116,7 +116,7 @@ public class ExternalEntityTestApp {
         System.out.println("Entidad externa actualizada.");
     }
 
-    private static void deleteEntity(ExternalEntityService service, Scanner scanner) {
+    private static void deleteEntity(ExternalEntityUseCase service, Scanner scanner) {
         System.out.print("ID de entidad a eliminar: ");
         long id = scanner.nextLong();
         scanner.nextLine();
@@ -125,7 +125,7 @@ public class ExternalEntityTestApp {
         System.out.println("Entidad externa eliminada.");
     }
 
-    private static void getAllEntities(ExternalEntityService service) {
+    private static void getAllEntities(ExternalEntityUseCase service) {
         var entities = service.getAllExternalEntities();
         if (entities.isEmpty()) {
             System.out.println("No hay entidades registradas.");
@@ -135,7 +135,7 @@ public class ExternalEntityTestApp {
         entities.forEach(ExternalEntityTestApp::printEntityDetails);
     }
 
-    private static void getEntityById(ExternalEntityService service, Scanner scanner) {
+    private static void getEntityById(ExternalEntityUseCase service, Scanner scanner) {
         System.out.print("ID de entidad: ");
         long id = scanner.nextLong();
         scanner.nextLine();

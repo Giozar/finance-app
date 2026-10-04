@@ -1,4 +1,4 @@
-package com.giozar04.externalEntities.infrastructure.repositories;
+package com.giozar04.externalEntities.infrastructure.persistence.mysql;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -19,9 +19,9 @@ import com.giozar04.externalEntities.application.exceptions.ExternalEntityDeleti
 import com.giozar04.externalEntities.application.exceptions.ExternalEntityNotFoundException;
 import com.giozar04.externalEntities.application.exceptions.ExternalEntityRetrievalException;
 import com.giozar04.externalEntities.application.exceptions.ExternalEntityUpdateException;
-import com.giozar04.externalEntities.domain.models.ExternalEntityRepositoryAbstract;
+import com.giozar04.externalEntities.infrastructure.persistence.mysql.AbstractExternalEntityJdbcRepository;
 
-public class ExternalEntityRepositoryMySQL extends ExternalEntityRepositoryAbstract {
+public class ExternalEntityRepositoryMySQL extends AbstractExternalEntityJdbcRepository {
 
     private static final String SQL_INSERT = """
         INSERT INTO external_entities (user_id, name, type, contact, created_at, updated_at)

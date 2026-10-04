@@ -27,10 +27,11 @@ import com.giozar04.configs.DatabaseConfig;
 import com.giozar04.configs.ServerConfig;
 import com.giozar04.databases.application.services.TransactionalExecutor;
 import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
-import com.giozar04.externalEntities.application.services.ExternalEntityService;
-import com.giozar04.externalEntities.domain.interfaces.ExternalEntityRepositoryInterface;
-import com.giozar04.externalEntities.infrastructure.handlers.ExternalEntityHandlers;
-import com.giozar04.externalEntities.infrastructure.repositories.ExternalEntityRepositoryMySQL;
+import com.giozar04.externalEntities.application.usecases.ExternalEntityUseCase;
+import com.giozar04.externalEntities.application.ports.input.ExternalEntityOperations;
+import com.giozar04.externalEntities.application.ports.output.ExternalEntityRepository;
+import com.giozar04.externalEntities.infrastructure.transport.socket.ExternalEntityHandlers;
+import com.giozar04.externalEntities.infrastructure.persistence.mysql.ExternalEntityRepositoryMySQL;
 import com.giozar04.logging.infrastructure.ConsoleLogger;
 import com.giozar04.servers.application.services.ServerService;
 import com.giozar04.servers.domain.exceptions.ServerOperationException;
@@ -114,9 +115,9 @@ public class ApplicationInitializer {
         TagOperations tagService = new TagUseCase(tagRepository);
 
         // Inicializar repositorios y servicios de entidades externas
-        ExternalEntityRepositoryInterface externalEntityRepository =
+        ExternalEntityRepository externalEntityRepository =
                 new ExternalEntityRepositoryMySQL(dbConnection);
-        ExternalEntityService externalEntityService = new ExternalEntityService(externalEntityRepository);
+        ExternalEntityOperations externalEntityService = new ExternalEntityUseCase(externalEntityRepository);
 
         // Inicializar repositorios y servicios de detalles de transacciones con tarjeta
         // (la misma instancia MySQL sirve al CRUD y, como escritor, a la unidad de trabajo de transactions)

@@ -1,10 +1,10 @@
-package com.giozar04.externalEntities.infrastructure.controllers;
+package com.giozar04.externalEntities.infrastructure.transport.socket;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import com.giozar04.externalEntities.application.services.ExternalEntityService;
+import com.giozar04.externalEntities.application.ports.input.ExternalEntityOperations;
 import com.giozar04.externalEntities.infrastructure.serialization.ExternalEntityMapper;
 import com.giozar04.externalEntities.domain.entities.ExternalEntity;
 import com.giozar04.logging.infrastructure.ConsoleLogger;
@@ -26,7 +26,7 @@ public class ExternalEntityControllers {
     }
 
     @SuppressWarnings("unchecked")
-    public static MessageHandler createExternalEntityController(ExternalEntityService service) {
+    public static MessageHandler createExternalEntityController(ExternalEntityOperations service) {
         return (ClientConnection client, Message message) -> {
             LOGGER.info("Procesando creación de entidad externa");
 
@@ -44,7 +44,7 @@ public class ExternalEntityControllers {
         };
     }
 
-    public static MessageHandler getExternalEntityController(ExternalEntityService service) {
+    public static MessageHandler getExternalEntityController(ExternalEntityOperations service) {
         return (ClientConnection client, Message message) -> {
             LOGGER.info("Procesando obtención de entidad externa");
 
@@ -61,7 +61,7 @@ public class ExternalEntityControllers {
     }
 
     @SuppressWarnings("unchecked")
-    public static MessageHandler updateExternalEntityController(ExternalEntityService service) {
+    public static MessageHandler updateExternalEntityController(ExternalEntityOperations service) {
         return (ClientConnection client, Message message) -> {
             LOGGER.info("Procesando actualización de entidad externa");
 
@@ -83,7 +83,7 @@ public class ExternalEntityControllers {
         };
     }
 
-    public static MessageHandler deleteExternalEntityController(ExternalEntityService service) {
+    public static MessageHandler deleteExternalEntityController(ExternalEntityOperations service) {
         return (ClientConnection client, Message message) -> {
             LOGGER.info("Procesando eliminación de entidad externa");
 
@@ -97,7 +97,7 @@ public class ExternalEntityControllers {
         };
     }
 
-    public static MessageHandler getAllExternalEntitiesController(ExternalEntityService service) {
+    public static MessageHandler getAllExternalEntitiesController(ExternalEntityOperations service) {
         return (ClientConnection client, Message message) -> {
             LOGGER.info("Procesando obtención de todas las entidades externas");
 
@@ -116,7 +116,7 @@ public class ExternalEntityControllers {
         };
     }
 
-    public static MessageHandler getExternalEntitiesByUserController(ExternalEntityService service) {
+    public static MessageHandler getExternalEntitiesByUserController(ExternalEntityOperations service) {
         return (ClientConnection client, Message message) -> {
             LOGGER.info("Procesando obtención de entidades externas por usuario");
 

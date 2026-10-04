@@ -1,10 +1,10 @@
-package com.giozar04.externalEntities.domain.interfaces;
+package com.giozar04.externalEntities.application.ports.output;
 
 import java.util.List;
 
 import com.giozar04.externalEntities.domain.entities.ExternalEntity;
 
-public interface ExternalEntityRepositoryInterface {
+public interface ExternalEntityRepository {
     ExternalEntity createExternalEntity(ExternalEntity entity);
     ExternalEntity getExternalEntityById(long id);
     ExternalEntity updateExternalEntityById(long id, ExternalEntity entity);

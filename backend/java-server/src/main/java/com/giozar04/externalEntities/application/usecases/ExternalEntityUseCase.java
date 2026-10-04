@@ -1,15 +1,16 @@
-package com.giozar04.externalEntities.application.services;
+package com.giozar04.externalEntities.application.usecases;
 
 import java.util.List;
 
 import com.giozar04.externalEntities.domain.entities.ExternalEntity;
-import com.giozar04.externalEntities.domain.interfaces.ExternalEntityRepositoryInterface;
+import com.giozar04.externalEntities.application.ports.output.ExternalEntityRepository;
+import com.giozar04.externalEntities.application.ports.input.ExternalEntityOperations;
 
-public class ExternalEntityService implements ExternalEntityRepositoryInterface {
+public class ExternalEntityUseCase implements ExternalEntityOperations {
 
-    private final ExternalEntityRepositoryInterface repository;
+    private final ExternalEntityRepository repository;
 
-    public ExternalEntityService(ExternalEntityRepositoryInterface repository) {
+    public ExternalEntityUseCase(ExternalEntityRepository repository) {
         this.repository = repository;
     }
 
