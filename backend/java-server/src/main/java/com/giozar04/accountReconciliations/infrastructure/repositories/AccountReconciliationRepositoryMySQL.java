@@ -9,7 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.giozar04.accountReconciliations.domain.entities.AccountReconciliation;
-import com.giozar04.accountReconciliations.domain.exceptions.AccountReconciliationExceptions;
+import com.giozar04.accountReconciliations.application.exceptions.AccountReconciliationAdjustmentException;
+import com.giozar04.accountReconciliations.application.exceptions.AccountReconciliationRetrievalException;
 import com.giozar04.accountReconciliations.domain.models.AccountReconciliationRepositoryAbstract;
 import com.giozar04.accounts.domain.enums.AccountTypes;
 import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
@@ -47,7 +48,7 @@ public class AccountReconciliationRepositoryMySQL extends AccountReconciliationR
             return reconciliations;
 
         } catch (SQLException e) {
-            throw new AccountReconciliationExceptions.AccountReconciliationRetrievalException(
+            throw new AccountReconciliationRetrievalException(
                 "Error al obtener las reconciliaciones de cuentas: " + e.getMessage(), e);
         }
     }
@@ -69,7 +70,7 @@ public class AccountReconciliationRepositoryMySQL extends AccountReconciliationR
             return reconciliations;
 
         } catch (SQLException e) {
-            throw new AccountReconciliationExceptions.AccountReconciliationRetrievalException(
+            throw new AccountReconciliationRetrievalException(
                 "Error al obtener las reconciliaciones del usuario con ID " + userId + ": " + e.getMessage(), e);
         }
     }
@@ -86,12 +87,12 @@ public class AccountReconciliationRepositoryMySQL extends AccountReconciliationR
                 if (rs.next()) {
                     return mapResultSetToAccountReconciliation(rs);
                 }
-                throw new AccountReconciliationExceptions.AccountReconciliationRetrievalException(
+                throw new AccountReconciliationRetrievalException(
                     "Cuenta no encontrada con ID: " + accountId);
             }
 
         } catch (SQLException e) {
-            throw new AccountReconciliationExceptions.AccountReconciliationRetrievalException(
+            throw new AccountReconciliationRetrievalException(
                 "Error al obtener la reconciliación de la cuenta con ID " + accountId + ": " + e.getMessage(), e);
         }
     }
@@ -118,7 +119,7 @@ public class AccountReconciliationRepositoryMySQL extends AccountReconciliationR
                     if (rs.next()) {
                         return mapResultSetToAccountReconciliation(rs);
                     }
-                    throw new AccountReconciliationExceptions.AccountReconcileException(
+                    throw new AccountReconciliationAdjustmentException(
                         "Cuenta no encontrada con ID: " + accountId);
                 }
             }
@@ -126,7 +127,7 @@ public class AccountReconciliationRepositoryMySQL extends AccountReconciliationR
         } catch (SQLException e) {
             logger.error("Error al reconciliar la cuenta con ID " + accountId + ": " + e.getMessage(), e);
             rollback();
-            throw new AccountReconciliationExceptions.AccountReconcileException(
+            throw new AccountReconciliationAdjustmentException(
                 "Error al reconciliar la cuenta: " + e.getMessage(), e);
         }
     }

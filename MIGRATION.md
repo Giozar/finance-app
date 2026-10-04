@@ -19,7 +19,7 @@ Referencia funcional inicial: `a68517e`.
 | cardTransactionDetails | Migrada; contratos y consumidores verificados |
 | walletTransactionDetails | Migrada; contratos y consumidores verificados |
 | transactions | Migrada; contratos y consumidores verificados |
-| accountReconciliations | Pendiente |
+| accountReconciliations | Migrada; contratos y consumidores verificados |
 | serialización, mensajes y logging | Pendiente |
 
 Cada fila completada incluye referencias de consumidores, documentación, contratos

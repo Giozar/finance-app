@@ -59,7 +59,9 @@ def migrate(feature):
     exceptions = {}
     written = set()
     for nested, block in nested_classes(source):
-        name = nested if nested.startswith(prefix) else prefix + nested
+        name = ("AccountReconciliationAdjustmentException"
+                if feature == "accountReconciliations" and nested == "AccountReconcileException"
+                else nested if nested.startswith(prefix) else prefix + nested)
         # Las variantes genéricas de Transaction son clases no usadas que duplican
         # las explícitas; conservar la variante explícita.
         if name in written:

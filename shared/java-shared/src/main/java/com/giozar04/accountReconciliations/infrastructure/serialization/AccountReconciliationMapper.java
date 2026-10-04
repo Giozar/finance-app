@@ -1,15 +1,15 @@
-package com.giozar04.accountReconciliations.application.utils;
+package com.giozar04.accountReconciliations.infrastructure.serialization;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import com.giozar04.accountReconciliations.domain.entities.AccountReconciliation;
 import com.giozar04.accounts.domain.enums.AccountTypes;
-import com.giozar04.shared.utils.SharedUtils;
+import com.giozar04.shared.infrastructure.serialization.ValueParser;
 
-public class AccountReconciliationUtils {
+public class AccountReconciliationMapper {
 
-    public static Map<String, Object> accountReconciliationToMap(AccountReconciliation reconciliation) {
+    public static Map<String, Object> toMap(AccountReconciliation reconciliation) {
         Map<String, Object> map = new HashMap<>();
         map.put("accountId", reconciliation.getAccountId());
         map.put("userId", reconciliation.getUserId());
@@ -24,11 +24,11 @@ public class AccountReconciliationUtils {
         return map;
     }
 
-    public static AccountReconciliation mapToAccountReconciliation(Map<String, Object> map) {
+    public static AccountReconciliation fromMap(Map<String, Object> map) {
         AccountReconciliation reconciliation = new AccountReconciliation();
 
-        reconciliation.setAccountId(SharedUtils.parseLong(map.get("accountId")));
-        reconciliation.setUserId(SharedUtils.parseLong(map.get("userId")));
+        reconciliation.setAccountId(ValueParser.parseLong(map.get("accountId")));
+        reconciliation.setUserId(ValueParser.parseLong(map.get("userId")));
         reconciliation.setAccountName((String) map.getOrDefault("accountName", ""));
 
         String typeStr = (String) map.get("accountType");
@@ -36,12 +36,12 @@ public class AccountReconciliationUtils {
             reconciliation.setAccountType(AccountTypes.fromValue(typeStr));
         }
 
-        reconciliation.setOpeningNet(SharedUtils.parseNullableBigDecimal(map.get("openingNet")));
-        reconciliation.setTotalInflows(SharedUtils.parseNullableBigDecimal(map.get("totalInflows")));
-        reconciliation.setTotalOutflows(SharedUtils.parseNullableBigDecimal(map.get("totalOutflows")));
-        reconciliation.setExpectedNet(SharedUtils.parseNullableBigDecimal(map.get("expectedNet")));
-        reconciliation.setActualNet(SharedUtils.parseNullableBigDecimal(map.get("actualNet")));
-        reconciliation.setDifference(SharedUtils.parseNullableBigDecimal(map.get("difference")));
+        reconciliation.setOpeningNet(ValueParser.parseNullableBigDecimal(map.get("openingNet")));
+        reconciliation.setTotalInflows(ValueParser.parseNullableBigDecimal(map.get("totalInflows")));
+        reconciliation.setTotalOutflows(ValueParser.parseNullableBigDecimal(map.get("totalOutflows")));
+        reconciliation.setExpectedNet(ValueParser.parseNullableBigDecimal(map.get("expectedNet")));
+        reconciliation.setActualNet(ValueParser.parseNullableBigDecimal(map.get("actualNet")));
+        reconciliation.setDifference(ValueParser.parseNullableBigDecimal(map.get("difference")));
 
         return reconciliation;
     }

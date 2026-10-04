@@ -32,7 +32,7 @@ public final class ContractProbe {
         new Feature("cardTransactionDetails", "com.giozar04.cardTransactionDetails.domain.entities.CardTransactionDetail", "com.giozar04.cardTransactionDetails.infrastructure.serialization.CardTransactionDetailMapper", "toMap", "fromMap"),
         new Feature("walletTransactionDetails", "com.giozar04.walletTransactionDetails.domain.entities.WalletTransactionDetail", "com.giozar04.walletTransactionDetails.infrastructure.serialization.WalletTransactionDetailMapper", "toMap", "fromMap"),
         new Feature("transactions", "com.giozar04.transactions.domain.entities.Transaction", "com.giozar04.transactions.infrastructure.serialization.TransactionMapper", "toMap", "fromMap"),
-        new Feature("accountReconciliations", "com.giozar04.accountReconciliations.domain.entities.AccountReconciliation", "com.giozar04.accountReconciliations.application.utils.AccountReconciliationUtils", "accountReconciliationToMap", "mapToAccountReconciliation")
+        new Feature("accountReconciliations", "com.giozar04.accountReconciliations.domain.entities.AccountReconciliation", "com.giozar04.accountReconciliations.infrastructure.serialization.AccountReconciliationMapper", "toMap", "fromMap")
     );
 
     public static void main(String[] args) throws Exception {

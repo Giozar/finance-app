@@ -17,9 +17,10 @@ src/main/java/com/giozar04/accountCashbackSettings/application/exceptions/Accoun
 src/main/java/com/giozar04/accountCashbackSettings/domain/entities/AccountCashbackSetting.java
 src/main/java/com/giozar04/accountCashbackSettings/infrastructure/serialization/AccountCashbackSettingMapper.java
 src/main/java/com/giozar04/accountCashbackSettings/infrastructure/serialization/AccountCashbackSettingParsingException.java
-src/main/java/com/giozar04/accountReconciliations/application/utils/AccountReconciliationUtils.java
+src/main/java/com/giozar04/accountReconciliations/application/exceptions/AccountReconciliationAdjustmentException.java
+src/main/java/com/giozar04/accountReconciliations/application/exceptions/AccountReconciliationRetrievalException.java
 src/main/java/com/giozar04/accountReconciliations/domain/entities/AccountReconciliation.java
-src/main/java/com/giozar04/accountReconciliations/domain/exceptions/AccountReconciliationExceptions.java
+src/main/java/com/giozar04/accountReconciliations/infrastructure/serialization/AccountReconciliationMapper.java
 src/main/java/com/giozar04/accounts/application/exceptions/AccountCreationException.java
 src/main/java/com/giozar04/accounts/application/exceptions/AccountDeletionException.java
 src/main/java/com/giozar04/accounts/application/exceptions/AccountNotFoundException.java

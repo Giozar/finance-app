@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.giozar04.accountReconciliations.application.services.AccountReconciliationService;
-import com.giozar04.accountReconciliations.application.utils.AccountReconciliationUtils;
+import com.giozar04.accountReconciliations.infrastructure.serialization.AccountReconciliationMapper;
 import com.giozar04.accountReconciliations.domain.entities.AccountReconciliation;
 import com.giozar04.logging.CustomLogger;
 import com.giozar04.messages.domain.models.Message;
@@ -69,7 +69,7 @@ public class AccountReconciliationControllers {
 
             Message response = Message.createSuccessMessage(
                 AccountReconciliationMessageTypes.GET_ACCOUNT_RECONCILIATION, "Reconciliación obtenida exitosamente");
-            response.addData("accountReconciliation", AccountReconciliationUtils.accountReconciliationToMap(reconciliation));
+            response.addData("accountReconciliation", AccountReconciliationMapper.toMap(reconciliation));
             return response;
         };
     }
@@ -87,7 +87,7 @@ public class AccountReconciliationControllers {
 
             Message response = Message.createSuccessMessage(
                 AccountReconciliationMessageTypes.RECONCILE_ACCOUNT, "Cuenta reconciliada exitosamente");
-            response.addData("accountReconciliation", AccountReconciliationUtils.accountReconciliationToMap(reconciliation));
+            response.addData("accountReconciliation", AccountReconciliationMapper.toMap(reconciliation));
             return response;
         };
     }
@@ -95,7 +95,7 @@ public class AccountReconciliationControllers {
     private static List<Map<String, Object>> toMapList(List<AccountReconciliation> reconciliations) {
         List<Map<String, Object>> result = new ArrayList<>();
         for (AccountReconciliation r : reconciliations) {
-            result.add(AccountReconciliationUtils.accountReconciliationToMap(r));
+            result.add(AccountReconciliationMapper.toMap(r));
         }
         return result;
     }

@@ -24,6 +24,7 @@ model: inherit
 | `cardTransactionDetails` | Migrada: `CardTransactionDetailMapper.toMap/fromMap`; excepciones separadas |
 | `walletTransactionDetails` | Migrada: `WalletTransactionDetailMapper.toMap/fromMap`; excepciones separadas |
 | `transactions` | Migrada: `TransactionMapper.toMap/fromMap`; excepciones separadas |
+| `accountReconciliations` | Migrada: `AccountReconciliationMapper.toMap/fromMap`; excepciones separadas |
 | Resto | Estructura anterior hasta su commit; consulte `MIGRATION.md` |
 
 Las secciones «Estructura de una feature» y «Convenciones» más abajo describen

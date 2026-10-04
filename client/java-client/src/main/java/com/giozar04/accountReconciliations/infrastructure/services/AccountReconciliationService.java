@@ -4,9 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import com.giozar04.accountReconciliations.application.utils.AccountReconciliationUtils;
+import com.giozar04.accountReconciliations.infrastructure.serialization.AccountReconciliationMapper;
 import com.giozar04.accountReconciliations.domain.entities.AccountReconciliation;
-import com.giozar04.accountReconciliations.domain.exceptions.AccountReconciliationExceptions;
+import com.giozar04.accountReconciliations.application.exceptions.AccountReconciliationAdjustmentException;
+import com.giozar04.accountReconciliations.application.exceptions.AccountReconciliationRetrievalException;
 import com.giozar04.logging.CustomLogger;
 import com.giozar04.messages.domain.models.Message;
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
@@ -48,7 +49,7 @@ public class AccountReconciliationService {
             return reconciliations;
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new AccountReconciliationExceptions.AccountReconciliationRetrievalException("Error al esperar respuesta del servidor", e);
+            throw new AccountReconciliationRetrievalException("Error al esperar respuesta del servidor", e);
         }
     }
 
@@ -67,7 +68,7 @@ public class AccountReconciliationService {
             return reconciliations;
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new AccountReconciliationExceptions.AccountReconciliationRetrievalException("Error al esperar respuesta del servidor", e);
+            throw new AccountReconciliationRetrievalException("Error al esperar respuesta del servidor", e);
         }
     }
 
@@ -82,11 +83,11 @@ public class AccountReconciliationService {
             Message response = serverConnectionService.waitForMessage("GET_ACCOUNT_RECONCILIATION");
             ServerResponseValidator.validateResponse(response);
             logger.info("Conciliación de la cuenta obtenida correctamente: " + response);
-            return AccountReconciliationUtils.mapToAccountReconciliation(
+            return AccountReconciliationMapper.fromMap(
                     (Map<String, Object>) response.getData("accountReconciliation"));
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new AccountReconciliationExceptions.AccountReconciliationRetrievalException("Error al esperar respuesta del servidor", e);
+            throw new AccountReconciliationRetrievalException("Error al esperar respuesta del servidor", e);
         }
     }
 
@@ -101,26 +102,26 @@ public class AccountReconciliationService {
             Message response = serverConnectionService.waitForMessage("RECONCILE_ACCOUNT");
             ServerResponseValidator.validateResponse(response);
             logger.info("Cuenta conciliada correctamente: " + response);
-            return AccountReconciliationUtils.mapToAccountReconciliation(
+            return AccountReconciliationMapper.fromMap(
                     (Map<String, Object>) response.getData("accountReconciliation"));
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new AccountReconciliationExceptions.AccountReconcileException("Error al esperar respuesta del servidor", e);
+            throw new AccountReconciliationAdjustmentException("Error al esperar respuesta del servidor", e);
         }
     }
 
     @SuppressWarnings("unchecked")
     private List<AccountReconciliation> toReconciliationList(Object raw) {
         if (raw == null) {
-            throw new AccountReconciliationExceptions.AccountReconciliationRetrievalException("Lista de conciliaciones vacía", null);
+            throw new AccountReconciliationRetrievalException("Lista de conciliaciones vacía", null);
         }
         if (!(raw instanceof List<?> rawList)) {
-            throw new AccountReconciliationExceptions.AccountReconciliationRetrievalException("Formato inesperado: " + raw.getClass().getName(), null);
+            throw new AccountReconciliationRetrievalException("Formato inesperado: " + raw.getClass().getName(), null);
         }
         List<AccountReconciliation> reconciliations = new ArrayList<>();
         for (Object item : rawList) {
             if (item instanceof Map<?, ?> map) {
-                reconciliations.add(AccountReconciliationUtils.mapToAccountReconciliation((Map<String, Object>) map));
+                reconciliations.add(AccountReconciliationMapper.fromMap((Map<String, Object>) map));
             }
         }
         return reconciliations;

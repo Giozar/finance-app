@@ -65,7 +65,7 @@ Filtros para el formulario de transacciones (respuesta = misma clave que su `GET
 
 `accountReconciliations` no tiene tabla ni CRUD: lee la vista `v_account_reconciliation` (importes `BigDecimal`,
 `rs.getBigDecimal`) y escribe solo vía el procedimiento `sp_reconcile_account`. Entidad, utils y excepciones
-(`AccountReconciliationRetrievalException`, `AccountReconcileException`) vienen de shared.
+(`AccountReconciliationRetrievalException`, `AccountReconciliationAdjustmentException`) vienen de shared.
 `AccountReconciliationMessageTypes`: `GET_ALL_ACCOUNT_RECONCILIATIONS` (sin datos), `GET_ACCOUNT_RECONCILIATIONS_BY_USER`
 (data `"userId"`), `GET_ACCOUNT_RECONCILIATION` (data `"accountId"`), `RECONCILE_ACCOUNT` (data `"accountId"`).
 Respuestas: `"accountReconciliations"` (lista de maps) + `"count"`, o `"accountReconciliation"` (map).
