@@ -2,8 +2,8 @@ package com.giozar04.categories.infrastructure.transport.socket;
 
 import com.giozar04.categories.application.ports.input.CategoryOperations;
 import com.giozar04.categories.infrastructure.transport.socket.CategoryControllers;
-import com.giozar04.servers.application.services.ServerService;
-import com.giozar04.servers.domain.interfaces.ServerRegisterHandlers;
+import com.giozar04.servers.infrastructure.transport.socket.ServerService;
+import com.giozar04.servers.infrastructure.transport.socket.ServerRegisterHandlers;
 
 public class CategoryHandlers implements ServerRegisterHandlers {
 

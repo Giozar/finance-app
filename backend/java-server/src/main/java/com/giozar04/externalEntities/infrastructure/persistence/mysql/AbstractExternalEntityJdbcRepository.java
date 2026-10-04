@@ -3,7 +3,7 @@ package com.giozar04.externalEntities.infrastructure.persistence.mysql;
 import java.util.List;
 import java.util.Objects;
 
-import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
+import com.giozar04.databases.infrastructure.persistence.mysql.DatabaseConnectionInterface;
 import com.giozar04.externalEntities.domain.entities.ExternalEntity;
 import com.giozar04.externalEntities.domain.enums.ExternalEntityTypes;
 import com.giozar04.externalEntities.application.ports.output.ExternalEntityRepository;

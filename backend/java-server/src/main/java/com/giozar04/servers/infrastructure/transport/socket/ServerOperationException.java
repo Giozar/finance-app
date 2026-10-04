@@ -1,4 +1,4 @@
-package com.giozar04.servers.domain.exceptions;
+package com.giozar04.servers.infrastructure.transport.socket;
 
 /**
  * Excepción específica para operaciones relacionadas con el servidor de sockets.

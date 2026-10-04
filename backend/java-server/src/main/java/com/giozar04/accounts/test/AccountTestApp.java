@@ -7,8 +7,8 @@ import com.giozar04.accounts.application.usecases.AccountUseCase;
 import com.giozar04.accounts.domain.entities.Account;
 import com.giozar04.accounts.domain.enums.AccountTypes;
 import com.giozar04.accounts.infrastructure.persistence.mysql.AccountRepositoryMySQL;
-import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
-import com.giozar04.databases.infrastructure.repositories.DatabaseConnectionMySQL;
+import com.giozar04.databases.infrastructure.persistence.mysql.DatabaseConnectionInterface;
+import com.giozar04.databases.infrastructure.persistence.mysql.DatabaseConnectionMySQL;
 
 public class AccountTestApp {
 

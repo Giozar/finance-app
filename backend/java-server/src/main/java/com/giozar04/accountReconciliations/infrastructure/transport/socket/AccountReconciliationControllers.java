@@ -9,8 +9,8 @@ import com.giozar04.accountReconciliations.infrastructure.serialization.AccountR
 import com.giozar04.accountReconciliations.domain.entities.AccountReconciliation;
 import com.giozar04.logging.infrastructure.ConsoleLogger;
 import com.giozar04.messages.infrastructure.transport.Message;
-import com.giozar04.servers.domain.handlers.MessageHandler;
-import com.giozar04.servers.domain.models.ClientConnection;
+import com.giozar04.servers.infrastructure.transport.socket.MessageHandler;
+import com.giozar04.servers.infrastructure.transport.socket.ClientConnection;
 
 public class AccountReconciliationControllers {
 

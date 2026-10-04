@@ -11,7 +11,7 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
+import com.giozar04.databases.infrastructure.persistence.mysql.DatabaseConnectionInterface;
 import com.giozar04.users.domain.entities.User;
 import com.giozar04.users.application.exceptions.UserCreationException;
 import com.giozar04.users.application.exceptions.UserDeletionException;

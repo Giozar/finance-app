@@ -6,8 +6,8 @@ import java.util.Map;
 
 import com.giozar04.logging.infrastructure.ConsoleLogger;
 import com.giozar04.messages.infrastructure.transport.Message;
-import com.giozar04.servers.domain.handlers.MessageHandler;
-import com.giozar04.servers.domain.models.ClientConnection;
+import com.giozar04.servers.infrastructure.transport.socket.MessageHandler;
+import com.giozar04.servers.infrastructure.transport.socket.ClientConnection;
 import com.giozar04.walletTransactionDetails.application.ports.input.WalletTransactionDetailOperations;
 import com.giozar04.walletTransactionDetails.infrastructure.serialization.WalletTransactionDetailMapper;
 import com.giozar04.walletTransactionDetails.domain.entities.WalletTransactionDetail;

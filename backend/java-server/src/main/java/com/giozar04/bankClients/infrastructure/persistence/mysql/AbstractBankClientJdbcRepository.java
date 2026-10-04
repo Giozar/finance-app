@@ -6,7 +6,7 @@ import java.util.Objects;
 import com.giozar04.bankClient.domain.entities.BankClient;
 import com.giozar04.bankClients.application.ports.output.BankClientRepository;
 import com.giozar04.bankClients.domain.policies.BankClientPolicy;
-import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
+import com.giozar04.databases.infrastructure.persistence.mysql.DatabaseConnectionInterface;
 import com.giozar04.logging.infrastructure.ConsoleLogger;
 
 public abstract class AbstractBankClientJdbcRepository implements BankClientRepository {

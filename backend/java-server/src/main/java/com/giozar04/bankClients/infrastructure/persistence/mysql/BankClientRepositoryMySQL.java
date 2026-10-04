@@ -18,7 +18,7 @@ import com.giozar04.bankClient.application.exceptions.BankClientNotFoundExceptio
 import com.giozar04.bankClient.application.exceptions.BankClientRetrievalException;
 import com.giozar04.bankClient.application.exceptions.BankClientUpdateException;
 import com.giozar04.bankClients.infrastructure.persistence.mysql.AbstractBankClientJdbcRepository;
-import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
+import com.giozar04.databases.infrastructure.persistence.mysql.DatabaseConnectionInterface;
 
 public class BankClientRepositoryMySQL extends AbstractBankClientJdbcRepository {
 

@@ -10,7 +10,7 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
+import com.giozar04.databases.infrastructure.persistence.mysql.DatabaseConnectionInterface;
 import com.giozar04.walletCardLinks.domain.entities.WalletCardLink;
 import com.giozar04.walletCardLinks.application.exceptions.WalletCardLinkCreationException;
 import com.giozar04.walletCardLinks.application.exceptions.WalletCardLinkDeletionException;

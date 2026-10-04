@@ -3,8 +3,8 @@ package com.giozar04.users.test;
 import java.time.ZonedDateTime;
 import java.util.Scanner;
 
-import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
-import com.giozar04.databases.infrastructure.repositories.DatabaseConnectionMySQL;
+import com.giozar04.databases.infrastructure.persistence.mysql.DatabaseConnectionInterface;
+import com.giozar04.databases.infrastructure.persistence.mysql.DatabaseConnectionMySQL;
 import com.giozar04.users.application.usecases.UserUseCase;
 import com.giozar04.users.domain.entities.User;
 import com.giozar04.users.infrastructure.persistence.mysql.UserRepositoryMySQL;

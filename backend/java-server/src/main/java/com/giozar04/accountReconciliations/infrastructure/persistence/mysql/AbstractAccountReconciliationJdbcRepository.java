@@ -6,7 +6,7 @@ import java.util.Objects;
 import com.giozar04.accountReconciliations.domain.entities.AccountReconciliation;
 import com.giozar04.accountReconciliations.application.ports.output.AccountReconciliationRepository;
 import com.giozar04.accountReconciliations.domain.policies.AccountReconciliationPolicy;
-import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
+import com.giozar04.databases.infrastructure.persistence.mysql.DatabaseConnectionInterface;
 import com.giozar04.logging.infrastructure.ConsoleLogger;
 
 public abstract class AbstractAccountReconciliationJdbcRepository implements AccountReconciliationRepository {

@@ -6,8 +6,8 @@ import java.util.Scanner;
 import com.giozar04.bankClient.domain.entities.BankClient;
 import com.giozar04.bankClients.application.usecases.BankClientUseCase;
 import com.giozar04.bankClients.infrastructure.persistence.mysql.BankClientRepositoryMySQL;
-import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
-import com.giozar04.databases.infrastructure.repositories.DatabaseConnectionMySQL;
+import com.giozar04.databases.infrastructure.persistence.mysql.DatabaseConnectionInterface;
+import com.giozar04.databases.infrastructure.persistence.mysql.DatabaseConnectionMySQL;
 
 /**
  * Aplicación de consola para probar las operaciones CRUD de BankClient con MySQL.

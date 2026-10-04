@@ -7,7 +7,7 @@ import com.giozar04.categories.domain.entities.Category;
 import com.giozar04.categories.domain.enums.CategoryTypes;
 import com.giozar04.categories.application.ports.output.CategoryRepository;
 import com.giozar04.categories.domain.policies.CategoryPolicy;
-import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
+import com.giozar04.databases.infrastructure.persistence.mysql.DatabaseConnectionInterface;
 import com.giozar04.logging.infrastructure.ConsoleLogger;
 
 public abstract class AbstractCategoryJdbcRepository implements CategoryRepository {

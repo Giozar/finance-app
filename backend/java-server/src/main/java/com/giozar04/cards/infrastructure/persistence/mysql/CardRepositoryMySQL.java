@@ -19,7 +19,7 @@ import com.giozar04.card.application.exceptions.CardNotFoundException;
 import com.giozar04.card.application.exceptions.CardRetrievalException;
 import com.giozar04.card.application.exceptions.CardUpdateException;
 import com.giozar04.cards.infrastructure.persistence.mysql.AbstractCardJdbcRepository;
-import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
+import com.giozar04.databases.infrastructure.persistence.mysql.DatabaseConnectionInterface;
 
 public class CardRepositoryMySQL extends AbstractCardJdbcRepository {
 

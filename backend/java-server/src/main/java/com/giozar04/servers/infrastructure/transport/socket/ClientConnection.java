@@ -1,4 +1,4 @@
-package com.giozar04.servers.domain.models;
+package com.giozar04.servers.infrastructure.transport.socket;
 
 import java.net.Socket;
 import java.time.LocalDateTime;

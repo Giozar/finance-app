@@ -1,7 +1,7 @@
 package com.giozar04.tags.infrastructure.transport.socket;
 
-import com.giozar04.servers.application.services.ServerService;
-import com.giozar04.servers.domain.interfaces.ServerRegisterHandlers;
+import com.giozar04.servers.infrastructure.transport.socket.ServerService;
+import com.giozar04.servers.infrastructure.transport.socket.ServerRegisterHandlers;
 import com.giozar04.tags.application.ports.input.TagOperations;
 import com.giozar04.tags.infrastructure.transport.socket.TagControllers;
 

@@ -2,8 +2,8 @@ package com.giozar04.accountReconciliations.infrastructure.transport.socket;
 
 import com.giozar04.accountReconciliations.application.ports.input.AccountReconciliationOperations;
 import com.giozar04.accountReconciliations.infrastructure.transport.socket.AccountReconciliationControllers;
-import com.giozar04.servers.application.services.ServerService;
-import com.giozar04.servers.domain.interfaces.ServerRegisterHandlers;
+import com.giozar04.servers.infrastructure.transport.socket.ServerService;
+import com.giozar04.servers.infrastructure.transport.socket.ServerRegisterHandlers;
 
 public class AccountReconciliationHandlers implements ServerRegisterHandlers {
 

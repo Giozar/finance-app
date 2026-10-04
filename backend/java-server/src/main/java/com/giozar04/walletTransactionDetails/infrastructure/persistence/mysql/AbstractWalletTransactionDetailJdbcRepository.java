@@ -3,7 +3,7 @@ package com.giozar04.walletTransactionDetails.infrastructure.persistence.mysql;
 import java.util.List;
 import java.util.Objects;
 
-import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
+import com.giozar04.databases.infrastructure.persistence.mysql.DatabaseConnectionInterface;
 import com.giozar04.logging.infrastructure.ConsoleLogger;
 import com.giozar04.walletTransactionDetails.domain.entities.WalletTransactionDetail;
 import com.giozar04.walletTransactionDetails.domain.enums.WalletTransactionSourceType;

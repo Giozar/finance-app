@@ -1,7 +1,7 @@
 package com.giozar04.users.infrastructure.transport.socket;
 
-import com.giozar04.servers.application.services.ServerService;
-import com.giozar04.servers.domain.interfaces.ServerRegisterHandlers;
+import com.giozar04.servers.infrastructure.transport.socket.ServerService;
+import com.giozar04.servers.infrastructure.transport.socket.ServerRegisterHandlers;
 import com.giozar04.users.application.ports.input.UserOperations;
 import com.giozar04.users.infrastructure.transport.socket.UserControllers;
 

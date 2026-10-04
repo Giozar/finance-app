@@ -1,4 +1,4 @@
-package com.giozar04.databases.domain.interfaces;
+package com.giozar04.databases.infrastructure.persistence.mysql;
 
 import java.sql.Connection;
 import java.sql.SQLException;

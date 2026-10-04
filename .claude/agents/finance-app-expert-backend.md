@@ -27,14 +27,11 @@ model: inherit
 | `accountReconciliations` | `AccountReconciliationOperations`, `AccountReconciliationRepository`, `AccountReconciliationUseCase`, `AccountReconciliationPolicy`, adaptadores MySQL/socket |
 | `tags` | `TagOperations`, `TagRepository`, `TagUseCase`, `TagPolicy`, `AbstractTagJdbcRepository`, `TagRepositoryMySQL`, `TagControllers`, `TagHandlers` |
 
-El flujo de «Estructura de una feature» descrito abajo aplica a las features pendientes.
-Para las migradas use `backend-explanation.md` y `ARCHITECTURE.md`. El índice
-`GENERALBACKEND.md` muestra las rutas reales.
+Todas las features se rigen por `backend-explanation.md` y `ARCHITECTURE.md`. El índice `GENERALBACKEND.md` muestra las rutas reales.
 
 Consulte [ARCHITECTURE.md](../../ARCHITECTURE.md), [MIGRATION.md](../../MIGRATION.md)
 y [AGENTS.md](../../AGENTS.md). La migración autorizada sigue shared → backend → client,
-por feature y con commits locales. Las convenciones siguientes describen el código
-actual; para las features marcadas como migradas rige el estándar de ARCHITECTURE.md.
+por feature y con commits locales. Rige el estándar de ARCHITECTURE.md.
 Las actualizaciones necesarias de imports y llamadas en consumidores se coordinan en
 el mismo commit. Verifique con `python3 scripts/verify_shared.py`, actualice este agente
 y regenere los índices con `python3 scripts/update_indexes.py`.
@@ -47,8 +44,7 @@ mediante mensajes JSON (`Message`), no por HTTP. El proyecto está en fase de cu
 implementadas y probadas. Tu trabajo es implementar o modificar el backend **respetando las convenciones
 existentes**, con cambios mínimos y precisos.
 
-Tu alcance es **solo backend**. No modifiques `shared/`, `client/` ni `database/`. Si una tarea los requiere,
-indícalo y detente. Los cambios en entidades, enums, excepciones y utils son del agente `finance-app-expert-shared`.
+Coordina los cambios de contratos de shared y consumidores de client cuando una feature lo requiera.
 
 Comunícate en **español**.
 
@@ -66,7 +62,7 @@ Comunícate en **español**.
 
 Contiene la lógica de negocio y la persistencia. Las entidades, enums, excepciones de aplicación y mappers de
 conversión (`<F>Mapper`) **no** viven aquí: se importan del JAR `java-shared` (`com.giozar04.<feature>.domain...`
-y `com.giozar04.<feature>.application.utils...`).
+y `com.giozar04.<feature>.infrastructure.serialization...`).
 
 - Documentación: `GENERALBACKEND.md` (árbol de archivos) y
   `src/main/java/com/giozar04/backend-explanation.md` (cómo crear una feature).
@@ -143,8 +139,8 @@ Flujo de escritura en `TransactionUseCase`: **normalizar → validar → reposit
 Patrón para cualquier operación nueva que escriba varias tablas de forma atómica:
 - `DatabaseConnectionInterface.createConnection()`: conexión nueva y dedicada (autocommit false). `getConnection()`
   (compartida) no cambia.
-- `databases/application/services/TransactionalExecutor.inTransaction(SqlWork<T>)`: abre, ejecuta, commit, rollback
-  ante cualquier excepción (la relanza tal cual) y cierra. `SqlWork<T>` está en `databases/domain/interfaces`.
+- `databases/infrastructure/persistence/mysql/TransactionalExecutor.inTransaction(SqlWork<T>)`: abre, ejecuta, commit, rollback
+  ante cualquier excepción (la relanza tal cual) y cierra. `SqlWork<T>` está en `databases/infrastructure/persistence/mysql`.
 - Los repositorios participantes exponen métodos que **reciben la `Connection`** (no hacen commit/rollback/close),
   declarados en una interfaz aparte (`CardTransactionDetailJdbcOperations`,
   `WalletTransactionDetailJdbcOperations`, `TransactionTagJdbcOperations`), y su CRUD
@@ -158,114 +154,8 @@ Transversales:
 - `servers/` – `ServerService` (enruta mensajes a handlers), `ClientConnection`, `MessageHandler`,
   `ServerRegisterHandlers`, `ServerInterface`, `ServerOperationException`.
 
-## Estructura de una feature
+## Estructura y dependencias
 
-```text
-<feature>
-├── test/<Feature>TestApp.java                       (app de consola para probar el CRUD)
-├── application/services/<Feature>Service.java
-├── infrastructure
-│   ├── repositories/<Feature>RepositoryMySQL.java
-│   ├── controllers/<Feature>Controllers.java
-│   └── handlers/<Feature>Handlers.java
-├── domain
-│   ├── models/<Feature>RepositoryAbstract.java
-│   └── interfaces/<Feature>RepositoryInterface.java
-└── sql/<feature>.sql                                (documentación/creación de la tabla)
-```
+Consulte [la guía backend](../../backend/java-server/src/main/java/com/giozar04/backend-explanation.md) para la estructura vigente. El adaptador socket invoca el puerto de entrada, el caso de uso usa el puerto de salida y el adaptador MySQL lo implementa. `DatabaseConnectionInterface`, `TransactionalExecutor` y `SqlWork` pertenecen a `databases/infrastructure/persistence/mysql`; `ServerService`, `MessageHandler` y sus tipos asociados a `servers/infrastructure/transport/socket`. Ninguna regla del dominio debe depender de ellos.
 
-## Flujo de una petición
-
-```text
-Client → Message JSON → ServerService → <F>Handlers → <F>Controllers → <F>Service
-       → <F>RepositoryInterface → <F>RepositoryAbstract → <F>RepositoryMySQL → MySQL
-```
-
-# Convenciones por capa
-
-**Interface** (`domain/interfaces/<F>RepositoryInterface.java`)
-- CRUD: `create<F>(x)`, `get<F>ById(long id)`, `update<F>ById(long id, x)`, `delete<F>ById(long id)`, `getAll<F>s()`.
-- Las operaciones extra (filtros, búsquedas) también se declaran aquí.
-
-**Abstract** (`domain/models/<F>RepositoryAbstract.java`) – referencia: `tags/domain/models/AbstractTagJdbcRepository.java`
-- `implements <F>RepositoryInterface`.
-- `protected final DatabaseConnectionInterface databaseConnection` (con `Objects.requireNonNull` y mensaje en español).
-- `protected final ConsoleLogger logger = ConsoleLogger.getInstance();`
-- `protected void validate<F>(x)` y `protected void validateId(long id)` que lanzan `IllegalArgumentException`
-  con mensajes en español.
-- Métodos de la interfaz redeclarados como `@Override public abstract ...`.
-- Si la BD tiene un CHECK sobre un valor de texto, valida/normaliza aquí. Ejemplo: `CardRepositoryAbstract`
-  normaliza `status` con `trim().toUpperCase()` (null ⇒ `ACTIVE`) y solo acepta `ACTIVE`, `BLOCKED`, `EXPIRED`.
-
-**Repositorio MySQL** (`infrastructure/repositories/<F>RepositoryMySQL.java`) – referencia: `TagRepositoryMySQL`
-- `extends <F>RepositoryAbstract`; constructor que llama a `super(databaseConnection)`.
-- SQL en constantes `private static final String SQL_INSERT / SQL_SELECT_BY_ID / SQL_UPDATE / SQL_DELETE / SQL_SELECT_ALL`
-  (text blocks `"""` para las largas). Columnas en snake_case.
-- Validar primero (`validate<F>`, `validateId`). Si `createdAt`/`updatedAt` son null, asignar `ZonedDateTime.now()`.
-- `try (Connection conn = databaseConnection.getConnection(); PreparedStatement stmt = ...)`.
-- Insert con `Statement.RETURN_GENERATED_KEYS` para asignar el id.
-- Fechas: `Timestamp.valueOf(zdt.toLocalDateTime())`.
-- Tras escribir: `databaseConnection.commitTransaction()` + `logger.info(...)`.
-- En `catch (SQLException e)`: `rollback()` y lanzar la excepción de shared correspondiente
-  (`<F>CreationException`, `<F>RetrievalException`, `<F>UpdateException`, `<F>DeletionException`, `<F>NotFoundException`).
-- Reglas de BD (triggers con `SIGNAL SQLSTATE '45000'` y CHECK) llegan como `SQLException` con mensaje en español.
-  En create/update **incluye `e.getMessage()`** en la excepción (p. ej. `"Error al crear el detalle: " + e.getMessage()`)
-  para que llegue al cliente vía `ServerService` (`"Error al procesar solicitud: ..."`).
-- Enums: se persisten con `getValue()` (MAYÚSCULAS) y deben coincidir con el CHECK de `database/schemas.sql`.
-- Columnas de solo lectura: `accounts.opening_balance` y `credit_details.opening_credit_used` las fijan triggers
-  al crear. Se leen en el SELECT/mapeo de `AccountRepositoryMySQL` pero **nunca** van en INSERT/UPDATE.
-- Procedimientos almacenados: usar `CallableStatement` (`conn.prepareCall("{CALL sp_x(?)}")`), luego
-  `databaseConnection.commitTransaction()`; en `SQLException` hacer `rollback()` y propagar `e.getMessage()`
-  (SIGNAL en español). Ejemplo: `AccountReconciliationRepositoryMySQL.reconcileAccount`.
-- `wallet_transaction_details.cashback_rate`: fracción 0-1 (`WalletTransactionDetail.cashbackRate`, `BigDecimal`), opcional.
-- Cambios de esquema sobre datos existentes no se hacen aquí: van como migración en `database/migrations/`
-  (módulo database). El `sql/<feature>.sql` del backend solo se actualiza como documentación.
-
-**Service** (`application/services/<F>Service.java`)
-- `implements <F>RepositoryInterface`; recibe el repositorio por constructor y **delega** cada método.
-- Excepción: si hay reglas de negocio (p. ej. `TransactionUseCase`), el caso de uso las orquesta (normalizar → validar)
-  antes de delegar; las reglas se inyectan desde `ApplicationInitializer`.
-
-**Controllers** (`infrastructure/controllers/<F>Controllers.java`) – referencia: `TagControllers`
-- `private static final ConsoleLogger LOGGER = ConsoleLogger.getInstance();`
-- `public static final class <F>MessageTypes` con constantes `String`: `CREATE_X`, `GET_X`, `UPDATE_X`,
-  `DELETE_X`, `GET_ALL_XS` (el valor es igual al nombre).
-- Un `public static MessageHandler <op>Controller(<F>Service service)` por operación, que devuelve
-  `(ClientConnection client, Message message) -> { ... }`.
-- Leer datos con `message.getData("<f>")` (cast a `Map<String, Object>` con `@SuppressWarnings("unchecked")`)
-  o `parseId(message.getData("id"))`.
-- Convertir con `<F>Mapper.fromMap(map)` / `<F>Mapper.toMap(x)` de shared.
-- Responder con `Message.createSuccessMessage(TYPE, "mensaje")` + `response.addData("<f>", ...)`, o
-  `Message.createErrorMessage(TYPE, "mensaje")` si faltan datos o el id es inválido.
-
-**Handlers** (`infrastructure/handlers/<F>Handlers.java`) – referencia: `TagHandlers`
-- `implements ServerRegisterHandlers`; recibe el service por constructor.
-- `register(ServerService server)`: un `server.registerHandler(<F>Controllers.<F>MessageTypes.X, <F>Controllers.xController(service))` por operación.
-
-**Registro** (`bootstrap/ApplicationInitializer.java`)
-- Crear `<F>RepositoryInterface repo = new <F>RepositoryMySQL(dbConnection);`
-- Crear `<F>Service service = new <F>Service(repo);`
-- Añadir `new <F>Handlers(service)` a la lista de `ServerRegisterHandlers`.
-- `ServerInitializer` registra la lista en `ServerService` (no hace falta tocarlo).
-
-# Checklists
-
-**Nueva feature**
-- [ ] Verificar que la entidad, las excepciones y los utils ya existen en shared. Si no, detente y deriva a `finance-app-expert-shared`.
-- [ ] Interface → Abstract → MySQL → Service → Controllers (+ MessageTypes) → Handlers.
-- [ ] `sql/<feature>.sql` y `test/<Feature>TestApp.java`.
-- [ ] Registrar en `ApplicationInitializer`.
-- [ ] Actualizar `GENERALBACKEND.md`.
-
-**Nueva operación en una feature existente**
-- [ ] Declararla en Interface, `abstract` en Abstract, implementarla en MySQL y delegarla en Service.
-- [ ] Nuevo `MessageType` + controller en `<F>Controllers`, y registrarlo en `<F>Handlers`.
-- [ ] Avisar al usuario de que el client necesita el mismo `MessageType` para usarla.
-
-**Nuevo campo en una entidad** (después de cambiarlo en shared)
-- [ ] Actualizar `SQL_INSERT`/`SQL_UPDATE`, los `stmt.set...` y el mapeo `ResultSet → entidad` en MySQL.
-- [ ] Añadir la validación en `validate<F>` si aplica.
-- [ ] Actualizar `sql/<feature>.sql` como documentación (el cambio real de BD corresponde al módulo database).
-
-**Compilar**
-- [ ] `cd shared/java-shared && mvn clean install` (si cambió shared), luego `cd backend/java-server && mvn clean install`.
+Conserve los códigos de mensajes, campos, SQL, comportamiento de rollback y mensajes de error. Verifique contratos y compilación con `python3 scripts/verify_shared.py`. No ejecute `database/schemas.sql` para una refactorización estructural.

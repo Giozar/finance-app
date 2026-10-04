@@ -8,8 +8,8 @@ import java.util.Scanner;
 import com.giozar04.accountCashbackSettings.application.usecases.AccountCashbackSettingUseCase;
 import com.giozar04.accountCashbackSettings.domain.entities.AccountCashbackSetting;
 import com.giozar04.accountCashbackSettings.infrastructure.persistence.mysql.AccountCashbackSettingRepositoryMySQL;
-import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
-import com.giozar04.databases.infrastructure.repositories.DatabaseConnectionMySQL;
+import com.giozar04.databases.infrastructure.persistence.mysql.DatabaseConnectionInterface;
+import com.giozar04.databases.infrastructure.persistence.mysql.DatabaseConnectionMySQL;
 
 public class AccountCashbackSettingTestApp {
 

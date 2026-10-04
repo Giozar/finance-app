@@ -17,8 +17,8 @@ import java.util.Objects;
 
 import com.giozar04.cardTransactionDetails.domain.entities.CardTransactionDetail;
 import com.giozar04.cardTransactionDetails.infrastructure.persistence.mysql.CardTransactionDetailJdbcOperations;
-import com.giozar04.databases.application.services.TransactionalExecutor;
-import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
+import com.giozar04.databases.infrastructure.persistence.mysql.TransactionalExecutor;
+import com.giozar04.databases.infrastructure.persistence.mysql.DatabaseConnectionInterface;
 import com.giozar04.transactionTags.infrastructure.persistence.mysql.TransactionTagJdbcOperations;
 import com.giozar04.transactions.domain.entities.Transaction;
 import com.giozar04.transactions.domain.enums.OperationTypes;

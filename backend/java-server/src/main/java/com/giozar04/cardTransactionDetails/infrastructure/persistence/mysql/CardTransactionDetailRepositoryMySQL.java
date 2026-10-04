@@ -20,7 +20,7 @@ import com.giozar04.cardTransactionDetails.application.exceptions.CardTransactio
 import com.giozar04.cardTransactionDetails.application.exceptions.CardTransactionDetailUpdateException;
 import com.giozar04.cardTransactionDetails.infrastructure.persistence.mysql.CardTransactionDetailJdbcOperations;
 import com.giozar04.cardTransactionDetails.infrastructure.persistence.mysql.AbstractCardTransactionDetailJdbcRepository;
-import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
+import com.giozar04.databases.infrastructure.persistence.mysql.DatabaseConnectionInterface;
 
 public class CardTransactionDetailRepositoryMySQL extends AbstractCardTransactionDetailJdbcRepository
         implements CardTransactionDetailJdbcOperations {

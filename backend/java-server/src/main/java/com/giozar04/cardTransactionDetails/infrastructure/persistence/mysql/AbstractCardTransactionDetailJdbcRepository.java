@@ -7,7 +7,7 @@ import java.util.Objects;
 import com.giozar04.cardTransactionDetails.domain.entities.CardTransactionDetail;
 import com.giozar04.cardTransactionDetails.application.ports.output.CardTransactionDetailRepository;
 import com.giozar04.cardTransactionDetails.domain.policies.CardTransactionDetailPolicy;
-import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
+import com.giozar04.databases.infrastructure.persistence.mysql.DatabaseConnectionInterface;
 import com.giozar04.logging.infrastructure.ConsoleLogger;
 
 public abstract class AbstractCardTransactionDetailJdbcRepository implements CardTransactionDetailRepository {

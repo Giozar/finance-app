@@ -7,7 +7,7 @@ import java.util.Objects;
 import com.giozar04.accountCashbackSettings.domain.entities.AccountCashbackSetting;
 import com.giozar04.accountCashbackSettings.application.ports.output.AccountCashbackSettingRepository;
 import com.giozar04.accountCashbackSettings.domain.policies.AccountCashbackSettingPolicy;
-import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
+import com.giozar04.databases.infrastructure.persistence.mysql.DatabaseConnectionInterface;
 import com.giozar04.logging.infrastructure.ConsoleLogger;
 
 public abstract class AbstractAccountCashbackSettingJdbcRepository implements AccountCashbackSettingRepository {

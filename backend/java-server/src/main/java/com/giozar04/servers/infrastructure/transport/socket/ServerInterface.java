@@ -1,9 +1,9 @@
-package com.giozar04.servers.domain.interfaces;
+package com.giozar04.servers.infrastructure.transport.socket;
 
 import java.io.IOException;
 
-import com.giozar04.servers.domain.exceptions.ServerOperationException;
-import com.giozar04.servers.domain.models.ClientConnection;
+import com.giozar04.servers.infrastructure.transport.socket.ServerOperationException;
+import com.giozar04.servers.infrastructure.transport.socket.ClientConnection;
 
 /**
  * Define las operaciones fundamentales para un servidor de sockets.

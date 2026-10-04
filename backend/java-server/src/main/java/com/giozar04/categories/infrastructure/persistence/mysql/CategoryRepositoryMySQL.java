@@ -19,7 +19,7 @@ import com.giozar04.categories.application.exceptions.CategoryNotFoundException;
 import com.giozar04.categories.application.exceptions.CategoryRetrievalException;
 import com.giozar04.categories.application.exceptions.CategoryUpdateException;
 import com.giozar04.categories.infrastructure.persistence.mysql.AbstractCategoryJdbcRepository;
-import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
+import com.giozar04.databases.infrastructure.persistence.mysql.DatabaseConnectionInterface;
 
 public class CategoryRepositoryMySQL extends AbstractCategoryJdbcRepository {
 

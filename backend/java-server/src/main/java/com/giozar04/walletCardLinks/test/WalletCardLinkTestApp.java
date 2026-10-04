@@ -3,8 +3,8 @@ package com.giozar04.walletCardLinks.test;
 import java.time.ZonedDateTime;
 import java.util.Scanner;
 
-import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
-import com.giozar04.databases.infrastructure.repositories.DatabaseConnectionMySQL;
+import com.giozar04.databases.infrastructure.persistence.mysql.DatabaseConnectionInterface;
+import com.giozar04.databases.infrastructure.persistence.mysql.DatabaseConnectionMySQL;
 import com.giozar04.walletCardLinks.application.usecases.WalletCardLinkUseCase;
 import com.giozar04.walletCardLinks.domain.entities.WalletCardLink;
 import com.giozar04.walletCardLinks.infrastructure.persistence.mysql.WalletCardLinkRepositoryMySQL;

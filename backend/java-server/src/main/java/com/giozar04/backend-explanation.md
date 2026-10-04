@@ -5,7 +5,7 @@
 
 El servidor recibe mensajes JSON por sockets, ejecuta casos de uso y persiste en
 MySQL. Los modelos y los mappers del protocolo vienen de `java-shared`. `tags` es
-el ejemplo migrado; las demás features conservan temporalmente su estructura anterior.
+la referencia simple; todas las features del backend ya siguen esta estructura.
 
 ```text
 <feature>/
@@ -34,7 +34,7 @@ consumen `TagOperations`. Los métodos y tipos de mensaje conservan sus nombres 
 mantener el protocolo. Las funciones de validación deben conservar sus mensajes y
 valores por defecto al migrarse.
 
-Las transacciones se guardan como agregado mediante `TransactionalExecutor` y los
+La conexión JDBC y el servidor de sockets viven en `databases/infrastructure/persistence/mysql` y `servers/infrastructure/transport/socket`, respectivamente. Las transacciones se guardan como agregado mediante `TransactionalExecutor` y los
 repositorios participantes con una conexión común. Los triggers de MySQL siguen
 aplicando los efectos de saldos; respete el orden de escritura de detalles y etiquetas.
 Consulte el agente backend para las reglas de transacciones y conciliación.

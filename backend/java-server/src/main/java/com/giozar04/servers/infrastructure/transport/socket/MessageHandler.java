@@ -1,7 +1,7 @@
-package com.giozar04.servers.domain.handlers;
+package com.giozar04.servers.infrastructure.transport.socket;
 
 import com.giozar04.messages.infrastructure.transport.Message;
-import com.giozar04.servers.domain.models.ClientConnection;
+import com.giozar04.servers.infrastructure.transport.socket.ClientConnection;
 /**
  * Interfaz para los manejadores de mensajes.
  * Define el contrato para procesar mensajes recibidos de los clientes.

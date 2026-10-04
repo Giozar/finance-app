@@ -19,7 +19,7 @@ import com.giozar04.accounts.application.exceptions.AccountNotFoundException;
 import com.giozar04.accounts.application.exceptions.AccountRetrievalException;
 import com.giozar04.accounts.application.exceptions.AccountUpdateException;
 import com.giozar04.accounts.infrastructure.persistence.mysql.AbstractAccountJdbcRepository;
-import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
+import com.giozar04.databases.infrastructure.persistence.mysql.DatabaseConnectionInterface;
 
 public class AccountRepositoryMySQL extends AbstractAccountJdbcRepository {
 

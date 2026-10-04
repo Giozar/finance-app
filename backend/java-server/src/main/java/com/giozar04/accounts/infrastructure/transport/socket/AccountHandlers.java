@@ -2,8 +2,8 @@ package com.giozar04.accounts.infrastructure.transport.socket;
 
 import com.giozar04.accounts.application.ports.input.AccountOperations;
 import com.giozar04.accounts.infrastructure.transport.socket.AccountControllers;
-import com.giozar04.servers.application.services.ServerService;
-import com.giozar04.servers.domain.interfaces.ServerRegisterHandlers;
+import com.giozar04.servers.infrastructure.transport.socket.ServerService;
+import com.giozar04.servers.infrastructure.transport.socket.ServerRegisterHandlers;
 
 public class AccountHandlers implements ServerRegisterHandlers {
 

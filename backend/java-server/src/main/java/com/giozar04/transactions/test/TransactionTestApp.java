@@ -12,9 +12,9 @@ import com.giozar04.cardTransactionDetails.domain.entities.CardTransactionDetail
 import com.giozar04.cardTransactionDetails.infrastructure.persistence.mysql.CardTransactionDetailRepositoryMySQL;
 import com.giozar04.cards.infrastructure.persistence.mysql.CardRepositoryMySQL;
 import com.giozar04.categories.infrastructure.persistence.mysql.CategoryRepositoryMySQL;
-import com.giozar04.databases.application.services.TransactionalExecutor;
-import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
-import com.giozar04.databases.infrastructure.repositories.DatabaseConnectionMySQL;
+import com.giozar04.databases.infrastructure.persistence.mysql.TransactionalExecutor;
+import com.giozar04.databases.infrastructure.persistence.mysql.DatabaseConnectionInterface;
+import com.giozar04.databases.infrastructure.persistence.mysql.DatabaseConnectionMySQL;
 import com.giozar04.externalEntities.infrastructure.persistence.mysql.ExternalEntityRepositoryMySQL;
 import com.giozar04.tags.infrastructure.persistence.mysql.TagRepositoryMySQL;
 import com.giozar04.transactionTags.infrastructure.persistence.mysql.TransactionTagRepositoryMySQL;

@@ -7,8 +7,8 @@ import com.giozar04.card.domain.entities.Card;
 import com.giozar04.card.domain.enums.CardTypes;
 import com.giozar04.cards.application.usecases.CardUseCase;
 import com.giozar04.cards.infrastructure.persistence.mysql.CardRepositoryMySQL;
-import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
-import com.giozar04.databases.infrastructure.repositories.DatabaseConnectionMySQL;
+import com.giozar04.databases.infrastructure.persistence.mysql.DatabaseConnectionInterface;
+import com.giozar04.databases.infrastructure.persistence.mysql.DatabaseConnectionMySQL;
 
 public class CardTestApp {
 

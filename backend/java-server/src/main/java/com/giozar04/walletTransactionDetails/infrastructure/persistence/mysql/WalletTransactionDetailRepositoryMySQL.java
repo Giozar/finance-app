@@ -13,7 +13,7 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
+import com.giozar04.databases.infrastructure.persistence.mysql.DatabaseConnectionInterface;
 import com.giozar04.walletTransactionDetails.domain.entities.WalletTransactionDetail;
 import com.giozar04.walletTransactionDetails.domain.enums.WalletTransactionSourceType;
 import com.giozar04.walletTransactionDetails.application.exceptions.WalletTransactionDetailCreationException;

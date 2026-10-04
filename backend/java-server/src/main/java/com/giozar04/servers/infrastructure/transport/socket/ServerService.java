@@ -1,4 +1,4 @@
-package com.giozar04.servers.application.services;
+package com.giozar04.servers.infrastructure.transport.socket;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -12,10 +12,10 @@ import java.util.concurrent.TimeUnit;
 
 import com.giozar04.messages.infrastructure.serialization.MessageJsonCodec;
 import com.giozar04.messages.infrastructure.transport.Message;
-import com.giozar04.servers.domain.exceptions.ServerOperationException;
-import com.giozar04.servers.domain.handlers.MessageHandler;
-import com.giozar04.servers.domain.models.ClientConnection;
-import com.giozar04.servers.domain.models.ServerAbstract;
+import com.giozar04.servers.infrastructure.transport.socket.ServerOperationException;
+import com.giozar04.servers.infrastructure.transport.socket.MessageHandler;
+import com.giozar04.servers.infrastructure.transport.socket.ClientConnection;
+import com.giozar04.servers.infrastructure.transport.socket.ServerAbstract;
 
 /**
  * Implementa el servidor de sockets como Singleton.

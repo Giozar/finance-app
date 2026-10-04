@@ -2,8 +2,8 @@ package com.giozar04.cards.infrastructure.transport.socket;
 
 import com.giozar04.cards.application.ports.input.CardOperations;
 import com.giozar04.cards.infrastructure.transport.socket.CardControllers;
-import com.giozar04.servers.application.services.ServerService;
-import com.giozar04.servers.domain.interfaces.ServerRegisterHandlers;
+import com.giozar04.servers.infrastructure.transport.socket.ServerService;
+import com.giozar04.servers.infrastructure.transport.socket.ServerRegisterHandlers;
 
 public class CardHandlers implements ServerRegisterHandlers {
 

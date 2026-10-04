@@ -1,13 +1,13 @@
-package com.giozar04.databases.infrastructure.repositories;
+package com.giozar04.databases.infrastructure.persistence.mysql;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-import com.giozar04.databases.domain.exceptions.DatabaseExceptions;
-import com.giozar04.databases.domain.exceptions.DatabaseExceptions.ConnectionException;
-import com.giozar04.databases.domain.exceptions.DatabaseExceptions.DriverException;
-import com.giozar04.databases.domain.models.DatabaseConnectionAbstract;
+import com.giozar04.databases.infrastructure.persistence.mysql.DatabaseExceptions;
+import com.giozar04.databases.infrastructure.persistence.mysql.DatabaseExceptions.ConnectionException;
+import com.giozar04.databases.infrastructure.persistence.mysql.DatabaseExceptions.DriverException;
+import com.giozar04.databases.infrastructure.persistence.mysql.DatabaseConnectionAbstract;
 
 /**
  * Implementación mejorada de conexión a MySQL con manejo de excepciones

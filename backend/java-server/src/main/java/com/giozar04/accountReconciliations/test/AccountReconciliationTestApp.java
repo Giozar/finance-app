@@ -6,8 +6,8 @@ import java.util.Scanner;
 import com.giozar04.accountReconciliations.application.usecases.AccountReconciliationUseCase;
 import com.giozar04.accountReconciliations.domain.entities.AccountReconciliation;
 import com.giozar04.accountReconciliations.infrastructure.persistence.mysql.AccountReconciliationRepositoryMySQL;
-import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
-import com.giozar04.databases.infrastructure.repositories.DatabaseConnectionMySQL;
+import com.giozar04.databases.infrastructure.persistence.mysql.DatabaseConnectionInterface;
+import com.giozar04.databases.infrastructure.persistence.mysql.DatabaseConnectionMySQL;
 
 public class AccountReconciliationTestApp {
 

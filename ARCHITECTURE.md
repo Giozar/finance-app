@@ -20,7 +20,7 @@ resultados observables se conservan. El estado real se registra en [MIGRATION.md
 
 Shared es una biblioteca de modelos y contratos. Sus mappers son adaptadores de
 serialización, no casos de uso. No se crean repositorios ni casos de uso vacíos en shared.
-Durante la migración backend y client mantienen su estructura actual hasta su etapa.
+Backend ya separa puertos, casos de uso y adaptadores por feature. Client se migra después.
 
 ## Vocabulario y ubicaciones
 
@@ -36,8 +36,8 @@ Durante la migración backend y client mantienen su estructura actual hasta su e
 | Codificación JSON del mensaje | `messages/infrastructure/serialization/MessageJsonCodec.java`, `encode` / `decode` |
 | Conversión de valores escalares del protocolo | `shared/infrastructure/serialization/ValueParser.java` |
 | Logger de consola | `logging/infrastructure/ConsoleLogger.java` |
-| Caso de uso (backend/client, siguiente etapa) | `<feature>/application/usecases/` |
-| Puerto (backend/client, siguiente etapa) | `<feature>/application/ports/input/` o `output/` |
+| Caso de uso (backend/client) | `<feature>/application/usecases/` |
+| Puerto (backend/client) | `<feature>/application/ports/input/` o `output/` |
 
 Cada excepción nueva tiene su archivo y un nombre que identifica su feature. No se
 añaden contenedores `*Exceptions` ni utilidades genéricas para responsabilidades nuevas.

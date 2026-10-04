@@ -1,8 +1,8 @@
 package com.giozar04.bootstrap;
 
 import com.giozar04.configs.DatabaseConfig;
-import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
-import com.giozar04.databases.infrastructure.repositories.DatabaseConnectionMySQL;
+import com.giozar04.databases.infrastructure.persistence.mysql.DatabaseConnectionInterface;
+import com.giozar04.databases.infrastructure.persistence.mysql.DatabaseConnectionMySQL;
 import com.giozar04.logging.infrastructure.ConsoleLogger;
 
 public class DatabaseInitializer {

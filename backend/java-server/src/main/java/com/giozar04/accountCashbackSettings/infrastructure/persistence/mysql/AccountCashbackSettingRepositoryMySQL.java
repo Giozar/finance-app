@@ -18,7 +18,7 @@ import com.giozar04.accountCashbackSettings.application.exceptions.AccountCashba
 import com.giozar04.accountCashbackSettings.application.exceptions.AccountCashbackSettingRetrievalException;
 import com.giozar04.accountCashbackSettings.application.exceptions.AccountCashbackSettingUpdateException;
 import com.giozar04.accountCashbackSettings.infrastructure.persistence.mysql.AbstractAccountCashbackSettingJdbcRepository;
-import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
+import com.giozar04.databases.infrastructure.persistence.mysql.DatabaseConnectionInterface;
 
 public class AccountCashbackSettingRepositoryMySQL extends AbstractAccountCashbackSettingJdbcRepository {
 

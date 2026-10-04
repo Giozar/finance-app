@@ -7,8 +7,8 @@ import com.giozar04.categories.application.usecases.CategoryUseCase;
 import com.giozar04.categories.domain.entities.Category;
 import com.giozar04.categories.domain.enums.CategoryTypes;
 import com.giozar04.categories.infrastructure.persistence.mysql.CategoryRepositoryMySQL;
-import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
-import com.giozar04.databases.infrastructure.repositories.DatabaseConnectionMySQL;
+import com.giozar04.databases.infrastructure.persistence.mysql.DatabaseConnectionInterface;
+import com.giozar04.databases.infrastructure.persistence.mysql.DatabaseConnectionMySQL;
 
 public class CategoryTestApp {
 

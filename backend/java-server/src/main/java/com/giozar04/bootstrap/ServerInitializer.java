@@ -7,9 +7,9 @@ import java.util.concurrent.Executors;
 
 import com.giozar04.configs.ServerConfig;
 import com.giozar04.logging.infrastructure.ConsoleLogger;
-import com.giozar04.servers.application.services.ServerService;
-import com.giozar04.servers.domain.exceptions.ServerOperationException;
-import com.giozar04.servers.domain.interfaces.ServerRegisterHandlers;
+import com.giozar04.servers.infrastructure.transport.socket.ServerService;
+import com.giozar04.servers.infrastructure.transport.socket.ServerOperationException;
+import com.giozar04.servers.infrastructure.transport.socket.ServerRegisterHandlers;
 
 public class ServerInitializer {
         private final ServerConfig serverConfig;

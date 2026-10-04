@@ -1,4 +1,4 @@
-package com.giozar04.servers.domain.models;
+package com.giozar04.servers.infrastructure.transport.socket;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -10,8 +10,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.giozar04.logging.infrastructure.ConsoleLogger;
-import com.giozar04.servers.domain.exceptions.ServerOperationException;
-import com.giozar04.servers.domain.interfaces.ServerInterface;
+import com.giozar04.servers.infrastructure.transport.socket.ServerOperationException;
+import com.giozar04.servers.infrastructure.transport.socket.ServerInterface;
 
 /**
  * Implementación base para servidores de sockets.

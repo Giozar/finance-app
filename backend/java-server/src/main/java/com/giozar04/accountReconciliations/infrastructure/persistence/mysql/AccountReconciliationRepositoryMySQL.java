@@ -13,7 +13,7 @@ import com.giozar04.accountReconciliations.application.exceptions.AccountReconci
 import com.giozar04.accountReconciliations.application.exceptions.AccountReconciliationRetrievalException;
 import com.giozar04.accountReconciliations.infrastructure.persistence.mysql.AbstractAccountReconciliationJdbcRepository;
 import com.giozar04.accounts.domain.enums.AccountTypes;
-import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
+import com.giozar04.databases.infrastructure.persistence.mysql.DatabaseConnectionInterface;
 
 // Solo lectura sobre la vista v_account_reconciliation; la escritura la hace sp_reconcile_account
 public class AccountReconciliationRepositoryMySQL extends AbstractAccountReconciliationJdbcRepository {

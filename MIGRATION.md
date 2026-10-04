@@ -43,7 +43,7 @@ comparados y compilación independiente de shared, backend y client.
 | transactions | Migrada; puertos, política y adaptadores verificados |
 | accountReconciliations | Migrada; puertos, política y adaptadores verificados |
 | transactionTags | Migrada; contrato JDBC dentro de infraestructura |
-| databases y servers | Pendiente |
+| databases y servers | Migrados; JDBC y sockets en infraestructura, compilación y contratos verificados |
 
 ## Client
 

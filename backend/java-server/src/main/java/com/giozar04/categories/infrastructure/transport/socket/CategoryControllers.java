@@ -9,8 +9,8 @@ import com.giozar04.categories.infrastructure.serialization.CategoryMapper;
 import com.giozar04.categories.domain.entities.Category;
 import com.giozar04.logging.infrastructure.ConsoleLogger;
 import com.giozar04.messages.infrastructure.transport.Message;
-import com.giozar04.servers.domain.handlers.MessageHandler;
-import com.giozar04.servers.domain.models.ClientConnection;
+import com.giozar04.servers.infrastructure.transport.socket.MessageHandler;
+import com.giozar04.servers.infrastructure.transport.socket.ClientConnection;
 
 public class CategoryControllers {
 

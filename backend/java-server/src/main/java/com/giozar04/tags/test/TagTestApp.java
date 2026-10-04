@@ -3,8 +3,8 @@ package com.giozar04.tags.test;
 import java.time.ZonedDateTime;
 import java.util.Scanner;
 
-import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
-import com.giozar04.databases.infrastructure.repositories.DatabaseConnectionMySQL;
+import com.giozar04.databases.infrastructure.persistence.mysql.DatabaseConnectionInterface;
+import com.giozar04.databases.infrastructure.persistence.mysql.DatabaseConnectionMySQL;
 import com.giozar04.tags.application.usecases.TagUseCase;
 import com.giozar04.tags.domain.entities.Tag;
 import com.giozar04.tags.infrastructure.persistence.mysql.TagRepositoryMySQL;

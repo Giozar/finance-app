@@ -7,7 +7,7 @@ import com.giozar04.card.domain.entities.Card;
 import com.giozar04.card.domain.enums.CardTypes;
 import com.giozar04.cards.application.ports.output.CardRepository;
 import com.giozar04.cards.domain.policies.CardPolicy;
-import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
+import com.giozar04.databases.infrastructure.persistence.mysql.DatabaseConnectionInterface;
 import com.giozar04.logging.infrastructure.ConsoleLogger;
 
 public abstract class AbstractCardJdbcRepository implements CardRepository {
