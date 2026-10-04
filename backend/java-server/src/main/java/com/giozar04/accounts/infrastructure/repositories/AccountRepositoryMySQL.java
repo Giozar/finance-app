@@ -97,9 +97,10 @@ public class AccountRepositoryMySQL extends AccountRepositoryAbstract {
 
 
     private static final String SQL_SELECT_BASE = """
-        SELECT a.id, a.user_id, a.name, a.type, a.current_balance, a.created_at, a.updated_at,
+        SELECT a.id, a.user_id, a.name, a.type, a.current_balance, a.opening_balance, a.created_at, a.updated_at,
                bd.bank_client_id AS bd_client_id, bd.clabe, bd.account_number, bd.can_transfer_out,
-               cd.bank_client_id AS cd_client_id, cd.credit_limit, cd.credit_used, cd.cutoff_day, cd.payment_deadline_day,
+               cd.bank_client_id AS cd_client_id, cd.credit_limit, cd.credit_used, cd.opening_credit_used,
+               cd.cutoff_day, cd.payment_deadline_day,
                sd.annual_yield, sd.yield_cap_amount, sd.last_yield_calculation,
                inv.instrument_type, inv.term_days, inv.principal_amount,
                inv.annual_yield AS inv_annual_yield, inv.day_count_basis,
@@ -461,6 +462,8 @@ public class AccountRepositoryMySQL extends AccountRepositoryAbstract {
         account.setName(rs.getString("name"));
         account.setType(AccountTypes.fromValue(rs.getString("type")));
         account.setCurrentBalance(rs.getDouble("current_balance"));
+        // Solo lectura: lo fija el trigger de apertura al crear (no va en INSERT/UPDATE)
+        account.setOpeningBalance(rs.getDouble("opening_balance"));
 
         // bank_client_id: puede estar en bank_details o credit_details
         long bdClientId = rs.getLong("bd_client_id");
@@ -486,6 +489,8 @@ public class AccountRepositoryMySQL extends AccountRepositoryAbstract {
         if (!rs.wasNull()) account.setCreditLimit(creditLimit);
         double creditUsed = rs.getDouble("credit_used");
         if (!rs.wasNull()) account.setCreditUsed(creditUsed);
+        double openingCreditUsed = rs.getDouble("opening_credit_used"); // solo lectura (trigger)
+        if (!rs.wasNull()) account.setOpeningCreditUsed(openingCreditUsed);
         int cutoff = rs.getInt("cutoff_day");
         if (!rs.wasNull()) account.setCutoffDay(cutoff);
         int payment = rs.getInt("payment_deadline_day");

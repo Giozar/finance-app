@@ -47,6 +47,10 @@ import com.giozar04.users.domain.interfaces.UserRepositoryInterface;
 import com.giozar04.users.infrastructure.handlers.UserHandlers;
 import com.giozar04.users.infrastructure.repositories.UserRepositoryMySQL;
 import com.giozar04.accountCashbackSettings.application.services.AccountCashbackSettingService;
+import com.giozar04.accountReconciliations.application.services.AccountReconciliationService;
+import com.giozar04.accountReconciliations.domain.interfaces.AccountReconciliationRepositoryInterface;
+import com.giozar04.accountReconciliations.infrastructure.handlers.AccountReconciliationHandlers;
+import com.giozar04.accountReconciliations.infrastructure.repositories.AccountReconciliationRepositoryMySQL;
 import com.giozar04.accountCashbackSettings.domain.interfaces.AccountCashbackSettingRepositoryInterface;
 import com.giozar04.accountCashbackSettings.infrastructure.handlers.AccountCashbackSettingHandlers;
 import com.giozar04.accountCashbackSettings.infrastructure.repositories.AccountCashbackSettingRepositoryMySQL;
@@ -133,6 +137,12 @@ public class ApplicationInitializer {
         AccountCashbackSettingService accountCashbackSettingService =
                 new AccountCashbackSettingService(accountCashbackSettingRepository);
 
+        // Inicializar repositorios y servicios de reconciliación de cuentas
+        AccountReconciliationRepositoryInterface accountReconciliationRepository =
+                new AccountReconciliationRepositoryMySQL(dbConnection);
+        AccountReconciliationService accountReconciliationService =
+                new AccountReconciliationService(accountReconciliationRepository);
+
         // Se registran todos los servicios
         List<ServerRegisterHandlers> featureServices = List.of(
                 new UserHandlers(userService),
@@ -146,7 +156,8 @@ public class ApplicationInitializer {
                 new CardTransactionDetailHandlers(cardTransactionDetailService),
                 new WalletTransactionDetailHandlers(walletTransactionDetailService),
                 new WalletCardLinkHandlers(walletCardLinkService),
-                new AccountCashbackSettingHandlers(accountCashbackSettingService)
+                new AccountCashbackSettingHandlers(accountCashbackSettingService),
+                new AccountReconciliationHandlers(accountReconciliationService)
         );
 
         logger.info("Servicios inicializados correctamente.");

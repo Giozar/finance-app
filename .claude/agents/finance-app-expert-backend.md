@@ -57,7 +57,14 @@ y `com.giozar04.<feature>.application.utils...`).
 
 ## Features existentes (en alcance)
 `users`, `accounts`, `accountCashbackSettings`, `bankClients`, `cards`, `cardTransactionDetails`,
-`walletCardLinks`, `walletTransactionDetails`, `categories`, `tags`, `externalEntities`.
+`walletCardLinks`, `walletTransactionDetails`, `categories`, `tags`, `externalEntities`, `accountReconciliations`.
+
+`accountReconciliations` no tiene tabla ni CRUD: lee la vista `v_account_reconciliation` (importes `BigDecimal`,
+`rs.getBigDecimal`) y escribe solo vía el procedimiento `sp_reconcile_account`. Entidad, utils y excepciones
+(`AccountReconciliationRetrievalException`, `AccountReconcileException`) vienen de shared.
+`AccountReconciliationMessageTypes`: `GET_ALL_ACCOUNT_RECONCILIATIONS` (sin datos), `GET_ACCOUNT_RECONCILIATIONS_BY_USER`
+(data `"userId"`), `GET_ACCOUNT_RECONCILIATION` (data `"accountId"`), `RECONCILE_ACCOUNT` (data `"accountId"`).
+Respuestas: `"accountReconciliations"` (lista de maps) + `"count"`, o `"accountReconciliation"` (map).
 
 Transversales:
 - `bootstrap/` – `ApplicationInitializer` (crea repos, services y handlers), `ServerInitializer`, `DatabaseInitializer`.
@@ -120,6 +127,11 @@ Client → Message JSON → ServerService → <F>Handlers → <F>Controllers →
   En create/update **incluye `e.getMessage()`** en la excepción (p. ej. `"Error al crear el detalle: " + e.getMessage()`)
   para que llegue al cliente vía `ServerService` (`"Error al procesar solicitud: ..."`).
 - Enums: se persisten con `getValue()` (MAYÚSCULAS) y deben coincidir con el CHECK de `database/schemas.sql`.
+- Columnas de solo lectura: `accounts.opening_balance` y `credit_details.opening_credit_used` las fijan triggers
+  al crear. Se leen en el SELECT/mapeo de `AccountRepositoryMySQL` pero **nunca** van en INSERT/UPDATE.
+- Procedimientos almacenados: usar `CallableStatement` (`conn.prepareCall("{CALL sp_x(?)}")`), luego
+  `databaseConnection.commitTransaction()`; en `SQLException` hacer `rollback()` y propagar `e.getMessage()`
+  (SIGNAL en español). Ejemplo: `AccountReconciliationRepositoryMySQL.reconcileAccount`.
 - `wallet_transaction_details.cashback_rate`: fracción 0-1 (`WalletTransactionDetail.cashbackRate`, `BigDecimal`), opcional.
 - Cambios de esquema sobre datos existentes no se hacen aquí: van como migración en `database/migrations/`
   (módulo database). El `sql/<feature>.sql` del backend solo se actualiza como documentación.

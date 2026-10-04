@@ -53,6 +53,8 @@ externalEntities
 walletCardLinks
 walletTransactionDetails
 cardTransactionDetails
+accountCashbackSettings
+accountReconciliations (solo lectura sobre la vista v_account_reconciliation + procedimiento sp_reconcile_account)
 ```
 
 ## General Flow Overview
