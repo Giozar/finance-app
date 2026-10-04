@@ -51,6 +51,13 @@ public abstract class CardRepositoryAbstract implements CardRepositoryInterface 
         if (card.getExpirationDate() == null) {
             throw new IllegalArgumentException("La fecha de expiración de la tarjeta no puede estar vacía");
         }
+
+        // Normaliza el estado: null -> ACTIVE; en otro caso, mayúsculas
+        String status = card.getStatus() == null ? "ACTIVE" : card.getStatus().trim().toUpperCase();
+        if (!status.equals("ACTIVE") && !status.equals("BLOCKED") && !status.equals("EXPIRED")) {
+            throw new IllegalArgumentException("Estado de tarjeta no válido: " + card.getStatus() + " (use ACTIVE, BLOCKED o EXPIRED)");
+        }
+        card.setStatus(status);
     }
 
     protected void validateId(long id) {

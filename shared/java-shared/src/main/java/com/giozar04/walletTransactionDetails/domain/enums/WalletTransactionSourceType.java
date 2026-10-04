@@ -1,8 +1,8 @@
 package com.giozar04.walletTransactionDetails.domain.enums;
 
 public enum WalletTransactionSourceType {
-    WALLET_BALANCE("wallet_balance", "Saldo Wallet"),
-    LINKED_CARD("linked_card", "Tarjeta Asociada");
+    WALLET_BALANCE("WALLET_BALANCE", "Saldo Wallet"),
+    LINKED_CARD("LINKED_CARD", "Tarjeta Asociada");
 
     private final String value;
     private final String label;

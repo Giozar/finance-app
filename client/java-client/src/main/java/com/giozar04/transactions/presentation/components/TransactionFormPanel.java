@@ -31,6 +31,7 @@ import com.giozar04.shared.utils.DialogUtil;
 import com.giozar04.shared.utils.FormValidatorUtils;
 import com.giozar04.transactions.application.utils.TransactionUtils;
 import com.giozar04.transactions.domain.entities.Transaction;
+import com.giozar04.transactions.domain.enums.OperationTypes;
 import com.giozar04.transactions.domain.enums.PaymentMethod;
 import com.giozar04.transactions.infrastructure.services.TransactionService;
 
@@ -80,7 +81,7 @@ public class TransactionFormPanel extends JPanel {
                 new EmptyBorder(10, 10, 10, 10)));
 
         conceptField = new FormField("Concepto:", false, 400, 40);
-        comboType = new JComboBox<>(new String[]{"INCOME", "EXPENSE"});
+        comboType = new JComboBox<>(Arrays.stream(OperationTypes.values()).map(Enum::name).toArray(String[]::new));
         comboPaymentMethod = new JComboBox<>(Arrays.stream(PaymentMethod.values()).map(Enum::name).toArray(String[]::new));
         amountField = new FormField("Monto:", false, 400, 40);
         categoryField = new FormField("Categoría:", false, 400, 40);
@@ -130,6 +131,14 @@ public class TransactionFormPanel extends JPanel {
         FormValidatorUtils.isRequired(amount, "Monto", errors);
         FormValidatorUtils.isNumeric(amount, "Monto", errors);
         FormValidatorUtils.isPositiveNumber(amount, "Monto", errors);
+
+        // El método INTERNAL solo se permite con el tipo REALLOCATION
+        if (PaymentMethod.INTERNAL.name().equals(comboPaymentMethod.getSelectedItem())
+                && !OperationTypes.REALLOCATION.name().equals(comboType.getSelectedItem())) {
+            errors.add("El método de pago \"" + PaymentMethod.INTERNAL.getLabel()
+                    + "\" solo puede usarse con el tipo \"" + OperationTypes.REALLOCATION.getLabel()
+                    + "\". Seleccione otro método de pago o cambie el tipo.");
+        }
 
         if (!errors.isEmpty()) {
             String message = FormValidatorUtils.formatErrorMessage(errors);

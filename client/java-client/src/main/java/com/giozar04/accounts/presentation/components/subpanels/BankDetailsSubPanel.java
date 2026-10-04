@@ -37,7 +37,7 @@ public class BankDetailsSubPanel extends JPanel {
         setOpaque(false);
 
         bankClientCombo = new FormComboBox<>("Cliente bancario:", 400, 40);
-        bankClientCombo.setPlaceholder("Selecciona un cliente...");
+        bankClientCombo.setPlaceholder("Seleccione un cliente...");
         loadBankClients();
 
         accountNumberField = new FormField("Número de cuenta:", false, 400, 40);

@@ -41,6 +41,6 @@ public class ExternalEntity implements Serializable {
 
     @Override
     public String toString() {
-        return name + "( " +  type.getLabel() + " )";
+        return name + "( " + (type != null ? type.getLabel() : "") + " )";
     }
 }

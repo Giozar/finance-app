@@ -63,11 +63,14 @@ CREATE TABLE IF NOT EXISTS accounts (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     user_id BIGINT NOT NULL,
     name VARCHAR(100) NOT NULL,
-    type VARCHAR(20) NOT NULL, -- 'CASH', 'DEBIT', 'CREDIT', 'SAVINGS', 'INVESTMENT', 'BENEFIT', 'WALLET'
+        -- type: 'CASH', 'DEBIT', 'CREDIT', 'WALLET', 'BENEFIT', 'SAVINGS', 'INVESTMENT' (shared AccountTypes)
+    type VARCHAR(20) NOT NULL,
     current_balance DECIMAL(12, 2) NOT NULL DEFAULT 0.00,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    CONSTRAINT fk_acc_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    CONSTRAINT fk_acc_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT chk_account_type
+        CHECK (type IN ('CASH', 'DEBIT', 'CREDIT', 'WALLET', 'BENEFIT', 'SAVINGS', 'INVESTMENT'))
 );
 
 CREATE INDEX idx_acc_user_type ON accounts (user_id, type);
@@ -180,7 +183,7 @@ CREATE TABLE IF NOT EXISTS investment_details (
     cancelled_at DATETIME NULL,
 
     -- Estado de la inversión
-    status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',   -- ACTIVE | MATURED | CANCELLED
+    status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',   -- 'ACTIVE', 'MATURED', 'CANCELLED'
 
     -- Reinversión automática al vencimiento (si aplica)
     auto_reinvest BOOLEAN NOT NULL DEFAULT FALSE,
@@ -206,7 +209,9 @@ CREATE TABLE IF NOT EXISTS investment_details (
         CHECK (
             reinvest_annual_yield IS NULL
             OR (reinvest_annual_yield >= 0 AND reinvest_annual_yield <= 1)
-        )
+        ),
+    CONSTRAINT chk_investment_status
+        CHECK (status IN ('ACTIVE', 'MATURED', 'CANCELLED'))
 );
 
 -- Índices operativos: listar por cuenta y procesar vencimientos
@@ -217,47 +222,10 @@ CREATE INDEX idx_investment_opened_at ON investment_details (opened_at);
 CREATE INDEX idx_investment_matured_at ON investment_details (matured_at);
 
 -- ======================================================
--- 5. CARDS
+-- 3.6. ACCOUNT_CASHBACK_SETTINGS (Configuración de Cashback por Cuenta)
 -- ======================================================
-CREATE TABLE IF NOT EXISTS cards (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    account_id BIGINT NOT NULL,
-    name VARCHAR(100) NOT NULL,
-    card_type VARCHAR(20) NOT NULL,
-    card_number VARCHAR(4) NOT NULL,
-    expiration_date DATE NOT NULL,
-        -- status ENUM('ACTIVE', 'BLOCKED', 'EXPIRED') DEFAULT 'ACTIVE',
-        -- Usamos VARCHAR en lugar de ENUM para mayor flexibilidad
-    status VARCHAR(20) DEFAULT 'ACTIVE',
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    CONSTRAINT fk_cards_account FOREIGN KEY (account_id) REFERENCES accounts (id) ON DELETE CASCADE
-);
-
-CREATE INDEX idx_cards_account_id ON cards (account_id);
-CREATE INDEX idx_cards_card_type ON cards (card_type);
-
--- ======================================================
--- 3.6. WALLET_CARD_LINKS (Relación Muchos a Muchos)
--- ======================================================
-CREATE TABLE IF NOT EXISTS wallet_card_links (
-    account_id BIGINT NOT NULL,
-    card_id BIGINT NOT NULL,
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    PRIMARY KEY (account_id, card_id),
-    CONSTRAINT fk_wallet_link_acc
-        FOREIGN KEY (account_id) REFERENCES accounts(id) ON DELETE CASCADE,
-    CONSTRAINT fk_wallet_link_card
-        FOREIGN KEY (card_id) REFERENCES cards(id) ON DELETE CASCADE
-);
-
-CREATE INDEX idx_wallet_link_card ON wallet_card_links (card_id);
-
--- --------------------------------------------
--- 3.7. ACCOUNT_CASHBACK_SETTINGS (Configuración de Cashback por Cuenta)
--- --------------------------------------------
 -- Tabla donde se configura si una cuenta (wallet) tiene activo el cashback y su tasa.
+-- default_cashback_rate se guarda como fracción: 0.020000 = 2%
 
 CREATE TABLE IF NOT EXISTS account_cashback_settings (
     account_id BIGINT PRIMARY KEY,
@@ -275,24 +243,71 @@ CREATE TABLE IF NOT EXISTS account_cashback_settings (
 );
 
 -- ======================================================
+-- 4. CARDS
+-- ======================================================
+
+-- ======================================================
+-- 4.1. CARDS (Tarjetas físicas o digitales de una cuenta)
+-- ======================================================
+CREATE TABLE IF NOT EXISTS cards (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    account_id BIGINT NOT NULL,
+    name VARCHAR(100) NOT NULL,
+        -- card_type: 'PHYSICAL', 'DIGITAL' (shared CardTypes)
+    card_type VARCHAR(20) NOT NULL,
+    card_number VARCHAR(4) NOT NULL,
+    expiration_date DATE NOT NULL,
+        -- status: 'ACTIVE', 'BLOCKED', 'EXPIRED'
+        -- Usamos VARCHAR + CHECK en lugar de ENUM para mayor flexibilidad
+    status VARCHAR(20) DEFAULT 'ACTIVE',
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_cards_account FOREIGN KEY (account_id) REFERENCES accounts (id) ON DELETE CASCADE,
+    CONSTRAINT chk_card_type CHECK (card_type IN ('PHYSICAL', 'DIGITAL')),
+    CONSTRAINT chk_card_status CHECK (status IN ('ACTIVE', 'BLOCKED', 'EXPIRED'))
+);
+
+CREATE INDEX idx_cards_account_id ON cards (account_id);
+CREATE INDEX idx_cards_card_type ON cards (card_type);
+
+-- ======================================================
+-- 4.2. WALLET_CARD_LINKS (Relación Muchos a Muchos wallet <-> tarjeta)
+-- ======================================================
+CREATE TABLE IF NOT EXISTS wallet_card_links (
+    account_id BIGINT NOT NULL,
+    card_id BIGINT NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (account_id, card_id),
+    CONSTRAINT fk_wallet_link_acc
+        FOREIGN KEY (account_id) REFERENCES accounts(id) ON DELETE CASCADE,
+    CONSTRAINT fk_wallet_link_card
+        FOREIGN KEY (card_id) REFERENCES cards(id) ON DELETE CASCADE
+);
+
+CREATE INDEX idx_wallet_link_card ON wallet_card_links (card_id);
+
+-- ======================================================
 -- CATÁLOGOS Y ENTIDADES EXTERNAS
 -- ======================================================
 
 -- ======================================================
--- 4. EXTERNAL_ENTITIES
+-- 5. EXTERNAL_ENTITIES
 -- ======================================================
 CREATE TABLE IF NOT EXISTS external_entities (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     user_id BIGINT NOT NULL,
     name VARCHAR(100) NOT NULL,
-    type VARCHAR(20) NOT NULL, -- 'store', 'service', 'person'
+        -- type: 'PERSON', 'SERVICE', 'STORE' (shared ExternalEntityTypes)
+    type VARCHAR(20) NOT NULL,
     contact VARCHAR(200),
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT fk_entities_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
         -- Evita duplicados para el mismo usuario, pero permite que dos usuarios
         -- distintos tengan su propia "TIENDA PEPE" sin chocar.
-    UNIQUE KEY unique_entity_per_user (user_id, name)
+    UNIQUE KEY unique_entity_per_user (user_id, name),
+    CONSTRAINT chk_external_entity_type CHECK (type IN ('PERSON', 'SERVICE', 'STORE'))
 );
 
 CREATE INDEX idx_external_entities_user ON external_entities (user_id);
@@ -358,9 +373,9 @@ CREATE TABLE IF NOT EXISTS transactions (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     user_id BIGINT NOT NULL,
     parent_transaction_id BIGINT NULL,
-        -- operation_type ENUM('INCOME', 'EXPENSE', 'TRANSFER') NOT NULL,
-    operation_type VARCHAR(10) NOT NULL,
-        -- payment_method ENUM('CARD', 'CASH', 'TRANSFER', 'QR', 'CODI', 'WALLET') NOT NULL,
+        -- operation_type: 'INCOME', 'EXPENSE', 'REALLOCATION' (reubicación entre cuentas propias)
+    operation_type VARCHAR(20) NOT NULL,
+        -- payment_method: 'CASH', 'CARD', 'WIRE_TRANSFER', 'INTERNAL', 'QR', 'CODI', 'WALLET'
     payment_method VARCHAR(20) NOT NULL,
     status VARCHAR(20) NOT NULL DEFAULT 'COMPLETED', -- 'PENDING', 'COMPLETED', 'FAILED', 'CANCELLED'
     source_account_id BIGINT NULL,
@@ -381,7 +396,11 @@ CREATE TABLE IF NOT EXISTS transactions (
     CONSTRAINT fk_tx_source_account FOREIGN KEY (source_account_id) REFERENCES accounts (id) ON DELETE SET NULL,
     CONSTRAINT fk_tx_destination_account FOREIGN KEY (destination_account_id) REFERENCES accounts (id) ON DELETE SET NULL,
     CONSTRAINT fk_tx_entity FOREIGN KEY (external_entity_id) REFERENCES external_entities (id) ON DELETE SET NULL,
-    CONSTRAINT fk_tx_category FOREIGN KEY (category_id) REFERENCES categories (id)
+    CONSTRAINT fk_tx_category FOREIGN KEY (category_id) REFERENCES categories (id),
+    CONSTRAINT chk_tx_operation_type CHECK (operation_type IN ('INCOME', 'EXPENSE', 'REALLOCATION')),
+    CONSTRAINT chk_tx_payment_method CHECK (payment_method IN ('CASH', 'CARD', 'WIRE_TRANSFER', 'INTERNAL', 'QR', 'CODI', 'WALLET')),
+        -- INTERNAL (movimiento entre cuentas propias) solo tiene sentido en una REALLOCATION
+    CONSTRAINT chk_tx_internal_reallocation CHECK (payment_method <> 'INTERNAL' OR operation_type = 'REALLOCATION')
 );
 
 CREATE INDEX idx_tx_user_id ON transactions (user_id);
@@ -445,11 +464,11 @@ CREATE INDEX idx_card_msi ON card_transaction_details (interest_free, installmen
 CREATE TABLE IF NOT EXISTS wallet_transaction_details (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     transaction_id BIGINT NOT NULL,
-    source_type VARCHAR(20) NOT NULL, -- 'WALLET_BALANCE', 'LINKED_CARD', 'EXTERNAL_TRANSFER'
+    source_type VARCHAR(20) NOT NULL, -- 'WALLET_BALANCE', 'LINKED_CARD' (shared WalletTransactionSourceType)
     wallet_account_id BIGINT NOT NULL, -- Referencia a accounts (type='WALLET')
     card_id BIGINT NULL,               -- Solo si source_type = 'LINKED_CARD'
     amount DECIMAL(12, 2) NOT NULL,
-    cashback_percentage DECIMAL(5, 2) NULL, -- Ej: 2.00 para 2%
+    cashback_rate DECIMAL(9, 6) NULL,  -- Fracción 0-1: 0.020000 = 2% (igual que default_cashback_rate)
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT fk_wallet_tx FOREIGN KEY (transaction_id) REFERENCES transactions (id) ON DELETE CASCADE,
@@ -458,19 +477,230 @@ CREATE TABLE IF NOT EXISTS wallet_transaction_details (
     
     -- Validaciones
     CONSTRAINT chk_wallet_amount CHECK (amount > 0),
-    CONSTRAINT chk_cashback CHECK (cashback_percentage BETWEEN 0 AND 100)
+    CONSTRAINT chk_wallet_source_type CHECK (source_type IN ('WALLET_BALANCE', 'LINKED_CARD')),
+    CONSTRAINT chk_wallet_cashback_rate CHECK (cashback_rate IS NULL OR (cashback_rate >= 0 AND cashback_rate <= 1))
 );
 
 -- Índices para analítica de Cashback y uso de Wallet
 CREATE INDEX idx_wallet_transaction ON wallet_transaction_details (transaction_id);
 CREATE INDEX idx_wallet_payment_wallet ON wallet_transaction_details (wallet_account_id);
 CREATE INDEX idx_wallet_payment_card ON wallet_transaction_details (card_id);
-CREATE INDEX idx_wallet_cashback ON wallet_transaction_details (cashback_percentage);
+CREATE INDEX idx_wallet_cashback_rate ON wallet_transaction_details (cashback_rate);
+
+-- ======================================================
+-- PROCEDIMIENTOS ALMACENADOS (efecto en saldos)
+-- ======================================================
+-- Centralizan la lógica de saldos para que los triggers no la dupliquen:
+--   - sp_apply_transaction_effect / sp_revert_transaction_effect -> triggers 2, 3 y 4 (transactions)
+--   - sp_wallet_detail_effect -> triggers 5, 5.1 y 5.2 (wallet_transaction_details)
+
+DELIMITER //
+
+-- ======================================================
+-- PROCEDIMIENTO 1: Aplicar el efecto de una transacción en los saldos
+-- ======================================================
+-- Origen (EXPENSE / REALLOCATION):
+--   CREDIT -> credit_used + monto (aumenta la deuda)
+--   otro   -> current_balance - monto
+-- Destino (INCOME / REALLOCATION):
+--   CREDIT -> pago de tarjeta: reduce credit_used; el sobrepago va a current_balance
+--   otro   -> current_balance + monto
+-- WALLET se ignora: lo gestionan los triggers de wallet_transaction_details.
+DROP PROCEDURE IF EXISTS sp_apply_transaction_effect //
+
+CREATE PROCEDURE sp_apply_transaction_effect(
+    IN p_operation_type VARCHAR(20),
+    IN p_payment_method VARCHAR(20),
+    IN p_source_account_id BIGINT,
+    IN p_destination_account_id BIGINT,
+    IN p_amount DECIMAL(12, 2)
+)
+proc: BEGIN
+    DECLARE v_source_type VARCHAR(20) DEFAULT NULL;
+    DECLARE v_dest_type VARCHAR(20) DEFAULT NULL;
+    DECLARE v_credit_used DECIMAL(12, 2) DEFAULT 0.00;
+    DECLARE v_overpayment DECIMAL(12, 2) DEFAULT 0.00;
+
+    -- WALLET tiene su propia lógica (triggers 5, 5.1 y 5.2)
+    IF p_payment_method = 'WALLET' THEN
+        LEAVE proc;
+    END IF;
+
+    -- ==========================================
+    -- CUENTA ORIGEN (sale dinero)
+    -- ==========================================
+    IF p_source_account_id IS NOT NULL AND p_operation_type IN ('EXPENSE', 'REALLOCATION') THEN
+        SELECT type INTO v_source_type FROM accounts WHERE id = p_source_account_id;
+
+        IF v_source_type = 'CREDIT' THEN
+            -- Tarjeta de crédito: aumenta la deuda
+            UPDATE credit_details SET credit_used = credit_used + p_amount
+            WHERE account_id = p_source_account_id;
+        ELSE
+            -- Débito, efectivo, ahorro, etc.: resta el dinero
+            UPDATE accounts SET current_balance = current_balance - p_amount
+            WHERE id = p_source_account_id;
+        END IF;
+    END IF;
+
+    -- ==========================================
+    -- CUENTA DESTINO (entra dinero)
+    -- ==========================================
+    IF p_destination_account_id IS NOT NULL AND p_operation_type IN ('INCOME', 'REALLOCATION') THEN
+        SELECT type INTO v_dest_type FROM accounts WHERE id = p_destination_account_id;
+
+        IF v_dest_type = 'CREDIT' THEN
+            -- Pago a la tarjeta de crédito (si no hay fila en credit_details, v_credit_used queda en 0)
+            SELECT credit_used INTO v_credit_used
+            FROM credit_details WHERE account_id = p_destination_account_id;
+
+            IF p_amount <= v_credit_used THEN
+                -- Cubre la deuda parcial o totalmente
+                UPDATE credit_details SET credit_used = credit_used - p_amount
+                WHERE account_id = p_destination_account_id;
+            ELSE
+                -- Pagó de más: la deuda queda en 0 y el excedente es saldo a favor
+                SET v_overpayment = p_amount - v_credit_used;
+                UPDATE credit_details SET credit_used = 0
+                WHERE account_id = p_destination_account_id;
+                UPDATE accounts SET current_balance = current_balance + v_overpayment
+                WHERE id = p_destination_account_id;
+            END IF;
+        ELSE
+            -- Depósito normal (débito, efectivo, ahorro, etc.)
+            UPDATE accounts SET current_balance = current_balance + p_amount
+            WHERE id = p_destination_account_id;
+        END IF;
+    END IF;
+END //
+
+-- ======================================================
+-- PROCEDIMIENTO 2: Revertir el efecto de una transacción en los saldos
+-- ======================================================
+-- Inverso de sp_apply_transaction_effect:
+-- Origen (EXPENSE / REALLOCATION):
+--   CREDIT -> credit_used - monto
+--   otro   -> current_balance + monto
+-- Destino (INCOME / REALLOCATION):
+--   CREDIT -> primero se descuenta del current_balance positivo (saldo a favor, hasta el monto)
+--             y el resto vuelve a sumarse a credit_used
+--   otro   -> current_balance - monto
+DROP PROCEDURE IF EXISTS sp_revert_transaction_effect //
+
+CREATE PROCEDURE sp_revert_transaction_effect(
+    IN p_operation_type VARCHAR(20),
+    IN p_payment_method VARCHAR(20),
+    IN p_source_account_id BIGINT,
+    IN p_destination_account_id BIGINT,
+    IN p_amount DECIMAL(12, 2)
+)
+proc: BEGIN
+    DECLARE v_source_type VARCHAR(20) DEFAULT NULL;
+    DECLARE v_dest_type VARCHAR(20) DEFAULT NULL;
+    DECLARE v_balance DECIMAL(12, 2) DEFAULT 0.00;
+    DECLARE v_from_balance DECIMAL(12, 2) DEFAULT 0.00;
+
+    -- WALLET tiene su propia lógica (triggers 5, 5.1 y 5.2)
+    IF p_payment_method = 'WALLET' THEN
+        LEAVE proc;
+    END IF;
+
+    -- ==========================================
+    -- CUENTA ORIGEN (se devuelve el dinero)
+    -- ==========================================
+    IF p_source_account_id IS NOT NULL AND p_operation_type IN ('EXPENSE', 'REALLOCATION') THEN
+        SELECT type INTO v_source_type FROM accounts WHERE id = p_source_account_id;
+
+        IF v_source_type = 'CREDIT' THEN
+            -- Se elimina el cargo: baja la deuda
+            UPDATE credit_details SET credit_used = credit_used - p_amount
+            WHERE account_id = p_source_account_id;
+        ELSE
+            UPDATE accounts SET current_balance = current_balance + p_amount
+            WHERE id = p_source_account_id;
+        END IF;
+    END IF;
+
+    -- ==========================================
+    -- CUENTA DESTINO (se retira el dinero)
+    -- ==========================================
+    IF p_destination_account_id IS NOT NULL AND p_operation_type IN ('INCOME', 'REALLOCATION') THEN
+        SELECT type INTO v_dest_type FROM accounts WHERE id = p_destination_account_id;
+
+        IF v_dest_type = 'CREDIT' THEN
+            -- Se deshace un pago a la tarjeta:
+            -- 1) se quita del saldo a favor (current_balance positivo), hasta el monto
+            SELECT current_balance INTO v_balance FROM accounts WHERE id = p_destination_account_id;
+            SET v_from_balance = LEAST(GREATEST(v_balance, 0), p_amount);
+
+            IF v_from_balance > 0 THEN
+                UPDATE accounts SET current_balance = current_balance - v_from_balance
+                WHERE id = p_destination_account_id;
+            END IF;
+
+            -- 2) el resto vuelve a ser deuda
+            IF p_amount - v_from_balance > 0 THEN
+                UPDATE credit_details SET credit_used = credit_used + (p_amount - v_from_balance)
+                WHERE account_id = p_destination_account_id;
+            END IF;
+        ELSE
+            UPDATE accounts SET current_balance = current_balance - p_amount
+            WHERE id = p_destination_account_id;
+        END IF;
+    END IF;
+END //
+
+-- ======================================================
+-- PROCEDIMIENTO 3: Aplicar (p_sign = 1) o revertir (p_sign = -1) un detalle de wallet
+-- ======================================================
+-- WALLET_BALANCE -> current_balance de la wallet - (signo * monto)
+-- LINKED_CARD    -> según la cuenta de la tarjeta:
+--                   CREDIT -> credit_used + (signo * monto)
+--                   otro   -> current_balance - (signo * monto)
+DROP PROCEDURE IF EXISTS sp_wallet_detail_effect //
+
+CREATE PROCEDURE sp_wallet_detail_effect(
+    IN p_source_type VARCHAR(20),
+    IN p_wallet_account_id BIGINT,
+    IN p_card_id BIGINT,
+    IN p_amount DECIMAL(12, 2),
+    IN p_sign TINYINT
+)
+BEGIN
+    DECLARE v_card_account_id BIGINT DEFAULT NULL;
+    DECLARE v_card_account_type VARCHAR(20) DEFAULT NULL;
+
+    IF p_source_type = 'WALLET_BALANCE' THEN
+        -- Caso saldo de la wallet
+        UPDATE accounts SET current_balance = current_balance - (p_sign * p_amount)
+        WHERE id = p_wallet_account_id;
+
+    ELSEIF p_source_type = 'LINKED_CARD' AND p_card_id IS NOT NULL THEN
+        -- Caso tarjeta vinculada: se afecta la cuenta dueña de la tarjeta
+        SELECT a.id, a.type INTO v_card_account_id, v_card_account_type
+        FROM cards c
+        INNER JOIN accounts a ON a.id = c.account_id
+        WHERE c.id = p_card_id;
+
+        IF v_card_account_type = 'CREDIT' THEN
+            UPDATE credit_details SET credit_used = credit_used + (p_sign * p_amount)
+            WHERE account_id = v_card_account_id;
+        ELSEIF v_card_account_id IS NOT NULL THEN
+            UPDATE accounts SET current_balance = current_balance - (p_sign * p_amount)
+            WHERE id = v_card_account_id;
+        END IF;
+    END IF;
+END //
+
+DELIMITER ;
 
 -- ======================================================
 -- AUTOMATIZACIÓN DE SALDOS (TRIGGERS)
 -- ======================================================
 
+-- ======================================================
+-- TRIGGERS DE TRANSACTIONS (1 a 4)
+-- ======================================================
 DELIMITER //
 
 -- ======================================================
@@ -495,74 +725,19 @@ BEGIN
 END //
 
 -- ======================================================
--- TRIGGER 2: Actualización de saldos después de insertar transacción
+-- TRIGGER 2: Aplicar saldos después de insertar transacción
 -- ======================================================
-
 DROP TRIGGER IF EXISTS tr_after_transaction_insert_master //
 
 CREATE TRIGGER tr_after_transaction_insert_master
 AFTER INSERT ON transactions
 FOR EACH ROW
 BEGIN
-    DECLARE v_source_type VARCHAR(20) DEFAULT NULL;
-    DECLARE v_dest_type VARCHAR(20) DEFAULT NULL;
-    DECLARE v_credit_used DECIMAL(12,2);
-    DECLARE v_payment_amount DECIMAL(12,2);
-    DECLARE v_overpayment DECIMAL(12,2);
-
-    -- 1. Obtener tipos de cuenta
-    IF NEW.source_account_id IS NOT NULL THEN
-        SELECT type INTO v_source_type FROM accounts WHERE id = NEW.source_account_id;
-    END IF;
-    
-    IF NEW.destination_account_id IS NOT NULL THEN
-        SELECT type INTO v_dest_type FROM accounts WHERE id = NEW.destination_account_id;
-    END IF;
-
-    -- 2. Ignoramos Wallet porque tiene su propio Trigger (Trigger 5)
-    IF NEW.payment_method <> 'WALLET' THEN
-
-        -- ==========================================
-        -- LOGICA PARA LA CUENTA ORIGEN (Sale dinero)
-        -- ==========================================
-        IF NEW.source_account_id IS NOT NULL AND NEW.operation_type IN ('EXPENSE', 'TRANSFER') THEN
-            IF v_source_type = 'CREDIT' THEN
-                -- Es tarjeta de crédito: aumenta la deuda
-                UPDATE credit_details SET credit_used = credit_used + NEW.amount 
-                WHERE account_id = NEW.source_account_id;
-            ELSE
-                -- Es débito/efectivo: resta el dinero
-                UPDATE accounts SET current_balance = current_balance - NEW.amount 
-                WHERE id = NEW.source_account_id;
-            END IF;
-        END IF;
-
-        -- ==========================================
-        -- LOGICA PARA LA CUENTA DESTINO (Entra dinero)
-        -- ==========================================
-        IF NEW.destination_account_id IS NOT NULL AND NEW.operation_type IN ('INCOME', 'TRANSFER') THEN
-            IF v_dest_type = 'CREDIT' THEN
-                -- Es un PAGO a la tarjeta de crédito
-                SELECT credit_used INTO v_credit_used FROM credit_details WHERE account_id = NEW.destination_account_id;
-                SET v_payment_amount = NEW.amount;
-                
-                IF v_payment_amount <= v_credit_used THEN
-                    -- Cubre la deuda parcial o totalmente
-                    UPDATE credit_details SET credit_used = credit_used - v_payment_amount WHERE account_id = NEW.destination_account_id;
-                ELSE
-                    -- Pagó de más (Saldo a favor)
-                    SET v_overpayment = v_payment_amount - v_credit_used;
-                    UPDATE credit_details SET credit_used = 0 WHERE account_id = NEW.destination_account_id;
-                    UPDATE accounts SET current_balance = current_balance + v_overpayment WHERE id = NEW.destination_account_id;
-                END IF;
-            ELSE
-                -- Es depósito normal (débito, cash, ahorro)
-                UPDATE accounts SET current_balance = current_balance + NEW.amount 
-                WHERE id = NEW.destination_account_id;
-            END IF;
-        END IF;
-
-    END IF;
+    -- Aplica el efecto del NEW (ignora WALLET dentro del procedimiento)
+    CALL sp_apply_transaction_effect(
+        NEW.operation_type, NEW.payment_method,
+        NEW.source_account_id, NEW.destination_account_id, NEW.amount
+    );
 END //
 
 -- ======================================================
@@ -574,50 +749,26 @@ CREATE TRIGGER tr_after_transaction_update
 AFTER UPDATE ON transactions
 FOR EACH ROW
 BEGIN
-    -- A. REVERTIR valores antiguos
-    IF OLD.payment_method <> 'WALLET' THEN
-        IF OLD.operation_type = 'EXPENSE' THEN
-            UPDATE accounts
-            SET current_balance = current_balance + OLD.amount
-            WHERE id = OLD.source_account_id;
+    -- Solo se recalcula si cambió algún dato que afecta saldos
+    -- (<=> compara también NULLs). Así una edición de concepto o tags no
+    -- redistribuye saldo a favor / deuda de una tarjeta de crédito.
+    IF NOT (OLD.operation_type <=> NEW.operation_type
+        AND OLD.payment_method <=> NEW.payment_method
+        AND OLD.source_account_id <=> NEW.source_account_id
+        AND OLD.destination_account_id <=> NEW.destination_account_id
+        AND OLD.amount <=> NEW.amount) THEN
 
-        ELSEIF OLD.operation_type = 'INCOME' THEN
-            UPDATE accounts
-            SET current_balance = current_balance - OLD.amount
-            WHERE id = OLD.destination_account_id;
+        -- A. REVERTIR valores antiguos
+        CALL sp_revert_transaction_effect(
+            OLD.operation_type, OLD.payment_method,
+            OLD.source_account_id, OLD.destination_account_id, OLD.amount
+        );
 
-        ELSEIF OLD.operation_type = 'TRANSFER' THEN
-            UPDATE accounts
-            SET current_balance = current_balance + OLD.amount
-            WHERE id = OLD.source_account_id;
-
-            UPDATE accounts
-            SET current_balance = current_balance - OLD.amount
-            WHERE id = OLD.destination_account_id;
-        END IF;
-    END IF;
-
-    -- B. APLICAR valores nuevos
-    IF NEW.payment_method <> 'WALLET' THEN
-        IF NEW.operation_type = 'EXPENSE' THEN
-            UPDATE accounts
-            SET current_balance = current_balance - NEW.amount
-            WHERE id = NEW.source_account_id;
-
-        ELSEIF NEW.operation_type = 'INCOME' THEN
-            UPDATE accounts
-            SET current_balance = current_balance + NEW.amount
-            WHERE id = NEW.destination_account_id;
-
-        ELSEIF NEW.operation_type = 'TRANSFER' THEN
-            UPDATE accounts
-            SET current_balance = current_balance - NEW.amount
-            WHERE id = NEW.source_account_id;
-
-            UPDATE accounts
-            SET current_balance = current_balance + NEW.amount
-            WHERE id = NEW.destination_account_id;
-        END IF;
+        -- B. APLICAR valores nuevos
+        CALL sp_apply_transaction_effect(
+            NEW.operation_type, NEW.payment_method,
+            NEW.source_account_id, NEW.destination_account_id, NEW.amount
+        );
     END IF;
 END //
 
@@ -630,31 +781,21 @@ CREATE TRIGGER tr_after_transaction_delete
 AFTER DELETE ON transactions
 FOR EACH ROW
 BEGIN
-    IF OLD.payment_method <> 'WALLET' THEN
-        IF OLD.operation_type = 'EXPENSE' THEN
-            UPDATE accounts
-            SET current_balance = current_balance + OLD.amount
-            WHERE id = OLD.source_account_id;
-
-        ELSEIF OLD.operation_type = 'INCOME' THEN
-            UPDATE accounts
-            SET current_balance = current_balance - OLD.amount
-            WHERE id = OLD.destination_account_id;
-
-        ELSEIF OLD.operation_type = 'TRANSFER' THEN
-            UPDATE accounts
-            SET current_balance = current_balance + OLD.amount
-            WHERE id = OLD.source_account_id;
-
-            UPDATE accounts
-            SET current_balance = current_balance - OLD.amount
-            WHERE id = OLD.destination_account_id;
-        END IF;
-    END IF;
+    CALL sp_revert_transaction_effect(
+        OLD.operation_type, OLD.payment_method,
+        OLD.source_account_id, OLD.destination_account_id, OLD.amount
+    );
 END //
 
+DELIMITER ;
+
 -- ======================================================
--- TRIGGER 5: Actualizar saldos al insertar detalle de wallet
+-- TRIGGERS DE WALLET_TRANSACTION_DETAILS (5, 5.1 y 5.2)
+-- ======================================================
+DELIMITER //
+
+-- ======================================================
+-- TRIGGER 5: Aplicar saldos al insertar detalle de wallet
 -- ======================================================
 DROP TRIGGER IF EXISTS tr_after_wallet_detail_insert //
 
@@ -662,21 +803,50 @@ CREATE TRIGGER tr_after_wallet_detail_insert
 AFTER INSERT ON wallet_transaction_details
 FOR EACH ROW
 BEGIN
-    -- Caso Saldo Wallet
-    IF NEW.source_type = 'WALLET_BALANCE' THEN
-        UPDATE accounts
-        SET current_balance = current_balance - NEW.amount
-        WHERE id = NEW.wallet_account_id;
-    END IF;
+    CALL sp_wallet_detail_effect(NEW.source_type, NEW.wallet_account_id, NEW.card_id, NEW.amount, 1);
+END //
 
-    -- Caso Tarjeta Vinculada
-    IF NEW.source_type = 'LINKED_CARD' AND NEW.card_id IS NOT NULL THEN
-        UPDATE accounts a
-        INNER JOIN cards c ON a.id = c.account_id
-        SET a.current_balance = a.current_balance - NEW.amount
-        WHERE c.id = NEW.card_id;
+-- ======================================================
+-- TRIGGER 5.1: Corregir saldos al actualizar detalle de wallet
+-- ======================================================
+DROP TRIGGER IF EXISTS tr_after_wallet_detail_update //
+
+CREATE TRIGGER tr_after_wallet_detail_update
+AFTER UPDATE ON wallet_transaction_details
+FOR EACH ROW
+BEGIN
+    -- Solo si cambió algún dato que afecta saldos
+    IF NOT (OLD.source_type <=> NEW.source_type
+        AND OLD.wallet_account_id <=> NEW.wallet_account_id
+        AND OLD.card_id <=> NEW.card_id
+        AND OLD.amount <=> NEW.amount) THEN
+
+        -- A. REVERTIR valores antiguos
+        CALL sp_wallet_detail_effect(OLD.source_type, OLD.wallet_account_id, OLD.card_id, OLD.amount, -1);
+
+        -- B. APLICAR valores nuevos
+        CALL sp_wallet_detail_effect(NEW.source_type, NEW.wallet_account_id, NEW.card_id, NEW.amount, 1);
     END IF;
 END //
+
+-- ======================================================
+-- TRIGGER 5.2: Restituir saldos al eliminar detalle de wallet
+-- ======================================================
+DROP TRIGGER IF EXISTS tr_after_wallet_detail_delete //
+
+CREATE TRIGGER tr_after_wallet_detail_delete
+AFTER DELETE ON wallet_transaction_details
+FOR EACH ROW
+BEGIN
+    CALL sp_wallet_detail_effect(OLD.source_type, OLD.wallet_account_id, OLD.card_id, OLD.amount, -1);
+END //
+
+DELIMITER ;
+
+-- ======================================================
+-- TRIGGERS DE ACCOUNTS: sincronización de global_balance (6, 6.1 y 6.2)
+-- ======================================================
+DELIMITER //
 
 -- ======================================================
 -- TRIGGER 6: Sincronización de global_balance en users
@@ -698,8 +868,6 @@ BEGIN
         WHERE id = NEW.user_id;
     END IF;
 END //
-
-DELIMITER //
 
 -- ======================================================
 -- TRIGGER 6.1: Sincronización al CREAR una cuenta (INSERT)
@@ -746,9 +914,13 @@ END //
 DELIMITER ;
 
 -- ======================================================
--- TRIGGER 7: Validar que la tarjeta se vincule a cuenta bancaria
+-- TRIGGER DE CARDS (7)
 -- ======================================================
 DELIMITER //
+
+-- ======================================================
+-- TRIGGER 7: Validar que la tarjeta se vincule a cuenta bancaria
+-- ======================================================
 DROP TRIGGER IF EXISTS tr_before_card_insert //
 
 CREATE TRIGGER tr_before_card_insert
@@ -770,24 +942,34 @@ BEGIN
     END IF;
 END //
 
--- ======================================================
--- TRIGGER 8: Validación de transferencias
--- ======================================================
-DROP TRIGGER IF EXISTS tr_before_transaction_transfer_check //
+DELIMITER ;
 
-CREATE TRIGGER tr_before_transaction_transfer_check
+-- ======================================================
+-- TRIGGER DE TRANSACTIONS: validación de reubicaciones (8)
+-- ======================================================
+-- Es el segundo BEFORE INSERT sobre transactions: FOLLOWS fija que se ejecute
+-- después del trigger 1 (que normaliza el monto).
+DELIMITER //
+
+-- ======================================================
+-- TRIGGER 8: Validación de reubicaciones
+-- ======================================================
+DROP TRIGGER IF EXISTS tr_before_transaction_reallocation_check //
+
+CREATE TRIGGER tr_before_transaction_reallocation_check
 BEFORE INSERT ON transactions
 FOR EACH ROW
+FOLLOWS tr_before_transaction_insert_val
 BEGIN
     DECLARE v_acc_type VARCHAR(20);
     DECLARE v_can_transfer BOOLEAN;
 
-    IF NEW.operation_type = 'TRANSFER' THEN
+    IF NEW.operation_type = 'REALLOCATION' THEN
 
-        -- Validaciones mínimas de integridad para transferencias
+        -- Validaciones mínimas de integridad para reubicaciones
         IF NEW.source_account_id IS NULL OR NEW.destination_account_id IS NULL THEN
             SIGNAL SQLSTATE '45000'
-            SET MESSAGE_TEXT = 'Error: Transferencia requiere source_account_id y destination_account_id.';
+            SET MESSAGE_TEXT = 'Error: Reubicación requiere source_account_id y destination_account_id.';
         END IF;
 
         IF NEW.source_account_id = NEW.destination_account_id THEN
@@ -812,7 +994,7 @@ BEGIN
         -- Bloqueo por tipo BENEFIT o flag deshabilitado
         IF v_acc_type = 'BENEFIT' OR v_can_transfer = FALSE THEN
             SIGNAL SQLSTATE '45000'
-            SET MESSAGE_TEXT = 'Restricción: Esta cuenta no permite transferencias salientes.';
+            SET MESSAGE_TEXT = 'Restricción: Esta cuenta no permite salidas de dinero (reubicaciones).';
         END IF;
 
     END IF;

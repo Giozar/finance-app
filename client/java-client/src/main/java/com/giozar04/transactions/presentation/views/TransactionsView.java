@@ -9,6 +9,7 @@ import java.awt.event.ActionEvent;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Stream;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -28,6 +29,7 @@ import com.giozar04.shared.components.table.OptionsCellRenderer;
 import com.giozar04.shared.components.table.PopupMenuActionHandler;
 import com.giozar04.shared.utils.DialogUtil;
 import com.giozar04.transactions.domain.entities.Transaction;
+import com.giozar04.transactions.domain.enums.OperationTypes;
 import com.giozar04.transactions.infrastructure.services.TransactionService;
 import com.giozar04.transactions.presentation.components.PaymentMethodCellRenderer;
 import com.giozar04.transactions.presentation.components.TransactionFormPanel;
@@ -76,7 +78,9 @@ public class TransactionsView extends JPanel implements PopupMenuActionHandler {
         searchField = new JTextField(20);
         searchPanel.add(searchField);
 
-        filterCombo = new JComboBox<>(new String[]{"Todos los tipos", "INCOME", "EXPENSE"});
+        filterCombo = new JComboBox<>(Stream.concat(
+                Stream.of("Todos los tipos"),
+                Arrays.stream(OperationTypes.values()).map(Enum::name)).toArray(String[]::new));
         searchPanel.add(filterCombo);
 
         JButton searchButton = new JButton("Buscar");

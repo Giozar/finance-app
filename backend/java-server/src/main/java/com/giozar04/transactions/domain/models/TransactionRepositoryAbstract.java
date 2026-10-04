@@ -51,6 +51,9 @@ public abstract class TransactionRepositoryAbstract implements TransactionReposi
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Tipo de operación o método de pago inválido", e);
         }
+
+        if (tx.getPaymentMethod() == PaymentMethod.INTERNAL && tx.getOperationType() != OperationTypes.REALLOCATION)
+            throw new IllegalArgumentException("El método de pago \"" + PaymentMethod.INTERNAL.getLabel() + "\" solo se permite con el tipo \"" + OperationTypes.REALLOCATION.getLabel() + "\"");
     }
 
     protected void validateId(long id) {

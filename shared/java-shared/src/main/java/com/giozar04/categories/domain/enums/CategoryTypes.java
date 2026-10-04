@@ -1,9 +1,9 @@
 package com.giozar04.categories.domain.enums;
 
 public enum CategoryTypes {
-    INCOME("income", "Ingreso"),
-    EXPENSE("expense", "Gasto"),
-    BOTH("both", "Ambos");
+    INCOME("INCOME", "Ingreso"),
+    EXPENSE("EXPENSE", "Gasto"),
+    BOTH("BOTH", "Ambos");
 
     private final String value;
     private final String label;

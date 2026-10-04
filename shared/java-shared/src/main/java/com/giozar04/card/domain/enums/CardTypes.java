@@ -1,8 +1,8 @@
 package com.giozar04.card.domain.enums;
 
 public enum CardTypes {
-    PHYSICAL("physical", "Física"),
-    DIGITAL("digital", "Digital");
+    PHYSICAL("PHYSICAL", "Física"),
+    DIGITAL("DIGITAL", "Digital");
 
     private final String value;
     private final String label;

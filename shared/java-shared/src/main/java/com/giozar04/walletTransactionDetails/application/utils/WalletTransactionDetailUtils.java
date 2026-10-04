@@ -17,7 +17,7 @@ public class WalletTransactionDetailUtils {
         map.put("walletAccountId", detail.getWalletAccountId());
         map.put("cardId", detail.getCardId());
         map.put("amount", detail.getAmount());
-        map.put("cashbackPercentage", detail.getCashbackPercentage());
+        map.put("cashbackRate", detail.getCashbackRate());
 
         if (detail.getCreatedAt() != null) {
             map.put("createdAt", detail.getCreatedAt().format(SharedUtils.getFormatter()));
@@ -38,7 +38,7 @@ public class WalletTransactionDetailUtils {
         detail.setWalletAccountId(SharedUtils.parseLong(map.get("walletAccountId")));
         detail.setCardId(SharedUtils.parseNullableLong(map.get("cardId")));
         detail.setAmount(SharedUtils.parseBigDecimal(map.get("amount"))); // <- mejor que new BigDecimal(...)
-        detail.setCashbackPercentage(SharedUtils.parseNullableBigDecimal(map.get("cashbackPercentage")));
+        detail.setCashbackRate(SharedUtils.parseNullableBigDecimal(map.get("cashbackRate")));
         detail.setCreatedAt(SharedUtils.parseZonedDateTime(map.get("createdAt")));
         detail.setUpdatedAt(SharedUtils.parseZonedDateTime(map.get("updatedAt")));
         return detail;

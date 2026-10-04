@@ -76,11 +76,11 @@ public class CategoryTestApp {
         System.out.print("Nombre de la categoría: ");
         category.setName(scanner.nextLine());
 
-        System.out.print("Tipo (income/expense/both): ");
-        String type = scanner.nextLine().trim().toLowerCase();
-        while (!type.equals("income") && !type.equals("expense") && !type.equals("both")) {
-            System.out.print("Tipo inválido. Ingrese 'income', 'expense' o 'both': ");
-            type = scanner.nextLine().trim().toLowerCase();
+        System.out.print("Tipo (INCOME/EXPENSE/BOTH): ");
+        String type = scanner.nextLine().trim().toUpperCase();
+        while (!type.equals("INCOME") && !type.equals("EXPENSE") && !type.equals("BOTH")) {
+            System.out.print("Tipo inválido. Ingrese 'INCOME', 'EXPENSE' o 'BOTH': ");
+            type = scanner.nextLine().trim().toUpperCase();
         }
         category.setType(CategoryTypes.fromValue(type));
 
@@ -109,12 +109,12 @@ public class CategoryTestApp {
         String name = scanner.nextLine();
         if (!name.isBlank()) category.setName(name);
 
-        System.out.print("Nuevo tipo (income/expense/both) [" + category.getType().getValue() + "]: ");
-        String type = scanner.nextLine().trim().toLowerCase();
+        System.out.print("Nuevo tipo (INCOME/EXPENSE/BOTH) [" + category.getType().getValue() + "]: ");
+        String type = scanner.nextLine().trim().toUpperCase();
         if (!type.isBlank()) {
-            while (!type.equals("income") && !type.equals("expense") && !type.equals("both")) {
-                System.out.print("Tipo inválido. Ingrese 'income', 'expense' o 'both': ");
-                type = scanner.nextLine().trim().toLowerCase();
+            while (!type.equals("INCOME") && !type.equals("EXPENSE") && !type.equals("BOTH")) {
+                System.out.print("Tipo inválido. Ingrese 'INCOME', 'EXPENSE' o 'BOTH': ");
+                type = scanner.nextLine().trim().toUpperCase();
             }
             category.setType(CategoryTypes.fromValue(type));
         }

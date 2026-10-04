@@ -52,8 +52,7 @@ public class CardRepositoryMySQL extends CardRepositoryAbstract {
             stmt.setString(3, card.getCardType().getValue());
             stmt.setString(4, card.getCardNumber());
             stmt.setDate(5, java.sql.Date.valueOf(card.getExpirationDate().toLocalDate()));
-            // status usa DEFAULT 'ACTIVE' en BD; si viene null se envía como null y la BD aplica el default
-            stmt.setString(6, card.getStatus() != null ? card.getStatus() : "ACTIVE");
+            stmt.setString(6, card.getStatus()); // normalizado en validateCard
             stmt.setTimestamp(7, Timestamp.valueOf(card.getCreatedAt().toLocalDateTime()));
             stmt.setTimestamp(8, Timestamp.valueOf(card.getUpdatedAt().toLocalDateTime()));
 
@@ -112,7 +111,7 @@ public class CardRepositoryMySQL extends CardRepositoryAbstract {
             stmt.setString(3, card.getCardType().getValue());
             stmt.setString(4, card.getCardNumber());
             stmt.setDate(5, java.sql.Date.valueOf(card.getExpirationDate().toLocalDate()));
-            stmt.setString(6, card.getStatus() != null ? card.getStatus() : "ACTIVE");
+            stmt.setString(6, card.getStatus()); // normalizado en validateCard
             stmt.setTimestamp(7, Timestamp.valueOf(card.getUpdatedAt().toLocalDateTime()));
             stmt.setLong(8, id);
 

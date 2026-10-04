@@ -47,13 +47,13 @@ public class ExternalEntityFormPanel extends JPanel {
         formPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
 
         userCombo = new FormComboBox<>("Usuario propietario:", 400, 40);
-        userCombo.setPlaceholder("Selecciona un usuario...");
+        userCombo.setPlaceholder("Seleccione un usuario...");
         loadUsers();
 
         nameField = new FormField("Nombre:", false, 400, 40);
 
         typeCombo = new FormComboBox<>("Tipo:", 400, 40);
-        typeCombo.setPlaceholder("Selecciona un tipo...");
+        typeCombo.setPlaceholder("Seleccione un tipo...");
         typeCombo.setItems(List.of(ExternalEntityTypes.values()));
 
         contactField = new FormField("Contacto (opcional):", false, 400, 40);
@@ -103,7 +103,7 @@ public class ExternalEntityFormPanel extends JPanel {
         FormValidatorUtils.isRequired(name, "Nombre", errors);
 
         if (!typeCombo.isSelectionValid()) {
-            errors.add("Debes seleccionar un tipo válido.");
+            errors.add("Debe seleccionar un tipo válido.");
         }
 
         if (!errors.isEmpty()) {

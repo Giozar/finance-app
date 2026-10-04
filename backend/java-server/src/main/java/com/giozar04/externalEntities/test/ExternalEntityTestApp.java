@@ -72,11 +72,11 @@ public class ExternalEntityTestApp {
         System.out.print("Nombre de la entidad externa: ");
         entity.setName(scanner.nextLine());
 
-        System.out.print("Tipo (person/service/store): ");
-        String type = scanner.nextLine().trim().toLowerCase();
-        while (!type.equals("person") && !type.equals("service") && !type.equals("store")) {
-            System.out.print("Tipo inválido. Ingrese 'person', 'service' o 'store': ");
-            type = scanner.nextLine().trim().toLowerCase();
+        System.out.print("Tipo (PERSON/SERVICE/STORE): ");
+        String type = scanner.nextLine().trim().toUpperCase();
+        while (!type.equals("PERSON") && !type.equals("SERVICE") && !type.equals("STORE")) {
+            System.out.print("Tipo inválido. Ingrese 'PERSON', 'SERVICE' o 'STORE': ");
+            type = scanner.nextLine().trim().toUpperCase();
         }
         entity.setType(ExternalEntityTypes.fromValue(type));
 
@@ -102,8 +102,8 @@ public class ExternalEntityTestApp {
         String name = scanner.nextLine();
         if (!name.isBlank()) entity.setName(name);
 
-        System.out.print("Nuevo tipo (person/service/store) [" + entity.getType().getValue() + "]: ");
-        String type = scanner.nextLine().trim().toLowerCase();
+        System.out.print("Nuevo tipo (PERSON/SERVICE/STORE) [" + entity.getType().getValue() + "]: ");
+        String type = scanner.nextLine().trim().toUpperCase();
         if (!type.isBlank()) entity.setType(ExternalEntityTypes.fromValue(type));
 
         System.out.print("Nuevo contacto (" + entity.getContact() + "): ");

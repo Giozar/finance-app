@@ -50,7 +50,7 @@ public class BankClientFormPanel extends JPanel {
         bankNameField = new FormField("Nombre del Banco:", false, 400, 40);
         clientNumberField = new FormField("Número de Cliente:", false, 400, 40);
         userComboBox = new FormComboBox<>("Usuario:", 400, 40);
-        userComboBox.setPlaceholder("Selecciona un usuario...");
+        userComboBox.setPlaceholder("Seleccione un usuario...");
         loadUsers();
 
         formPanel.add(bankNameField);
@@ -112,7 +112,7 @@ public class BankClientFormPanel extends JPanel {
         }
 
         if(userId == 0 || !userComboBox.isSelectionValid()) {
-            errors.add("Debes seleccionar un Usuario válido");
+            errors.add("Debe seleccionar un Usuario válido");
         }
     
         if (!errors.isEmpty()) {

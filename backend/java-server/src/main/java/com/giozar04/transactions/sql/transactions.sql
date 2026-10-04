@@ -1,8 +1,8 @@
 CREATE TABLE transactions (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
 
-    operation_type VARCHAR(10) NOT NULL,              -- 'income' o 'expense'
-    payment_method VARCHAR(20) NOT NULL,              -- 'cash', 'card', 'transfer', etc.
+    operation_type VARCHAR(20) NOT NULL,              -- 'INCOME', 'EXPENSE' o 'REALLOCATION'
+    payment_method VARCHAR(20) NOT NULL,              -- 'CASH', 'CARD', 'WIRE_TRANSFER', 'INTERNAL', 'QR', 'CODI', 'WALLET' (INTERNAL solo con REALLOCATION)
 
     source_account_id BIGINT NULL,
     destination_account_id BIGINT NULL,

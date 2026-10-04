@@ -86,13 +86,13 @@ public class AccountFormPanel extends JPanel {
 
         // Campos base
         userCombo = new FormComboBox<>("Usuario propietario:", 400, 40);
-        userCombo.setPlaceholder("Selecciona un usuario...");
+        userCombo.setPlaceholder("Seleccione un usuario...");
         loadUsers();
 
         nameField = new FormField("Nombre:", false, 400, 40);
 
         typeCombo = new FormComboBox<>("Tipo de cuenta:", 400, 40);
-        typeCombo.setPlaceholder("Selecciona un tipo...");
+        typeCombo.setPlaceholder("Seleccione un tipo...");
         typeCombo.setItems(List.of(AccountTypes.values()));
 
         balanceField = new FormField("Balance actual:", false, 400, 40);

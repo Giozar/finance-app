@@ -23,14 +23,14 @@ public class WalletTransactionDetailRepositoryMySQL extends WalletTransactionDet
 
     private static final String SQL_INSERT = """
         INSERT INTO wallet_transaction_details (
-            transaction_id, source_type, wallet_account_id, card_id, amount, cashback_percentage, created_at, updated_at
+            transaction_id, source_type, wallet_account_id, card_id, amount, cashback_rate, created_at, updated_at
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     """;
 
     private static final String SQL_SELECT_BY_ID = "SELECT * FROM wallet_transaction_details WHERE id = ?";
     private static final String SQL_UPDATE = """
         UPDATE wallet_transaction_details SET
-            transaction_id = ?, source_type = ?, wallet_account_id = ?, card_id = ?, amount = ?, cashback_percentage = ?, updated_at = ?
+            transaction_id = ?, source_type = ?, wallet_account_id = ?, card_id = ?, amount = ?, cashback_rate = ?, updated_at = ?
         WHERE id = ?
     """;
 
@@ -60,8 +60,8 @@ public class WalletTransactionDetailRepositoryMySQL extends WalletTransactionDet
             else stmt.setNull(4, Types.BIGINT);
 
             stmt.setBigDecimal(5, detail.getAmount());
-            if (detail.getCashbackPercentage() != null) {
-                stmt.setBigDecimal(6, detail.getCashbackPercentage());
+            if (detail.getCashbackRate() != null) {
+                stmt.setBigDecimal(6, detail.getCashbackRate());
             } else {
                 stmt.setNull(6, Types.DECIMAL);
             }
@@ -124,8 +124,8 @@ public class WalletTransactionDetailRepositoryMySQL extends WalletTransactionDet
 
             stmt.setBigDecimal(5, detail.getAmount());
 
-            if (detail.getCashbackPercentage() != null) {
-                stmt.setBigDecimal(6, detail.getCashbackPercentage());
+            if (detail.getCashbackRate() != null) {
+                stmt.setBigDecimal(6, detail.getCashbackRate());
             } else {
                 stmt.setNull(6, Types.DECIMAL);
             }
@@ -216,8 +216,8 @@ public class WalletTransactionDetailRepositoryMySQL extends WalletTransactionDet
 
         detail.setAmount(rs.getBigDecimal("amount"));
 
-        BigDecimal cashback = rs.getBigDecimal("cashback_percentage");
-        detail.setCashbackPercentage(rs.wasNull() ? null : cashback);
+        BigDecimal cashback = rs.getBigDecimal("cashback_rate");
+        detail.setCashbackRate(rs.wasNull() ? null : cashback);
 
         detail.setCreatedAt(ZonedDateTime.of(rs.getTimestamp("created_at").toLocalDateTime(), zone));
         detail.setUpdatedAt(ZonedDateTime.of(rs.getTimestamp("updated_at").toLocalDateTime(), zone));

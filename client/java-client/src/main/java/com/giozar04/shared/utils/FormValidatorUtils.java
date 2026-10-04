@@ -131,7 +131,7 @@ public class FormValidatorUtils {
      * @return texto con todos los errores en formato legible
      */
     public static String formatErrorMessage(List<String> errors) {
-        StringBuilder sb = new StringBuilder("Corrige los siguientes errores:\n\n");
+        StringBuilder sb = new StringBuilder("Corrija los siguientes errores:\n\n");
         for (String error : errors) {
             sb.append("• ").append(error).append("\n");
         }

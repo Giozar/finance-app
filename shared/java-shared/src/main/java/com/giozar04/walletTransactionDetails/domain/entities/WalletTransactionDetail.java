@@ -15,7 +15,7 @@ public class WalletTransactionDetail implements Serializable {
     private long walletAccountId;
     private Long cardId;
     private BigDecimal amount;
-    private BigDecimal cashbackPercentage;
+    private BigDecimal cashbackRate; // Fracción 0-1 (0.02 = 2%)
     private ZonedDateTime createdAt;
     private ZonedDateTime updatedAt;
 
@@ -39,8 +39,8 @@ public class WalletTransactionDetail implements Serializable {
     public BigDecimal getAmount() { return amount; }
     public void setAmount(BigDecimal amount) { this.amount = amount; }
 
-    public BigDecimal getCashbackPercentage() { return cashbackPercentage; }
-    public void setCashbackPercentage(BigDecimal cashbackPercentage) { this.cashbackPercentage = cashbackPercentage; }
+    public BigDecimal getCashbackRate() { return cashbackRate; }
+    public void setCashbackRate(BigDecimal cashbackRate) { this.cashbackRate = cashbackRate; }
 
     public ZonedDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(ZonedDateTime createdAt) { this.createdAt = createdAt; }

@@ -33,7 +33,12 @@ public class ExternalEntityUtils {
         entity.setId(SharedUtils.parseLong(map.get("id")));
         entity.setUserId(SharedUtils.parseLong(map.get("userId")));
         entity.setName((String) map.get("name"));
-        entity.setType(ExternalEntityTypes.fromValue((String) map.get("type")));
+
+        Object typeObj = map.get("type");
+        if (typeObj != null) {
+            entity.setType(ExternalEntityTypes.fromValue(typeObj.toString()));
+        }
+
         entity.setContact((String) map.get("contact"));
         entity.setCreatedAt(SharedUtils.parseZonedDateTime(map.get("createdAt")));
         entity.setUpdatedAt(SharedUtils.parseZonedDateTime(map.get("updatedAt")));

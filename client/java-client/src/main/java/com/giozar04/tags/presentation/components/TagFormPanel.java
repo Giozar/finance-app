@@ -47,7 +47,7 @@ public class TagFormPanel extends JPanel {
         formPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
 
         userCombo = new FormComboBox<>("Usuario propietario:", 400, 40);
-        userCombo.setPlaceholder("Selecciona un usuario...");
+        userCombo.setPlaceholder("Seleccione un usuario...");
         loadUsers();
 
         nameField = new FormField("Nombre de la etiqueta:", false, 400, 40);

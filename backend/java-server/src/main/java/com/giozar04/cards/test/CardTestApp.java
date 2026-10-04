@@ -76,11 +76,11 @@ public class CardTestApp {
         System.out.print("Nombre de la tarjeta (ej. Débito BBVA Física): ");
         card.setName(scanner.nextLine());
 
-        System.out.print("Tipo de tarjeta (physical/digital): ");
-        String type = scanner.nextLine().trim().toLowerCase();
-        while (!type.equals("physical") && !type.equals("digital")) {
-            System.out.print("Tipo inválido. Ingrese 'physical' o 'digital': ");
-            type = scanner.nextLine().trim().toLowerCase();
+        System.out.print("Tipo de tarjeta (PHYSICAL/DIGITAL): ");
+        String type = scanner.nextLine().trim().toUpperCase();
+        while (!type.equals("PHYSICAL") && !type.equals("DIGITAL")) {
+            System.out.print("Tipo inválido. Ingrese 'PHYSICAL' o 'DIGITAL': ");
+            type = scanner.nextLine().trim().toUpperCase();
         }
         card.setCardType(CardTypes.fromValue(type));
 
@@ -113,8 +113,8 @@ public class CardTestApp {
         String name = scanner.nextLine();
         if (!name.isBlank()) card.setName(name);
 
-        System.out.print("Nuevo tipo (physical/digital) [" + card.getCardType().getValue() + "]: ");
-        String type = scanner.nextLine().trim().toLowerCase();
+        System.out.print("Nuevo tipo (PHYSICAL/DIGITAL) [" + card.getCardType().getValue() + "]: ");
+        String type = scanner.nextLine().trim().toUpperCase();
         if (!type.isBlank()) card.setCardType(CardTypes.fromValue(type));
 
         System.out.print("Nuevos últimos 4 dígitos (" + card.getCardNumber() + "): ");

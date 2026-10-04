@@ -36,7 +36,7 @@ public class ColorPickerField extends JPanel {
     }
 
     private void openColorPicker(ActionEvent e) {
-        Color color = JColorChooser.showDialog(this, "Selecciona un color", selectedColor);
+        Color color = JColorChooser.showDialog(this, "Seleccione un color", selectedColor);
         if (color != null) {
             selectedColor = color;
             colorButton.setBackground(color);

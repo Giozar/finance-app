@@ -75,19 +75,19 @@ public class CardFormPanel extends JPanel {
 
         // --- Usuario propietario ---
         userCombo = new FormComboBox<>("Usuario propietario:", 400, 40);
-        userCombo.setPlaceholder("Selecciona un usuario...");
+        userCombo.setPlaceholder("Seleccione un usuario...");
         loadUsers();
 
         // --- Cuenta asociada (se filtra según el usuario) ---
         accountCombo = new FormComboBox<>("Cuenta asociada:", 400, 40);
-        accountCombo.setPlaceholder("Selecciona primero un usuario...");
+        accountCombo.setPlaceholder("Seleccione primero un usuario...");
 
         // --- Nombre de la tarjeta ---
         nameField = new FormField("Nombre / Alias:", false, 400, 40);
 
         // --- Tipo de tarjeta ---
         typeCombo = new FormComboBox<>("Tipo de tarjeta:", 400, 40);
-        typeCombo.setPlaceholder("Selecciona un tipo...");
+        typeCombo.setPlaceholder("Seleccione un tipo...");
         typeCombo.setItems(List.of(CardTypes.values()));
 
         // --- Últimos 4 dígitos ---
@@ -170,7 +170,7 @@ public class CardFormPanel extends JPanel {
         User selectedUser = userCombo.getSelectedItem();
 
         if (selectedUser == null || !userCombo.isSelectionValid()) {
-            accountCombo.setPlaceholder("Selecciona primero un usuario...");
+            accountCombo.setPlaceholder("Seleccione primero un usuario...");
             accountCombo.setItems(List.of());
             return;
         }
@@ -186,7 +186,7 @@ public class CardFormPanel extends JPanel {
             accountCombo.setPlaceholder("Este usuario no tiene cuentas elegibles.");
             accountCombo.setItems(List.of());
         } else {
-            accountCombo.setPlaceholder("Selecciona una cuenta...");
+            accountCombo.setPlaceholder("Seleccione una cuenta...");
             accountCombo.setItems(userAccounts);
         }
     }
@@ -319,7 +319,7 @@ public class CardFormPanel extends JPanel {
         userCombo.clearSelection();
         accountCombo.clearSelection();
         accountCombo.setItems(List.of());
-        accountCombo.setPlaceholder("Selecciona primero un usuario...");
+        accountCombo.setPlaceholder("Seleccione primero un usuario...");
         nameField.clear();
         numberField.clear();
         expirationDatePicker.clear();

@@ -22,6 +22,9 @@ public class TransactionTypeCellRenderer extends DefaultTableCellRenderer {
         } else if (type.equalsIgnoreCase("EXPENSE")) {
             c.setBackground(new Color(255, 199, 206)); // Rojo claro
             c.setForeground(new Color(156, 0, 6));
+        } else if (type.equalsIgnoreCase("REALLOCATION") || type.equalsIgnoreCase("Reubicación")) {
+            c.setBackground(new Color(204, 224, 255)); // Azul claro
+            c.setForeground(new Color(0, 51, 153));
         } else {
             c.setBackground(Color.WHITE);
             c.setForeground(Color.BLACK);

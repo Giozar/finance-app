@@ -101,12 +101,12 @@ public class InvestmentDetailsSubPanel extends JPanel {
         instrumentTypeCombo.setItems(List.of(INSTRUMENT_TYPES));
         instrumentTypeCombo.setSelectedItem("CETES");
         add(instrumentTypeCombo);
-        addHint("CETES: certificados gubernamentales. BONDDIA: fondo de dinero diario. Selecciona el que corresponda.");
+        addHint("CETES: certificados gubernamentales. BONDDIA: fondo de dinero diario. Seleccione el que corresponda.");
 
         addGap();
         termDaysField = new FormField("Plazo (días):", false, FIELD_W, FIELD_H);
         add(termDaysField);
-        addHint("Ingresa el plazo del instrumento en días (ej. 28, 91, 182, 364). Deja vacío para instrumentos sin plazo fijo como BONDDIA.");
+        addHint("Ingrese el plazo del instrumento en días (ej. 28, 91, 182, 364). Deje vacío para instrumentos sin plazo fijo como BONDDIA.");
 
         // ── Capital y rendimiento ────────────────────────────────
         addGap();
@@ -172,13 +172,13 @@ public class InvestmentDetailsSubPanel extends JPanel {
 
         reinvestTermDaysField = new FormField("Plazo de reinversión (días):", false, FIELD_W - 20, FIELD_H);
         reinvestSection.add(reinvestTermDaysField);
-        addHintTo(reinvestSection, "Plazo en días para la nueva posición. Deja vacío para usar el mismo plazo.");
+        addHintTo(reinvestSection, "Plazo en días para la nueva posición. Deje vacío para usar el mismo plazo.");
 
         reinvestSection.add(Box.createRigidArea(new Dimension(0, GAP)));
 
         reinvestYieldField = new PercentageField("Tasa de reinversión anual:", FIELD_W - 20, FIELD_H + 10);
         reinvestSection.add(reinvestYieldField);
-        addHintTo(reinvestSection, "Tasa anual para la reinversión (ej. 9.50 %). Deja en 0 % para usar la tasa original.");
+        addHintTo(reinvestSection, "Tasa anual para la reinversión (ej. 9.50 %). Deje en 0 % para usar la tasa original.");
 
         add(reinvestSection);
 

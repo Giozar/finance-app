@@ -1,12 +1,13 @@
 package com.giozar04.transactions.domain.enums;
 
 public enum PaymentMethod {
-    CASH("cash", "Efectivo"),
-    CARD("card", "Tarjeta"),
-    TRANSFER("transfer", "Transferencia"),
-    QR("qr", "Código QR"),
-    CODI("codi", "CoDi"),
-    WALLET("wallet", "Billetera");
+    CASH("CASH", "Efectivo"),
+    CARD("CARD", "Tarjeta"),
+    WIRE_TRANSFER("WIRE_TRANSFER", "Transferencia (SPEI)"),
+    INTERNAL("INTERNAL", "Movimiento interno"),
+    QR("QR", "Código QR"),
+    CODI("CODI", "CoDi"),
+    WALLET("WALLET", "Billetera");
 
     private final String value;
     private final String label;

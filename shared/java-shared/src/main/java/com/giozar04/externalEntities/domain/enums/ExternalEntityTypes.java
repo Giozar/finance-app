@@ -1,9 +1,9 @@
 package com.giozar04.externalEntities.domain.enums;
 
 public enum ExternalEntityTypes {
-    PERSON("person", "Persona"),
-    SERVICE("service", "Servicio"),
-    STORE("store", "Tienda");
+    PERSON("PERSON", "Persona"),
+    SERVICE("SERVICE", "Servicio"),
+    STORE("STORE", "Tienda");
 
     private final String value;
     private final String label;

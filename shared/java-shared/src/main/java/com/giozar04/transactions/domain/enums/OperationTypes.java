@@ -1,8 +1,9 @@
 package com.giozar04.transactions.domain.enums;
 
 public enum OperationTypes {
-    INCOME("income", "Ingreso"),
-    EXPENSE("expense", "Egreso");
+    INCOME("INCOME", "Ingreso"),
+    EXPENSE("EXPENSE", "Egreso"),
+    REALLOCATION("REALLOCATION", "Reubicación");
 
     private final String value;
     private final String label;

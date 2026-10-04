@@ -43,9 +43,9 @@ public abstract class WalletTransactionDetailRepositoryAbstract implements Walle
             throw new IllegalArgumentException("El monto debe ser mayor que cero");
         }
 
-        if (detail.getCashbackPercentage() != null &&
-            (detail.getCashbackPercentage().signum() < 0 || detail.getCashbackPercentage().compareTo(new java.math.BigDecimal("100")) > 0)) {
-            throw new IllegalArgumentException("Porcentaje de cashback inválido");
+        if (detail.getCashbackRate() != null &&
+            (detail.getCashbackRate().signum() < 0 || detail.getCashbackRate().compareTo(java.math.BigDecimal.ONE) > 0)) {
+            throw new IllegalArgumentException("La tasa de cashback debe estar entre 0 y 1");
         }
     }
 
