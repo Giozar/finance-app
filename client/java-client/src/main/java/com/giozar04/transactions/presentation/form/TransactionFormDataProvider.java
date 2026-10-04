@@ -17,7 +17,8 @@ import com.giozar04.card.domain.enums.CardTypes;
 import com.giozar04.cards.infrastructure.services.CardService;
 import com.giozar04.categories.domain.entities.Category;
 import com.giozar04.categories.domain.enums.CategoryTypes;
-import com.giozar04.categories.infrastructure.services.CategoryService;
+import com.giozar04.categories.application.ports.input.CategoryOperations;
+import com.giozar04.bootstrap.ClientUseCases;
 import com.giozar04.externalEntities.domain.entities.ExternalEntity;
 import com.giozar04.externalEntities.infrastructure.services.ExternalEntityService;
 import com.giozar04.logging.infrastructure.ConsoleLogger;
@@ -91,7 +92,7 @@ public class TransactionFormDataProvider {
             reportError("Error al cargar las cuentas del usuario: " + e.getMessage());
         }
         try {
-            categories = new ArrayList<>(CategoryService.getInstance().getCategoriesByUserId(newUserId));
+            categories = new ArrayList<>(ClientUseCases.get(CategoryOperations.class).getCategoriesByUserId(newUserId));
         } catch (ClientOperationException | RuntimeException e) {
             reportError("Error al cargar las categorías del usuario: " + e.getMessage());
         }

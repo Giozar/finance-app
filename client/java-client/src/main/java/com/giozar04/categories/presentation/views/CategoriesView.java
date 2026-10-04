@@ -20,7 +20,8 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 
 import com.giozar04.categories.domain.entities.Category;
-import com.giozar04.categories.infrastructure.services.CategoryService;
+import com.giozar04.categories.application.ports.input.CategoryOperations;
+import com.giozar04.bootstrap.ClientUseCases;
 import com.giozar04.categories.presentation.components.CategoryFormPanel;
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
 import com.giozar04.shared.components.MainContentPanel;
@@ -33,12 +34,12 @@ import com.giozar04.shared.utils.DialogUtil;
 
 public class CategoriesView extends JPanel implements PopupMenuActionHandler {
 
-    private final CategoryService categoryService;
+    private final CategoryOperations categoryService;
     private JTextField searchField;
     private GenericTablePanel<Category> tablePanel;
 
     public CategoriesView() {
-        categoryService = CategoryService.getInstance();
+        categoryService = ClientUseCases.get(CategoryOperations.class);
 
         setLayout(new BorderLayout());
         setBorder(new EmptyBorder(10, 10, 10, 10));

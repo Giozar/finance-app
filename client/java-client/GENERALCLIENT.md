@@ -48,7 +48,10 @@ src/main/java/com/giozar04/cards/presentation/components/CardFormPanel.java
 src/main/java/com/giozar04/cards/presentation/views/CardsView.java
 src/main/java/com/giozar04/cards/presentation/views/CreateCardView.java
 src/main/java/com/giozar04/cards/test/CardCreationTest.java
-src/main/java/com/giozar04/categories/infrastructure/services/CategoryService.java
+src/main/java/com/giozar04/categories/application/ports/input/CategoryOperations.java
+src/main/java/com/giozar04/categories/application/ports/output/CategoryGateway.java
+src/main/java/com/giozar04/categories/application/usecases/CategoryUseCase.java
+src/main/java/com/giozar04/categories/infrastructure/transport/socket/CategoryService.java
 src/main/java/com/giozar04/categories/presentation/components/CategoryFormPanel.java
 src/main/java/com/giozar04/categories/presentation/views/CategoriesView.java
 src/main/java/com/giozar04/categories/presentation/views/CreateCategoryView.java

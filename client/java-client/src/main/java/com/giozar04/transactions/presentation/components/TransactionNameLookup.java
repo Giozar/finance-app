@@ -10,7 +10,8 @@ import com.giozar04.accounts.infrastructure.services.AccountService;
 import com.giozar04.card.domain.entities.Card;
 import com.giozar04.cards.infrastructure.services.CardService;
 import com.giozar04.categories.domain.entities.Category;
-import com.giozar04.categories.infrastructure.services.CategoryService;
+import com.giozar04.categories.application.ports.input.CategoryOperations;
+import com.giozar04.bootstrap.ClientUseCases;
 import com.giozar04.externalEntities.domain.entities.ExternalEntity;
 import com.giozar04.externalEntities.infrastructure.services.ExternalEntityService;
 import com.giozar04.logging.infrastructure.ConsoleLogger;
@@ -48,7 +49,7 @@ public class TransactionNameLookup {
         for (ExternalEntity entity : ExternalEntityService.getInstance().getAllExternalEntities()) {
             lookup.entityNames.put(entity.getId(), entity.getName());
         }
-        for (Category category : CategoryService.getInstance().getAllCategories()) {
+        for (Category category : ClientUseCases.get(CategoryOperations.class).getAllCategories()) {
             lookup.categoryNames.put(category.getId(), category.getName());
         }
         return lookup;

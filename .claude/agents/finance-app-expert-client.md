@@ -8,6 +8,8 @@ model: inherit
 
 ## Migración vigente
 
+- `categories`: `CategoryOperations` → `CategoryUseCase` → `CategoryGateway` → `CategoryService` (socket).
+
 - `users`: `UserOperations` → `UserUseCase` → `UserGateway` → `UserService` (socket).
 
 - `tags`: `TagOperations` → `TagUseCase` → `TagGateway` → `TagService` (socket).

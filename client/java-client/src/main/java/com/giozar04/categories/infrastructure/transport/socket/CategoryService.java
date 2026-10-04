@@ -1,4 +1,4 @@
-package com.giozar04.categories.infrastructure.services;
+package com.giozar04.categories.infrastructure.transport.socket;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,13 +10,14 @@ import com.giozar04.categories.application.exceptions.CategoryCreationException;
 import com.giozar04.categories.application.exceptions.CategoryDeletionException;
 import com.giozar04.categories.application.exceptions.CategoryRetrievalException;
 import com.giozar04.categories.application.exceptions.CategoryUpdateException;
+import com.giozar04.categories.application.ports.output.CategoryGateway;
 import com.giozar04.logging.infrastructure.ConsoleLogger;
 import com.giozar04.messages.infrastructure.transport.Message;
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
 import com.giozar04.serverConnection.application.services.ServerConnectionService;
 import com.giozar04.serverConnection.application.validators.ServerResponseValidator;
 
-public class CategoryService {
+public class CategoryService implements CategoryGateway {
 
     private final ServerConnectionService serverConnectionService;
     private static final ConsoleLogger logger = ConsoleLogger.getInstance();

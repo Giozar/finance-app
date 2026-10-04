@@ -16,7 +16,8 @@ import javax.swing.border.EmptyBorder;
 
 import com.giozar04.categories.domain.entities.Category;
 import com.giozar04.categories.domain.enums.CategoryTypes;
-import com.giozar04.categories.infrastructure.services.CategoryService;
+import com.giozar04.categories.application.ports.input.CategoryOperations;
+import com.giozar04.bootstrap.ClientUseCases;
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
 import com.giozar04.shared.components.forms.FormComboBox;
 import com.giozar04.shared.components.forms.FormField;
@@ -133,10 +134,10 @@ public class CategoryFormPanel extends JPanel {
         try {
             Category saved;
             if (currentCategory == null) {
-                saved = CategoryService.getInstance().createCategory(category);
+                saved = ClientUseCases.get(CategoryOperations.class).createCategory(category);
                 DialogUtil.showSuccess(this, "Categoría creada exitosamente.");
             } else {
-                saved = CategoryService.getInstance().updateCategoryById(category.getId(), category);
+                saved = ClientUseCases.get(CategoryOperations.class).updateCategoryById(category.getId(), category);
                 DialogUtil.showSuccess(this, "Categoría actualizada exitosamente.");
             }
             clearForm();
