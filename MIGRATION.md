@@ -42,7 +42,7 @@ comparados y compilación independiente de shared, backend y client.
 | walletTransactionDetails | Migrada; puertos, política y adaptadores verificados |
 | transactions | Pendiente |
 | accountReconciliations | Pendiente |
-| transactionTags | Pendiente |
+| transactionTags | Migrada; contrato JDBC dentro de infraestructura |
 | databases y servers | Pendiente |
 
 ## Client

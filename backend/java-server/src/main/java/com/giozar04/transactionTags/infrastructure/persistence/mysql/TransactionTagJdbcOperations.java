@@ -1,4 +1,4 @@
-package com.giozar04.transactionTags.domain.interfaces;
+package com.giozar04.transactionTags.infrastructure.persistence.mysql;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -9,7 +9,7 @@ import java.util.List;
  * solo se usa dentro de la unidad de trabajo de transactions (TransactionalExecutor).
  * Reciben la conexión: no hacen commit, rollback ni la cierran.
  */
-public interface TransactionTagRepositoryInterface {
+public interface TransactionTagJdbcOperations {
     void replaceTags(Connection conn, long transactionId, List<Long> tagIds) throws SQLException;
     List<Long> findTagIds(Connection conn, long transactionId) throws SQLException;
 }

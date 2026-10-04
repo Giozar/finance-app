@@ -117,8 +117,8 @@ src/main/java/com/giozar04/tags/infrastructure/transport/socket/TagControllers.j
 src/main/java/com/giozar04/tags/infrastructure/transport/socket/TagHandlers.java
 src/main/java/com/giozar04/tags/sql/tag.sql
 src/main/java/com/giozar04/tags/test/TagTestApp.java
-src/main/java/com/giozar04/transactionTags/domain/interfaces/TransactionTagRepositoryInterface.java
-src/main/java/com/giozar04/transactionTags/infrastructure/repositories/TransactionTagRepositoryMySQL.java
+src/main/java/com/giozar04/transactionTags/infrastructure/persistence/mysql/TransactionTagJdbcOperations.java
+src/main/java/com/giozar04/transactionTags/infrastructure/persistence/mysql/TransactionTagRepositoryMySQL.java
 src/main/java/com/giozar04/transactionTags/sql/transaction_tags.sql
 src/main/java/com/giozar04/transactions/application/normalizers/TransactionNormalizer.java
 src/main/java/com/giozar04/transactions/application/services/TransactionService.java

@@ -17,7 +17,7 @@ import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
 import com.giozar04.databases.infrastructure.repositories.DatabaseConnectionMySQL;
 import com.giozar04.externalEntities.infrastructure.persistence.mysql.ExternalEntityRepositoryMySQL;
 import com.giozar04.tags.infrastructure.persistence.mysql.TagRepositoryMySQL;
-import com.giozar04.transactionTags.infrastructure.repositories.TransactionTagRepositoryMySQL;
+import com.giozar04.transactionTags.infrastructure.persistence.mysql.TransactionTagRepositoryMySQL;
 import com.giozar04.transactions.application.normalizers.TransactionNormalizer;
 import com.giozar04.transactions.application.services.TransactionService;
 import com.giozar04.transactions.application.validation.TransactionRules;

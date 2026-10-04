@@ -1,4 +1,4 @@
-package com.giozar04.transactionTags.infrastructure.repositories;
+package com.giozar04.transactionTags.infrastructure.persistence.mysql;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -10,9 +10,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-import com.giozar04.transactionTags.domain.interfaces.TransactionTagRepositoryInterface;
 
-public class TransactionTagRepositoryMySQL implements TransactionTagRepositoryInterface {
+public class TransactionTagRepositoryMySQL implements TransactionTagJdbcOperations {
 
     private static final String SQL_DELETE_BY_TRANSACTION = "DELETE FROM transaction_tags WHERE transaction_id = ?";
     private static final String SQL_INSERT = "INSERT INTO transaction_tags (transaction_id, tag_id) VALUES (?, ?)";

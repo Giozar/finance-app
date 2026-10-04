@@ -22,6 +22,7 @@ model: inherit
 | `walletCardLinks` | `WalletCardLinkOperations`, `WalletCardLinkRepository`, `WalletCardLinkUseCase`, `WalletCardLinkPolicy`, adaptadores MySQL/socket |
 | `cardTransactionDetails` | `CardTransactionDetailOperations`, `CardTransactionDetailRepository`, `CardTransactionDetailUseCase`, `CardTransactionDetailPolicy`, adaptadores MySQL/socket |
 | `walletTransactionDetails` | `WalletTransactionDetailOperations`, `WalletTransactionDetailRepository`, `WalletTransactionDetailUseCase`, `WalletTransactionDetailPolicy`, adaptadores MySQL/socket |
+| `transactionTags` | `TransactionTagJdbcOperations` y `TransactionTagRepositoryMySQL` en `infrastructure/persistence/mysql` |
 | `tags` | `TagOperations`, `TagRepository`, `TagUseCase`, `TagPolicy`, `AbstractTagJdbcRepository`, `TagRepositoryMySQL`, `TagControllers`, `TagHandlers` |
 
 El flujo de «Estructura de una feature» descrito abajo aplica a las features pendientes.

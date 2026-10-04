@@ -45,8 +45,8 @@ import com.giozar04.tags.application.ports.input.TagOperations;
 import com.giozar04.tags.application.ports.output.TagRepository;
 import com.giozar04.tags.infrastructure.transport.socket.TagHandlers;
 import com.giozar04.tags.infrastructure.persistence.mysql.TagRepositoryMySQL;
-import com.giozar04.transactionTags.domain.interfaces.TransactionTagRepositoryInterface;
-import com.giozar04.transactionTags.infrastructure.repositories.TransactionTagRepositoryMySQL;
+import com.giozar04.transactionTags.infrastructure.persistence.mysql.TransactionTagJdbcOperations;
+import com.giozar04.transactionTags.infrastructure.persistence.mysql.TransactionTagRepositoryMySQL;
 import com.giozar04.transactions.application.normalizers.TransactionNormalizer;
 import com.giozar04.transactions.application.services.TransactionService;
 import com.giozar04.transactions.application.validation.TransactionRules;
@@ -144,7 +144,7 @@ public class ApplicationInitializer {
 
         // Inicializar repositorios y servicios de transacciones (agregado: transacción + detalle + tags)
         TransactionalExecutor transactionalExecutor = new TransactionalExecutor(dbConnection);
-        TransactionTagRepositoryInterface transactionTagRepository = new TransactionTagRepositoryMySQL();
+        TransactionTagJdbcOperations transactionTagRepository = new TransactionTagRepositoryMySQL();
         TransactionRepositoryInterface transactionRepository =
                 new TransactionRepositoryMySQL(dbConnection, transactionalExecutor,
                         cardTransactionDetailRepository, walletTransactionDetailRepository, transactionTagRepository);

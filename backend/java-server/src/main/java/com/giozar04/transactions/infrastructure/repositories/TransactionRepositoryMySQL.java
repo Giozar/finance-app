@@ -19,7 +19,7 @@ import com.giozar04.cardTransactionDetails.domain.entities.CardTransactionDetail
 import com.giozar04.cardTransactionDetails.infrastructure.persistence.mysql.CardTransactionDetailJdbcOperations;
 import com.giozar04.databases.application.services.TransactionalExecutor;
 import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
-import com.giozar04.transactionTags.domain.interfaces.TransactionTagRepositoryInterface;
+import com.giozar04.transactionTags.infrastructure.persistence.mysql.TransactionTagJdbcOperations;
 import com.giozar04.transactions.domain.entities.Transaction;
 import com.giozar04.transactions.domain.enums.OperationTypes;
 import com.giozar04.transactions.domain.enums.PaymentMethod;
@@ -77,13 +77,13 @@ public class TransactionRepositoryMySQL extends TransactionRepositoryAbstract {
     private final TransactionalExecutor executor;
     private final CardTransactionDetailJdbcOperations cardDetailRepository;
     private final WalletTransactionDetailJdbcOperations walletDetailRepository;
-    private final TransactionTagRepositoryInterface transactionTagRepository;
+    private final TransactionTagJdbcOperations transactionTagRepository;
 
     public TransactionRepositoryMySQL(DatabaseConnectionInterface databaseConnection,
                                       TransactionalExecutor executor,
                                       CardTransactionDetailJdbcOperations cardDetailRepository,
                                       WalletTransactionDetailJdbcOperations walletDetailRepository,
-                                      TransactionTagRepositoryInterface transactionTagRepository) {
+                                      TransactionTagJdbcOperations transactionTagRepository) {
         super(databaseConnection);
         this.executor = Objects.requireNonNull(executor, "El ejecutor transaccional no puede ser nulo");
         this.cardDetailRepository = Objects.requireNonNull(cardDetailRepository, "El repositorio de detalles de tarjeta no puede ser nulo");
