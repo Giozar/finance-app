@@ -5,7 +5,9 @@ import java.io.IOException;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
-import com.giozar04.accountReconciliations.infrastructure.services.AccountReconciliationService;
+import com.giozar04.accountReconciliations.infrastructure.transport.socket.AccountReconciliationService;
+import com.giozar04.accountReconciliations.application.usecases.AccountReconciliationUseCase;
+import com.giozar04.accountReconciliations.application.ports.input.AccountReconciliationOperations;
 import com.giozar04.accounts.infrastructure.transport.socket.AccountService;
 import com.giozar04.accounts.application.usecases.AccountUseCase;
 import com.giozar04.accounts.application.ports.input.AccountOperations;
@@ -133,6 +135,7 @@ public class ApplicationInitializer {
             System.out.println("✅ Servicio de detalles de transacciones con wallet conectado correctamente.");
 
             AccountReconciliationService.connectService(connectionService);
+            ClientUseCases.register(AccountReconciliationOperations.class, new AccountReconciliationUseCase(AccountReconciliationService.getInstance()));
             System.out.println("✅ Servicio de conciliación de cuentas conectado correctamente.");
 
             return true;

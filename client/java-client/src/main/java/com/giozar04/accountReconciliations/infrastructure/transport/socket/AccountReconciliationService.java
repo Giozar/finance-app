@@ -1,4 +1,4 @@
-package com.giozar04.accountReconciliations.infrastructure.services;
+package com.giozar04.accountReconciliations.infrastructure.transport.socket;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,13 +8,14 @@ import com.giozar04.accountReconciliations.infrastructure.serialization.AccountR
 import com.giozar04.accountReconciliations.domain.entities.AccountReconciliation;
 import com.giozar04.accountReconciliations.application.exceptions.AccountReconciliationAdjustmentException;
 import com.giozar04.accountReconciliations.application.exceptions.AccountReconciliationRetrievalException;
+import com.giozar04.accountReconciliations.application.ports.output.AccountReconciliationGateway;
 import com.giozar04.logging.infrastructure.ConsoleLogger;
 import com.giozar04.messages.infrastructure.transport.Message;
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
 import com.giozar04.serverConnection.application.services.ServerConnectionService;
 import com.giozar04.serverConnection.application.validators.ServerResponseValidator;
 
-public class AccountReconciliationService {
+public class AccountReconciliationService implements AccountReconciliationGateway {
 
     private final ServerConnectionService serverConnectionService;
     private static final ConsoleLogger logger = ConsoleLogger.getInstance();

@@ -49,6 +49,7 @@ comparados y compilación independiente de shared, backend y client.
 
 | Feature | Estado |
 | --- | --- |
+| accountReconciliations | Migrada; puerto de entrada, caso de uso, puerto de salida y adaptador socket verificados |
 | transactions | Migrada; puerto de entrada, caso de uso, puerto de salida y adaptador socket verificados |
 | walletTransactionDetails | Migrada; puerto de entrada, caso de uso, puerto de salida y adaptador socket verificados |
 | cardTransactionDetails | Migrada; puerto de entrada, caso de uso, puerto de salida y adaptador socket verificados |

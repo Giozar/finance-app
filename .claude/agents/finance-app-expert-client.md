@@ -8,6 +8,8 @@ model: inherit
 
 ## Migración vigente
 
+- `accountReconciliations`: `AccountReconciliationOperations` → `AccountReconciliationUseCase` → `AccountReconciliationGateway` → `AccountReconciliationService` (socket).
+
 - `transactions`: `TransactionOperations` → `TransactionUseCase` → `TransactionGateway` → `TransactionService` (socket).
 
 - `walletTransactionDetails`: `WalletTransactionDetailOperations` → `WalletTransactionDetailUseCase` → `WalletTransactionDetailGateway` → `WalletTransactionDetailService` (socket).

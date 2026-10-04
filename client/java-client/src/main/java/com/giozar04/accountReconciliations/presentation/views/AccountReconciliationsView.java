@@ -19,7 +19,8 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 
 import com.giozar04.accountReconciliations.domain.entities.AccountReconciliation;
-import com.giozar04.accountReconciliations.infrastructure.services.AccountReconciliationService;
+import com.giozar04.accountReconciliations.application.ports.input.AccountReconciliationOperations;
+import com.giozar04.bootstrap.ClientUseCases;
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
 import com.giozar04.shared.components.forms.FormComboBox;
 import com.giozar04.shared.components.table.ColumnDefinition;
@@ -38,7 +39,7 @@ public class AccountReconciliationsView extends JPanel {
     private static final String STATUS_BALANCED = "Cuadrada";
     private static final String STATUS_UNBALANCED = "Descuadrada";
 
-    private final AccountReconciliationService reconciliationService;
+    private final AccountReconciliationOperations reconciliationService;
     private final UserOperations userService;
 
     private FormComboBox<User> userCombo;
@@ -46,7 +47,7 @@ public class AccountReconciliationsView extends JPanel {
     private JButton reconcileButton;
 
     public AccountReconciliationsView() {
-        reconciliationService = AccountReconciliationService.getInstance();
+        reconciliationService = ClientUseCases.get(AccountReconciliationOperations.class);
         userService = ClientUseCases.get(UserOperations.class);
 
         setLayout(new BorderLayout());
