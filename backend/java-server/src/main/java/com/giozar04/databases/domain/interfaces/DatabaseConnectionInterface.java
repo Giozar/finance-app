@@ -31,7 +31,17 @@ public interface DatabaseConnectionInterface extends AutoCloseable {
      * @throws SQLException si ocurre un error al obtener la conexión
      */
     Connection getConnection() throws SQLException;
-    
+
+    /**
+     * Abre una conexión nueva y dedicada (autocommit en false) con la misma configuración.
+     * No comparte estado con {@link #getConnection()}: quien la pide es responsable de
+     * hacer commit/rollback y cerrarla (ver TransactionalExecutor).
+     *
+     * @return una conexión nueva con autocommit desactivado
+     * @throws SQLException si ocurre un error al abrir la conexión
+     */
+    Connection createConnection() throws SQLException;
+
     /**
      * Realiza commit de la transacción actual.
      * 

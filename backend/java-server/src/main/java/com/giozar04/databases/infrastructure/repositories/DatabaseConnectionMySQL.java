@@ -177,6 +177,21 @@ protected void configureConnectionProperties() {
     }
 
     @Override
+    public Connection createConnection() throws SQLException {
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+        } catch (ClassNotFoundException e) {
+            logger.error("Driver MySQL no encontrado: " + e.getMessage(), e);
+            throw DriverException.fromClassNotFoundException(e);
+        }
+
+        // Conexión dedicada: no toca la conexión compartida ni su LOCK
+        Connection dedicated = DriverManager.getConnection(jdbcUrl, connectionProps);
+        dedicated.setAutoCommit(false);
+        return dedicated;
+    }
+
+    @Override
     public void commitTransaction() {
         try {
             if (connection != null && !connection.isClosed() && !connection.getAutoCommit()) {

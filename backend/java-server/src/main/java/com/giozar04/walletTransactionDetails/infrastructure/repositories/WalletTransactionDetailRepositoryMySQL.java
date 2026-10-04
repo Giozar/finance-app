@@ -17,9 +17,11 @@ import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
 import com.giozar04.walletTransactionDetails.domain.entities.WalletTransactionDetail;
 import com.giozar04.walletTransactionDetails.domain.enums.WalletTransactionSourceType;
 import com.giozar04.walletTransactionDetails.domain.exceptions.WalletTransactionDetailExceptions;
+import com.giozar04.walletTransactionDetails.domain.interfaces.WalletTransactionDetailTransactionalRepositoryInterface;
 import com.giozar04.walletTransactionDetails.domain.models.WalletTransactionDetailRepositoryAbstract;
 
-public class WalletTransactionDetailRepositoryMySQL extends WalletTransactionDetailRepositoryAbstract {
+public class WalletTransactionDetailRepositoryMySQL extends WalletTransactionDetailRepositoryAbstract
+        implements WalletTransactionDetailTransactionalRepositoryInterface {
 
     private static final String SQL_INSERT = """
         INSERT INTO wallet_transaction_details (
@@ -37,6 +39,7 @@ public class WalletTransactionDetailRepositoryMySQL extends WalletTransactionDet
     private static final String SQL_DELETE = "DELETE FROM wallet_transaction_details WHERE id = ?";
     private static final String SQL_SELECT_ALL = "SELECT * FROM wallet_transaction_details";
     private static final String SQL_SELECT_BY_TRANSACTION = "SELECT * FROM wallet_transaction_details WHERE transaction_id = ?";
+    private static final String SQL_DELETE_BY_TRANSACTION = "DELETE FROM wallet_transaction_details WHERE transaction_id = ?";
 
     public WalletTransactionDetailRepositoryMySQL(DatabaseConnectionInterface databaseConnection) {
         super(databaseConnection);
@@ -44,40 +47,8 @@ public class WalletTransactionDetailRepositoryMySQL extends WalletTransactionDet
 
     @Override
     public WalletTransactionDetail createDetail(WalletTransactionDetail detail) {
-        validateDetail(detail);
-
-        if (detail.getCreatedAt() == null) detail.setCreatedAt(ZonedDateTime.now());
-        if (detail.getUpdatedAt() == null) detail.setUpdatedAt(ZonedDateTime.now());
-
-        try (Connection conn = databaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
-
-            stmt.setLong(1, detail.getTransactionId());
-            stmt.setString(2, detail.getSourceType().getValue());
-            stmt.setLong(3, detail.getWalletAccountId());
-
-            if (detail.getCardId() != null) stmt.setLong(4, detail.getCardId());
-            else stmt.setNull(4, Types.BIGINT);
-
-            stmt.setBigDecimal(5, detail.getAmount());
-            if (detail.getCashbackRate() != null) {
-                stmt.setBigDecimal(6, detail.getCashbackRate());
-            } else {
-                stmt.setNull(6, Types.DECIMAL);
-            }
-
-            stmt.setTimestamp(7, Timestamp.valueOf(detail.getCreatedAt().toLocalDateTime()));
-            stmt.setTimestamp(8, Timestamp.valueOf(detail.getUpdatedAt().toLocalDateTime()));
-
-            int affected = stmt.executeUpdate();
-            if (affected == 0) throw new SQLException("No se pudo insertar el detalle de transacción wallet");
-
-            try (ResultSet keys = stmt.getGeneratedKeys()) {
-                if (keys.next()) {
-                    detail.setId(keys.getLong(1));
-                }
-            }
-
+        try (Connection conn = databaseConnection.getConnection()) {
+            insert(conn, detail);
             databaseConnection.commitTransaction();
             logger.info("Detalle creado con ID: " + detail.getId());
             return detail;
@@ -185,21 +156,73 @@ public class WalletTransactionDetailRepositoryMySQL extends WalletTransactionDet
 
     @Override
     public List<WalletTransactionDetail> getDetailsByTransactionId(long transactionId) {
-        List<WalletTransactionDetail> list = new ArrayList<>();
-
-        try (Connection conn = databaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(SQL_SELECT_BY_TRANSACTION)) {
-
-            stmt.setLong(1, transactionId);
-            try (ResultSet rs = stmt.executeQuery()) {
-                while (rs.next()) list.add(mapResultSet(rs));
-            }
-
-            return list;
+        try (Connection conn = databaseConnection.getConnection()) {
+            return findByTransactionId(conn, transactionId);
 
         } catch (SQLException e) {
             throw new WalletTransactionDetailExceptions.RetrievalException("Error al obtener detalles por transacción", e);
         }
+    }
+
+    // ---- Operaciones dentro de una unidad de trabajo externa (no hacen commit ni cierran la conexión) ----
+
+    @Override
+    public WalletTransactionDetail insert(Connection conn, WalletTransactionDetail detail) throws SQLException {
+        validateDetail(detail);
+
+        if (detail.getCreatedAt() == null) detail.setCreatedAt(ZonedDateTime.now());
+        if (detail.getUpdatedAt() == null) detail.setUpdatedAt(ZonedDateTime.now());
+
+        try (PreparedStatement stmt = conn.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
+
+            stmt.setLong(1, detail.getTransactionId());
+            stmt.setString(2, detail.getSourceType().getValue());
+            stmt.setLong(3, detail.getWalletAccountId());
+
+            if (detail.getCardId() != null) stmt.setLong(4, detail.getCardId());
+            else stmt.setNull(4, Types.BIGINT);
+
+            stmt.setBigDecimal(5, detail.getAmount());
+            if (detail.getCashbackRate() != null) {
+                stmt.setBigDecimal(6, detail.getCashbackRate());
+            } else {
+                stmt.setNull(6, Types.DECIMAL);
+            }
+
+            stmt.setTimestamp(7, Timestamp.valueOf(detail.getCreatedAt().toLocalDateTime()));
+            stmt.setTimestamp(8, Timestamp.valueOf(detail.getUpdatedAt().toLocalDateTime()));
+
+            int affected = stmt.executeUpdate();
+            if (affected == 0) throw new SQLException("No se pudo insertar el detalle de transacción wallet");
+
+            try (ResultSet keys = stmt.getGeneratedKeys()) {
+                if (keys.next()) {
+                    detail.setId(keys.getLong(1));
+                }
+            }
+            return detail;
+        }
+    }
+
+    @Override
+    public int deleteByTransactionId(Connection conn, long transactionId) throws SQLException {
+        try (PreparedStatement stmt = conn.prepareStatement(SQL_DELETE_BY_TRANSACTION)) {
+            stmt.setLong(1, transactionId);
+            return stmt.executeUpdate();
+        }
+    }
+
+    @Override
+    public List<WalletTransactionDetail> findByTransactionId(Connection conn, long transactionId) throws SQLException {
+        List<WalletTransactionDetail> list = new ArrayList<>();
+
+        try (PreparedStatement stmt = conn.prepareStatement(SQL_SELECT_BY_TRANSACTION)) {
+            stmt.setLong(1, transactionId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) list.add(mapResultSet(rs));
+            }
+        }
+        return list;
     }
 
     private WalletTransactionDetail mapResultSet(ResultSet rs) throws SQLException {
