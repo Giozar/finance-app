@@ -13,7 +13,11 @@ import java.util.List;
 
 import com.giozar04.accounts.domain.entities.Account;
 import com.giozar04.accounts.domain.enums.AccountTypes;
-import com.giozar04.accounts.domain.exceptions.AccountExceptions;
+import com.giozar04.accounts.application.exceptions.AccountCreationException;
+import com.giozar04.accounts.application.exceptions.AccountDeletionException;
+import com.giozar04.accounts.application.exceptions.AccountNotFoundException;
+import com.giozar04.accounts.application.exceptions.AccountRetrievalException;
+import com.giozar04.accounts.application.exceptions.AccountUpdateException;
 import com.giozar04.accounts.domain.models.AccountRepositoryAbstract;
 import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
 
@@ -246,11 +250,11 @@ public class AccountRepositoryMySQL extends AccountRepositoryAbstract {
         } catch (SQLException e) {
             logger.error("Error al crear cuenta: " + e.getMessage(), e);
             rollback();
-            throw new AccountExceptions.AccountCreationException("Error al crear la cuenta", e);
+            throw new AccountCreationException("Error al crear la cuenta", e);
         } catch (IllegalArgumentException e) {
             logger.error("Error de formato (probablemente de fecha) al crear cuenta: " + e.getMessage(), e);
             rollback();
-            throw new AccountExceptions.AccountCreationException("Error en el formato de los datos", e);
+            throw new AccountCreationException("Error en el formato de los datos", e);
         }
     }
 
@@ -266,12 +270,12 @@ public class AccountRepositoryMySQL extends AccountRepositoryAbstract {
                 if (rs.next()) {
                     return mapResultSetToAccount(rs);
                 } else {
-                    throw new AccountExceptions.AccountNotFoundException("Cuenta no encontrada con ID: " + id, null);
+                    throw new AccountNotFoundException("Cuenta no encontrada con ID: " + id, null);
                 }
             }
 
         } catch (SQLException e) {
-            throw new AccountExceptions.AccountRetrievalException("Error al obtener cuenta con ID: " + id, e);
+            throw new AccountRetrievalException("Error al obtener cuenta con ID: " + id, e);
         }
     }
 
@@ -296,7 +300,7 @@ public class AccountRepositoryMySQL extends AccountRepositoryAbstract {
 
                 int affected = stmt.executeUpdate();
                 if (affected == 0) {
-                    throw new AccountExceptions.AccountNotFoundException("Cuenta no encontrada con ID: " + id, null);
+                    throw new AccountNotFoundException("Cuenta no encontrada con ID: " + id, null);
                 }
             }
 
@@ -398,11 +402,11 @@ public class AccountRepositoryMySQL extends AccountRepositoryAbstract {
         } catch (SQLException e) {
             logger.error("Error al actualizar cuenta con ID " + id + ": " + e.getMessage(), e);
             rollback();
-            throw new AccountExceptions.AccountUpdateException("Error al actualizar cuenta con ID: " + id, e);
+            throw new AccountUpdateException("Error al actualizar cuenta con ID: " + id, e);
         } catch (IllegalArgumentException e) {
             logger.error("Error de formato (probablemente de fecha) al actualizar cuenta con ID " + id + ": " + e.getMessage(), e);
             rollback();
-            throw new AccountExceptions.AccountUpdateException("Error en el formato de los datos", e);
+            throw new AccountUpdateException("Error en el formato de los datos", e);
         }
     }
 
@@ -417,7 +421,7 @@ public class AccountRepositoryMySQL extends AccountRepositoryAbstract {
 
             int affected = stmt.executeUpdate();
             if (affected == 0) {
-                throw new AccountExceptions.AccountNotFoundException("Cuenta no encontrada con ID: " + id, null);
+                throw new AccountNotFoundException("Cuenta no encontrada con ID: " + id, null);
             }
 
             databaseConnection.commitTransaction();
@@ -425,7 +429,7 @@ public class AccountRepositoryMySQL extends AccountRepositoryAbstract {
 
         } catch (SQLException e) {
             rollback();
-            throw new AccountExceptions.AccountDeletionException("Error al eliminar cuenta con ID: " + id, e);
+            throw new AccountDeletionException("Error al eliminar cuenta con ID: " + id, e);
         }
     }
 
@@ -448,7 +452,7 @@ public class AccountRepositoryMySQL extends AccountRepositoryAbstract {
             return accounts;
 
         } catch (SQLException e) {
-            throw new AccountExceptions.AccountRetrievalException("Error al obtener todas las cuentas", e);
+            throw new AccountRetrievalException("Error al obtener todas las cuentas", e);
         }
     }
 
@@ -482,7 +486,7 @@ public class AccountRepositoryMySQL extends AccountRepositoryAbstract {
             return list;
 
         } catch (SQLException e) {
-            throw new AccountExceptions.AccountRetrievalException("Error al obtener las cuentas del usuario con ID: " + userId, e);
+            throw new AccountRetrievalException("Error al obtener las cuentas del usuario con ID: " + userId, e);
         }
     }
 

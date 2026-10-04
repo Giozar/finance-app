@@ -4,9 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import com.giozar04.accounts.application.utils.AccountUtils;
+import com.giozar04.accounts.infrastructure.serialization.AccountMapper;
 import com.giozar04.accounts.domain.entities.Account;
-import com.giozar04.accounts.domain.exceptions.AccountExceptions;
+import com.giozar04.accounts.application.exceptions.AccountCreationException;
+import com.giozar04.accounts.application.exceptions.AccountDeletionException;
+import com.giozar04.accounts.infrastructure.serialization.AccountParsingException;
+import com.giozar04.accounts.application.exceptions.AccountRetrievalException;
+import com.giozar04.accounts.application.exceptions.AccountUpdateException;
 import com.giozar04.logging.CustomLogger;
 import com.giozar04.messages.domain.models.Message;
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
@@ -39,17 +43,17 @@ public class AccountService {
     public Account createAccount(Account account) throws ClientOperationException {
         Message message = new Message();
         message.setType("CREATE_ACCOUNT");
-        message.addData("account", AccountUtils.accountToMap(account));
+        message.addData("account", AccountMapper.toMap(account));
 
         serverConnectionService.sendMessage(message);
         try {
             Message response = serverConnectionService.waitForMessage("CREATE_ACCOUNT");
             ServerResponseValidator.validateResponse(response);
             logger.info("Cuenta creada exitosamente: " + response);
-            return AccountUtils.mapToAccount((Map<String, Object>) response.getData("account"));
+            return AccountMapper.fromMap((Map<String, Object>) response.getData("account"));
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new AccountExceptions.AccountCreationException("Error al esperar respuesta del servidor", e);
+            throw new AccountCreationException("Error al esperar respuesta del servidor", e);
         }
     }
 
@@ -58,17 +62,17 @@ public class AccountService {
         Message message = new Message();
         message.setType("UPDATE_ACCOUNT");
         message.addData("id", id);
-        message.addData("account", AccountUtils.accountToMap(account));
+        message.addData("account", AccountMapper.toMap(account));
 
         serverConnectionService.sendMessage(message);
         try {
             Message response = serverConnectionService.waitForMessage("UPDATE_ACCOUNT");
             ServerResponseValidator.validateResponse(response);
             logger.info("Cuenta actualizada correctamente: " + response);
-            return AccountUtils.mapToAccount((Map<String, Object>) response.getData("account"));
+            return AccountMapper.fromMap((Map<String, Object>) response.getData("account"));
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new AccountExceptions.AccountUpdateException("Error al esperar respuesta del servidor", e);
+            throw new AccountUpdateException("Error al esperar respuesta del servidor", e);
         }
     }
 
@@ -84,7 +88,7 @@ public class AccountService {
             logger.info("Cuenta eliminada exitosamente: " + response);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new AccountExceptions.AccountDeletionException("Error al esperar respuesta del servidor", e);
+            throw new AccountDeletionException("Error al esperar respuesta del servidor", e);
         }
     }
 
@@ -99,10 +103,10 @@ public class AccountService {
             Message response = serverConnectionService.waitForMessage("GET_ACCOUNT");
             ServerResponseValidator.validateResponse(response);
             logger.info("Cuenta obtenida correctamente: " + response);
-            return AccountUtils.mapToAccount((Map<String, Object>) response.getData("account"));
+            return AccountMapper.fromMap((Map<String, Object>) response.getData("account"));
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new AccountExceptions.AccountRetrievalException("Error al esperar respuesta del servidor", e);
+            throw new AccountRetrievalException("Error al esperar respuesta del servidor", e);
         }
     }
 
@@ -120,25 +124,25 @@ public class AccountService {
             Object raw = response.getData("accounts");
 
             if (raw == null) {
-                throw new AccountExceptions.AccountRetrievalException("Lista de cuentas vacía", null);
+                throw new AccountRetrievalException("Lista de cuentas vacía", null);
             }
 
             if (raw instanceof List<?> rawList) {
                 List<Account> accounts = new ArrayList<>();
                 for (Object item : rawList) {
                     if (item instanceof Map<?, ?> map) {
-                        accounts.add(AccountUtils.mapToAccount((Map<String, Object>) map));
+                        accounts.add(AccountMapper.fromMap((Map<String, Object>) map));
                     }
                 }
                 logger.info("Cuentas obtenidas correctamente. Total: " + accounts.size());
                 return accounts;
             } else {
-                throw new AccountExceptions.AccountParsingException("Formato inesperado: " + raw.getClass().getName(), null);
+                throw new AccountParsingException("Formato inesperado: " + raw.getClass().getName(), null);
             }
 
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new AccountExceptions.AccountRetrievalException("Error al esperar respuesta del servidor", e);
+            throw new AccountRetrievalException("Error al esperar respuesta del servidor", e);
         }
     }
 
@@ -156,25 +160,25 @@ public class AccountService {
             Object raw = response.getData("accounts");
 
             if (raw == null) {
-                throw new AccountExceptions.AccountRetrievalException("Lista de cuentas vacía", null);
+                throw new AccountRetrievalException("Lista de cuentas vacía", null);
             }
 
             if (raw instanceof List<?> rawList) {
                 List<Account> accounts = new ArrayList<>();
                 for (Object item : rawList) {
                     if (item instanceof Map<?, ?> map) {
-                        accounts.add(AccountUtils.mapToAccount((Map<String, Object>) map));
+                        accounts.add(AccountMapper.fromMap((Map<String, Object>) map));
                     }
                 }
                 logger.info("Cuentas del usuario obtenidas correctamente. Total: " + accounts.size());
                 return accounts;
             } else {
-                throw new AccountExceptions.AccountParsingException("Formato inesperado: " + raw.getClass().getName(), null);
+                throw new AccountParsingException("Formato inesperado: " + raw.getClass().getName(), null);
             }
 
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new AccountExceptions.AccountRetrievalException("Error al esperar respuesta del servidor", e);
+            throw new AccountRetrievalException("Error al esperar respuesta del servidor", e);
         }
     }
 }

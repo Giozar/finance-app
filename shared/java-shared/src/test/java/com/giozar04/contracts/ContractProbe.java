@@ -25,7 +25,7 @@ public final class ContractProbe {
         new Feature("categories", "com.giozar04.categories.domain.entities.Category", "com.giozar04.categories.infrastructure.serialization.CategoryMapper", "toMap", "fromMap"),
         new Feature("externalEntities", "com.giozar04.externalEntities.domain.entities.ExternalEntity", "com.giozar04.externalEntities.infrastructure.serialization.ExternalEntityMapper", "toMap", "fromMap"),
         new Feature("bankClient", "com.giozar04.bankClient.domain.entities.BankClient", "com.giozar04.bankClient.infrastructure.serialization.BankClientMapper", "toMap", "fromMap"),
-        new Feature("accounts", "com.giozar04.accounts.domain.entities.Account", "com.giozar04.accounts.application.utils.AccountUtils", "accountToMap", "mapToAccount"),
+        new Feature("accounts", "com.giozar04.accounts.domain.entities.Account", "com.giozar04.accounts.infrastructure.serialization.AccountMapper", "toMap", "fromMap"),
         new Feature("card", "com.giozar04.card.domain.entities.Card", "com.giozar04.card.application.utils.CardUtils", "cardToMap", "mapToCard"),
         new Feature("accountCashbackSettings", "com.giozar04.accountCashbackSettings.domain.entities.AccountCashbackSetting", "com.giozar04.accountCashbackSettings.application.utils.AccountCashbackSettingUtils", "toMap", "fromMap"),
         new Feature("walletCardLinks", "com.giozar04.walletCardLinks.domain.entities.WalletCardLink", "com.giozar04.walletCardLinks.application.utils.WalletCardLinkUtils", "toMap", "fromMap"),

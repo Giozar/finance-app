@@ -1,15 +1,15 @@
-package com.giozar04.accounts.application.utils;
+package com.giozar04.accounts.infrastructure.serialization;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import com.giozar04.accounts.domain.entities.Account;
 import com.giozar04.accounts.domain.enums.AccountTypes;
-import com.giozar04.shared.utils.SharedUtils;
+import com.giozar04.shared.infrastructure.serialization.ValueParser;
 
-public class AccountUtils {
+public class AccountMapper {
 
-    public static Map<String, Object> accountToMap(Account account) {
+    public static Map<String, Object> toMap(Account account) {
         Map<String, Object> map = new HashMap<>();
         map.put("id", account.getId());
         map.put("userId", account.getUserId());
@@ -43,21 +43,21 @@ public class AccountUtils {
         map.put("reinvestAnnualYield", account.getReinvestAnnualYield());
 
         if (account.getCreatedAt() != null) {
-            map.put("createdAt", account.getCreatedAt().format(SharedUtils.getFormatter()));
+            map.put("createdAt", account.getCreatedAt().format(ValueParser.getFormatter()));
         }
         if (account.getUpdatedAt() != null) {
-            map.put("updatedAt", account.getUpdatedAt().format(SharedUtils.getFormatter()));
+            map.put("updatedAt", account.getUpdatedAt().format(ValueParser.getFormatter()));
         }
 
         return map;
     }
 
-    public static Account mapToAccount(Map<String, Object> map) {
+    public static Account fromMap(Map<String, Object> map) {
         Account account = new Account();
 
-        account.setId(SharedUtils.parseLong(map.get("id")));
-        account.setUserId(SharedUtils.parseLong(map.get("userId")));
-        account.setBankClientId(SharedUtils.parseNullableLong(map.get("bankClientId")));
+        account.setId(ValueParser.parseLong(map.get("id")));
+        account.setUserId(ValueParser.parseLong(map.get("userId")));
+        account.setBankClientId(ValueParser.parseNullableLong(map.get("bankClientId")));
         account.setName((String) map.getOrDefault("name", ""));
         
         String typeStr = (String) map.get("type");
@@ -65,19 +65,19 @@ public class AccountUtils {
             account.setType(AccountTypes.fromValue(typeStr));
         }
         
-        account.setCurrentBalance(SharedUtils.parseDouble(map.get("currentBalance")));
-        account.setOpeningBalance(SharedUtils.parseDouble(map.get("openingBalance")));
+        account.setCurrentBalance(ValueParser.parseDouble(map.get("currentBalance")));
+        account.setOpeningBalance(ValueParser.parseDouble(map.get("openingBalance")));
         Object accNum = map.get("accountNumber");
         if (accNum != null && !"null".equals(accNum.toString())) account.setAccountNumber(accNum.toString());
         
         Object clabe = map.get("clabe");
         if (clabe != null && !"null".equals(clabe.toString())) account.setClabe(clabe.toString());
         
-        account.setCreditLimit(SharedUtils.parseNullableDouble(map.get("creditLimit")));
-        account.setCreditUsed(SharedUtils.parseNullableDouble(map.get("creditUsed")));
-        account.setOpeningCreditUsed(SharedUtils.parseNullableDouble(map.get("openingCreditUsed")));
-        account.setCutoffDay(SharedUtils.parseNullableInt(map.get("cutoffDay")));
-        account.setPaymentDay(SharedUtils.parseNullableInt(map.get("paymentDay")));
+        account.setCreditLimit(ValueParser.parseNullableDouble(map.get("creditLimit")));
+        account.setCreditUsed(ValueParser.parseNullableDouble(map.get("creditUsed")));
+        account.setOpeningCreditUsed(ValueParser.parseNullableDouble(map.get("openingCreditUsed")));
+        account.setCutoffDay(ValueParser.parseNullableInt(map.get("cutoffDay")));
+        account.setPaymentDay(ValueParser.parseNullableInt(map.get("paymentDay")));
         
         Object canTransferOutObj = map.get("canTransferOut");
         if (canTransferOutObj != null) {
@@ -86,18 +86,18 @@ public class AccountUtils {
             account.setCanTransferOut(true);
         }
 
-        account.setAnnualYield(SharedUtils.parseNullableDouble(map.get("annualYield")));
-        account.setYieldCapAmount(SharedUtils.parseNullableDouble(map.get("yieldCapAmount")));
+        account.setAnnualYield(ValueParser.parseNullableDouble(map.get("annualYield")));
+        account.setYieldCapAmount(ValueParser.parseNullableDouble(map.get("yieldCapAmount")));
         Object lyc = map.get("lastYieldCalculation");
         if (lyc != null && !"null".equals(lyc.toString())) account.setLastYieldCalculation(lyc.toString());
 
         // investment_details
         Object instrType = map.get("instrumentType");
         if (instrType != null && !"null".equals(instrType.toString())) account.setInstrumentType(instrType.toString());
-        account.setTermDays(SharedUtils.parseNullableInt(map.get("termDays")));
-        account.setPrincipalAmount(SharedUtils.parseNullableDouble(map.get("principalAmount")));
-        account.setInvestmentAnnualYield(SharedUtils.parseNullableDouble(map.get("investmentAnnualYield")));
-        account.setDayCountBasis(SharedUtils.parseNullableInt(map.get("dayCountBasis")));
+        account.setTermDays(ValueParser.parseNullableInt(map.get("termDays")));
+        account.setPrincipalAmount(ValueParser.parseNullableDouble(map.get("principalAmount")));
+        account.setInvestmentAnnualYield(ValueParser.parseNullableDouble(map.get("investmentAnnualYield")));
+        account.setDayCountBasis(ValueParser.parseNullableInt(map.get("dayCountBasis")));
         Object sd = map.get("startDate");
         if (sd != null && !"null".equals(sd.toString())) account.setStartDate(sd.toString());
         Object md = map.get("maturityDate");
@@ -106,11 +106,11 @@ public class AccountUtils {
         if (invStatus != null && !"null".equals(invStatus.toString())) account.setInvestmentStatus(invStatus.toString());
         Object ar = map.get("autoReinvest");
         if (ar != null && !"null".equals(ar.toString())) account.setAutoReinvest(Boolean.parseBoolean(ar.toString()));
-        account.setReinvestTermDays(SharedUtils.parseNullableInt(map.get("reinvestTermDays")));
-        account.setReinvestAnnualYield(SharedUtils.parseNullableDouble(map.get("reinvestAnnualYield")));
+        account.setReinvestTermDays(ValueParser.parseNullableInt(map.get("reinvestTermDays")));
+        account.setReinvestAnnualYield(ValueParser.parseNullableDouble(map.get("reinvestAnnualYield")));
 
-        account.setCreatedAt(SharedUtils.parseZonedDateTime(map.get("createdAt")));
-        account.setUpdatedAt(SharedUtils.parseZonedDateTime(map.get("updatedAt")));
+        account.setCreatedAt(ValueParser.parseZonedDateTime(map.get("createdAt")));
+        account.setUpdatedAt(ValueParser.parseZonedDateTime(map.get("updatedAt")));
 
         return account;
     }

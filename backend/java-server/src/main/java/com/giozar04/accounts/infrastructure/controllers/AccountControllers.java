@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.giozar04.accounts.application.services.AccountService;
-import com.giozar04.accounts.application.utils.AccountUtils;
+import com.giozar04.accounts.infrastructure.serialization.AccountMapper;
 import com.giozar04.accounts.domain.entities.Account;
 import com.giozar04.logging.CustomLogger;
 import com.giozar04.messages.domain.models.Message;
@@ -36,12 +36,12 @@ public class AccountControllers {
                         "Datos de cuenta no proporcionados");
             }
 
-            Account account = AccountUtils.mapToAccount(data);
+            Account account = AccountMapper.fromMap(data);
             Account created = accountService.createAccount(account);
 
             Message response = Message.createSuccessMessage(AccountMessageTypes.CREATE_ACCOUNT,
                     "Cuenta creada exitosamente");
-            response.addData("account", AccountUtils.accountToMap(created));
+            response.addData("account", AccountMapper.toMap(created));
             return response;
         };
     }
@@ -59,7 +59,7 @@ public class AccountControllers {
             Account account = accountService.getAccountById(id);
             Message response = Message.createSuccessMessage(AccountMessageTypes.GET_ACCOUNT,
                     "Cuenta obtenida exitosamente");
-            response.addData("account", AccountUtils.accountToMap(account));
+            response.addData("account", AccountMapper.toMap(account));
             return response;
         };
     }
@@ -81,12 +81,12 @@ public class AccountControllers {
                         "Datos de cuenta no proporcionados");
             }
 
-            Account account = AccountUtils.mapToAccount(data);
+            Account account = AccountMapper.fromMap(data);
             Account updated = accountService.updateAccountById(id, account);
 
             Message response = Message.createSuccessMessage(AccountMessageTypes.UPDATE_ACCOUNT,
                     "Cuenta actualizada exitosamente");
-            response.addData("account", AccountUtils.accountToMap(updated));
+            response.addData("account", AccountMapper.toMap(updated));
             return response;
         };
     }
@@ -116,7 +116,7 @@ public class AccountControllers {
             List<Map<String, Object>> list = new ArrayList<>();
 
             for (Account account : accounts) {
-                list.add(AccountUtils.accountToMap(account));
+                list.add(AccountMapper.toMap(account));
             }
 
             Message response = Message.createSuccessMessage(AccountMessageTypes.GET_ALL_ACCOUNTS,
@@ -141,7 +141,7 @@ public class AccountControllers {
             List<Map<String, Object>> result = new ArrayList<>();
 
             for (Account item : items) {
-                result.add(AccountUtils.accountToMap(item));
+                result.add(AccountMapper.toMap(item));
             }
 
             Message response = Message.createSuccessMessage(AccountMessageTypes.GET_ACCOUNTS_BY_USER, "Cuentas del usuario obtenidas exitosamente");

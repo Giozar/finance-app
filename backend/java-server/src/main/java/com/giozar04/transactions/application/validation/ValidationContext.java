@@ -10,7 +10,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import com.giozar04.accounts.domain.entities.Account;
-import com.giozar04.accounts.domain.exceptions.AccountExceptions;
+import com.giozar04.accounts.application.exceptions.AccountNotFoundException;
 import com.giozar04.accounts.domain.interfaces.AccountRepositoryInterface;
 import com.giozar04.card.domain.entities.Card;
 import com.giozar04.card.domain.exceptions.CardExceptions;
@@ -66,7 +66,7 @@ public class ValidationContext {
     public Account account(Long id) {
         if (id == null || id <= 0) return null;
         return accounts.computeIfAbsent(id, k -> find(() -> accountRepository.getAccountById(k),
-                AccountExceptions.AccountNotFoundException.class)).orElse(null);
+                AccountNotFoundException.class)).orElse(null);
     }
 
     public Card card(Long id) {

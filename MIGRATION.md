@@ -12,7 +12,7 @@ Referencia funcional inicial: `a68517e`.
 | categories | Migrada; contratos y consumidores verificados |
 | externalEntities | Migrada; contratos y consumidores verificados |
 | bankClient | Migrada; contratos y consumidores verificados |
-| accounts | Pendiente |
+| accounts | Migrada; contratos y consumidores verificados |
 | card | Pendiente |
 | accountCashbackSettings | Pendiente |
 | walletCardLinks | Pendiente |

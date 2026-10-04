@@ -15,10 +15,15 @@ src/main/java/com/giozar04/accountCashbackSettings/domain/exceptions/AccountCash
 src/main/java/com/giozar04/accountReconciliations/application/utils/AccountReconciliationUtils.java
 src/main/java/com/giozar04/accountReconciliations/domain/entities/AccountReconciliation.java
 src/main/java/com/giozar04/accountReconciliations/domain/exceptions/AccountReconciliationExceptions.java
-src/main/java/com/giozar04/accounts/application/utils/AccountUtils.java
+src/main/java/com/giozar04/accounts/application/exceptions/AccountCreationException.java
+src/main/java/com/giozar04/accounts/application/exceptions/AccountDeletionException.java
+src/main/java/com/giozar04/accounts/application/exceptions/AccountNotFoundException.java
+src/main/java/com/giozar04/accounts/application/exceptions/AccountRetrievalException.java
+src/main/java/com/giozar04/accounts/application/exceptions/AccountUpdateException.java
 src/main/java/com/giozar04/accounts/domain/entities/Account.java
 src/main/java/com/giozar04/accounts/domain/enums/AccountTypes.java
-src/main/java/com/giozar04/accounts/domain/exceptions/AccountExceptions.java
+src/main/java/com/giozar04/accounts/infrastructure/serialization/AccountMapper.java
+src/main/java/com/giozar04/accounts/infrastructure/serialization/AccountParsingException.java
 src/main/java/com/giozar04/bankClient/application/exceptions/BankClientCreationException.java
 src/main/java/com/giozar04/bankClient/application/exceptions/BankClientDeletionException.java
 src/main/java/com/giozar04/bankClient/application/exceptions/BankClientNotFoundException.java
