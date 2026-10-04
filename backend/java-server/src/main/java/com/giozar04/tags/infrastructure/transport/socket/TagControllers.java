@@ -1,4 +1,4 @@
-package com.giozar04.tags.infrastructure.controllers;
+package com.giozar04.tags.infrastructure.transport.socket;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,7 +8,7 @@ import com.giozar04.logging.infrastructure.ConsoleLogger;
 import com.giozar04.messages.infrastructure.transport.Message;
 import com.giozar04.servers.domain.handlers.MessageHandler;
 import com.giozar04.servers.domain.models.ClientConnection;
-import com.giozar04.tags.application.services.TagService;
+import com.giozar04.tags.application.ports.input.TagOperations;
 import com.giozar04.tags.infrastructure.serialization.TagMapper;
 import com.giozar04.tags.domain.entities.Tag;
 
@@ -26,7 +26,7 @@ public class TagControllers {
     }
 
     @SuppressWarnings("unchecked")
-    public static MessageHandler createTagController(TagService tagService) {
+    public static MessageHandler createTagController(TagOperations tagService) {
         return (ClientConnection client, Message message) -> {
             LOGGER.info("Procesando creación de etiqueta");
 
@@ -44,7 +44,7 @@ public class TagControllers {
         };
     }
 
-    public static MessageHandler getTagController(TagService tagService) {
+    public static MessageHandler getTagController(TagOperations tagService) {
         return (ClientConnection client, Message message) -> {
             LOGGER.info("Procesando obtención de etiqueta");
 
@@ -61,7 +61,7 @@ public class TagControllers {
     }
 
     @SuppressWarnings("unchecked")
-    public static MessageHandler updateTagController(TagService tagService) {
+    public static MessageHandler updateTagController(TagOperations tagService) {
         return (ClientConnection client, Message message) -> {
             LOGGER.info("Procesando actualización de etiqueta");
 
@@ -83,7 +83,7 @@ public class TagControllers {
         };
     }
 
-    public static MessageHandler deleteTagController(TagService tagService) {
+    public static MessageHandler deleteTagController(TagOperations tagService) {
         return (ClientConnection client, Message message) -> {
             LOGGER.info("Procesando eliminación de etiqueta");
 
@@ -97,7 +97,7 @@ public class TagControllers {
         };
     }
 
-    public static MessageHandler getAllTagsController(TagService tagService) {
+    public static MessageHandler getAllTagsController(TagOperations tagService) {
         return (ClientConnection client, Message message) -> {
             LOGGER.info("Procesando obtención de todas las etiquetas");
 
@@ -116,7 +116,7 @@ public class TagControllers {
         };
     }
 
-    public static MessageHandler getTagsByUserController(TagService tagService) {
+    public static MessageHandler getTagsByUserController(TagOperations tagService) {
         return (ClientConnection client, Message message) -> {
             LOGGER.info("Procesando obtención de etiquetas por usuario");
 

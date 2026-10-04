@@ -1,4 +1,4 @@
-package com.giozar04.tags.infrastructure.repositories;
+package com.giozar04.tags.infrastructure.persistence.mysql;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -18,9 +18,9 @@ import com.giozar04.tags.application.exceptions.TagDeletionException;
 import com.giozar04.tags.application.exceptions.TagNotFoundException;
 import com.giozar04.tags.application.exceptions.TagRetrievalException;
 import com.giozar04.tags.application.exceptions.TagUpdateException;
-import com.giozar04.tags.domain.models.TagRepositoryAbstract;
+import com.giozar04.tags.infrastructure.persistence.mysql.AbstractTagJdbcRepository;
 
-public class TagRepositoryMySQL extends TagRepositoryAbstract {
+public class TagRepositoryMySQL extends AbstractTagJdbcRepository {
 
     private static final String SQL_INSERT = """
         INSERT INTO tags (user_id, name, color, created_at, updated_at)

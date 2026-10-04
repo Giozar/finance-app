@@ -8,6 +8,16 @@ model: inherit
 
 ## Migración vigente
 
+### Features migradas
+
+| Feature | Contratos y adaptadores |
+| --- | --- |
+| `tags` | `TagOperations`, `TagRepository`, `TagUseCase`, `TagPolicy`, `AbstractTagJdbcRepository`, `TagRepositoryMySQL`, `TagControllers`, `TagHandlers` |
+
+El flujo de «Estructura de una feature» descrito abajo aplica a las features pendientes.
+Para las migradas use `backend-explanation.md` y `ARCHITECTURE.md`. El índice
+`GENERALBACKEND.md` muestra las rutas reales.
+
 Consulte [ARCHITECTURE.md](../../ARCHITECTURE.md), [MIGRATION.md](../../MIGRATION.md)
 y [AGENTS.md](../../AGENTS.md). La migración autorizada sigue shared → backend → client,
 por feature y con commits locales. Las convenciones siguientes describen el código

@@ -25,9 +25,28 @@ Referencia funcional inicial: `a68517e`.
 Cada fila completada incluye referencias de consumidores, documentación, contratos
 comparados y compilación independiente de shared, backend y client.
 
-## Siguientes etapas
+## Backend
 
-- Backend: diagnóstico de dependencias → piloto tags → features según dependencias → transactions/conciliación.
-- Client: diagnóstico de dependencias → piloto tags → catálogos/cuentas → transactions.
+| Feature | Estado |
+| --- | --- |
+| tags | Migrada; puertos, caso de uso, política y adaptadores verificados |
+| users | Pendiente |
+| categories | Pendiente |
+| externalEntities | Pendiente |
+| bankClients | Pendiente |
+| accounts | Pendiente |
+| cards | Pendiente |
+| accountCashbackSettings | Pendiente |
+| walletCardLinks | Pendiente |
+| cardTransactionDetails | Pendiente |
+| walletTransactionDetails | Pendiente |
+| transactions | Pendiente |
+| accountReconciliations | Pendiente |
+| transactionTags | Pendiente |
+| databases y servers | Pendiente |
+
+## Client
+
+Pendiente. Su migración empieza después de cerrar backend.
 
 La compilación de consumidores durante shared no representa la migración interna de backend/client.

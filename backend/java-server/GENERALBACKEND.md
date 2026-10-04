@@ -93,12 +93,14 @@ src/main/java/com/giozar04/servers/domain/interfaces/ServerInterface.java
 src/main/java/com/giozar04/servers/domain/interfaces/ServerRegisterHandlers.java
 src/main/java/com/giozar04/servers/domain/models/ClientConnection.java
 src/main/java/com/giozar04/servers/domain/models/ServerAbstract.java
-src/main/java/com/giozar04/tags/application/services/TagService.java
-src/main/java/com/giozar04/tags/domain/interfaces/TagRepositoryInterface.java
-src/main/java/com/giozar04/tags/domain/models/TagRepositoryAbstract.java
-src/main/java/com/giozar04/tags/infrastructure/controllers/TagControllers.java
-src/main/java/com/giozar04/tags/infrastructure/handlers/TagHandlers.java
-src/main/java/com/giozar04/tags/infrastructure/repositories/TagRepositoryMySQL.java
+src/main/java/com/giozar04/tags/application/ports/input/TagOperations.java
+src/main/java/com/giozar04/tags/application/ports/output/TagRepository.java
+src/main/java/com/giozar04/tags/application/usecases/TagUseCase.java
+src/main/java/com/giozar04/tags/domain/policies/TagPolicy.java
+src/main/java/com/giozar04/tags/infrastructure/persistence/mysql/AbstractTagJdbcRepository.java
+src/main/java/com/giozar04/tags/infrastructure/persistence/mysql/TagRepositoryMySQL.java
+src/main/java/com/giozar04/tags/infrastructure/transport/socket/TagControllers.java
+src/main/java/com/giozar04/tags/infrastructure/transport/socket/TagHandlers.java
 src/main/java/com/giozar04/tags/sql/tag.sql
 src/main/java/com/giozar04/tags/test/TagTestApp.java
 src/main/java/com/giozar04/transactionTags/domain/interfaces/TransactionTagRepositoryInterface.java
@@ -152,4 +154,5 @@ src/main/java/com/giozar04/walletTransactionDetails/infrastructure/controllers/W
 src/main/java/com/giozar04/walletTransactionDetails/infrastructure/handlers/WalletTransactionDetailHandlers.java
 src/main/java/com/giozar04/walletTransactionDetails/infrastructure/repositories/WalletTransactionDetailRepositoryMySQL.java
 src/main/java/com/giozar04/walletTransactionDetails/sql/wallet_transaction_details.sql
+src/test/java/com/giozar04/tags/TagUseCaseProbe.java
 ```

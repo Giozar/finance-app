@@ -37,7 +37,7 @@ Durante la migración backend y client mantienen su estructura actual hasta su e
 | Conversión de valores escalares del protocolo | `shared/infrastructure/serialization/ValueParser.java` |
 | Logger de consola | `logging/infrastructure/ConsoleLogger.java` |
 | Caso de uso (backend/client, siguiente etapa) | `<feature>/application/usecases/` |
-| Puerto (backend/client, siguiente etapa) | `<feature>/application/ports/in/` o `out/` |
+| Puerto (backend/client, siguiente etapa) | `<feature>/application/ports/input/` o `output/` |
 
 Cada excepción nueva tiene su archivo y un nombre que identifica su feature. No se
 añaden contenedores `*Exceptions` ni utilidades genéricas para responsabilidades nuevas.

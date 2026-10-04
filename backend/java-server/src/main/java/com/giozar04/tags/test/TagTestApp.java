@@ -5,9 +5,9 @@ import java.util.Scanner;
 
 import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
 import com.giozar04.databases.infrastructure.repositories.DatabaseConnectionMySQL;
-import com.giozar04.tags.application.services.TagService;
+import com.giozar04.tags.application.usecases.TagUseCase;
 import com.giozar04.tags.domain.entities.Tag;
-import com.giozar04.tags.infrastructure.repositories.TagRepositoryMySQL;
+import com.giozar04.tags.infrastructure.persistence.mysql.TagRepositoryMySQL;
 
 public class TagTestApp {
 
@@ -27,7 +27,7 @@ public class TagTestApp {
             dbConnection.connect();
 
             TagRepositoryMySQL repository = new TagRepositoryMySQL(dbConnection);
-            TagService service = new TagService(repository);
+            TagUseCase service = new TagUseCase(repository);
 
             Scanner scanner = new Scanner(System.in);
             boolean exit = false;
@@ -65,7 +65,7 @@ public class TagTestApp {
         }
     }
 
-    private static void createTag(TagService service, Scanner scanner) {
+    private static void createTag(TagUseCase service, Scanner scanner) {
         Tag tag = new Tag();
         
         System.out.print("ID del usuario dueño: ");
@@ -85,7 +85,7 @@ public class TagTestApp {
         System.out.println("Etiqueta creada con ID: " + created.getId());
     }
 
-    private static void updateTag(TagService service, Scanner scanner) {
+    private static void updateTag(TagUseCase service, Scanner scanner) {
         System.out.print("ID de la etiqueta a actualizar: ");
         long id = scanner.nextLong();
         scanner.nextLine();
@@ -110,7 +110,7 @@ public class TagTestApp {
         System.out.println("Etiqueta actualizada.");
     }
 
-    private static void deleteTag(TagService service, Scanner scanner) {
+    private static void deleteTag(TagUseCase service, Scanner scanner) {
         System.out.print("ID de etiqueta a eliminar: ");
         long id = scanner.nextLong();
         scanner.nextLine();
@@ -119,7 +119,7 @@ public class TagTestApp {
         System.out.println("Etiqueta eliminada.");
     }
 
-    private static void getAllTags(TagService service) {
+    private static void getAllTags(TagUseCase service) {
         var tags = service.getAllTags();
         if (tags.isEmpty()) {
             System.out.println("No hay etiquetas registradas.");
@@ -129,7 +129,7 @@ public class TagTestApp {
         tags.forEach(TagTestApp::printTagDetails);
     }
 
-    private static void getTagById(TagService service, Scanner scanner) {
+    private static void getTagById(TagUseCase service, Scanner scanner) {
         System.out.print("ID de etiqueta: ");
         long id = scanner.nextLong();
         scanner.nextLine();

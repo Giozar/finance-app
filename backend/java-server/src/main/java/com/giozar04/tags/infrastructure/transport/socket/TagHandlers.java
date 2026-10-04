@@ -1,15 +1,15 @@
-package com.giozar04.tags.infrastructure.handlers;
+package com.giozar04.tags.infrastructure.transport.socket;
 
 import com.giozar04.servers.application.services.ServerService;
 import com.giozar04.servers.domain.interfaces.ServerRegisterHandlers;
-import com.giozar04.tags.application.services.TagService;
-import com.giozar04.tags.infrastructure.controllers.TagControllers;
+import com.giozar04.tags.application.ports.input.TagOperations;
+import com.giozar04.tags.infrastructure.transport.socket.TagControllers;
 
 public class TagHandlers implements ServerRegisterHandlers {
 
-    private final TagService tagService;
+    private final TagOperations tagService;
 
-    public TagHandlers(TagService tagService) {
+    public TagHandlers(TagOperations tagService) {
         this.tagService = tagService;
     }
 

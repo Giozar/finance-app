@@ -6,7 +6,7 @@ import com.giozar04.accounts.domain.interfaces.AccountRepositoryInterface;
 import com.giozar04.cards.domain.interfaces.CardRepositoryInterface;
 import com.giozar04.categories.domain.interfaces.CategoryRepositoryInterface;
 import com.giozar04.externalEntities.domain.interfaces.ExternalEntityRepositoryInterface;
-import com.giozar04.tags.domain.interfaces.TagRepositoryInterface;
+import com.giozar04.tags.application.ports.output.TagRepository;
 import com.giozar04.walletCardLinks.domain.interfaces.WalletCardLinkRepositoryInterface;
 
 /**
@@ -19,14 +19,14 @@ public class ValidationContextFactory {
     private final WalletCardLinkRepositoryInterface walletCardLinkRepository;
     private final CategoryRepositoryInterface categoryRepository;
     private final ExternalEntityRepositoryInterface externalEntityRepository;
-    private final TagRepositoryInterface tagRepository;
+    private final TagRepository tagRepository;
 
     public ValidationContextFactory(AccountRepositoryInterface accountRepository,
                                     CardRepositoryInterface cardRepository,
                                     WalletCardLinkRepositoryInterface walletCardLinkRepository,
                                     CategoryRepositoryInterface categoryRepository,
                                     ExternalEntityRepositoryInterface externalEntityRepository,
-                                    TagRepositoryInterface tagRepository) {
+                                    TagRepository tagRepository) {
         this.accountRepository = Objects.requireNonNull(accountRepository, "El repositorio de cuentas no puede ser nulo");
         this.cardRepository = Objects.requireNonNull(cardRepository, "El repositorio de tarjetas no puede ser nulo");
         this.walletCardLinkRepository = Objects.requireNonNull(walletCardLinkRepository, "El repositorio de vínculos wallet-tarjeta no puede ser nulo");

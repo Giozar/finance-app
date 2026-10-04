@@ -1,10 +1,10 @@
-package com.giozar04.tags.domain.interfaces;
+package com.giozar04.tags.application.ports.output;
 
 import java.util.List;
 
 import com.giozar04.tags.domain.entities.Tag;
 
-public interface TagRepositoryInterface {
+public interface TagRepository {
     Tag createTag(Tag tag);
     Tag getTagById(long id);
     Tag updateTagById(long id, Tag tag);

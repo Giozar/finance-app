@@ -34,10 +34,11 @@ import com.giozar04.logging.infrastructure.ConsoleLogger;
 import com.giozar04.servers.application.services.ServerService;
 import com.giozar04.servers.domain.exceptions.ServerOperationException;
 import com.giozar04.servers.domain.interfaces.ServerRegisterHandlers;
-import com.giozar04.tags.application.services.TagService;
-import com.giozar04.tags.domain.interfaces.TagRepositoryInterface;
-import com.giozar04.tags.infrastructure.handlers.TagHandlers;
-import com.giozar04.tags.infrastructure.repositories.TagRepositoryMySQL;
+import com.giozar04.tags.application.usecases.TagUseCase;
+import com.giozar04.tags.application.ports.input.TagOperations;
+import com.giozar04.tags.application.ports.output.TagRepository;
+import com.giozar04.tags.infrastructure.transport.socket.TagHandlers;
+import com.giozar04.tags.infrastructure.persistence.mysql.TagRepositoryMySQL;
 import com.giozar04.transactionTags.domain.interfaces.TransactionTagRepositoryInterface;
 import com.giozar04.transactionTags.infrastructure.repositories.TransactionTagRepositoryMySQL;
 import com.giozar04.transactions.application.normalizers.TransactionNormalizer;
@@ -106,9 +107,9 @@ public class ApplicationInitializer {
         CategoryService categoryService = new CategoryService(categoryRepository);
 
         // Inicializar repositorios y servicios de etiquetas
-        TagRepositoryInterface tagRepository =
+        TagRepository tagRepository =
                 new TagRepositoryMySQL(dbConnection);
-        TagService tagService = new TagService(tagRepository);
+        TagOperations tagService = new TagUseCase(tagRepository);
 
         // Inicializar repositorios y servicios de entidades externas
         ExternalEntityRepositoryInterface externalEntityRepository =
