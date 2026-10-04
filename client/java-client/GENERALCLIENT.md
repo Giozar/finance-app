@@ -120,7 +120,10 @@ src/main/java/com/giozar04/tags/infrastructure/transport/socket/TagService.java
 src/main/java/com/giozar04/tags/presentation/components/TagFormPanel.java
 src/main/java/com/giozar04/tags/presentation/views/CreateTagView.java
 src/main/java/com/giozar04/tags/presentation/views/TagsView.java
-src/main/java/com/giozar04/transactions/infrastructure/services/TransactionService.java
+src/main/java/com/giozar04/transactions/application/ports/input/TransactionOperations.java
+src/main/java/com/giozar04/transactions/application/ports/output/TransactionGateway.java
+src/main/java/com/giozar04/transactions/application/usecases/TransactionUseCase.java
+src/main/java/com/giozar04/transactions/infrastructure/transport/socket/TransactionService.java
 src/main/java/com/giozar04/transactions/presentation/components/AccountPickerField.java
 src/main/java/com/giozar04/transactions/presentation/components/CreatableSearchField.java
 src/main/java/com/giozar04/transactions/presentation/components/PaymentMethodCellRenderer.java

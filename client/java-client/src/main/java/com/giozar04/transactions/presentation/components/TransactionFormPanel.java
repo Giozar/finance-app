@@ -24,7 +24,8 @@ import com.giozar04.shared.components.MainContentPanel;
 import com.giozar04.shared.utils.DialogUtil;
 import com.giozar04.shared.utils.FormValidatorUtils;
 import com.giozar04.transactions.domain.entities.Transaction;
-import com.giozar04.transactions.infrastructure.services.TransactionService;
+import com.giozar04.transactions.application.ports.input.TransactionOperations;
+import com.giozar04.bootstrap.ClientUseCases;
 import com.giozar04.transactions.presentation.components.sections.CardDetailsSection;
 import com.giozar04.transactions.presentation.components.sections.ClassificationSection;
 import com.giozar04.transactions.presentation.components.sections.GeneralInfoSection;
@@ -142,10 +143,10 @@ public class TransactionFormPanel extends JPanel {
         boolean creating = currentTransaction == null;
         try {
             if (creating) {
-                TransactionService.getInstance().createTransaction(tx);
+                ClientUseCases.get(TransactionOperations.class).createTransaction(tx);
                 DialogUtil.showSuccess(this, "Transacción registrada exitosamente.");
             } else {
-                TransactionService.getInstance().updateTransactionById(tx.getId(), tx);
+                ClientUseCases.get(TransactionOperations.class).updateTransactionById(tx.getId(), tx);
                 DialogUtil.showSuccess(this, "Transacción actualizada exitosamente.");
             }
             // Se conserva el usuario para capturar la siguiente transacción (los catálogos se recargan)

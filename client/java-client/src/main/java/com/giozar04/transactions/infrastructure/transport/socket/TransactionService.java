@@ -1,9 +1,10 @@
-package com.giozar04.transactions.infrastructure.services;
+package com.giozar04.transactions.infrastructure.transport.socket;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.giozar04.transactions.application.ports.output.TransactionGateway;
 import com.giozar04.logging.infrastructure.ConsoleLogger;
 import com.giozar04.messages.infrastructure.transport.Message;
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
@@ -23,7 +24,7 @@ import com.giozar04.transactions.application.exceptions.TransactionUpdateExcepti
  * <p>La transacción viaja como agregado (detalle de tarjeta o wallet y tags incluidos) en la clave
  * {@code "transaction"}; el servidor la valida, normaliza y guarda de forma atómica.</p>
  */
-public class TransactionService {
+public class TransactionService implements TransactionGateway {
 
     private final ServerConnectionService serverConnectionService;
     private static final ConsoleLogger logger = ConsoleLogger.getInstance();

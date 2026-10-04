@@ -31,7 +31,8 @@ import com.giozar04.shared.utils.DialogUtil;
 import com.giozar04.transactions.domain.entities.Transaction;
 import com.giozar04.transactions.domain.enums.OperationTypes;
 import com.giozar04.transactions.domain.enums.TransactionStatus;
-import com.giozar04.transactions.infrastructure.services.TransactionService;
+import com.giozar04.transactions.application.ports.input.TransactionOperations;
+import com.giozar04.bootstrap.ClientUseCases;
 import com.giozar04.transactions.presentation.components.PaymentMethodCellRenderer;
 import com.giozar04.transactions.presentation.components.TransactionDetailsDialog;
 import com.giozar04.transactions.presentation.components.TransactionFormPanel;
@@ -49,7 +50,7 @@ public class TransactionsView extends JPanel implements PopupMenuActionHandler {
 
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
-    private final TransactionService transactionService;
+    private final TransactionOperations transactionService;
 
     private FormComboBox<User> userFilter;
     private FormComboBox<OperationTypes> typeFilter;
@@ -62,7 +63,7 @@ public class TransactionsView extends JPanel implements PopupMenuActionHandler {
     private boolean initializing = true;
 
     public TransactionsView() {
-        transactionService = TransactionService.getInstance();
+        transactionService = ClientUseCases.get(TransactionOperations.class);
         setLayout(new BorderLayout());
         setBorder(new EmptyBorder(10, 10, 10, 10));
 

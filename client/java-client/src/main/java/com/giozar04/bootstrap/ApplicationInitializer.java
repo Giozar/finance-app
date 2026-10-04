@@ -31,7 +31,9 @@ import com.giozar04.shared.layouts.AppLayout;
 import com.giozar04.tags.infrastructure.transport.socket.TagService;
 import com.giozar04.tags.application.usecases.TagUseCase;
 import com.giozar04.tags.application.ports.input.TagOperations;
-import com.giozar04.transactions.infrastructure.services.TransactionService;
+import com.giozar04.transactions.infrastructure.transport.socket.TransactionService;
+import com.giozar04.transactions.application.usecases.TransactionUseCase;
+import com.giozar04.transactions.application.ports.input.TransactionOperations;
 import com.giozar04.users.infrastructure.transport.socket.UserService;
 import com.giozar04.users.application.usecases.UserUseCase;
 import com.giozar04.users.application.ports.input.UserOperations;
@@ -111,6 +113,7 @@ public class ApplicationInitializer {
             System.out.println("✅ Servicio de entidades externas conectado correctamente");
 
             this.transactionService = TransactionService.connectService(connectionService);
+            ClientUseCases.register(TransactionOperations.class, new TransactionUseCase(TransactionService.getInstance()));
             System.out.println("✅ Servicio de transacciones conectado correctamente.");
 
             CardTransactionDetailService.connectService(connectionService);

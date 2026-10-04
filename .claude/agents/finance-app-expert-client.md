@@ -8,6 +8,8 @@ model: inherit
 
 ## Migración vigente
 
+- `transactions`: `TransactionOperations` → `TransactionUseCase` → `TransactionGateway` → `TransactionService` (socket).
+
 - `walletTransactionDetails`: `WalletTransactionDetailOperations` → `WalletTransactionDetailUseCase` → `WalletTransactionDetailGateway` → `WalletTransactionDetailService` (socket).
 
 - `cardTransactionDetails`: `CardTransactionDetailOperations` → `CardTransactionDetailUseCase` → `CardTransactionDetailGateway` → `CardTransactionDetailService` (socket).
