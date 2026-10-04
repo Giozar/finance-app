@@ -24,7 +24,12 @@ import com.giozar04.transactions.domain.entities.Transaction;
 import com.giozar04.transactions.domain.enums.OperationTypes;
 import com.giozar04.transactions.domain.enums.PaymentMethod;
 import com.giozar04.transactions.domain.enums.TransactionStatus;
-import com.giozar04.transactions.domain.exceptions.TransactionExceptions;
+import com.giozar04.transactions.application.exceptions.TransactionNotFoundException;
+import com.giozar04.transactions.application.exceptions.TransactionCreationException;
+import com.giozar04.transactions.application.exceptions.TransactionDeletionException;
+import com.giozar04.transactions.application.exceptions.TransactionRetrievalException;
+import com.giozar04.transactions.application.exceptions.TransactionUpdateException;
+import com.giozar04.transactions.domain.exceptions.TransactionValidationException;
 import com.giozar04.transactions.domain.models.TransactionRepositoryAbstract;
 import com.giozar04.walletTransactionDetails.domain.entities.WalletTransactionDetail;
 import com.giozar04.walletTransactionDetails.domain.interfaces.WalletTransactionDetailTransactionalRepositoryInterface;
@@ -103,7 +108,7 @@ public class TransactionRepositoryMySQL extends TransactionRepositoryAbstract {
             return created;
 
         } catch (SQLException e) {
-            throw new TransactionExceptions.TransactionCreationException("Error al crear la transacción: " + e.getMessage(), e);
+            throw new TransactionCreationException("Error al crear la transacción: " + e.getMessage(), e);
         }
     }
 
@@ -114,12 +119,12 @@ public class TransactionRepositoryMySQL extends TransactionRepositoryAbstract {
         try {
             Transaction tx = executor.inTransaction(conn -> findById(conn, id));
             if (tx == null) {
-                throw new TransactionExceptions.NotFoundException("Transacción no encontrada con ID: " + id, null);
+                throw new TransactionNotFoundException("Transacción no encontrada con ID: " + id, null);
             }
             return tx;
 
         } catch (SQLException e) {
-            throw new TransactionExceptions.TransactionRetrievalException("Error al obtener la transacción con ID: " + id, e);
+            throw new TransactionRetrievalException("Error al obtener la transacción con ID: " + id, e);
         }
     }
 
@@ -146,7 +151,7 @@ public class TransactionRepositoryMySQL extends TransactionRepositoryAbstract {
                     stmt.setLong(COMMON_COLUMNS + 2, id);
 
                     if (stmt.executeUpdate() == 0) {
-                        throw new TransactionExceptions.NotFoundException("Transacción no encontrada con ID: " + id, null);
+                        throw new TransactionNotFoundException("Transacción no encontrada con ID: " + id, null);
                     }
                 }
 
@@ -158,7 +163,7 @@ public class TransactionRepositoryMySQL extends TransactionRepositoryAbstract {
             return updated;
 
         } catch (SQLException e) {
-            throw new TransactionExceptions.TransactionUpdateException("Error al actualizar la transacción: " + e.getMessage(), e);
+            throw new TransactionUpdateException("Error al actualizar la transacción: " + e.getMessage(), e);
         }
     }
 
@@ -171,7 +176,7 @@ public class TransactionRepositoryMySQL extends TransactionRepositoryAbstract {
                 try (PreparedStatement stmt = conn.prepareStatement(SQL_DELETE)) {
                     stmt.setLong(1, id);
                     if (stmt.executeUpdate() == 0) {
-                        throw new TransactionExceptions.NotFoundException("Transacción no encontrada con ID: " + id, null);
+                        throw new TransactionNotFoundException("Transacción no encontrada con ID: " + id, null);
                     }
                 }
                 return null;
@@ -179,7 +184,7 @@ public class TransactionRepositoryMySQL extends TransactionRepositoryAbstract {
             logger.info("Transacción eliminada con ID: " + id);
 
         } catch (SQLException e) {
-            throw new TransactionExceptions.TransactionDeletionException("Error al eliminar la transacción: " + e.getMessage(), e);
+            throw new TransactionDeletionException("Error al eliminar la transacción: " + e.getMessage(), e);
         }
     }
 
@@ -193,7 +198,7 @@ public class TransactionRepositoryMySQL extends TransactionRepositoryAbstract {
             });
 
         } catch (SQLException e) {
-            throw new TransactionExceptions.TransactionRetrievalException("Error al obtener las transacciones", e);
+            throw new TransactionRetrievalException("Error al obtener las transacciones", e);
         }
     }
 
@@ -210,7 +215,7 @@ public class TransactionRepositoryMySQL extends TransactionRepositoryAbstract {
             });
 
         } catch (SQLException e) {
-            throw new TransactionExceptions.TransactionRetrievalException("Error al obtener las transacciones del usuario con ID: " + userId, e);
+            throw new TransactionRetrievalException("Error al obtener las transacciones del usuario con ID: " + userId, e);
         }
     }
 
@@ -222,10 +227,10 @@ public class TransactionRepositoryMySQL extends TransactionRepositoryAbstract {
             stmt.setLong(1, id);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (!rs.next()) {
-                    throw new TransactionExceptions.NotFoundException("Transacción no encontrada con ID: " + id, null);
+                    throw new TransactionNotFoundException("Transacción no encontrada con ID: " + id, null);
                 }
                 if (rs.getLong("user_id") != newUserId) {
-                    throw new TransactionExceptions.TransactionValidationException("No se puede cambiar el usuario de una transacción");
+                    throw new TransactionValidationException("No se puede cambiar el usuario de una transacción");
                 }
             }
         }

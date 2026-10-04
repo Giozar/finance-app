@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Objects;
 
 import com.giozar04.transactions.domain.entities.Transaction;
-import com.giozar04.transactions.domain.exceptions.TransactionExceptions.TransactionValidationException;
+import com.giozar04.transactions.domain.exceptions.TransactionValidationException;
 
 /**
  * Composite de reglas: ejecuta todas, acumula los errores y lanza una sola

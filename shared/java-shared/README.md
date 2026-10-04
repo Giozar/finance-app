@@ -15,7 +15,7 @@ Paquete raíz: `com.giozar04.<feature>` (no existe el prefijo `com.giozar04.shar
 Features:
 - `users`, `accounts`, `accountCashbackSettings`, `accountReconciliations`, `bankClient`, `card`, `cardTransactionDetails`
 - `walletCardLinks`, `walletTransactionDetails`, `categories`, `tags`, `externalEntities`
-- `transactions`: raíz de agregado (`Transaction` con `tagIds` y `cardDetail`/`walletDetail` anidados; `TransactionUtils.transactionToMap/mapToTransaction`)
+- `transactions`: raíz de agregado (`Transaction` con `tagIds` y `cardDetail`/`walletDetail` anidados; `TransactionMapper.toMap/fromMap`)
 
 Transversales:
 - `messages/domain/models/Message.java` – mensaje cliente ↔ servidor.

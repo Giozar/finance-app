@@ -1,4 +1,4 @@
-package com.giozar04.transactions.application.utils;
+package com.giozar04.transactions.infrastructure.serialization;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -6,16 +6,16 @@ import java.util.List;
 import java.util.Map;
 
 import com.giozar04.cardTransactionDetails.infrastructure.serialization.CardTransactionDetailMapper;
-import com.giozar04.shared.utils.SharedUtils;
+import com.giozar04.shared.infrastructure.serialization.ValueParser;
 import com.giozar04.transactions.domain.entities.Transaction;
 import com.giozar04.transactions.domain.enums.OperationTypes;
 import com.giozar04.transactions.domain.enums.PaymentMethod;
 import com.giozar04.transactions.domain.enums.TransactionStatus;
 import com.giozar04.walletTransactionDetails.infrastructure.serialization.WalletTransactionDetailMapper;
 
-public class TransactionUtils {
+public class TransactionMapper {
 
-    public static Map<String, Object> transactionToMap(Transaction tx) {
+    public static Map<String, Object> toMap(Transaction tx) {
         Map<String, Object> map = new HashMap<>();
         map.put("id", tx.getId());
         map.put("userId", tx.getUserId());
@@ -41,19 +41,19 @@ public class TransactionUtils {
             map.put("walletDetail", WalletTransactionDetailMapper.toMap(tx.getWalletDetail()));
 
         if (tx.getDate() != null)
-            map.put("date", tx.getDate().format(SharedUtils.getFormatter()));
+            map.put("date", tx.getDate().format(ValueParser.getFormatter()));
         if (tx.getCreatedAt() != null)
-            map.put("createdAt", tx.getCreatedAt().format(SharedUtils.getFormatter()));
+            map.put("createdAt", tx.getCreatedAt().format(ValueParser.getFormatter()));
         if (tx.getUpdatedAt() != null)
-            map.put("updatedAt", tx.getUpdatedAt().format(SharedUtils.getFormatter()));
+            map.put("updatedAt", tx.getUpdatedAt().format(ValueParser.getFormatter()));
 
         return map;
     }
 
-    public static Transaction mapToTransaction(Map<String, Object> map) {
+    public static Transaction fromMap(Map<String, Object> map) {
         Transaction tx = new Transaction();
-        tx.setId(SharedUtils.parseLong(map.get("id")));
-        tx.setUserId(SharedUtils.parseLong(map.get("userId")));
+        tx.setId(ValueParser.parseLong(map.get("id")));
+        tx.setUserId(ValueParser.parseLong(map.get("userId")));
 
         String operationType = parseString(map.get("operationType"));
         if (operationType != null) tx.setOperationType(OperationTypes.fromValue(operationType));
@@ -64,17 +64,17 @@ public class TransactionUtils {
         String status = parseString(map.get("status"));
         tx.setStatus(status != null ? TransactionStatus.fromValue(status) : TransactionStatus.COMPLETED);
 
-        tx.setSourceAccountId(SharedUtils.parseNullableLong(map.get("sourceAccountId")));
-        tx.setDestinationAccountId(SharedUtils.parseNullableLong(map.get("destinationAccountId")));
-        tx.setExternalEntityId(SharedUtils.parseNullableLong(map.get("externalEntityId")));
-        tx.setCategoryId(SharedUtils.parseLong(map.get("categoryId")));
-        tx.setParentTransactionId(SharedUtils.parseNullableLong(map.get("parentTransactionId")));
-        tx.setAmount(SharedUtils.parseNullableBigDecimal(map.get("amount")));
+        tx.setSourceAccountId(ValueParser.parseNullableLong(map.get("sourceAccountId")));
+        tx.setDestinationAccountId(ValueParser.parseNullableLong(map.get("destinationAccountId")));
+        tx.setExternalEntityId(ValueParser.parseNullableLong(map.get("externalEntityId")));
+        tx.setCategoryId(ValueParser.parseLong(map.get("categoryId")));
+        tx.setParentTransactionId(ValueParser.parseNullableLong(map.get("parentTransactionId")));
+        tx.setAmount(ValueParser.parseNullableBigDecimal(map.get("amount")));
         tx.setConcept(parseString(map.get("concept")));
         tx.setDescription(parseString(map.get("description")));
         tx.setComments(parseString(map.get("comments")));
         tx.setReceiptUrl(parseString(map.get("receiptUrl")));
-        tx.setDate(SharedUtils.parseZonedDateTime(map.get("date")));
+        tx.setDate(ValueParser.parseZonedDateTime(map.get("date")));
         tx.setTimezone(parseString(map.get("timezone")));
         tx.setTagIds(parseTagIds(map.get("tagIds")));
 
@@ -84,8 +84,8 @@ public class TransactionUtils {
         Map<String, Object> walletDetail = parseNestedMap(map.get("walletDetail"));
         if (walletDetail != null) tx.setWalletDetail(WalletTransactionDetailMapper.fromMap(walletDetail));
 
-        tx.setCreatedAt(SharedUtils.parseZonedDateTime(map.get("createdAt")));
-        tx.setUpdatedAt(SharedUtils.parseZonedDateTime(map.get("updatedAt")));
+        tx.setCreatedAt(ValueParser.parseZonedDateTime(map.get("createdAt")));
+        tx.setUpdatedAt(ValueParser.parseZonedDateTime(map.get("updatedAt")));
         return tx;
     }
 
@@ -101,7 +101,7 @@ public class TransactionUtils {
         List<Long> tagIds = new ArrayList<>();
         if (value instanceof List<?> list) {
             for (Object item : list) {
-                Long tagId = SharedUtils.parseNullableLong(item);
+                Long tagId = ValueParser.parseNullableLong(item);
                 if (tagId != null) tagIds.add(tagId);
             }
         }

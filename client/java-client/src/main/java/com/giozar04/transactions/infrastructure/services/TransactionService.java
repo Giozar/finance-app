@@ -9,9 +9,13 @@ import com.giozar04.messages.domain.models.Message;
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
 import com.giozar04.serverConnection.application.services.ServerConnectionService;
 import com.giozar04.serverConnection.application.validators.ServerResponseValidator;
-import com.giozar04.transactions.application.utils.TransactionUtils;
+import com.giozar04.transactions.infrastructure.serialization.TransactionMapper;
 import com.giozar04.transactions.domain.entities.Transaction;
-import com.giozar04.transactions.domain.exceptions.TransactionExceptions;
+import com.giozar04.transactions.application.exceptions.TransactionCreationException;
+import com.giozar04.transactions.application.exceptions.TransactionDeletionException;
+import com.giozar04.transactions.infrastructure.serialization.TransactionParsingException;
+import com.giozar04.transactions.application.exceptions.TransactionRetrievalException;
+import com.giozar04.transactions.application.exceptions.TransactionUpdateException;
 
 /**
  * Servicio del cliente para transacciones.
@@ -44,17 +48,17 @@ public class TransactionService {
     public Transaction createTransaction(Transaction transaction) throws ClientOperationException {
         Message message = new Message();
         message.setType("CREATE_TRANSACTION");
-        message.addData("transaction", TransactionUtils.transactionToMap(transaction));
+        message.addData("transaction", TransactionMapper.toMap(transaction));
 
         serverConnectionService.sendMessage(message);
         try {
             Message response = serverConnectionService.waitForMessage("CREATE_TRANSACTION");
             ServerResponseValidator.validateResponse(response);
             logger.info("Transacción creada exitosamente: " + response);
-            return TransactionUtils.mapToTransaction((Map<String, Object>) response.getData("transaction"));
+            return TransactionMapper.fromMap((Map<String, Object>) response.getData("transaction"));
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new TransactionExceptions.TransactionCreationException("Error al esperar la respuesta del servidor", e);
+            throw new TransactionCreationException("Error al esperar la respuesta del servidor", e);
         }
     }
 
@@ -63,17 +67,17 @@ public class TransactionService {
         Message message = new Message();
         message.setType("UPDATE_TRANSACTION");
         message.addData("id", transactionId);
-        message.addData("transaction", TransactionUtils.transactionToMap(transaction));
+        message.addData("transaction", TransactionMapper.toMap(transaction));
 
         serverConnectionService.sendMessage(message);
         try {
             Message response = serverConnectionService.waitForMessage("UPDATE_TRANSACTION");
             ServerResponseValidator.validateResponse(response);
             logger.info("Transacción actualizada correctamente: " + response);
-            return TransactionUtils.mapToTransaction((Map<String, Object>) response.getData("transaction"));
+            return TransactionMapper.fromMap((Map<String, Object>) response.getData("transaction"));
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new TransactionExceptions.TransactionUpdateException("Error al esperar la respuesta del servidor", e);
+            throw new TransactionUpdateException("Error al esperar la respuesta del servidor", e);
         }
     }
 
@@ -89,7 +93,7 @@ public class TransactionService {
             logger.info("Transacción eliminada exitosamente: " + response);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new TransactionExceptions.TransactionDeletionException("Error al esperar la respuesta del servidor", e);
+            throw new TransactionDeletionException("Error al esperar la respuesta del servidor", e);
         }
     }
 
@@ -104,10 +108,10 @@ public class TransactionService {
             Message response = serverConnectionService.waitForMessage("GET_TRANSACTION");
             ServerResponseValidator.validateResponse(response);
             logger.info("Transacción obtenida correctamente: " + response);
-            return TransactionUtils.mapToTransaction((Map<String, Object>) response.getData("transaction"));
+            return TransactionMapper.fromMap((Map<String, Object>) response.getData("transaction"));
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new TransactionExceptions.TransactionRetrievalException("Error al esperar la respuesta del servidor", e);
+            throw new TransactionRetrievalException("Error al esperar la respuesta del servidor", e);
         }
     }
 
@@ -125,7 +129,7 @@ public class TransactionService {
             return transactions;
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new TransactionExceptions.TransactionRetrievalException("Error al esperar la respuesta del servidor", e);
+            throw new TransactionRetrievalException("Error al esperar la respuesta del servidor", e);
         }
     }
 
@@ -144,22 +148,22 @@ public class TransactionService {
             return transactions;
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new TransactionExceptions.TransactionRetrievalException("Error al esperar la respuesta del servidor", e);
+            throw new TransactionRetrievalException("Error al esperar la respuesta del servidor", e);
         }
     }
 
     @SuppressWarnings("unchecked")
     private List<Transaction> parseTransactions(Object raw) {
         if (raw == null) {
-            throw new TransactionExceptions.TransactionRetrievalException("El servidor respondió sin incluir la lista de transacciones", null);
+            throw new TransactionRetrievalException("El servidor respondió sin incluir la lista de transacciones", null);
         }
         if (!(raw instanceof List<?> rawList)) {
-            throw new TransactionExceptions.TransactionParsingException("Formato inesperado: " + raw.getClass().getName(), null);
+            throw new TransactionParsingException("Formato inesperado: " + raw.getClass().getName(), null);
         }
         List<Transaction> transactions = new ArrayList<>();
         for (Object obj : rawList) {
             if (obj instanceof Map<?, ?> map) {
-                transactions.add(TransactionUtils.mapToTransaction((Map<String, Object>) map));
+                transactions.add(TransactionMapper.fromMap((Map<String, Object>) map));
             }
         }
         return transactions;

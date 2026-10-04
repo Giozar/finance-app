@@ -9,7 +9,7 @@ import com.giozar04.messages.domain.models.Message;
 import com.giozar04.servers.domain.handlers.MessageHandler;
 import com.giozar04.servers.domain.models.ClientConnection;
 import com.giozar04.transactions.application.services.TransactionService;
-import com.giozar04.transactions.application.utils.TransactionUtils;
+import com.giozar04.transactions.infrastructure.serialization.TransactionMapper;
 import com.giozar04.transactions.domain.entities.Transaction;
 
 public class TransactionControllers {
@@ -35,10 +35,10 @@ public class TransactionControllers {
                 return Message.createErrorMessage(TransactionMessageTypes.CREATE_TRANSACTION, "Datos no proporcionados");
             }
 
-            Transaction created = service.createTransaction(TransactionUtils.mapToTransaction(data));
+            Transaction created = service.createTransaction(TransactionMapper.fromMap(data));
 
             Message response = Message.createSuccessMessage(TransactionMessageTypes.CREATE_TRANSACTION, "Transacción creada exitosamente");
-            response.addData("transaction", TransactionUtils.transactionToMap(created));
+            response.addData("transaction", TransactionMapper.toMap(created));
             return response;
         };
     }
@@ -54,7 +54,7 @@ public class TransactionControllers {
 
             Transaction tx = service.getTransactionById(id);
             Message response = Message.createSuccessMessage(TransactionMessageTypes.GET_TRANSACTION, "Transacción obtenida exitosamente");
-            response.addData("transaction", TransactionUtils.transactionToMap(tx));
+            response.addData("transaction", TransactionMapper.toMap(tx));
             return response;
         };
     }
@@ -74,10 +74,10 @@ public class TransactionControllers {
                 return Message.createErrorMessage(TransactionMessageTypes.UPDATE_TRANSACTION, "Datos no proporcionados");
             }
 
-            Transaction updated = service.updateTransactionById(id, TransactionUtils.mapToTransaction(data));
+            Transaction updated = service.updateTransactionById(id, TransactionMapper.fromMap(data));
 
             Message response = Message.createSuccessMessage(TransactionMessageTypes.UPDATE_TRANSACTION, "Transacción actualizada exitosamente");
-            response.addData("transaction", TransactionUtils.transactionToMap(updated));
+            response.addData("transaction", TransactionMapper.toMap(updated));
             return response;
         };
     }
@@ -121,7 +121,7 @@ public class TransactionControllers {
     private static Message listResponse(String type, String successMessage, List<Transaction> transactions) {
         List<Map<String, Object>> result = new ArrayList<>();
         for (Transaction tx : transactions) {
-            result.add(TransactionUtils.transactionToMap(tx));
+            result.add(TransactionMapper.toMap(tx));
         }
 
         Message response = Message.createSuccessMessage(type, successMessage);

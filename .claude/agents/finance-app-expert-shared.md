@@ -23,6 +23,7 @@ model: inherit
 | `walletCardLinks` | Migrada: `WalletCardLinkMapper.toMap/fromMap`; excepciones separadas |
 | `cardTransactionDetails` | Migrada: `CardTransactionDetailMapper.toMap/fromMap`; excepciones separadas |
 | `walletTransactionDetails` | Migrada: `WalletTransactionDetailMapper.toMap/fromMap`; excepciones separadas |
+| `transactions` | Migrada: `TransactionMapper.toMap/fromMap`; excepciones separadas |
 | Resto | Estructura anterior hasta su commit; consulte `MIGRATION.md` |
 
 Las secciones «Estructura de una feature» y «Convenciones» más abajo describen
@@ -60,13 +61,13 @@ Comunícate en **español**.
   `ZonedDateTime date`, `String timezone`, `List<Long> tagIds` (nunca null; el setter convierte null en lista vacía),
   `CardTransactionDetail cardDetail`, `WalletTransactionDetail walletDetail` (null si no aplican),
   `createdAt`, `updatedAt`. `toString()` → `concept`.
-- `TransactionUtils.transactionToMap / mapToTransaction`. Claves: `id`, `userId`, `operationType`, `paymentMethod`,
+- `TransactionMapper.toMap / fromMap`. Claves: `id`, `userId`, `operationType`, `paymentMethod`,
   `status`, `sourceAccountId`, `destinationAccountId`, `externalEntityId`, `categoryId`, `parentTransactionId`,
   `amount`, `concept`, `description`, `comments`, `receiptUrl`, `date`, `timezone`, `tagIds` (lista de Long; al leer
   acepta Strings o Numbers), `cardDetail` y `walletDetail` (Map anidado, solo si no son null, con
-  `CardTransactionDetailUtils.toMap/fromMap` y `WalletTransactionDetailUtils.toMap/fromMap`), `createdAt`, `updatedAt`.
+  `CardTransactionDetailMapper.toMap/fromMap` y `WalletTransactionDetailMapper.toMap/fromMap`), `createdAt`, `updatedAt`.
 - `mapToTransaction` es null-safe: enums con null-check (status null → `COMPLETED`), strings null o `"null"` → null.
-- `TransactionExceptions` incluye `TransactionValidationException` para reglas de negocio del agregado.
+- `transactions/domain/exceptions/TransactionValidationException` define la excepción para reglas de negocio del agregado.
 
 ## Reglas de trabajo
 

@@ -76,7 +76,7 @@ Respuestas: `"accountReconciliations"` (lista de maps) + `"count"`, o `"accountR
 `userId, operationType, paymentMethod, status (default COMPLETED), sourceAccountId?, destinationAccountId?,
 externalEntityId?, categoryId, parentTransactionId?, amount (BigDecimal), concept, description?, comments?,
 receiptUrl?, date (ZonedDateTime), timezone, tagIds (List<Long>, nunca null), cardDetail? (solo CARD),
-walletDetail? (solo WALLET)`. Conversión: `TransactionUtils.transactionToMap / mapToTransaction`.
+walletDetail? (solo WALLET)`. Conversión: `TransactionMapper.toMap / fromMap`.
 
 `TransactionMessageTypes`: `CREATE_TRANSACTION` (data `"transaction"`), `GET_TRANSACTION` (`"id"`),
 `UPDATE_TRANSACTION` (`"id"` + `"transaction"`), `DELETE_TRANSACTION` (`"id"`), `GET_ALL_TRANSACTIONS`,
