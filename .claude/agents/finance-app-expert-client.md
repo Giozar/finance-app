@@ -8,6 +8,8 @@ model: inherit
 
 ## Migración vigente
 
+- `externalEntities`: `ExternalEntityOperations` → `ExternalEntityUseCase` → `ExternalEntityGateway` → `ExternalEntityService` (socket).
+
 - `categories`: `CategoryOperations` → `CategoryUseCase` → `CategoryGateway` → `CategoryService` (socket).
 
 - `users`: `UserOperations` → `UserUseCase` → `UserGateway` → `UserService` (socket).

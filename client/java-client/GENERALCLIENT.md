@@ -59,7 +59,10 @@ src/main/java/com/giozar04/client-explanation.md
 src/main/java/com/giozar04/configs/AppConfig.java
 src/main/java/com/giozar04/configs/ServerConnectionConfig.java
 src/main/java/com/giozar04/dashboard/presentation/views/MainDashboardView.java
-src/main/java/com/giozar04/externalEntities/infrastructure/services/ExternalEntityService.java
+src/main/java/com/giozar04/externalEntities/application/ports/input/ExternalEntityOperations.java
+src/main/java/com/giozar04/externalEntities/application/ports/output/ExternalEntityGateway.java
+src/main/java/com/giozar04/externalEntities/application/usecases/ExternalEntityUseCase.java
+src/main/java/com/giozar04/externalEntities/infrastructure/transport/socket/ExternalEntityService.java
 src/main/java/com/giozar04/externalEntities/presentation/components/ExternalEntityFormPanel.java
 src/main/java/com/giozar04/externalEntities/presentation/views/CreateExternalEntityView.java
 src/main/java/com/giozar04/externalEntities/presentation/views/ExternalEntitiesView.java

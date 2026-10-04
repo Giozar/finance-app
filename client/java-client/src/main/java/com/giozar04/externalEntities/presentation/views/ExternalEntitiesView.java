@@ -20,7 +20,8 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 
 import com.giozar04.externalEntities.domain.entities.ExternalEntity;
-import com.giozar04.externalEntities.infrastructure.services.ExternalEntityService;
+import com.giozar04.externalEntities.application.ports.input.ExternalEntityOperations;
+import com.giozar04.bootstrap.ClientUseCases;
 import com.giozar04.externalEntities.presentation.components.ExternalEntityFormPanel;
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
 import com.giozar04.shared.components.MainContentPanel;
@@ -33,12 +34,12 @@ import com.giozar04.shared.utils.DialogUtil;
 
 public class ExternalEntitiesView extends JPanel implements PopupMenuActionHandler {
 
-    private final ExternalEntityService externalEntityService;
+    private final ExternalEntityOperations externalEntityService;
     private JTextField searchField;
     private GenericTablePanel<ExternalEntity> tablePanel;
 
     public ExternalEntitiesView() {
-        externalEntityService = ExternalEntityService.getInstance();
+        externalEntityService = ClientUseCases.get(ExternalEntityOperations.class);
 
         setLayout(new BorderLayout());
         setBorder(new EmptyBorder(10, 10, 10, 10));

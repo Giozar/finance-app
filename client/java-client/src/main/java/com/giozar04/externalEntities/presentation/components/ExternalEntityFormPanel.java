@@ -16,7 +16,8 @@ import javax.swing.border.EmptyBorder;
 
 import com.giozar04.externalEntities.domain.entities.ExternalEntity;
 import com.giozar04.externalEntities.domain.enums.ExternalEntityTypes;
-import com.giozar04.externalEntities.infrastructure.services.ExternalEntityService;
+import com.giozar04.externalEntities.application.ports.input.ExternalEntityOperations;
+import com.giozar04.bootstrap.ClientUseCases;
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
 import com.giozar04.shared.components.forms.FormComboBox;
 import com.giozar04.shared.components.forms.FormField;
@@ -132,10 +133,10 @@ public class ExternalEntityFormPanel extends JPanel {
         try {
             ExternalEntity saved;
             if (currentEntity == null) {
-                saved = ExternalEntityService.getInstance().createExternalEntity(entity);
+                saved = ClientUseCases.get(ExternalEntityOperations.class).createExternalEntity(entity);
                 DialogUtil.showSuccess(this, "Entidad externa creada exitosamente.");
             } else {
-                saved = ExternalEntityService.getInstance().updateExternalEntityById(entity.getId(), entity);
+                saved = ClientUseCases.get(ExternalEntityOperations.class).updateExternalEntityById(entity.getId(), entity);
                 DialogUtil.showSuccess(this, "Entidad externa actualizada exitosamente.");
             }
             clearForm();

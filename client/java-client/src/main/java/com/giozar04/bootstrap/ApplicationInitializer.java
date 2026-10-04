@@ -14,7 +14,9 @@ import com.giozar04.categories.infrastructure.transport.socket.CategoryService;
 import com.giozar04.categories.application.usecases.CategoryUseCase;
 import com.giozar04.categories.application.ports.input.CategoryOperations;
 import com.giozar04.configs.ServerConnectionConfig;
-import com.giozar04.externalEntities.infrastructure.services.ExternalEntityService;
+import com.giozar04.externalEntities.infrastructure.transport.socket.ExternalEntityService;
+import com.giozar04.externalEntities.application.usecases.ExternalEntityUseCase;
+import com.giozar04.externalEntities.application.ports.input.ExternalEntityOperations;
 import com.giozar04.logging.infrastructure.ConsoleLogger;
 import com.giozar04.serverConnection.application.services.ServerConnectionService;
 import com.giozar04.shared.layouts.AppLayout;
@@ -88,6 +90,7 @@ public class ApplicationInitializer {
             System.out.println("✅ Servicio de etiquetas conectado correctamente.");
 
             this.externalEntityService = ExternalEntityService.connectService(connectionService);
+            ClientUseCases.register(ExternalEntityOperations.class, new ExternalEntityUseCase(ExternalEntityService.getInstance()));
             System.out.println("✅ Servicio de entidades externas conectado correctamente");
 
             this.transactionService = TransactionService.connectService(connectionService);

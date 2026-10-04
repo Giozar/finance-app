@@ -1,4 +1,4 @@
-package com.giozar04.externalEntities.infrastructure.services;
+package com.giozar04.externalEntities.infrastructure.transport.socket;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,13 +10,14 @@ import com.giozar04.externalEntities.application.exceptions.ExternalEntityCreati
 import com.giozar04.externalEntities.application.exceptions.ExternalEntityDeletionException;
 import com.giozar04.externalEntities.application.exceptions.ExternalEntityRetrievalException;
 import com.giozar04.externalEntities.application.exceptions.ExternalEntityUpdateException;
+import com.giozar04.externalEntities.application.ports.output.ExternalEntityGateway;
 import com.giozar04.logging.infrastructure.ConsoleLogger;
 import com.giozar04.messages.infrastructure.transport.Message;
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
 import com.giozar04.serverConnection.application.services.ServerConnectionService;
 import com.giozar04.serverConnection.application.validators.ServerResponseValidator;
 
-public class ExternalEntityService {
+public class ExternalEntityService implements ExternalEntityGateway {
 
     private final ServerConnectionService serverConnectionService;
     private static final ConsoleLogger logger = ConsoleLogger.getInstance();

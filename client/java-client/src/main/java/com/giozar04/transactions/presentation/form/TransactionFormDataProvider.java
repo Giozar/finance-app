@@ -20,7 +20,8 @@ import com.giozar04.categories.domain.enums.CategoryTypes;
 import com.giozar04.categories.application.ports.input.CategoryOperations;
 import com.giozar04.bootstrap.ClientUseCases;
 import com.giozar04.externalEntities.domain.entities.ExternalEntity;
-import com.giozar04.externalEntities.infrastructure.services.ExternalEntityService;
+import com.giozar04.externalEntities.application.ports.input.ExternalEntityOperations;
+import com.giozar04.bootstrap.ClientUseCases;
 import com.giozar04.logging.infrastructure.ConsoleLogger;
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
 import com.giozar04.tags.domain.entities.Tag;
@@ -102,7 +103,7 @@ public class TransactionFormDataProvider {
             reportError("Error al cargar las etiquetas del usuario: " + e.getMessage());
         }
         try {
-            externalEntities = new ArrayList<>(ExternalEntityService.getInstance().getExternalEntitiesByUserId(newUserId));
+            externalEntities = new ArrayList<>(ClientUseCases.get(ExternalEntityOperations.class).getExternalEntitiesByUserId(newUserId));
         } catch (ClientOperationException | RuntimeException e) {
             reportError("Error al cargar las entidades externas del usuario: " + e.getMessage());
         }
