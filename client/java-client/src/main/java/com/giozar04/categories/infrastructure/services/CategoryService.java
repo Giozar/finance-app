@@ -121,4 +121,40 @@ public class CategoryService {
             throw new CategoryExceptions.CategoryRetrievalException("Error al esperar respuesta del servidor", e);
         }
     }
+
+    @SuppressWarnings("unchecked")
+    public List<Category> getCategoriesByUserId(long userId) throws ClientOperationException {
+        logger.info("Solicitando categorías del usuario " + userId + "...");
+        Message message = new Message();
+        message.setType("GET_CATEGORIES_BY_USER");
+        message.addData("userId", userId);
+
+        serverConnectionService.sendMessage(message);
+        try {
+            Message response = serverConnectionService.waitForMessage("GET_CATEGORIES_BY_USER");
+            ServerResponseValidator.validateResponse(response);
+            Object raw = response.getData("categories");
+
+            if (raw == null) {
+                throw new CategoryExceptions.CategoryRetrievalException("Lista de categorías vacía", null);
+            }
+
+            if (raw instanceof List<?> rawList) {
+                List<Category> categories = new ArrayList<>();
+                for (Object item : rawList) {
+                    if (item instanceof Map<?, ?> map) {
+                        categories.add(CategoryUtils.mapToCategory((Map<String, Object>) map));
+                    }
+                }
+                logger.info("Categorías del usuario obtenidas correctamente. Total: " + categories.size());
+                return categories;
+            } else {
+                throw new CategoryExceptions.CategoryRetrievalException("Formato inesperado: " + raw.getClass().getName(), null);
+            }
+
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new CategoryExceptions.CategoryRetrievalException("Error al esperar respuesta del servidor", e);
+        }
+    }
 }

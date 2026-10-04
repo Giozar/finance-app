@@ -141,4 +141,40 @@ public class AccountService {
             throw new AccountExceptions.AccountRetrievalException("Error al esperar respuesta del servidor", e);
         }
     }
+
+    @SuppressWarnings("unchecked")
+    public List<Account> getAccountsByUserId(long userId) throws ClientOperationException {
+        logger.info("Solicitando cuentas del usuario " + userId + "...");
+        Message message = new Message();
+        message.setType("GET_ACCOUNTS_BY_USER");
+        message.addData("userId", userId);
+
+        serverConnectionService.sendMessage(message);
+        try {
+            Message response = serverConnectionService.waitForMessage("GET_ACCOUNTS_BY_USER");
+            ServerResponseValidator.validateResponse(response);
+            Object raw = response.getData("accounts");
+
+            if (raw == null) {
+                throw new AccountExceptions.AccountRetrievalException("Lista de cuentas vacía", null);
+            }
+
+            if (raw instanceof List<?> rawList) {
+                List<Account> accounts = new ArrayList<>();
+                for (Object item : rawList) {
+                    if (item instanceof Map<?, ?> map) {
+                        accounts.add(AccountUtils.mapToAccount((Map<String, Object>) map));
+                    }
+                }
+                logger.info("Cuentas del usuario obtenidas correctamente. Total: " + accounts.size());
+                return accounts;
+            } else {
+                throw new AccountExceptions.AccountParsingException("Formato inesperado: " + raw.getClass().getName(), null);
+            }
+
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new AccountExceptions.AccountRetrievalException("Error al esperar respuesta del servidor", e);
+        }
+    }
 }

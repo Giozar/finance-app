@@ -121,4 +121,40 @@ public class ExternalEntityService {
             throw new ExternalEntityExceptions.ExternalEntityRetrievalException("Error al esperar respuesta del servidor", e);
         }
     }
+
+    @SuppressWarnings("unchecked")
+    public List<ExternalEntity> getExternalEntitiesByUserId(long userId) throws ClientOperationException {
+        logger.info("Solicitando entidades externas del usuario " + userId + "...");
+        Message message = new Message();
+        message.setType("GET_EXTERNAL_ENTITIES_BY_USER");
+        message.addData("userId", userId);
+
+        serverConnectionService.sendMessage(message);
+        try {
+            Message response = serverConnectionService.waitForMessage("GET_EXTERNAL_ENTITIES_BY_USER");
+            ServerResponseValidator.validateResponse(response);
+            Object raw = response.getData("externalEntities");
+
+            if (raw == null) {
+                throw new ExternalEntityExceptions.ExternalEntityRetrievalException("Lista vacía", null);
+            }
+
+            if (raw instanceof List<?> rawList) {
+                List<ExternalEntity> entities = new ArrayList<>();
+                for (Object item : rawList) {
+                    if (item instanceof Map<?, ?> map) {
+                        entities.add(ExternalEntityUtils.mapToExternalEntity((Map<String, Object>) map));
+                    }
+                }
+                logger.info("Entidades externas del usuario obtenidas correctamente. Total: " + entities.size());
+                return entities;
+            } else {
+                throw new ExternalEntityExceptions.ExternalEntityRetrievalException("Formato inesperado: " + raw.getClass().getName(), null);
+            }
+
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new ExternalEntityExceptions.ExternalEntityRetrievalException("Error al esperar respuesta del servidor", e);
+        }
+    }
 }

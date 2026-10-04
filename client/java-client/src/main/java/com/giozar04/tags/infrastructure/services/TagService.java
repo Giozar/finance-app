@@ -121,4 +121,40 @@ public class TagService {
             throw new TagExceptions.TagRetrievalException("Error al esperar respuesta del servidor", e);
         }
     }
+
+    @SuppressWarnings("unchecked")
+    public List<Tag> getTagsByUserId(long userId) throws ClientOperationException {
+        logger.info("Solicitando etiquetas del usuario " + userId + "...");
+        Message message = new Message();
+        message.setType("GET_TAGS_BY_USER");
+        message.addData("userId", userId);
+
+        serverConnectionService.sendMessage(message);
+        try {
+            Message response = serverConnectionService.waitForMessage("GET_TAGS_BY_USER");
+            ServerResponseValidator.validateResponse(response);
+            Object raw = response.getData("tags");
+
+            if (raw == null) {
+                throw new TagExceptions.TagRetrievalException("Lista de etiquetas vacía", null);
+            }
+
+            if (raw instanceof List<?> rawList) {
+                List<Tag> tags = new ArrayList<>();
+                for (Object item : rawList) {
+                    if (item instanceof Map<?, ?> map) {
+                        tags.add(TagUtils.mapToTag((Map<String, Object>) map));
+                    }
+                }
+                logger.info("Etiquetas del usuario obtenidas correctamente. Total: " + tags.size());
+                return tags;
+            } else {
+                throw new TagExceptions.TagRetrievalException("Formato inesperado: " + raw.getClass().getName(), null);
+            }
+
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new TagExceptions.TagRetrievalException("Error al esperar respuesta del servidor", e);
+        }
+    }
 }

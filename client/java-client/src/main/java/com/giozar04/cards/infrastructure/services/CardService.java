@@ -121,4 +121,40 @@ public class CardService {
             throw new CardExceptions.CardRetrievalException("Error al esperar respuesta del servidor", e);
         }
     }
+
+    @SuppressWarnings("unchecked")
+    public List<Card> getCardsByAccountId(long accountId) throws ClientOperationException {
+        logger.info("Solicitando tarjetas de la cuenta " + accountId + "...");
+        Message message = new Message();
+        message.setType("GET_CARDS_BY_ACCOUNT");
+        message.addData("accountId", accountId);
+
+        serverConnectionService.sendMessage(message);
+        try {
+            Message response = serverConnectionService.waitForMessage("GET_CARDS_BY_ACCOUNT");
+            ServerResponseValidator.validateResponse(response);
+            Object raw = response.getData("cards");
+
+            if (raw == null) {
+                throw new CardExceptions.CardRetrievalException("Lista de tarjetas vacía", null);
+            }
+
+            if (raw instanceof List<?> rawList) {
+                List<Card> cards = new ArrayList<>();
+                for (Object item : rawList) {
+                    if (item instanceof Map<?, ?> map) {
+                        cards.add(CardUtils.mapToCard((Map<String, Object>) map));
+                    }
+                }
+                logger.info("Tarjetas de la cuenta obtenidas correctamente. Total: " + cards.size());
+                return cards;
+            } else {
+                throw new CardExceptions.CardParsingException("Formato inesperado: " + raw.getClass().getName(), null);
+            }
+
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new CardExceptions.CardRetrievalException("Error al esperar respuesta del servidor", e);
+        }
+    }
 }
