@@ -7,6 +7,7 @@ import java.awt.FlowLayout;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -37,6 +38,10 @@ public class TagFormPanel extends JPanel {
     private final JButton cancelButton;
 
     private Tag currentTag;
+
+    // --- Alta rápida (QuickCreateDialog) ---
+    private Consumer<Tag> onSaved;
+    private User presetUser;
 
     public TagFormPanel() {
         setLayout(new BorderLayout(10, 10));
@@ -113,14 +118,18 @@ public class TagFormPanel extends JPanel {
         tag.setUpdatedAt(ZonedDateTime.now());
 
         try {
+            Tag savedTag;
             if (currentTag == null) {
-                TagService.getInstance().createTag(tag);
+                savedTag = TagService.getInstance().createTag(tag);
                 DialogUtil.showSuccess(this, "Etiqueta creada exitosamente.");
             } else {
-                TagService.getInstance().updateTagById(tag.getId(), tag);
+                savedTag = TagService.getInstance().updateTagById(tag.getId(), tag);
                 DialogUtil.showSuccess(this, "Etiqueta actualizada exitosamente.");
             }
             clearForm();
+            if (onSaved != null) {
+                onSaved.accept(savedTag);
+            }
         } catch (ClientOperationException ex) {
             DialogUtil.showError(this, "Error al guardar la etiqueta: " + ex.getMessage());
         }
@@ -128,13 +137,7 @@ public class TagFormPanel extends JPanel {
 
     public void loadTag(Tag tag) {
         this.currentTag = tag;
-        for (int i = 0; i < userCombo.getItemCount(); i++) {
-            User u = userCombo.getItemAt(i);
-            if (u.getId() == tag.getUserId()) {
-                userCombo.setSelectedItem(u);
-                break;
-            }
-        }
+        selectUser(tag.getUserId());
         nameField.setValue(tag.getName());
         if (tag.getColor() != null) {
             colorPicker.setColor(Color.decode(tag.getColor()));
@@ -143,8 +146,44 @@ public class TagFormPanel extends JPanel {
 
     public void clearForm() {
         currentTag = null;
-        userCombo.clearSelection();
+        if (presetUser != null) {
+            selectUser(presetUser.getId());
+        } else {
+            userCombo.clearSelection();
+        }
         nameField.clear();
         colorPicker.clear();
+    }
+
+    /**
+     * Callback que recibe la etiqueta devuelta por el servidor tras guardar con éxito
+     * (lo usa {@code QuickCreateDialog}). Con {@code null} se desactiva.
+     */
+    public void setOnSaved(Consumer<Tag> onSaved) {
+        this.onSaved = onSaved;
+    }
+
+    /**
+     * Preselecciona el usuario propietario; si {@code lock} es true, no se puede cambiar.
+     * Se mantiene al limpiar el formulario.
+     */
+    public void presetUser(User user, boolean lock) {
+        this.presetUser = user;
+        if (user != null) {
+            selectUser(user.getId());
+        } else {
+            userCombo.clearSelection();
+        }
+        userCombo.getComboBox().setEnabled(!(lock && user != null));
+    }
+
+    private void selectUser(long userId) {
+        for (int i = 0; i < userCombo.getItemCount(); i++) {
+            User u = userCombo.getItemAt(i);
+            if (u != null && u.getId() == userId) {
+                userCombo.setSelectedItem(u);
+                break;
+            }
+        }
     }
 }

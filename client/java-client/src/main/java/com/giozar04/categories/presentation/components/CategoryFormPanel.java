@@ -6,6 +6,7 @@ import java.awt.FlowLayout;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -37,6 +38,11 @@ public class CategoryFormPanel extends JPanel {
     private final JButton cancelButton;
 
     private Category currentCategory;
+
+    // --- Alta rápida (QuickCreateDialog) ---
+    private Consumer<Category> onSaved;
+    private User presetUser;
+    private CategoryTypes presetType;
 
     public CategoryFormPanel() {
         setLayout(new BorderLayout(10, 10));
@@ -124,14 +130,18 @@ public class CategoryFormPanel extends JPanel {
         category.setUpdatedAt(ZonedDateTime.now());
 
         try {
+            Category saved;
             if (currentCategory == null) {
-                CategoryService.getInstance().createCategory(category);
+                saved = CategoryService.getInstance().createCategory(category);
                 DialogUtil.showSuccess(this, "Categoría creada exitosamente.");
             } else {
-                CategoryService.getInstance().updateCategoryById(category.getId(), category);
+                saved = CategoryService.getInstance().updateCategoryById(category.getId(), category);
                 DialogUtil.showSuccess(this, "Categoría actualizada exitosamente.");
             }
             clearForm();
+            if (onSaved != null) {
+                onSaved.accept(saved);
+            }
         } catch (ClientOperationException ex) {
             DialogUtil.showError(this, "Error al guardar la categoría: " + ex.getMessage());
         }
@@ -139,13 +149,7 @@ public class CategoryFormPanel extends JPanel {
 
     public void loadCategory(Category category) {
         this.currentCategory = category;
-        for (int i = 0; i < userCombo.getItemCount(); i++) {
-            User u = userCombo.getItemAt(i);
-            if (u.getId() == category.getUserId()) {
-                userCombo.setSelectedItem(u);
-                break;
-            }
-        }
+        selectUser(category.getUserId());
         nameField.setValue(category.getName());
         iconField.setValue(category.getIcon());
         typeCombo.setSelectedItem(category.getType());
@@ -153,9 +157,59 @@ public class CategoryFormPanel extends JPanel {
 
     public void clearForm() {
         currentCategory = null;
-        userCombo.clearSelection();
+        if (presetUser != null) {
+            selectUser(presetUser.getId());
+        } else {
+            userCombo.clearSelection();
+        }
         nameField.clear();
         iconField.clear();
-        typeCombo.clearSelection();
+        if (presetType != null) {
+            typeCombo.setSelectedItem(presetType);
+        } else {
+            typeCombo.clearSelection();
+        }
+    }
+
+    /**
+     * Callback que recibe la categoría devuelta por el servidor tras guardar con éxito
+     * (lo usa {@code QuickCreateDialog}). Con {@code null} se desactiva.
+     */
+    public void setOnSaved(Consumer<Category> onSaved) {
+        this.onSaved = onSaved;
+    }
+
+    /**
+     * Preselecciona el usuario propietario; si {@code lock} es true, no se puede cambiar.
+     * Se mantiene al limpiar el formulario.
+     */
+    public void presetUser(User user, boolean lock) {
+        this.presetUser = user;
+        if (user != null) {
+            selectUser(user.getId());
+        } else {
+            userCombo.clearSelection();
+        }
+        userCombo.getComboBox().setEnabled(!(lock && user != null));
+    }
+
+    /** Preselecciona el tipo (sigue siendo editable). Se mantiene al limpiar el formulario. */
+    public void presetType(CategoryTypes type) {
+        this.presetType = type;
+        if (type != null) {
+            typeCombo.setSelectedItem(type);
+        } else {
+            typeCombo.clearSelection();
+        }
+    }
+
+    private void selectUser(long userId) {
+        for (int i = 0; i < userCombo.getItemCount(); i++) {
+            User u = userCombo.getItemAt(i);
+            if (u != null && u.getId() == userId) {
+                userCombo.setSelectedItem(u);
+                break;
+            }
+        }
     }
 }

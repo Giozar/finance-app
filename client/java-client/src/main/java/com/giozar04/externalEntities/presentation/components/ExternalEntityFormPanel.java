@@ -6,6 +6,7 @@ import java.awt.FlowLayout;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -37,6 +38,11 @@ public class ExternalEntityFormPanel extends JPanel {
     private final JButton cancelButton;
 
     private ExternalEntity currentEntity;
+
+    // --- Alta rápida (QuickCreateDialog) ---
+    private Consumer<ExternalEntity> onSaved;
+    private User presetUser;
+    private ExternalEntityTypes presetType;
 
     public ExternalEntityFormPanel() {
         setLayout(new BorderLayout(10, 10));
@@ -123,14 +129,18 @@ public class ExternalEntityFormPanel extends JPanel {
         entity.setUpdatedAt(ZonedDateTime.now());
 
         try {
+            ExternalEntity saved;
             if (currentEntity == null) {
-                ExternalEntityService.getInstance().createExternalEntity(entity);
+                saved = ExternalEntityService.getInstance().createExternalEntity(entity);
                 DialogUtil.showSuccess(this, "Entidad externa creada exitosamente.");
             } else {
-                ExternalEntityService.getInstance().updateExternalEntityById(entity.getId(), entity);
+                saved = ExternalEntityService.getInstance().updateExternalEntityById(entity.getId(), entity);
                 DialogUtil.showSuccess(this, "Entidad externa actualizada exitosamente.");
             }
             clearForm();
+            if (onSaved != null) {
+                onSaved.accept(saved);
+            }
         } catch (ClientOperationException ex) {
             DialogUtil.showError(this, "Error al guardar la entidad externa: " + ex.getMessage());
         }
@@ -138,13 +148,7 @@ public class ExternalEntityFormPanel extends JPanel {
 
     public void loadExternalEntity(ExternalEntity entity) {
         this.currentEntity = entity;
-        for (int i = 0; i < userCombo.getItemCount(); i++) {
-            User u = userCombo.getItemAt(i);
-            if (u.getId() == entity.getUserId()) {
-                userCombo.setSelectedItem(u);
-                break;
-            }
-        }
+        selectUser(entity.getUserId());
         nameField.setValue(entity.getName());
         contactField.setValue(entity.getContact() != null ? entity.getContact() : "");
         typeCombo.setSelectedItem(entity.getType());
@@ -152,9 +156,59 @@ public class ExternalEntityFormPanel extends JPanel {
 
     public void clearForm() {
         currentEntity = null;
-        userCombo.clearSelection();
+        if (presetUser != null) {
+            selectUser(presetUser.getId());
+        } else {
+            userCombo.clearSelection();
+        }
         nameField.clear();
         contactField.clear();
-        typeCombo.clearSelection();
+        if (presetType != null) {
+            typeCombo.setSelectedItem(presetType);
+        } else {
+            typeCombo.clearSelection();
+        }
+    }
+
+    /**
+     * Callback que recibe la entidad externa devuelta por el servidor tras guardar con éxito
+     * (lo usa {@code QuickCreateDialog}). Con {@code null} se desactiva.
+     */
+    public void setOnSaved(Consumer<ExternalEntity> onSaved) {
+        this.onSaved = onSaved;
+    }
+
+    /**
+     * Preselecciona el usuario propietario; si {@code lock} es true, no se puede cambiar.
+     * Se mantiene al limpiar el formulario.
+     */
+    public void presetUser(User user, boolean lock) {
+        this.presetUser = user;
+        if (user != null) {
+            selectUser(user.getId());
+        } else {
+            userCombo.clearSelection();
+        }
+        userCombo.getComboBox().setEnabled(!(lock && user != null));
+    }
+
+    /** Preselecciona el tipo (sigue siendo editable). Se mantiene al limpiar el formulario. */
+    public void presetType(ExternalEntityTypes type) {
+        this.presetType = type;
+        if (type != null) {
+            typeCombo.setSelectedItem(type);
+        } else {
+            typeCombo.clearSelection();
+        }
+    }
+
+    private void selectUser(long userId) {
+        for (int i = 0; i < userCombo.getItemCount(); i++) {
+            User u = userCombo.getItemAt(i);
+            if (u != null && u.getId() == userId) {
+                userCombo.setSelectedItem(u);
+                break;
+            }
+        }
     }
 }

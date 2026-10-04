@@ -87,6 +87,10 @@ Notas de `accountReconciliations` y `accounts`:
 - `Account.openingBalance` / `openingCreditUsed` son de **solo lectura** (los fija la BD): se muestran en
   `BaseAccountDetailView` ("Saldo inicial") y `CreditAccountDetailView` ("Deuda inicial"); **nunca** se añaden a
   formularios.
+- **Saldos de solo lectura al editar**: "Balance actual" (`AccountFormPanel`) y "Deuda actual" (`creditUsed`, en
+  `CreditDetailsSubPanel`, validada ≥ 0 y ≤ límite) solo se capturan al **crear** la cuenta (el trigger los guarda
+  como estado inicial). Al **editar** son de solo lectura con el `FormHelpText` "Se modifica con transacciones o
+  desde Conciliación." y no se envían cambios (`applyEditMode(boolean)` / `CreditDetailsSubPanel.setEditMode`).
 - Importes en vistas: `String.format("$%,.2f", valor)`.
 - Navegación: `SidebarPanel` (array `menuItems`) + `case` en `AppLayout.navigate(...)`.
 
@@ -99,9 +103,24 @@ Notas de `accountReconciliations` y `accounts`:
 - `shared/` (componentes reutilizables del cliente, **revisar siempre primero**):
   - `layouts/AppLayout` – layout principal.
   - `components/`: `MainContentPanel` (contenedor de vistas, `setView(...)`), `SidebarPanel` (navegación),
-    `HeaderPanel`, `DatePickerComponent`, `CreditUsagePanel`.
+    `HeaderPanel`, `DatePickerComponent`, `CreditUsagePanel`, `QuickCreateDialog`.
   - `components/forms/`: `FormField`, `FormComboBox`, `FormTextArea`, `FormDateField`, `PercentageField`,
-    `FormLabel`, `ColorPickerField`.
+    `FormLabel`, `ColorPickerField`, `FormSearchComboBox`, `FormMultiSelectField`, `FormDateTimeField`,
+    `FormHelpText`.
+  - API de los componentes nuevos:
+    - `FormSearchComboBox<T>(label[, width, height])`: combo editable que filtra al escribir. Mismo API que
+      `FormComboBox` (`setPlaceholder`, `setItems`, `getSelectedItem`, `setSelectedItem`, `isSelectionValid`,
+      `clearSelection`, `addActionListener`, `setEnabled`) + `setDisplayFunction(Function<T,String>)`,
+      `setIdentityFunction(Function<T,?>)` (p. ej. `Category::getId`; las entidades no implementan `equals`),
+      `getItems/getItemCount/getItemAt`. Los listeners solo se disparan al cambiar la selección confirmada.
+    - `FormMultiSelectField<T>(label[, width, height])`: buscador + chips con ✕. `setItems`, `getSelectedItems`,
+      `setSelectedItems`, `addSelected(T)`, `clear`, `setOnCreateNew(Runnable)` (botón "+ Nueva"),
+      `setPlaceholder`, `setDisplayFunction`, `setIdentityFunction`, `addChangeListener`, `setEnabled`.
+    - `FormDateTimeField(label[, width, height])`: fecha + hora HH:mm. `getDateTime()` (`ZonedDateTime`, zona del
+      sistema), `setDateTime(ZonedDateTime)`, `clearToNow()`, `getZoneId()`.
+    - `FormHelpText(text, width)`: texto de ayuda gris alineado con la columna de campos; `setText`.
+    - `QuickCreateDialog.show(parent, title, form, form::setOnSaved)` → `Optional<T>` (modal; se cierra al guardar,
+      vacío si se cierra la ventana) y `open(parent, title, form, form::setOnSaved, onCreated)`.
   - `components/table/`: `GenericTablePanel<T>`, `GenericTableModel`, `ColumnDefinition<T>`,
     `OptionsCellRenderer`, `OptionsCellEditor`, `PopupMenuActionHandler`.
   - `utils/`: `DialogUtil` (`showError`, `showSuccess`, `showConfirm`), `FormValidatorUtils`
@@ -167,6 +186,11 @@ View / FormPanel → <F>Service.getInstance() → Message → servidor → respu
   `createdAt` (solo al crear) y `updatedAt`, y llamar a `<F>Service.getInstance().create.../update...ById`.
   Después `DialogUtil.showSuccess(...)` y `clearForm()`. Capturar `ClientOperationException` con `DialogUtil.showError`.
 - Métodos públicos `load<F>(x)` (rellena para editar) y `clearForm()`.
+- **Patrón quick-create** (alta "al vuelo" desde otra pantalla, sin duplicar formularios): `CategoryFormPanel`,
+  `TagFormPanel` y `ExternalEntityFormPanel` exponen `setOnSaved(Consumer<T>)` (recibe la entidad **devuelta** por el
+  servicio tras crear/actualizar), `presetUser(User, boolean lock)` y, en categorías/entidades, `presetType(...)`.
+  Los presets se conservan en `clearForm()`. Se abren con `QuickCreateDialog`. Sin callback ni presets se comportan
+  igual que en su módulo. Si otro catálogo necesita quick-create, añade los mismos métodos.
 
 **Subpaneles** (`presentation/components/subpanels/`) – referencia: subpaneles de `accounts`
 - Para secciones especializadas de formularios grandes, con contrato uniforme: `validate()`, `applyTo()`,

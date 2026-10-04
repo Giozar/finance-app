@@ -114,6 +114,29 @@ This approach improves maintainability and follows SOLID principles.
 * **Formal tone ("usted")**: every visible text (labels, placeholders, validation errors, dialogs) addresses the user as "usted", for example `"Seleccione un usuario..."`, `"Debe seleccionar un usuario propietario."` and `"Corrija los siguientes errores:"`.
 * **Enum-based options**: combo boxes and filters that list enum values must be built from `Enum.values()` (for example `OperationTypes.values()`), never from hard-coded arrays, so they stay in sync with `shared`. Display the enum label (`getLabel()`) and compare against the enum itself, not against fixed strings.
 * **Owner user selector**: entities that have a `userId` (accounts, tags, categories, external entities) include a `FormComboBox<User>` labeled `"Usuario propietario:"` as the first field, with placeholder `"Seleccione un usuario..."`. Users are loaded through `UserService.getInstance().getAllUsers()`, validation adds `"Debe seleccionar un usuario propietario."` when no valid selection exists, the selected user's id is assigned to `userId`, `loadX(...)` selects the matching user, and `clearForm()` clears the selection. References: `AccountFormPanel`, `TagFormPanel`.
+* **Opening balances are read-only when editing**: in `AccountFormPanel` the "Balance actual" field (and "Deuda actual" in `CreditDetailsSubPanel`) is captured only when **creating** an account (it becomes the opening state through the database trigger). When **editing**, both are read-only and show the help text `"Se modifica con transacciones o desde Conciliación."` (`FormHelpText`), so the account never goes out of balance.
+
+#### Quick-create pattern
+
+Catalog forms that other screens need to create "on the fly" (`CategoryFormPanel`, `TagFormPanel`, `ExternalEntityFormPanel`) are reused as-is inside a modal dialog instead of being duplicated. They expose:
+
+```java
+void setOnSaved(Consumer<T> onSaved)     // called after a successful create/update with the entity RETURNED by the service
+void presetUser(User user, boolean lock) // preselects the owner user; lock = disable the combo (kept after clearForm)
+void presetType(CategoryTypes type)      // CategoryFormPanel (ExternalEntityTypes in ExternalEntityFormPanel); still editable
+```
+
+Without a callback or presets the forms behave exactly as in their own module. Usage with `QuickCreateDialog`:
+
+```java
+CategoryFormPanel form = new CategoryFormPanel();
+form.presetUser(user, true);
+form.presetType(CategoryTypes.EXPENSE);
+QuickCreateDialog.show(this, "Nueva categoría", form, form::setOnSaved)
+        .ifPresent(category -> { reloadCategories(); categoryCombo.setSelectedItem(category); });
+```
+
+The dialog is modal (owner = the window of `parent`), closes as soon as the form calls `onSaved` and returns `Optional.empty()` if the user closes the window. `QuickCreateDialog.open(parent, title, form, form::setOnSaved, onCreated)` is the callback variant.
 
 ---
 
@@ -165,9 +188,18 @@ Reusable components include:
 * `FormTextArea`
 * `FormDateField`
 * `PercentageField`
+* `FormSearchComboBox` / `FormMultiSelectField` / `FormDateTimeField` / `FormHelpText` (see below)
+* `QuickCreateDialog`
 * `GenericTablePanel`
 * `DialogUtil`
 * `FormValidatorUtils`
+
+Search, multi-select and date-time fields (`shared/components/forms`):
+
+* `FormSearchComboBox<T>`: label + editable combo that filters while typing (by `toString()` or `setDisplayFunction(Function<T,String>)`). Same API as `FormComboBox` (`setPlaceholder`, `setItems`, `getSelectedItem`, `setSelectedItem`, `isSelectionValid`, `clearSelection`, `addActionListener`, `setEnabled`) plus `setIdentityFunction(Function<T,?>)` (e.g. `User::getId`, because entities do not implement `equals`), `getItems`, `getItemCount`, `getItemAt`. Listeners fire only when the confirmed selection changes, never while filtering. The placeholder is drawn as a hint, it is not a list item.
+* `FormMultiSelectField<T>`: label + search box + removable "chips" (✕). API: `setItems`, `getSelectedItems`, `setSelectedItems`, `addSelected(T)` (adds a newly created item already selected), `clear`, `setOnCreateNew(Runnable)` (shows "+ Nueva"), `setPlaceholder`, `setDisplayFunction`, `setIdentityFunction`, `addChangeListener`, `setEnabled`.
+* `FormDateTimeField`: label + `DatePickerComponent` + `HH:mm` spinner. `getDateTime()` returns a `ZonedDateTime` in the system zone, `setDateTime(ZonedDateTime)` (converted to the system zone keeping the instant), `clearToNow()`, `getZoneId()`.
+* `FormHelpText`: small grey help text aligned with the field column (`new FormHelpText(text, width)`, `setText`).
 
 Before creating a new component, this folder should always be reviewed first to avoid code duplication and encourage reuse. 
 
