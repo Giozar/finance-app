@@ -1,3 +1,5 @@
+> Migración por features: consulte [ARCHITECTURE.md](../../../../../../../ARCHITECTURE.md), [MIGRATION.md](../../../../../../../MIGRATION.md) y [AGENTS.md](../../../../../../../AGENTS.md). Las features pendientes conservan la estructura documentada aquí.
+
 # Implementing a New Feature in the Backend
 
 The project is organized using a layered architecture and divided into different modules. At a high level, the system consists of a backend, a frontend, and a shared RMI module containing common elements used by both sides of the application. Because of this, some classes or definitions are not located directly inside the backend but rather inside the shared project.

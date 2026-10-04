@@ -1,3 +1,13 @@
+# Finance app
+
+Aplicación de finanzas personales en Java 17: cliente Swing, servidor mediante sockets
+con mensajes JSON y persistencia MySQL.
+
+[Arquitectura](ARCHITECTURE.md) · [Migración](MIGRATION.md) · [Índice](GENERAL.md) · [Agentes](AGENTS.md)
+
+Verificación de los contratos de shared y compilación de los tres módulos:
+`python3 scripts/verify_shared.py` (Python 3 y JDK 17, sin iniciar MySQL).
+
 # Configuración de Base de Datos MySQL con Docker
 
 Este proyecto utiliza **MySQL** como motor de base de datos, ejecutado dentro de un contenedor **Docker** para facilitar la instalación.
@@ -88,7 +98,7 @@ La definición de las tablas no se encuentra directamente en este archivo.
 Los scripts SQL se ubican en:
 
 ```text
-database/schema.sql
+database/schemas.sql
 ```
 
 

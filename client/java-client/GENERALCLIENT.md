@@ -1,226 +1,129 @@
-# The client project has the following structure:
-├── client
-│   ├── java-client
-│   │   ├── GENERALCLIENT.md
-│   │   ├── pom.xml
-│   │   ├── .gitignore
-│   │   ├── src
-│   │   │   ├── test
-│   │   │   │   ├── java
-│   │   │   │   │   ├── TestTable.java
-│   │   │   ├── main
-│   │   │   │   ├── resources
-│   │   │   │   │   ├── config.properties
-│   │   │   │   │   ├── config.example.properties
-│   │   │   │   ├── java
-│   │   │   │   │   ├── com
-│   │   │   │   │   │   ├── giozar04
-│   │   │   │   │   │   │   ├── walletCardLinks
-│   │   │   │   │   │   │   │   ├── infrastructure
-│   │   │   │   │   │   │   │   │   ├── services
-│   │   │   │   │   │   │   │   │   │   ├── WalletCardLinkService.java
-│   │   │   │   │   │   │   ├── client-explanation.md
-│   │   │   │   │   │   │   ├── walletTransactionDetails
-│   │   │   │   │   │   │   │   ├── infrastructure
-│   │   │   │   │   │   │   │   │   ├── services
-│   │   │   │   │   │   │   │   │   │   ├── WalletTransactionDetailService.java
-│   │   │   │   │   │   │   ├── bootstrap
-│   │   │   │   │   │   │   │   ├── ApplicationInitializer.java
-│   │   │   │   │   │   │   ├── cardTransactionDetails
-│   │   │   │   │   │   │   │   ├── infrastructure
-│   │   │   │   │   │   │   │   │   ├── services
-│   │   │   │   │   │   │   │   │   │   ├── CardTransactionDetailService.java
-│   │   │   │   │   │   │   ├── accountReconciliations
-│   │   │   │   │   │   │   │   ├── infrastructure
-│   │   │   │   │   │   │   │   │   ├── services
-│   │   │   │   │   │   │   │   │   │   ├── AccountReconciliationService.java
-│   │   │   │   │   │   │   │   ├── presentation
-│   │   │   │   │   │   │   │   │   ├── views
-│   │   │   │   │   │   │   │   │   │   ├── AccountReconciliationsView.java
-│   │   │   │   │   │   │   ├── accountCashbackSettings
-│   │   │   │   │   │   │   │   ├── infrastructure
-│   │   │   │   │   │   │   │   │   ├── services
-│   │   │   │   │   │   │   │   │   │   ├── AccountCashbackSettingService.java
-│   │   │   │   │   │   │   ├── cards
-│   │   │   │   │   │   │   │   ├── test
-│   │   │   │   │   │   │   │   │   ├── CardCreationTest.java
-│   │   │   │   │   │   │   │   ├── infrastructure
-│   │   │   │   │   │   │   │   │   ├── services
-│   │   │   │   │   │   │   │   │   │   ├── CardService.java
-│   │   │   │   │   │   │   │   ├── presentation
-│   │   │   │   │   │   │   │   │   ├── components
-│   │   │   │   │   │   │   │   │   │   ├── CardFormPanel.java
-│   │   │   │   │   │   │   │   │   ├── views
-│   │   │   │   │   │   │   │   │   │   ├── CardsView.java
-│   │   │   │   │   │   │   │   │   │   ├── CreateCardView.java
-│   │   │   │   │   │   │   ├── shared
-│   │   │   │   │   │   │   │   ├── utils
-│   │   │   │   │   │   │   │   │   ├── DialogUtil.java
-│   │   │   │   │   │   │   │   │   ├── FormValidatorUtils.java
-│   │   │   │   │   │   │   │   ├── components
-│   │   │   │   │   │   │   │   │   ├── MainContentPanel.java
-│   │   │   │   │   │   │   │   │   ├── forms
-│   │   │   │   │   │   │   │   │   │   ├── FormDateField.java
-│   │   │   │   │   │   │   │   │   │   ├── FormTextArea.java
-│   │   │   │   │   │   │   │   │   │   ├── FormComboBox.java
-│   │   │   │   │   │   │   │   │   │   ├── FormField.java
-│   │   │   │   │   │   │   │   │   │   ├── PercentageField.java
-│   │   │   │   │   │   │   │   │   │   ├── FormLabel.java
-│   │   │   │   │   │   │   │   │   │   ├── ColorPickerField.java
-│   │   │   │   │   │   │   │   │   │   ├── FormSearchComboBox.java
-│   │   │   │   │   │   │   │   │   │   ├── FormMultiSelectField.java
-│   │   │   │   │   │   │   │   │   │   ├── FormDateTimeField.java
-│   │   │   │   │   │   │   │   │   │   ├── FormHelpText.java
-│   │   │   │   │   │   │   │   │   ├── HeaderPanel.java
-│   │   │   │   │   │   │   │   │   ├── table
-│   │   │   │   │   │   │   │   │   │   ├── OptionsCellEditor.java
-│   │   │   │   │   │   │   │   │   │   ├── OptionsCellRenderer.java
-│   │   │   │   │   │   │   │   │   │   ├── GenericTablePanel.java
-│   │   │   │   │   │   │   │   │   │   ├── GenericTableModel.java
-│   │   │   │   │   │   │   │   │   │   ├── PopupMenuActionHandler.java
-│   │   │   │   │   │   │   │   │   │   ├── ColumnDefinition.java
-│   │   │   │   │   │   │   │   │   ├── CreditUsagePanel.java
-│   │   │   │   │   │   │   │   │   ├── SidebarPanel.java
-│   │   │   │   │   │   │   │   │   ├── DatePickerComponent.java
-│   │   │   │   │   │   │   │   │   ├── QuickCreateDialog.java
-│   │   │   │   │   │   │   │   ├── layouts
-│   │   │   │   │   │   │   │   │   ├── AppLayout.java
-│   │   │   │   │   │   │   ├── bankClients
-│   │   │   │   │   │   │   │   ├── test
-│   │   │   │   │   │   │   │   │   ├── BankClientFunctionalTest.java
-│   │   │   │   │   │   │   │   │   ├── BankClientGuiFunctionalTest.java
-│   │   │   │   │   │   │   │   ├── infrastructure
-│   │   │   │   │   │   │   │   │   ├── services
-│   │   │   │   │   │   │   │   │   │   ├── BankClientService.java
-│   │   │   │   │   │   │   │   ├── presentation
-│   │   │   │   │   │   │   │   │   ├── components
-│   │   │   │   │   │   │   │   │   │   ├── BankNameCellRenderer.java
-│   │   │   │   │   │   │   │   │   │   ├── BankClientFormPanel.java
-│   │   │   │   │   │   │   │   │   ├── views
-│   │   │   │   │   │   │   │   │   │   ├── CreateBankClientView.java
-│   │   │   │   │   │   │   │   │   │   ├── BankClientsView.java
-│   │   │   │   │   │   │   ├── tags
-│   │   │   │   │   │   │   │   ├── infrastructure
-│   │   │   │   │   │   │   │   │   ├── services
-│   │   │   │   │   │   │   │   │   │   ├── TagService.java
-│   │   │   │   │   │   │   │   ├── presentation
-│   │   │   │   │   │   │   │   │   ├── components
-│   │   │   │   │   │   │   │   │   │   ├── TagFormPanel.java
-│   │   │   │   │   │   │   │   │   ├── views
-│   │   │   │   │   │   │   │   │   │   ├── CreateTagView.java
-│   │   │   │   │   │   │   │   │   │   ├── TagsView.java
-│   │   │   │   │   │   │   ├── dashboard
-│   │   │   │   │   │   │   │   ├── presentation
-│   │   │   │   │   │   │   │   │   ├── views
-│   │   │   │   │   │   │   │   │   │   ├── MainDashboardView.java
-│   │   │   │   │   │   │   ├── transactions
-│   │   │   │   │   │   │   │   ├── infrastructure
-│   │   │   │   │   │   │   │   │   ├── services
-│   │   │   │   │   │   │   │   │   │   ├── TransactionService.java
-│   │   │   │   │   │   │   │   ├── presentation
-│   │   │   │   │   │   │   │   │   ├── form
-│   │   │   │   │   │   │   │   │   │   ├── TransactionFormContext.java
-│   │   │   │   │   │   │   │   │   │   ├── TransactionFormDataProvider.java
-│   │   │   │   │   │   │   │   │   │   ├── PaymentMethodPolicy.java
-│   │   │   │   │   │   │   │   │   │   ├── TransactionFormSection.java
-│   │   │   │   │   │   │   │   │   ├── components
-│   │   │   │   │   │   │   │   │   │   ├── sections
-│   │   │   │   │   │   │   │   │   │   │   ├── AbstractTransactionSection.java
-│   │   │   │   │   │   │   │   │   │   │   ├── OperationSection.java
-│   │   │   │   │   │   │   │   │   │   │   ├── PartiesSection.java
-│   │   │   │   │   │   │   │   │   │   │   ├── PaymentMethodSection.java
-│   │   │   │   │   │   │   │   │   │   │   ├── CardDetailsSection.java
-│   │   │   │   │   │   │   │   │   │   │   ├── WalletDetailsSection.java
-│   │   │   │   │   │   │   │   │   │   │   ├── ClassificationSection.java
-│   │   │   │   │   │   │   │   │   │   │   ├── GeneralInfoSection.java
-│   │   │   │   │   │   │   │   │   │   ├── TransactionFormPanel.java
-│   │   │   │   │   │   │   │   │   │   ├── AccountPickerField.java
-│   │   │   │   │   │   │   │   │   │   ├── CreatableSearchField.java
-│   │   │   │   │   │   │   │   │   │   ├── TransactionNameLookup.java
-│   │   │   │   │   │   │   │   │   │   ├── TransactionDetailsDialog.java
-│   │   │   │   │   │   │   │   │   │   ├── TransactionTypeCellRenderer.java
-│   │   │   │   │   │   │   │   │   │   ├── PaymentMethodCellRenderer.java
-│   │   │   │   │   │   │   │   │   ├── views
-│   │   │   │   │   │   │   │   │   │   ├── CreateTransactionView.java
-│   │   │   │   │   │   │   │   │   │   ├── TransactionsView.java
-│   │   │   │   │   │   │   ├── accounts
-│   │   │   │   │   │   │   │   ├── test
-│   │   │   │   │   │   │   │   │   ├── AccountFunctionalTest.java
-│   │   │   │   │   │   │   │   │   ├── AccountGuiFunctionalTest.java
-│   │   │   │   │   │   │   │   ├── infrastructure
-│   │   │   │   │   │   │   │   │   ├── services
-│   │   │   │   │   │   │   │   │   │   ├── AccountService.java
-│   │   │   │   │   │   │   │   ├── presentation
-│   │   │   │   │   │   │   │   │   ├── components
-│   │   │   │   │   │   │   │   │   │   ├── subpanels
-│   │   │   │   │   │   │   │   │   │   │   ├── BankDetailsSubPanel.java
-│   │   │   │   │   │   │   │   │   │   │   ├── WalletCardLinksPanel.java
-│   │   │   │   │   │   │   │   │   │   │   ├── CashbackSettingsPanel.java
-│   │   │   │   │   │   │   │   │   │   │   ├── CreditDetailsSubPanel.java
-│   │   │   │   │   │   │   │   │   │   │   ├── SavingsDetailsSubPanel.java
-│   │   │   │   │   │   │   │   │   │   │   ├── InvestmentDetailsSubPanel.java
-│   │   │   │   │   │   │   │   │   │   ├── AccountFormPanel.java
-│   │   │   │   │   │   │   │   │   ├── views
-│   │   │   │   │   │   │   │   │   │   ├── CreateAccountView.java
-│   │   │   │   │   │   │   │   │   │   ├── AccountDetailView.java
-│   │   │   │   │   │   │   │   │   │   ├── detail
-│   │   │   │   │   │   │   │   │   │   │   ├── BenefitAccountDetailView.java
-│   │   │   │   │   │   │   │   │   │   │   ├── SavingsAccountDetailView.java
-│   │   │   │   │   │   │   │   │   │   │   ├── WalletAccountDetailView.java
-│   │   │   │   │   │   │   │   │   │   │   ├── DebitAccountDetailView.java
-│   │   │   │   │   │   │   │   │   │   │   ├── BaseAccountDetailView.java
-│   │   │   │   │   │   │   │   │   │   │   ├── InvestmentAccountDetailView.java
-│   │   │   │   │   │   │   │   │   │   │   ├── CreditAccountDetailView.java
-│   │   │   │   │   │   │   │   │   │   │   ├── CashAccountDetailView.java
-│   │   │   │   │   │   │   │   │   │   ├── AccountsView.java
-│   │   │   │   │   │   │   ├── serverConnection
-│   │   │   │   │   │   │   │   ├── application
-│   │   │   │   │   │   │   │   │   ├── exceptions
-│   │   │   │   │   │   │   │   │   │   ├── ClientOperationException.java
-│   │   │   │   │   │   │   │   │   ├── validators
-│   │   │   │   │   │   │   │   │   │   ├── ServerResponseValidator.java
-│   │   │   │   │   │   │   │   │   ├── services
-│   │   │   │   │   │   │   │   │   │   ├── ServerConnectionService.java
-│   │   │   │   │   │   │   │   ├── domain
-│   │   │   │   │   │   │   │   │   ├── models
-│   │   │   │   │   │   │   │   │   │   ├── ServerConnectionConfig.java
-│   │   │   │   │   │   │   │   │   │   ├── ServerConnectionAbstract.java
-│   │   │   │   │   │   │   │   │   ├── interfaces
-│   │   │   │   │   │   │   │   │   │   ├── ServerConnectionInterface.java
-│   │   │   │   │   │   │   ├── users
-│   │   │   │   │   │   │   │   ├── test
-│   │   │   │   │   │   │   │   │   ├── UserGuiFunctionalTest.java
-│   │   │   │   │   │   │   │   │   ├── UserFunctionalTest.java
-│   │   │   │   │   │   │   │   ├── infrastructure
-│   │   │   │   │   │   │   │   │   ├── services
-│   │   │   │   │   │   │   │   │   │   ├── UserService.java
-│   │   │   │   │   │   │   │   ├── presentation
-│   │   │   │   │   │   │   │   │   ├── components
-│   │   │   │   │   │   │   │   │   │   ├── UserFormPanel.java
-│   │   │   │   │   │   │   │   │   ├── views
-│   │   │   │   │   │   │   │   │   │   ├── CreateUserView.java
-│   │   │   │   │   │   │   │   │   │   ├── UsersView.java
-│   │   │   │   │   │   │   ├── configs
-│   │   │   │   │   │   │   │   ├── ServerConnectionConfig.java
-│   │   │   │   │   │   │   │   ├── AppConfig.java
-│   │   │   │   │   │   │   ├── Main.java
-│   │   │   │   │   │   │   ├── externalEntities
-│   │   │   │   │   │   │   │   ├── infrastructure
-│   │   │   │   │   │   │   │   │   ├── services
-│   │   │   │   │   │   │   │   │   │   ├── ExternalEntityService.java
-│   │   │   │   │   │   │   │   ├── presentation
-│   │   │   │   │   │   │   │   │   ├── components
-│   │   │   │   │   │   │   │   │   │   ├── ExternalEntityFormPanel.java
-│   │   │   │   │   │   │   │   │   ├── views
-│   │   │   │   │   │   │   │   │   │   ├── CreateExternalEntityView.java
-│   │   │   │   │   │   │   │   │   │   ├── ExternalEntitiesView.java
-│   │   │   │   │   │   │   ├── categories
-│   │   │   │   │   │   │   │   ├── infrastructure
-│   │   │   │   │   │   │   │   │   ├── services
-│   │   │   │   │   │   │   │   │   │   ├── CategoryService.java
-│   │   │   │   │   │   │   │   ├── presentation
-│   │   │   │   │   │   │   │   │   ├── components
-│   │   │   │   │   │   │   │   │   │   ├── CategoryFormPanel.java
-│   │   │   │   │   │   │   │   │   ├── views
-│   │   │   │   │   │   │   │   │   │   ├── CategoriesView.java
-│   │   │   │   │   │   │   │   │   │   ├── CreateCategoryView.java
+# Índice de client
+
+Generado con `python3 scripts/update_indexes.py` desde la raíz.
+
+[Arquitectura](../../ARCHITECTURE.md) · [Migración](../../MIGRATION.md) · [Agente](../../.claude/agents/finance-app-expert-client.md)
+
+## Archivos
+
+```text
+pom.xml
+src/main/java/com/giozar04/Main.java
+src/main/java/com/giozar04/accountCashbackSettings/infrastructure/services/AccountCashbackSettingService.java
+src/main/java/com/giozar04/accountReconciliations/infrastructure/services/AccountReconciliationService.java
+src/main/java/com/giozar04/accountReconciliations/presentation/views/AccountReconciliationsView.java
+src/main/java/com/giozar04/accounts/infrastructure/services/AccountService.java
+src/main/java/com/giozar04/accounts/presentation/components/AccountFormPanel.java
+src/main/java/com/giozar04/accounts/presentation/components/subpanels/BankDetailsSubPanel.java
+src/main/java/com/giozar04/accounts/presentation/components/subpanels/CashbackSettingsPanel.java
+src/main/java/com/giozar04/accounts/presentation/components/subpanels/CreditDetailsSubPanel.java
+src/main/java/com/giozar04/accounts/presentation/components/subpanels/InvestmentDetailsSubPanel.java
+src/main/java/com/giozar04/accounts/presentation/components/subpanels/SavingsDetailsSubPanel.java
+src/main/java/com/giozar04/accounts/presentation/components/subpanels/WalletCardLinksPanel.java
+src/main/java/com/giozar04/accounts/presentation/views/AccountDetailView.java
+src/main/java/com/giozar04/accounts/presentation/views/AccountsView.java
+src/main/java/com/giozar04/accounts/presentation/views/CreateAccountView.java
+src/main/java/com/giozar04/accounts/presentation/views/detail/BaseAccountDetailView.java
+src/main/java/com/giozar04/accounts/presentation/views/detail/BenefitAccountDetailView.java
+src/main/java/com/giozar04/accounts/presentation/views/detail/CashAccountDetailView.java
+src/main/java/com/giozar04/accounts/presentation/views/detail/CreditAccountDetailView.java
+src/main/java/com/giozar04/accounts/presentation/views/detail/DebitAccountDetailView.java
+src/main/java/com/giozar04/accounts/presentation/views/detail/InvestmentAccountDetailView.java
+src/main/java/com/giozar04/accounts/presentation/views/detail/SavingsAccountDetailView.java
+src/main/java/com/giozar04/accounts/presentation/views/detail/WalletAccountDetailView.java
+src/main/java/com/giozar04/accounts/test/AccountFunctionalTest.java
+src/main/java/com/giozar04/accounts/test/AccountGuiFunctionalTest.java
+src/main/java/com/giozar04/bankClients/infrastructure/services/BankClientService.java
+src/main/java/com/giozar04/bankClients/presentation/components/BankClientFormPanel.java
+src/main/java/com/giozar04/bankClients/presentation/components/BankNameCellRenderer.java
+src/main/java/com/giozar04/bankClients/presentation/views/BankClientsView.java
+src/main/java/com/giozar04/bankClients/presentation/views/CreateBankClientView.java
+src/main/java/com/giozar04/bankClients/test/BankClientFunctionalTest.java
+src/main/java/com/giozar04/bankClients/test/BankClientGuiFunctionalTest.java
+src/main/java/com/giozar04/bootstrap/ApplicationInitializer.java
+src/main/java/com/giozar04/cardTransactionDetails/infrastructure/services/CardTransactionDetailService.java
+src/main/java/com/giozar04/cards/infrastructure/services/CardService.java
+src/main/java/com/giozar04/cards/presentation/components/CardFormPanel.java
+src/main/java/com/giozar04/cards/presentation/views/CardsView.java
+src/main/java/com/giozar04/cards/presentation/views/CreateCardView.java
+src/main/java/com/giozar04/cards/test/CardCreationTest.java
+src/main/java/com/giozar04/categories/infrastructure/services/CategoryService.java
+src/main/java/com/giozar04/categories/presentation/components/CategoryFormPanel.java
+src/main/java/com/giozar04/categories/presentation/views/CategoriesView.java
+src/main/java/com/giozar04/categories/presentation/views/CreateCategoryView.java
+src/main/java/com/giozar04/client-explanation.md
+src/main/java/com/giozar04/configs/AppConfig.java
+src/main/java/com/giozar04/configs/ServerConnectionConfig.java
+src/main/java/com/giozar04/dashboard/presentation/views/MainDashboardView.java
+src/main/java/com/giozar04/externalEntities/infrastructure/services/ExternalEntityService.java
+src/main/java/com/giozar04/externalEntities/presentation/components/ExternalEntityFormPanel.java
+src/main/java/com/giozar04/externalEntities/presentation/views/CreateExternalEntityView.java
+src/main/java/com/giozar04/externalEntities/presentation/views/ExternalEntitiesView.java
+src/main/java/com/giozar04/serverConnection/application/exceptions/ClientOperationException.java
+src/main/java/com/giozar04/serverConnection/application/services/ServerConnectionService.java
+src/main/java/com/giozar04/serverConnection/application/validators/ServerResponseValidator.java
+src/main/java/com/giozar04/serverConnection/domain/interfaces/ServerConnectionInterface.java
+src/main/java/com/giozar04/serverConnection/domain/models/ServerConnectionAbstract.java
+src/main/java/com/giozar04/serverConnection/domain/models/ServerConnectionConfig.java
+src/main/java/com/giozar04/shared/components/CreditUsagePanel.java
+src/main/java/com/giozar04/shared/components/DatePickerComponent.java
+src/main/java/com/giozar04/shared/components/HeaderPanel.java
+src/main/java/com/giozar04/shared/components/MainContentPanel.java
+src/main/java/com/giozar04/shared/components/QuickCreateDialog.java
+src/main/java/com/giozar04/shared/components/SidebarPanel.java
+src/main/java/com/giozar04/shared/components/forms/ColorPickerField.java
+src/main/java/com/giozar04/shared/components/forms/FormComboBox.java
+src/main/java/com/giozar04/shared/components/forms/FormDateField.java
+src/main/java/com/giozar04/shared/components/forms/FormDateTimeField.java
+src/main/java/com/giozar04/shared/components/forms/FormField.java
+src/main/java/com/giozar04/shared/components/forms/FormHelpText.java
+src/main/java/com/giozar04/shared/components/forms/FormLabel.java
+src/main/java/com/giozar04/shared/components/forms/FormMultiSelectField.java
+src/main/java/com/giozar04/shared/components/forms/FormSearchComboBox.java
+src/main/java/com/giozar04/shared/components/forms/FormTextArea.java
+src/main/java/com/giozar04/shared/components/forms/PercentageField.java
+src/main/java/com/giozar04/shared/components/table/ColumnDefinition.java
+src/main/java/com/giozar04/shared/components/table/GenericTableModel.java
+src/main/java/com/giozar04/shared/components/table/GenericTablePanel.java
+src/main/java/com/giozar04/shared/components/table/OptionsCellEditor.java
+src/main/java/com/giozar04/shared/components/table/OptionsCellRenderer.java
+src/main/java/com/giozar04/shared/components/table/PopupMenuActionHandler.java
+src/main/java/com/giozar04/shared/layouts/AppLayout.java
+src/main/java/com/giozar04/shared/utils/DialogUtil.java
+src/main/java/com/giozar04/shared/utils/FormValidatorUtils.java
+src/main/java/com/giozar04/tags/infrastructure/services/TagService.java
+src/main/java/com/giozar04/tags/presentation/components/TagFormPanel.java
+src/main/java/com/giozar04/tags/presentation/views/CreateTagView.java
+src/main/java/com/giozar04/tags/presentation/views/TagsView.java
+src/main/java/com/giozar04/transactions/infrastructure/services/TransactionService.java
+src/main/java/com/giozar04/transactions/presentation/components/AccountPickerField.java
+src/main/java/com/giozar04/transactions/presentation/components/CreatableSearchField.java
+src/main/java/com/giozar04/transactions/presentation/components/PaymentMethodCellRenderer.java
+src/main/java/com/giozar04/transactions/presentation/components/TransactionDetailsDialog.java
+src/main/java/com/giozar04/transactions/presentation/components/TransactionFormPanel.java
+src/main/java/com/giozar04/transactions/presentation/components/TransactionNameLookup.java
+src/main/java/com/giozar04/transactions/presentation/components/TransactionTypeCellRenderer.java
+src/main/java/com/giozar04/transactions/presentation/components/sections/AbstractTransactionSection.java
+src/main/java/com/giozar04/transactions/presentation/components/sections/CardDetailsSection.java
+src/main/java/com/giozar04/transactions/presentation/components/sections/ClassificationSection.java
+src/main/java/com/giozar04/transactions/presentation/components/sections/GeneralInfoSection.java
+src/main/java/com/giozar04/transactions/presentation/components/sections/OperationSection.java
+src/main/java/com/giozar04/transactions/presentation/components/sections/PartiesSection.java
+src/main/java/com/giozar04/transactions/presentation/components/sections/PaymentMethodSection.java
+src/main/java/com/giozar04/transactions/presentation/components/sections/WalletDetailsSection.java
+src/main/java/com/giozar04/transactions/presentation/form/PaymentMethodPolicy.java
+src/main/java/com/giozar04/transactions/presentation/form/TransactionFormContext.java
+src/main/java/com/giozar04/transactions/presentation/form/TransactionFormDataProvider.java
+src/main/java/com/giozar04/transactions/presentation/form/TransactionFormSection.java
+src/main/java/com/giozar04/transactions/presentation/views/CreateTransactionView.java
+src/main/java/com/giozar04/transactions/presentation/views/TransactionsView.java
+src/main/java/com/giozar04/users/infrastructure/services/UserService.java
+src/main/java/com/giozar04/users/presentation/components/UserFormPanel.java
+src/main/java/com/giozar04/users/presentation/views/CreateUserView.java
+src/main/java/com/giozar04/users/presentation/views/UsersView.java
+src/main/java/com/giozar04/users/test/UserFunctionalTest.java
+src/main/java/com/giozar04/users/test/UserGuiFunctionalTest.java
+src/main/java/com/giozar04/walletCardLinks/infrastructure/services/WalletCardLinkService.java
+src/main/java/com/giozar04/walletTransactionDetails/infrastructure/services/WalletTransactionDetailService.java
+src/test/java/TestTable.java
+```

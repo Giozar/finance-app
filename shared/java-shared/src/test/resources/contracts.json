@@ -1,0 +1,2241 @@
+{
+  "accountCashbackSettings.defaults": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "accountId": 0,
+      "cashbackEnabled": false,
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "defaultCashbackRate": null,
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]"
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "accountCashbackSettings.full": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "accountId": 42,
+      "cashbackEnabled": true,
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "defaultCashbackRate": "123.450000",
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]"
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "accountCashbackSettings.jsonRoundtrip": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "accountId": 42,
+      "cashbackEnabled": true,
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "defaultCashbackRate": "123.450000",
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]"
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "accountCashbackSettings.roundtrip": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "accountId": 42,
+      "cashbackEnabled": true,
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "defaultCashbackRate": "123.450000",
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]"
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "accountReconciliations.defaults": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "accountId": 0,
+      "accountName": null,
+      "accountType": null,
+      "actualNet": null,
+      "difference": null,
+      "expectedNet": null,
+      "openingNet": null,
+      "totalInflows": null,
+      "totalOutflows": null,
+      "userId": 0
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "accountReconciliations.full": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "accountId": 42,
+      "accountName": "Texto español \\\"\n\r\t\u0001",
+      "accountType": "CASH",
+      "actualNet": 123.45,
+      "difference": 123.45,
+      "expectedNet": 123.45,
+      "openingNet": 123.45,
+      "totalInflows": 123.45,
+      "totalOutflows": 123.45,
+      "userId": 42
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "accountReconciliations.jsonRoundtrip": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "accountId": 42,
+      "accountName": "Texto español \\\"\n\r\t\u0001",
+      "accountType": "CASH",
+      "actualNet": 123.45,
+      "difference": 123.45,
+      "expectedNet": 123.45,
+      "openingNet": 123.45,
+      "totalInflows": 123.45,
+      "totalOutflows": 123.45,
+      "userId": 42
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "accountReconciliations.roundtrip": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "accountId": 42,
+      "accountName": "Texto español \\\"\n\r\t\u0001",
+      "accountType": "CASH",
+      "actualNet": 123.45,
+      "difference": 123.45,
+      "expectedNet": 123.45,
+      "openingNet": 123.45,
+      "totalInflows": 123.45,
+      "totalOutflows": 123.45,
+      "userId": 42
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "accountReconciliations.setAccountType.Ahorro con Rendimiento": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "accountId": 42,
+      "accountName": "Texto español \\\"\n\r\t\u0001",
+      "accountType": "SAVINGS",
+      "actualNet": 123.45,
+      "difference": 123.45,
+      "expectedNet": 123.45,
+      "openingNet": 123.45,
+      "totalInflows": 123.45,
+      "totalOutflows": 123.45,
+      "userId": 42
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "accountReconciliations.setAccountType.Billetera Virtual": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "accountId": 42,
+      "accountName": "Texto español \\\"\n\r\t\u0001",
+      "accountType": "WALLET",
+      "actualNet": 123.45,
+      "difference": 123.45,
+      "expectedNet": 123.45,
+      "openingNet": 123.45,
+      "totalInflows": 123.45,
+      "totalOutflows": 123.45,
+      "userId": 42
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "accountReconciliations.setAccountType.Crédito": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "accountId": 42,
+      "accountName": "Texto español \\\"\n\r\t\u0001",
+      "accountType": "CREDIT",
+      "actualNet": 123.45,
+      "difference": 123.45,
+      "expectedNet": 123.45,
+      "openingNet": 123.45,
+      "totalInflows": 123.45,
+      "totalOutflows": 123.45,
+      "userId": 42
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "accountReconciliations.setAccountType.Débito Bancario": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "accountId": 42,
+      "accountName": "Texto español \\\"\n\r\t\u0001",
+      "accountType": "DEBIT",
+      "actualNet": 123.45,
+      "difference": 123.45,
+      "expectedNet": 123.45,
+      "openingNet": 123.45,
+      "totalInflows": 123.45,
+      "totalOutflows": 123.45,
+      "userId": 42
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "accountReconciliations.setAccountType.Efectivo": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "accountId": 42,
+      "accountName": "Texto español \\\"\n\r\t\u0001",
+      "accountType": "CASH",
+      "actualNet": 123.45,
+      "difference": 123.45,
+      "expectedNet": 123.45,
+      "openingNet": 123.45,
+      "totalInflows": 123.45,
+      "totalOutflows": 123.45,
+      "userId": 42
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "accountReconciliations.setAccountType.Inversión a Plazo": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "accountId": 42,
+      "accountName": "Texto español \\\"\n\r\t\u0001",
+      "accountType": "INVESTMENT",
+      "actualNet": 123.45,
+      "difference": 123.45,
+      "expectedNet": 123.45,
+      "openingNet": 123.45,
+      "totalInflows": 123.45,
+      "totalOutflows": 123.45,
+      "userId": 42
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "accountReconciliations.setAccountType.Prestación/Vale": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "accountId": 42,
+      "accountName": "Texto español \\\"\n\r\t\u0001",
+      "accountType": "BENEFIT",
+      "actualNet": 123.45,
+      "difference": 123.45,
+      "expectedNet": 123.45,
+      "openingNet": 123.45,
+      "totalInflows": 123.45,
+      "totalOutflows": 123.45,
+      "userId": 42
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "accounts.defaults": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "accountNumber": null,
+      "annualYield": null,
+      "autoReinvest": null,
+      "bankClientId": null,
+      "canTransferOut": true,
+      "clabe": null,
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "creditLimit": null,
+      "creditUsed": null,
+      "currentBalance": 0.0,
+      "cutoffDay": null,
+      "dayCountBasis": null,
+      "id": 0,
+      "instrumentType": null,
+      "investmentAnnualYield": null,
+      "investmentStatus": null,
+      "lastYieldCalculation": null,
+      "maturityDate": null,
+      "name": null,
+      "openingBalance": 0.0,
+      "openingCreditUsed": null,
+      "paymentDay": null,
+      "principalAmount": null,
+      "reinvestAnnualYield": null,
+      "reinvestTermDays": null,
+      "startDate": null,
+      "termDays": null,
+      "type": null,
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "userId": 0,
+      "yieldCapAmount": null
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "accounts.full": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "accountNumber": "Texto español \\\"\n\r\t\u0001",
+      "annualYield": 123.45,
+      "autoReinvest": true,
+      "bankClientId": 42,
+      "canTransferOut": true,
+      "clabe": "Texto español \\\"\n\r\t\u0001",
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "creditLimit": 123.45,
+      "creditUsed": 123.45,
+      "currentBalance": 123.45,
+      "cutoffDay": 6,
+      "dayCountBasis": 6,
+      "id": 42,
+      "instrumentType": "Texto español \\\"\n\r\t\u0001",
+      "investmentAnnualYield": 123.45,
+      "investmentStatus": "Texto español \\\"\n\r\t\u0001",
+      "lastYieldCalculation": "Texto español \\\"\n\r\t\u0001",
+      "maturityDate": "Texto español \\\"\n\r\t\u0001",
+      "name": "Texto español \\\"\n\r\t\u0001",
+      "openingBalance": 123.45,
+      "openingCreditUsed": 123.45,
+      "paymentDay": 6,
+      "principalAmount": 123.45,
+      "reinvestAnnualYield": 123.45,
+      "reinvestTermDays": 6,
+      "startDate": "Texto español \\\"\n\r\t\u0001",
+      "termDays": 6,
+      "type": "CASH",
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "userId": 42,
+      "yieldCapAmount": 123.45
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "accounts.jsonRoundtrip": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "accountNumber": "Texto español \\\"\n\r\t\u0001",
+      "annualYield": 123.45,
+      "autoReinvest": true,
+      "bankClientId": 42,
+      "canTransferOut": true,
+      "clabe": "Texto español \\\"\n\r\t\u0001",
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "creditLimit": 123.45,
+      "creditUsed": 123.45,
+      "currentBalance": 123.45,
+      "cutoffDay": 6,
+      "dayCountBasis": 6,
+      "id": 42,
+      "instrumentType": "Texto español \\\"\n\r\t\u0001",
+      "investmentAnnualYield": 123.45,
+      "investmentStatus": "Texto español \\\"\n\r\t\u0001",
+      "lastYieldCalculation": "Texto español \\\"\n\r\t\u0001",
+      "maturityDate": "Texto español \\\"\n\r\t\u0001",
+      "name": "Texto español \\\"\n\r\t\u0001",
+      "openingBalance": 123.45,
+      "openingCreditUsed": 123.45,
+      "paymentDay": 6,
+      "principalAmount": 123.45,
+      "reinvestAnnualYield": 123.45,
+      "reinvestTermDays": 6,
+      "startDate": "Texto español \\\"\n\r\t\u0001",
+      "termDays": 6,
+      "type": "CASH",
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "userId": 42,
+      "yieldCapAmount": 123.45
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "accounts.roundtrip": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "accountNumber": "Texto español \\\"\n\r\t\u0001",
+      "annualYield": 123.45,
+      "autoReinvest": true,
+      "bankClientId": 42,
+      "canTransferOut": true,
+      "clabe": "Texto español \\\"\n\r\t\u0001",
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "creditLimit": 123.45,
+      "creditUsed": 123.45,
+      "currentBalance": 123.45,
+      "cutoffDay": 6,
+      "dayCountBasis": 6,
+      "id": 42,
+      "instrumentType": "Texto español \\\"\n\r\t\u0001",
+      "investmentAnnualYield": 123.45,
+      "investmentStatus": "Texto español \\\"\n\r\t\u0001",
+      "lastYieldCalculation": "Texto español \\\"\n\r\t\u0001",
+      "maturityDate": "Texto español \\\"\n\r\t\u0001",
+      "name": "Texto español \\\"\n\r\t\u0001",
+      "openingBalance": 123.45,
+      "openingCreditUsed": 123.45,
+      "paymentDay": 6,
+      "principalAmount": 123.45,
+      "reinvestAnnualYield": 123.45,
+      "reinvestTermDays": 6,
+      "startDate": "Texto español \\\"\n\r\t\u0001",
+      "termDays": 6,
+      "type": "CASH",
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "userId": 42,
+      "yieldCapAmount": 123.45
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "accounts.setType.Ahorro con Rendimiento": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "accountNumber": "Texto español \\\"\n\r\t\u0001",
+      "annualYield": 123.45,
+      "autoReinvest": true,
+      "bankClientId": 42,
+      "canTransferOut": true,
+      "clabe": "Texto español \\\"\n\r\t\u0001",
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "creditLimit": 123.45,
+      "creditUsed": 123.45,
+      "currentBalance": 123.45,
+      "cutoffDay": 6,
+      "dayCountBasis": 6,
+      "id": 42,
+      "instrumentType": "Texto español \\\"\n\r\t\u0001",
+      "investmentAnnualYield": 123.45,
+      "investmentStatus": "Texto español \\\"\n\r\t\u0001",
+      "lastYieldCalculation": "Texto español \\\"\n\r\t\u0001",
+      "maturityDate": "Texto español \\\"\n\r\t\u0001",
+      "name": "Texto español \\\"\n\r\t\u0001",
+      "openingBalance": 123.45,
+      "openingCreditUsed": 123.45,
+      "paymentDay": 6,
+      "principalAmount": 123.45,
+      "reinvestAnnualYield": 123.45,
+      "reinvestTermDays": 6,
+      "startDate": "Texto español \\\"\n\r\t\u0001",
+      "termDays": 6,
+      "type": "SAVINGS",
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "userId": 42,
+      "yieldCapAmount": 123.45
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "accounts.setType.Billetera Virtual": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "accountNumber": "Texto español \\\"\n\r\t\u0001",
+      "annualYield": 123.45,
+      "autoReinvest": true,
+      "bankClientId": 42,
+      "canTransferOut": true,
+      "clabe": "Texto español \\\"\n\r\t\u0001",
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "creditLimit": 123.45,
+      "creditUsed": 123.45,
+      "currentBalance": 123.45,
+      "cutoffDay": 6,
+      "dayCountBasis": 6,
+      "id": 42,
+      "instrumentType": "Texto español \\\"\n\r\t\u0001",
+      "investmentAnnualYield": 123.45,
+      "investmentStatus": "Texto español \\\"\n\r\t\u0001",
+      "lastYieldCalculation": "Texto español \\\"\n\r\t\u0001",
+      "maturityDate": "Texto español \\\"\n\r\t\u0001",
+      "name": "Texto español \\\"\n\r\t\u0001",
+      "openingBalance": 123.45,
+      "openingCreditUsed": 123.45,
+      "paymentDay": 6,
+      "principalAmount": 123.45,
+      "reinvestAnnualYield": 123.45,
+      "reinvestTermDays": 6,
+      "startDate": "Texto español \\\"\n\r\t\u0001",
+      "termDays": 6,
+      "type": "WALLET",
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "userId": 42,
+      "yieldCapAmount": 123.45
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "accounts.setType.Crédito": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "accountNumber": "Texto español \\\"\n\r\t\u0001",
+      "annualYield": 123.45,
+      "autoReinvest": true,
+      "bankClientId": 42,
+      "canTransferOut": true,
+      "clabe": "Texto español \\\"\n\r\t\u0001",
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "creditLimit": 123.45,
+      "creditUsed": 123.45,
+      "currentBalance": 123.45,
+      "cutoffDay": 6,
+      "dayCountBasis": 6,
+      "id": 42,
+      "instrumentType": "Texto español \\\"\n\r\t\u0001",
+      "investmentAnnualYield": 123.45,
+      "investmentStatus": "Texto español \\\"\n\r\t\u0001",
+      "lastYieldCalculation": "Texto español \\\"\n\r\t\u0001",
+      "maturityDate": "Texto español \\\"\n\r\t\u0001",
+      "name": "Texto español \\\"\n\r\t\u0001",
+      "openingBalance": 123.45,
+      "openingCreditUsed": 123.45,
+      "paymentDay": 6,
+      "principalAmount": 123.45,
+      "reinvestAnnualYield": 123.45,
+      "reinvestTermDays": 6,
+      "startDate": "Texto español \\\"\n\r\t\u0001",
+      "termDays": 6,
+      "type": "CREDIT",
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "userId": 42,
+      "yieldCapAmount": 123.45
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "accounts.setType.Débito Bancario": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "accountNumber": "Texto español \\\"\n\r\t\u0001",
+      "annualYield": 123.45,
+      "autoReinvest": true,
+      "bankClientId": 42,
+      "canTransferOut": true,
+      "clabe": "Texto español \\\"\n\r\t\u0001",
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "creditLimit": 123.45,
+      "creditUsed": 123.45,
+      "currentBalance": 123.45,
+      "cutoffDay": 6,
+      "dayCountBasis": 6,
+      "id": 42,
+      "instrumentType": "Texto español \\\"\n\r\t\u0001",
+      "investmentAnnualYield": 123.45,
+      "investmentStatus": "Texto español \\\"\n\r\t\u0001",
+      "lastYieldCalculation": "Texto español \\\"\n\r\t\u0001",
+      "maturityDate": "Texto español \\\"\n\r\t\u0001",
+      "name": "Texto español \\\"\n\r\t\u0001",
+      "openingBalance": 123.45,
+      "openingCreditUsed": 123.45,
+      "paymentDay": 6,
+      "principalAmount": 123.45,
+      "reinvestAnnualYield": 123.45,
+      "reinvestTermDays": 6,
+      "startDate": "Texto español \\\"\n\r\t\u0001",
+      "termDays": 6,
+      "type": "DEBIT",
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "userId": 42,
+      "yieldCapAmount": 123.45
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "accounts.setType.Efectivo": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "accountNumber": "Texto español \\\"\n\r\t\u0001",
+      "annualYield": 123.45,
+      "autoReinvest": true,
+      "bankClientId": 42,
+      "canTransferOut": true,
+      "clabe": "Texto español \\\"\n\r\t\u0001",
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "creditLimit": 123.45,
+      "creditUsed": 123.45,
+      "currentBalance": 123.45,
+      "cutoffDay": 6,
+      "dayCountBasis": 6,
+      "id": 42,
+      "instrumentType": "Texto español \\\"\n\r\t\u0001",
+      "investmentAnnualYield": 123.45,
+      "investmentStatus": "Texto español \\\"\n\r\t\u0001",
+      "lastYieldCalculation": "Texto español \\\"\n\r\t\u0001",
+      "maturityDate": "Texto español \\\"\n\r\t\u0001",
+      "name": "Texto español \\\"\n\r\t\u0001",
+      "openingBalance": 123.45,
+      "openingCreditUsed": 123.45,
+      "paymentDay": 6,
+      "principalAmount": 123.45,
+      "reinvestAnnualYield": 123.45,
+      "reinvestTermDays": 6,
+      "startDate": "Texto español \\\"\n\r\t\u0001",
+      "termDays": 6,
+      "type": "CASH",
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "userId": 42,
+      "yieldCapAmount": 123.45
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "accounts.setType.Inversión a Plazo": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "accountNumber": "Texto español \\\"\n\r\t\u0001",
+      "annualYield": 123.45,
+      "autoReinvest": true,
+      "bankClientId": 42,
+      "canTransferOut": true,
+      "clabe": "Texto español \\\"\n\r\t\u0001",
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "creditLimit": 123.45,
+      "creditUsed": 123.45,
+      "currentBalance": 123.45,
+      "cutoffDay": 6,
+      "dayCountBasis": 6,
+      "id": 42,
+      "instrumentType": "Texto español \\\"\n\r\t\u0001",
+      "investmentAnnualYield": 123.45,
+      "investmentStatus": "Texto español \\\"\n\r\t\u0001",
+      "lastYieldCalculation": "Texto español \\\"\n\r\t\u0001",
+      "maturityDate": "Texto español \\\"\n\r\t\u0001",
+      "name": "Texto español \\\"\n\r\t\u0001",
+      "openingBalance": 123.45,
+      "openingCreditUsed": 123.45,
+      "paymentDay": 6,
+      "principalAmount": 123.45,
+      "reinvestAnnualYield": 123.45,
+      "reinvestTermDays": 6,
+      "startDate": "Texto español \\\"\n\r\t\u0001",
+      "termDays": 6,
+      "type": "INVESTMENT",
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "userId": 42,
+      "yieldCapAmount": 123.45
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "accounts.setType.Prestación/Vale": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "accountNumber": "Texto español \\\"\n\r\t\u0001",
+      "annualYield": 123.45,
+      "autoReinvest": true,
+      "bankClientId": 42,
+      "canTransferOut": true,
+      "clabe": "Texto español \\\"\n\r\t\u0001",
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "creditLimit": 123.45,
+      "creditUsed": 123.45,
+      "currentBalance": 123.45,
+      "cutoffDay": 6,
+      "dayCountBasis": 6,
+      "id": 42,
+      "instrumentType": "Texto español \\\"\n\r\t\u0001",
+      "investmentAnnualYield": 123.45,
+      "investmentStatus": "Texto español \\\"\n\r\t\u0001",
+      "lastYieldCalculation": "Texto español \\\"\n\r\t\u0001",
+      "maturityDate": "Texto español \\\"\n\r\t\u0001",
+      "name": "Texto español \\\"\n\r\t\u0001",
+      "openingBalance": 123.45,
+      "openingCreditUsed": 123.45,
+      "paymentDay": 6,
+      "principalAmount": 123.45,
+      "reinvestAnnualYield": 123.45,
+      "reinvestTermDays": 6,
+      "startDate": "Texto español \\\"\n\r\t\u0001",
+      "termDays": 6,
+      "type": "BENEFIT",
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "userId": 42,
+      "yieldCapAmount": 123.45
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "bankClient.defaults": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "bankName": null,
+      "clientNumber": null,
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "id": 0,
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "userId": 0
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "bankClient.full": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "bankName": "Texto español \\\"\n\r\t\u0001",
+      "clientNumber": "Texto español \\\"\n\r\t\u0001",
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "id": 42,
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "userId": 42
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "bankClient.jsonRoundtrip": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "bankName": "Texto español \\\"\n\r\t\u0001",
+      "clientNumber": "Texto español \\\"\n\r\t\u0001",
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "id": 42,
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "userId": 42
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "bankClient.roundtrip": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "bankName": "Texto español \\\"\n\r\t\u0001",
+      "clientNumber": "Texto español \\\"\n\r\t\u0001",
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "id": 42,
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "userId": 42
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "card.defaults": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "accountId": 0,
+      "cardNumber": null,
+      "cardType": null,
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "expirationDate": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "id": 0,
+      "name": null,
+      "status": null,
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]"
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "card.full": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "accountId": 42,
+      "cardNumber": "Texto español \\\"\n\r\t\u0001",
+      "cardType": "PHYSICAL",
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "expirationDate": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "id": 42,
+      "name": "Texto español \\\"\n\r\t\u0001",
+      "status": "Texto español \\\"\n\r\t\u0001",
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]"
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "card.jsonRoundtrip": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "accountId": 42,
+      "cardNumber": "Texto español \\\"\n\r\t\u0001",
+      "cardType": "PHYSICAL",
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "expirationDate": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "id": 42,
+      "name": "Texto español \\\"\n\r\t\u0001",
+      "status": "Texto español \\\"\n\r\t\u0001",
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]"
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "card.roundtrip": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "accountId": 42,
+      "cardNumber": "Texto español \\\"\n\r\t\u0001",
+      "cardType": "PHYSICAL",
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "expirationDate": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "id": 42,
+      "name": "Texto español \\\"\n\r\t\u0001",
+      "status": "Texto español \\\"\n\r\t\u0001",
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]"
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "card.setCardType.Digital": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "accountId": 42,
+      "cardNumber": "Texto español \\\"\n\r\t\u0001",
+      "cardType": "DIGITAL",
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "expirationDate": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "id": 42,
+      "name": "Texto español \\\"\n\r\t\u0001",
+      "status": "Texto español \\\"\n\r\t\u0001",
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]"
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "card.setCardType.Física": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "accountId": 42,
+      "cardNumber": "Texto español \\\"\n\r\t\u0001",
+      "cardType": "PHYSICAL",
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "expirationDate": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "id": 42,
+      "name": "Texto español \\\"\n\r\t\u0001",
+      "status": "Texto español \\\"\n\r\t\u0001",
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]"
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "cardTransactionDetails.defaults": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "amount": null,
+      "cardId": 0,
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "id": 0,
+      "installmentMonths": null,
+      "interestFree": false,
+      "transactionId": 0,
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]"
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "cardTransactionDetails.full": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "amount": 123.45,
+      "cardId": 42,
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "id": 42,
+      "installmentMonths": 6,
+      "interestFree": true,
+      "transactionId": 42,
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]"
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "cardTransactionDetails.jsonRoundtrip": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "amount": 123.45,
+      "cardId": 42,
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "id": 42,
+      "installmentMonths": 6,
+      "interestFree": true,
+      "transactionId": 42,
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]"
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "cardTransactionDetails.roundtrip": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "amount": 123.45,
+      "cardId": 42,
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "id": 42,
+      "installmentMonths": 6,
+      "interestFree": true,
+      "transactionId": 42,
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]"
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "categories.defaults": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "icon": null,
+      "id": 0,
+      "name": null,
+      "type": null,
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "userId": 0
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "categories.full": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "icon": "Texto español \\\"\n\r\t\u0001",
+      "id": 42,
+      "name": "Texto español \\\"\n\r\t\u0001",
+      "type": "INCOME",
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "userId": 42
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "categories.jsonRoundtrip": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "icon": "Texto español \\\"\n\r\t\u0001",
+      "id": 42,
+      "name": "Texto español \\\"\n\r\t\u0001",
+      "type": "INCOME",
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "userId": 42
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "categories.roundtrip": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "icon": "Texto español \\\"\n\r\t\u0001",
+      "id": 42,
+      "name": "Texto español \\\"\n\r\t\u0001",
+      "type": "INCOME",
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "userId": 42
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "categories.setType.Ambos": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "icon": "Texto español \\\"\n\r\t\u0001",
+      "id": 42,
+      "name": "Texto español \\\"\n\r\t\u0001",
+      "type": "BOTH",
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "userId": 42
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "categories.setType.Gasto": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "icon": "Texto español \\\"\n\r\t\u0001",
+      "id": 42,
+      "name": "Texto español \\\"\n\r\t\u0001",
+      "type": "EXPENSE",
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "userId": 42
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "categories.setType.Ingreso": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "icon": "Texto español \\\"\n\r\t\u0001",
+      "id": 42,
+      "name": "Texto español \\\"\n\r\t\u0001",
+      "type": "INCOME",
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "userId": 42
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "categories.setType.Reubicación": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "icon": "Texto español \\\"\n\r\t\u0001",
+      "id": 42,
+      "name": "Texto español \\\"\n\r\t\u0001",
+      "type": "REALLOCATION",
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "userId": 42
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "externalEntities.defaults": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "contact": null,
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "id": 0,
+      "name": null,
+      "type": null,
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "userId": 0
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "externalEntities.full": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "contact": "Texto español \\\"\n\r\t\u0001",
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "id": 42,
+      "name": "Texto español \\\"\n\r\t\u0001",
+      "type": "PERSON",
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "userId": 42
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "externalEntities.jsonRoundtrip": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "contact": "Texto español \\\"\n\r\t\u0001",
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "id": 42,
+      "name": "Texto español \\\"\n\r\t\u0001",
+      "type": "PERSON",
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "userId": 42
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "externalEntities.roundtrip": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "contact": "Texto español \\\"\n\r\t\u0001",
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "id": 42,
+      "name": "Texto español \\\"\n\r\t\u0001",
+      "type": "PERSON",
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "userId": 42
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "externalEntities.setType.Persona": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "contact": "Texto español \\\"\n\r\t\u0001",
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "id": 42,
+      "name": "Texto español \\\"\n\r\t\u0001",
+      "type": "PERSON",
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "userId": 42
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "externalEntities.setType.Servicio": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "contact": "Texto español \\\"\n\r\t\u0001",
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "id": 42,
+      "name": "Texto español \\\"\n\r\t\u0001",
+      "type": "SERVICE",
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "userId": 42
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "externalEntities.setType.Tienda": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "contact": "Texto español \\\"\n\r\t\u0001",
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "id": 42,
+      "name": "Texto español \\\"\n\r\t\u0001",
+      "type": "STORE",
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "userId": 42
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "tags.defaults": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "color": null,
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "id": 0,
+      "name": null,
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "userId": 0
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "tags.full": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "color": "Texto español \\\"\n\r\t\u0001",
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "id": 42,
+      "name": "Texto español \\\"\n\r\t\u0001",
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "userId": 42
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "tags.jsonRoundtrip": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "color": "Texto español \\\"\n\r\t\u0001",
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "id": 42,
+      "name": "Texto español \\\"\n\r\t\u0001",
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "userId": 42
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "tags.roundtrip": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "color": "Texto español \\\"\n\r\t\u0001",
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "id": 42,
+      "name": "Texto español \\\"\n\r\t\u0001",
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "userId": 42
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "transactions.defaults": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "amount": null,
+      "categoryId": 0,
+      "comments": null,
+      "concept": null,
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "date": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "description": null,
+      "destinationAccountId": null,
+      "externalEntityId": null,
+      "id": 0,
+      "operationType": null,
+      "parentTransactionId": null,
+      "paymentMethod": null,
+      "receiptUrl": null,
+      "sourceAccountId": null,
+      "status": "COMPLETED",
+      "tagIds": [],
+      "timezone": null,
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "userId": 0
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "transactions.full": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "amount": 123.45,
+      "cardDetail": {
+        "amount": 123.45,
+        "cardId": 42,
+        "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+        "id": 42,
+        "installmentMonths": 6,
+        "interestFree": true,
+        "transactionId": 42,
+        "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]"
+      },
+      "categoryId": 42,
+      "comments": "Texto español \\\"\n\r\t\u0001",
+      "concept": "Texto español \\\"\n\r\t\u0001",
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "date": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "description": "Texto español \\\"\n\r\t\u0001",
+      "destinationAccountId": 42,
+      "externalEntityId": 42,
+      "id": 42,
+      "operationType": "INCOME",
+      "parentTransactionId": 42,
+      "paymentMethod": "CASH",
+      "receiptUrl": "Texto español \\\"\n\r\t\u0001",
+      "sourceAccountId": 42,
+      "status": "PENDING",
+      "tagIds": [
+        3,
+        5
+      ],
+      "timezone": "America/Mexico_City",
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "userId": 42,
+      "walletDetail": {
+        "amount": 123.45,
+        "cardId": 42,
+        "cashbackRate": 123.45,
+        "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+        "id": 42,
+        "sourceType": "WALLET_BALANCE",
+        "transactionId": 42,
+        "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+        "walletAccountId": 42
+      }
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "transactions.jsonRoundtrip": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "amount": 123.45,
+      "cardDetail": {
+        "amount": 123.45,
+        "cardId": 42,
+        "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+        "id": 42,
+        "installmentMonths": 6,
+        "interestFree": true,
+        "transactionId": 42,
+        "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]"
+      },
+      "categoryId": 42,
+      "comments": "Texto español \\\"\n\r\t\u0001",
+      "concept": "Texto español \\\"\n\r\t\u0001",
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "date": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "description": "Texto español \\\"\n\r\t\u0001",
+      "destinationAccountId": 42,
+      "externalEntityId": 42,
+      "id": 42,
+      "operationType": "INCOME",
+      "parentTransactionId": 42,
+      "paymentMethod": "CASH",
+      "receiptUrl": "Texto español \\\"\n\r\t\u0001",
+      "sourceAccountId": 42,
+      "status": "PENDING",
+      "tagIds": [
+        3,
+        5
+      ],
+      "timezone": "America/Mexico_City",
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "userId": 42,
+      "walletDetail": {
+        "amount": 123.45,
+        "cardId": 42,
+        "cashbackRate": 123.45,
+        "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+        "id": 42,
+        "sourceType": "WALLET_BALANCE",
+        "transactionId": 42,
+        "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+        "walletAccountId": 42
+      }
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "transactions.nullable": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "amount": 123.45,
+      "categoryId": 42,
+      "comments": "Texto español \\\"\n\r\t\u0001",
+      "concept": "Texto español \\\"\n\r\t\u0001",
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "date": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "description": null,
+      "destinationAccountId": 42,
+      "externalEntityId": 42,
+      "id": 42,
+      "operationType": "INCOME",
+      "parentTransactionId": 42,
+      "paymentMethod": "CASH",
+      "receiptUrl": "Texto español \\\"\n\r\t\u0001",
+      "sourceAccountId": 42,
+      "status": "COMPLETED",
+      "tagIds": [
+        3,
+        5
+      ],
+      "timezone": "America/Mexico_City",
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "userId": 42
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "transactions.roundtrip": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "amount": 123.45,
+      "cardDetail": {
+        "amount": 123.45,
+        "cardId": 42,
+        "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+        "id": 42,
+        "installmentMonths": 6,
+        "interestFree": true,
+        "transactionId": 42,
+        "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]"
+      },
+      "categoryId": 42,
+      "comments": "Texto español \\\"\n\r\t\u0001",
+      "concept": "Texto español \\\"\n\r\t\u0001",
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "date": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "description": "Texto español \\\"\n\r\t\u0001",
+      "destinationAccountId": 42,
+      "externalEntityId": 42,
+      "id": 42,
+      "operationType": "INCOME",
+      "parentTransactionId": 42,
+      "paymentMethod": "CASH",
+      "receiptUrl": "Texto español \\\"\n\r\t\u0001",
+      "sourceAccountId": 42,
+      "status": "PENDING",
+      "tagIds": [
+        3,
+        5
+      ],
+      "timezone": "America/Mexico_City",
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "userId": 42,
+      "walletDetail": {
+        "amount": 123.45,
+        "cardId": 42,
+        "cashbackRate": 123.45,
+        "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+        "id": 42,
+        "sourceType": "WALLET_BALANCE",
+        "transactionId": 42,
+        "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+        "walletAccountId": 42
+      }
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "transactions.setOperationType.Egreso": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "amount": 123.45,
+      "cardDetail": {
+        "amount": 123.45,
+        "cardId": 42,
+        "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+        "id": 42,
+        "installmentMonths": 6,
+        "interestFree": true,
+        "transactionId": 42,
+        "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]"
+      },
+      "categoryId": 42,
+      "comments": "Texto español \\\"\n\r\t\u0001",
+      "concept": "Texto español \\\"\n\r\t\u0001",
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "date": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "description": "Texto español \\\"\n\r\t\u0001",
+      "destinationAccountId": 42,
+      "externalEntityId": 42,
+      "id": 42,
+      "operationType": "EXPENSE",
+      "parentTransactionId": 42,
+      "paymentMethod": "CASH",
+      "receiptUrl": "Texto español \\\"\n\r\t\u0001",
+      "sourceAccountId": 42,
+      "status": "PENDING",
+      "tagIds": [
+        3,
+        5
+      ],
+      "timezone": "America/Mexico_City",
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "userId": 42,
+      "walletDetail": {
+        "amount": 123.45,
+        "cardId": 42,
+        "cashbackRate": 123.45,
+        "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+        "id": 42,
+        "sourceType": "WALLET_BALANCE",
+        "transactionId": 42,
+        "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+        "walletAccountId": 42
+      }
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "transactions.setOperationType.Ingreso": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "amount": 123.45,
+      "cardDetail": {
+        "amount": 123.45,
+        "cardId": 42,
+        "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+        "id": 42,
+        "installmentMonths": 6,
+        "interestFree": true,
+        "transactionId": 42,
+        "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]"
+      },
+      "categoryId": 42,
+      "comments": "Texto español \\\"\n\r\t\u0001",
+      "concept": "Texto español \\\"\n\r\t\u0001",
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "date": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "description": "Texto español \\\"\n\r\t\u0001",
+      "destinationAccountId": 42,
+      "externalEntityId": 42,
+      "id": 42,
+      "operationType": "INCOME",
+      "parentTransactionId": 42,
+      "paymentMethod": "CASH",
+      "receiptUrl": "Texto español \\\"\n\r\t\u0001",
+      "sourceAccountId": 42,
+      "status": "PENDING",
+      "tagIds": [
+        3,
+        5
+      ],
+      "timezone": "America/Mexico_City",
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "userId": 42,
+      "walletDetail": {
+        "amount": 123.45,
+        "cardId": 42,
+        "cashbackRate": 123.45,
+        "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+        "id": 42,
+        "sourceType": "WALLET_BALANCE",
+        "transactionId": 42,
+        "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+        "walletAccountId": 42
+      }
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "transactions.setOperationType.Reubicación": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "amount": 123.45,
+      "cardDetail": {
+        "amount": 123.45,
+        "cardId": 42,
+        "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+        "id": 42,
+        "installmentMonths": 6,
+        "interestFree": true,
+        "transactionId": 42,
+        "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]"
+      },
+      "categoryId": 42,
+      "comments": "Texto español \\\"\n\r\t\u0001",
+      "concept": "Texto español \\\"\n\r\t\u0001",
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "date": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "description": "Texto español \\\"\n\r\t\u0001",
+      "destinationAccountId": 42,
+      "externalEntityId": 42,
+      "id": 42,
+      "operationType": "REALLOCATION",
+      "parentTransactionId": 42,
+      "paymentMethod": "CASH",
+      "receiptUrl": "Texto español \\\"\n\r\t\u0001",
+      "sourceAccountId": 42,
+      "status": "PENDING",
+      "tagIds": [
+        3,
+        5
+      ],
+      "timezone": "America/Mexico_City",
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "userId": 42,
+      "walletDetail": {
+        "amount": 123.45,
+        "cardId": 42,
+        "cashbackRate": 123.45,
+        "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+        "id": 42,
+        "sourceType": "WALLET_BALANCE",
+        "transactionId": 42,
+        "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+        "walletAccountId": 42
+      }
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "transactions.setPaymentMethod.Billetera": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "amount": 123.45,
+      "cardDetail": {
+        "amount": 123.45,
+        "cardId": 42,
+        "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+        "id": 42,
+        "installmentMonths": 6,
+        "interestFree": true,
+        "transactionId": 42,
+        "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]"
+      },
+      "categoryId": 42,
+      "comments": "Texto español \\\"\n\r\t\u0001",
+      "concept": "Texto español \\\"\n\r\t\u0001",
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "date": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "description": "Texto español \\\"\n\r\t\u0001",
+      "destinationAccountId": 42,
+      "externalEntityId": 42,
+      "id": 42,
+      "operationType": "REALLOCATION",
+      "parentTransactionId": 42,
+      "paymentMethod": "WALLET",
+      "receiptUrl": "Texto español \\\"\n\r\t\u0001",
+      "sourceAccountId": 42,
+      "status": "PENDING",
+      "tagIds": [
+        3,
+        5
+      ],
+      "timezone": "America/Mexico_City",
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "userId": 42,
+      "walletDetail": {
+        "amount": 123.45,
+        "cardId": 42,
+        "cashbackRate": 123.45,
+        "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+        "id": 42,
+        "sourceType": "WALLET_BALANCE",
+        "transactionId": 42,
+        "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+        "walletAccountId": 42
+      }
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "transactions.setPaymentMethod.CoDi": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "amount": 123.45,
+      "cardDetail": {
+        "amount": 123.45,
+        "cardId": 42,
+        "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+        "id": 42,
+        "installmentMonths": 6,
+        "interestFree": true,
+        "transactionId": 42,
+        "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]"
+      },
+      "categoryId": 42,
+      "comments": "Texto español \\\"\n\r\t\u0001",
+      "concept": "Texto español \\\"\n\r\t\u0001",
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "date": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "description": "Texto español \\\"\n\r\t\u0001",
+      "destinationAccountId": 42,
+      "externalEntityId": 42,
+      "id": 42,
+      "operationType": "REALLOCATION",
+      "parentTransactionId": 42,
+      "paymentMethod": "CODI",
+      "receiptUrl": "Texto español \\\"\n\r\t\u0001",
+      "sourceAccountId": 42,
+      "status": "PENDING",
+      "tagIds": [
+        3,
+        5
+      ],
+      "timezone": "America/Mexico_City",
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "userId": 42,
+      "walletDetail": {
+        "amount": 123.45,
+        "cardId": 42,
+        "cashbackRate": 123.45,
+        "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+        "id": 42,
+        "sourceType": "WALLET_BALANCE",
+        "transactionId": 42,
+        "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+        "walletAccountId": 42
+      }
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "transactions.setPaymentMethod.Código QR": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "amount": 123.45,
+      "cardDetail": {
+        "amount": 123.45,
+        "cardId": 42,
+        "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+        "id": 42,
+        "installmentMonths": 6,
+        "interestFree": true,
+        "transactionId": 42,
+        "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]"
+      },
+      "categoryId": 42,
+      "comments": "Texto español \\\"\n\r\t\u0001",
+      "concept": "Texto español \\\"\n\r\t\u0001",
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "date": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "description": "Texto español \\\"\n\r\t\u0001",
+      "destinationAccountId": 42,
+      "externalEntityId": 42,
+      "id": 42,
+      "operationType": "REALLOCATION",
+      "parentTransactionId": 42,
+      "paymentMethod": "QR",
+      "receiptUrl": "Texto español \\\"\n\r\t\u0001",
+      "sourceAccountId": 42,
+      "status": "PENDING",
+      "tagIds": [
+        3,
+        5
+      ],
+      "timezone": "America/Mexico_City",
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "userId": 42,
+      "walletDetail": {
+        "amount": 123.45,
+        "cardId": 42,
+        "cashbackRate": 123.45,
+        "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+        "id": 42,
+        "sourceType": "WALLET_BALANCE",
+        "transactionId": 42,
+        "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+        "walletAccountId": 42
+      }
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "transactions.setPaymentMethod.Efectivo": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "amount": 123.45,
+      "cardDetail": {
+        "amount": 123.45,
+        "cardId": 42,
+        "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+        "id": 42,
+        "installmentMonths": 6,
+        "interestFree": true,
+        "transactionId": 42,
+        "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]"
+      },
+      "categoryId": 42,
+      "comments": "Texto español \\\"\n\r\t\u0001",
+      "concept": "Texto español \\\"\n\r\t\u0001",
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "date": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "description": "Texto español \\\"\n\r\t\u0001",
+      "destinationAccountId": 42,
+      "externalEntityId": 42,
+      "id": 42,
+      "operationType": "REALLOCATION",
+      "parentTransactionId": 42,
+      "paymentMethod": "CASH",
+      "receiptUrl": "Texto español \\\"\n\r\t\u0001",
+      "sourceAccountId": 42,
+      "status": "PENDING",
+      "tagIds": [
+        3,
+        5
+      ],
+      "timezone": "America/Mexico_City",
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "userId": 42,
+      "walletDetail": {
+        "amount": 123.45,
+        "cardId": 42,
+        "cashbackRate": 123.45,
+        "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+        "id": 42,
+        "sourceType": "WALLET_BALANCE",
+        "transactionId": 42,
+        "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+        "walletAccountId": 42
+      }
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "transactions.setPaymentMethod.Movimiento interno": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "amount": 123.45,
+      "cardDetail": {
+        "amount": 123.45,
+        "cardId": 42,
+        "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+        "id": 42,
+        "installmentMonths": 6,
+        "interestFree": true,
+        "transactionId": 42,
+        "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]"
+      },
+      "categoryId": 42,
+      "comments": "Texto español \\\"\n\r\t\u0001",
+      "concept": "Texto español \\\"\n\r\t\u0001",
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "date": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "description": "Texto español \\\"\n\r\t\u0001",
+      "destinationAccountId": 42,
+      "externalEntityId": 42,
+      "id": 42,
+      "operationType": "REALLOCATION",
+      "parentTransactionId": 42,
+      "paymentMethod": "INTERNAL",
+      "receiptUrl": "Texto español \\\"\n\r\t\u0001",
+      "sourceAccountId": 42,
+      "status": "PENDING",
+      "tagIds": [
+        3,
+        5
+      ],
+      "timezone": "America/Mexico_City",
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "userId": 42,
+      "walletDetail": {
+        "amount": 123.45,
+        "cardId": 42,
+        "cashbackRate": 123.45,
+        "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+        "id": 42,
+        "sourceType": "WALLET_BALANCE",
+        "transactionId": 42,
+        "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+        "walletAccountId": 42
+      }
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "transactions.setPaymentMethod.Tarjeta": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "amount": 123.45,
+      "cardDetail": {
+        "amount": 123.45,
+        "cardId": 42,
+        "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+        "id": 42,
+        "installmentMonths": 6,
+        "interestFree": true,
+        "transactionId": 42,
+        "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]"
+      },
+      "categoryId": 42,
+      "comments": "Texto español \\\"\n\r\t\u0001",
+      "concept": "Texto español \\\"\n\r\t\u0001",
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "date": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "description": "Texto español \\\"\n\r\t\u0001",
+      "destinationAccountId": 42,
+      "externalEntityId": 42,
+      "id": 42,
+      "operationType": "REALLOCATION",
+      "parentTransactionId": 42,
+      "paymentMethod": "CARD",
+      "receiptUrl": "Texto español \\\"\n\r\t\u0001",
+      "sourceAccountId": 42,
+      "status": "PENDING",
+      "tagIds": [
+        3,
+        5
+      ],
+      "timezone": "America/Mexico_City",
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "userId": 42,
+      "walletDetail": {
+        "amount": 123.45,
+        "cardId": 42,
+        "cashbackRate": 123.45,
+        "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+        "id": 42,
+        "sourceType": "WALLET_BALANCE",
+        "transactionId": 42,
+        "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+        "walletAccountId": 42
+      }
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "transactions.setPaymentMethod.Transferencia (SPEI)": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "amount": 123.45,
+      "cardDetail": {
+        "amount": 123.45,
+        "cardId": 42,
+        "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+        "id": 42,
+        "installmentMonths": 6,
+        "interestFree": true,
+        "transactionId": 42,
+        "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]"
+      },
+      "categoryId": 42,
+      "comments": "Texto español \\\"\n\r\t\u0001",
+      "concept": "Texto español \\\"\n\r\t\u0001",
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "date": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "description": "Texto español \\\"\n\r\t\u0001",
+      "destinationAccountId": 42,
+      "externalEntityId": 42,
+      "id": 42,
+      "operationType": "REALLOCATION",
+      "parentTransactionId": 42,
+      "paymentMethod": "WIRE_TRANSFER",
+      "receiptUrl": "Texto español \\\"\n\r\t\u0001",
+      "sourceAccountId": 42,
+      "status": "PENDING",
+      "tagIds": [
+        3,
+        5
+      ],
+      "timezone": "America/Mexico_City",
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "userId": 42,
+      "walletDetail": {
+        "amount": 123.45,
+        "cardId": 42,
+        "cashbackRate": 123.45,
+        "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+        "id": 42,
+        "sourceType": "WALLET_BALANCE",
+        "transactionId": 42,
+        "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+        "walletAccountId": 42
+      }
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "transactions.setStatus.Cancelada": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "amount": 123.45,
+      "cardDetail": {
+        "amount": 123.45,
+        "cardId": 42,
+        "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+        "id": 42,
+        "installmentMonths": 6,
+        "interestFree": true,
+        "transactionId": 42,
+        "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]"
+      },
+      "categoryId": 42,
+      "comments": "Texto español \\\"\n\r\t\u0001",
+      "concept": "Texto español \\\"\n\r\t\u0001",
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "date": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "description": "Texto español \\\"\n\r\t\u0001",
+      "destinationAccountId": 42,
+      "externalEntityId": 42,
+      "id": 42,
+      "operationType": "REALLOCATION",
+      "parentTransactionId": 42,
+      "paymentMethod": "WALLET",
+      "receiptUrl": "Texto español \\\"\n\r\t\u0001",
+      "sourceAccountId": 42,
+      "status": "CANCELLED",
+      "tagIds": [
+        3,
+        5
+      ],
+      "timezone": "America/Mexico_City",
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "userId": 42,
+      "walletDetail": {
+        "amount": 123.45,
+        "cardId": 42,
+        "cashbackRate": 123.45,
+        "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+        "id": 42,
+        "sourceType": "WALLET_BALANCE",
+        "transactionId": 42,
+        "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+        "walletAccountId": 42
+      }
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "transactions.setStatus.Completada": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "amount": 123.45,
+      "cardDetail": {
+        "amount": 123.45,
+        "cardId": 42,
+        "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+        "id": 42,
+        "installmentMonths": 6,
+        "interestFree": true,
+        "transactionId": 42,
+        "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]"
+      },
+      "categoryId": 42,
+      "comments": "Texto español \\\"\n\r\t\u0001",
+      "concept": "Texto español \\\"\n\r\t\u0001",
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "date": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "description": "Texto español \\\"\n\r\t\u0001",
+      "destinationAccountId": 42,
+      "externalEntityId": 42,
+      "id": 42,
+      "operationType": "REALLOCATION",
+      "parentTransactionId": 42,
+      "paymentMethod": "WALLET",
+      "receiptUrl": "Texto español \\\"\n\r\t\u0001",
+      "sourceAccountId": 42,
+      "status": "COMPLETED",
+      "tagIds": [
+        3,
+        5
+      ],
+      "timezone": "America/Mexico_City",
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "userId": 42,
+      "walletDetail": {
+        "amount": 123.45,
+        "cardId": 42,
+        "cashbackRate": 123.45,
+        "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+        "id": 42,
+        "sourceType": "WALLET_BALANCE",
+        "transactionId": 42,
+        "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+        "walletAccountId": 42
+      }
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "transactions.setStatus.Fallida": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "amount": 123.45,
+      "cardDetail": {
+        "amount": 123.45,
+        "cardId": 42,
+        "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+        "id": 42,
+        "installmentMonths": 6,
+        "interestFree": true,
+        "transactionId": 42,
+        "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]"
+      },
+      "categoryId": 42,
+      "comments": "Texto español \\\"\n\r\t\u0001",
+      "concept": "Texto español \\\"\n\r\t\u0001",
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "date": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "description": "Texto español \\\"\n\r\t\u0001",
+      "destinationAccountId": 42,
+      "externalEntityId": 42,
+      "id": 42,
+      "operationType": "REALLOCATION",
+      "parentTransactionId": 42,
+      "paymentMethod": "WALLET",
+      "receiptUrl": "Texto español \\\"\n\r\t\u0001",
+      "sourceAccountId": 42,
+      "status": "FAILED",
+      "tagIds": [
+        3,
+        5
+      ],
+      "timezone": "America/Mexico_City",
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "userId": 42,
+      "walletDetail": {
+        "amount": 123.45,
+        "cardId": 42,
+        "cashbackRate": 123.45,
+        "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+        "id": 42,
+        "sourceType": "WALLET_BALANCE",
+        "transactionId": 42,
+        "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+        "walletAccountId": 42
+      }
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "transactions.setStatus.Pendiente": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "amount": 123.45,
+      "cardDetail": {
+        "amount": 123.45,
+        "cardId": 42,
+        "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+        "id": 42,
+        "installmentMonths": 6,
+        "interestFree": true,
+        "transactionId": 42,
+        "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]"
+      },
+      "categoryId": 42,
+      "comments": "Texto español \\\"\n\r\t\u0001",
+      "concept": "Texto español \\\"\n\r\t\u0001",
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "date": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "description": "Texto español \\\"\n\r\t\u0001",
+      "destinationAccountId": 42,
+      "externalEntityId": 42,
+      "id": 42,
+      "operationType": "REALLOCATION",
+      "parentTransactionId": 42,
+      "paymentMethod": "WALLET",
+      "receiptUrl": "Texto español \\\"\n\r\t\u0001",
+      "sourceAccountId": 42,
+      "status": "PENDING",
+      "tagIds": [
+        3,
+        5
+      ],
+      "timezone": "America/Mexico_City",
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "userId": 42,
+      "walletDetail": {
+        "amount": 123.45,
+        "cardId": 42,
+        "cashbackRate": 123.45,
+        "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+        "id": 42,
+        "sourceType": "WALLET_BALANCE",
+        "transactionId": 42,
+        "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+        "walletAccountId": 42
+      }
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "users.defaults": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "email": null,
+      "globalBalance": 0.0,
+      "id": 0,
+      "name": null,
+      "password": null,
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]"
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "users.full": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "email": "Texto español \\\"\n\r\t\u0001",
+      "globalBalance": 123.45,
+      "id": 42,
+      "name": "Texto español \\\"\n\r\t\u0001",
+      "password": "Texto español \\\"\n\r\t\u0001",
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]"
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "users.jsonRoundtrip": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "email": "Texto español \\\"\n\r\t\u0001",
+      "globalBalance": 123.45,
+      "id": 42,
+      "name": "Texto español \\\"\n\r\t\u0001",
+      "password": "Texto español \\\"\n\r\t\u0001",
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]"
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "users.roundtrip": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "email": "Texto español \\\"\n\r\t\u0001",
+      "globalBalance": 123.45,
+      "id": 42,
+      "name": "Texto español \\\"\n\r\t\u0001",
+      "password": "Texto español \\\"\n\r\t\u0001",
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]"
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "walletCardLinks.defaults": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "cardId": 0,
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "id": 0,
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "walletAccountId": 0
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "walletCardLinks.full": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "cardId": 42,
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "id": 42,
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "walletAccountId": 42
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "walletCardLinks.jsonRoundtrip": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "cardId": 42,
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "id": 42,
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "walletAccountId": 42
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "walletCardLinks.roundtrip": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "cardId": 42,
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "id": 42,
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "walletAccountId": 42
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "walletTransactionDetails.defaults": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "exception": "java.lang.NullPointerException"
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "walletTransactionDetails.full": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "amount": 123.45,
+      "cardId": 42,
+      "cashbackRate": 123.45,
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "id": 42,
+      "sourceType": "WALLET_BALANCE",
+      "transactionId": 42,
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "walletAccountId": 42
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "walletTransactionDetails.jsonRoundtrip": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "amount": 123.45,
+      "cardId": 42,
+      "cashbackRate": 123.45,
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "id": 42,
+      "sourceType": "WALLET_BALANCE",
+      "transactionId": 42,
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "walletAccountId": 42
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "walletTransactionDetails.roundtrip": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "amount": 123.45,
+      "cardId": 42,
+      "cashbackRate": 123.45,
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "id": 42,
+      "sourceType": "WALLET_BALANCE",
+      "transactionId": 42,
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "walletAccountId": 42
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "walletTransactionDetails.setSourceType.Saldo Wallet": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "amount": 123.45,
+      "cardId": 42,
+      "cashbackRate": 123.45,
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "id": 42,
+      "sourceType": "WALLET_BALANCE",
+      "transactionId": 42,
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "walletAccountId": 42
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  },
+  "walletTransactionDetails.setSourceType.Tarjeta Asociada": {
+    "content": "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á",
+    "data": {
+      "amount": 123.45,
+      "cardId": 42,
+      "cashbackRate": 123.45,
+      "createdAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "id": 42,
+      "sourceType": "LINKED_CARD",
+      "transactionId": 42,
+      "updatedAt": "2026-01-15T13:45:30-06:00[America/Mexico_City]",
+      "walletAccountId": 42
+    },
+    "status": "PENDING",
+    "type": "CONTRACT"
+  }
+}

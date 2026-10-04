@@ -1,3 +1,5 @@
+> Migración por features: consulte [ARCHITECTURE.md](../../../../../../../ARCHITECTURE.md), [MIGRATION.md](../../../../../../../MIGRATION.md) y [AGENTS.md](../../../../../../../AGENTS.md). Las features pendientes conservan la estructura documentada aquí.
+
 # Implementing a New Feature in the Client Project
 
 To create a new feature within the `client` project, the first step is to navigate to the main package where all application modules are organized. Features are created under the following path:
@@ -12,7 +14,7 @@ Inside this location, a new folder should be created using the feature name. For
 com/giozar04/featureName
 ```
 
-The client project follows a layered architecture where each feature separates responsibilities into independent modules. The overall system is composed of three main projects: `backend`, `client`, and `RMI/shared`. The backend handles business logic and persistence, the client manages the user interface and interactions, and the `RMI/shared` project contains resources shared between both applications, such as entities, enums, exceptions, and common utilities.
+The client project follows a layered architecture where each feature separates responsibilities into independent modules. The overall system is composed of three main projects: `backend`, `client`, and `shared/java-shared`. The backend handles business logic and persistence, the client manages the user interface and interactions, and the `shared/java-shared` project contains resources shared between both applications, such as entities, enums, exceptions, and common utilities.
 
 From the client perspective, the responsibility of a feature is to provide the visual layer and communicate with the backend through the socket infrastructure already implemented.
 
@@ -284,7 +286,7 @@ The complete process for creating a new feature in the client project can be sum
 7. Reuse existing resources from shared whenever possible.
 8. Register and initialize the service in ApplicationInitializer.
 9. Add the menu entry in SidebarPanel (menuItems) and its case in AppLayout.navigate(...).
-10. Verify that backend and RMI/shared resources exist and are compatible.
+10. Verify that backend and shared/java-shared resources exist and are compatible.
 ```
 
 In general, the application flow works as follows: `ApplicationInitializer` starts the application, `ServerConnectionService` establishes communication with the backend, feature services perform the required operations, and presentation components render and manage information for the user interface.

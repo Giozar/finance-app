@@ -1,3 +1,5 @@
+> Migración por features: consulte [ARCHITECTURE.md](../../ARCHITECTURE.md), [MIGRATION.md](../../MIGRATION.md) y [AGENTS.md](../../AGENTS.md). Las features pendientes conservan la estructura documentada aquí.
+
 # java-shared
 
 Módulo Java con los contratos compartidos entre `backend/java-server` (servidor) y `client/java-client` (cliente): entidades, enums, excepciones y utilidades de conversión. No contiene lógica de negocio ni UI. Sin dependencias externas (JSON propio en `JsonUtils`).

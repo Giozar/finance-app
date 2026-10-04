@@ -1,350 +1,155 @@
-# The backend project has the following structure:
-── .
-├── database
-│   ├── migrations
-│   │   ├── 2026-10-03_reallocation.sql
-│   │   ├── 2026-10-03_schema_consistency.sql
-│   │   ├── 2026-10-03_transaction_integrity.sql
-│   │   ├── 2026-10-04_account_reconciliation.sql
-│   │   ├── 2026-10-05_transactions_redesign.sql
-│   ├── schemas.sql
-├── GENERAL.md
-├── backend
-│   ├── java-server
-│   │   ├── pom.xml
-│   │   ├── .gitignore
-│   │   ├── GENERALBACKEND.md
-│   │   ├── src
-│   │   │   ├── main
-│   │   │   │   ├── resources
-│   │   │   │   │   ├── config.properties
-│   │   │   │   │   ├── config.example.properties
-│   │   │   │   ├── java
-│   │   │   │   │   ├── com
-│   │   │   │   │   │   ├── giozar04
-│   │   │   │   │   │   │   ├── databases
-│   │   │   │   │   │   │   │   ├── application
-│   │   │   │   │   │   │   │   │   ├── services
-│   │   │   │   │   │   │   │   │   │   ├── TransactionalExecutor.java
-│   │   │   │   │   │   │   │   ├── infrastructure
-│   │   │   │   │   │   │   │   │   ├── repositories
-│   │   │   │   │   │   │   │   │   │   ├── DatabaseConnectionMySQL.java
-│   │   │   │   │   │   │   │   ├── domain
-│   │   │   │   │   │   │   │   │   ├── models
-│   │   │   │   │   │   │   │   │   │   ├── DatabaseConnectionAbstract.java
-│   │   │   │   │   │   │   │   │   ├── exceptions
-│   │   │   │   │   │   │   │   │   │   ├── DatabaseExceptions.java
-│   │   │   │   │   │   │   │   │   ├── interfaces
-│   │   │   │   │   │   │   │   │   │   ├── DatabaseConnectionInterface.java
-│   │   │   │   │   │   │   │   │   │   ├── SqlWork.java
-│   │   │   │   │   │   │   ├── walletCardLinks
-│   │   │   │   │   │   │   │   ├── test
-│   │   │   │   │   │   │   │   │   ├── WalletCardLinkTestApp.java
-│   │   │   │   │   │   │   │   ├── application
-│   │   │   │   │   │   │   │   │   ├── services
-│   │   │   │   │   │   │   │   │   │   ├── WalletCardLinkService.java
-│   │   │   │   │   │   │   │   ├── infrastructure
-│   │   │   │   │   │   │   │   │   ├── repositories
-│   │   │   │   │   │   │   │   │   │   ├── WalletCardLinkRepositoryMySQL.java
-│   │   │   │   │   │   │   │   │   ├── controllers
-│   │   │   │   │   │   │   │   │   │   ├── WalletCardLinkControllers.java
-│   │   │   │   │   │   │   │   │   ├── handlers
-│   │   │   │   │   │   │   │   │   │   ├── WalletCardLinkHandlers.java
-│   │   │   │   │   │   │   │   ├── domain
-│   │   │   │   │   │   │   │   │   ├── models
-│   │   │   │   │   │   │   │   │   │   ├── WalletCardLinkRepositoryAbstract.java
-│   │   │   │   │   │   │   │   │   ├── interfaces
-│   │   │   │   │   │   │   │   │   │   ├── WalletCardLinkRepositoryInterface.java
-│   │   │   │   │   │   │   │   ├── sql
-│   │   │   │   │   │   │   │   │   ├── wallet_card_links.sql
-│   │   │   │   │   │   │   ├── walletTransactionDetails
-│   │   │   │   │   │   │   │   ├── application
-│   │   │   │   │   │   │   │   │   ├── services
-│   │   │   │   │   │   │   │   │   │   ├── WalletTransactionDetailService.java
-│   │   │   │   │   │   │   │   ├── infrastructure
-│   │   │   │   │   │   │   │   │   ├── repositories
-│   │   │   │   │   │   │   │   │   │   ├── WalletTransactionDetailRepositoryMySQL.java
-│   │   │   │   │   │   │   │   │   ├── controllers
-│   │   │   │   │   │   │   │   │   │   ├── WalletTransactionDetailControllers.java
-│   │   │   │   │   │   │   │   │   ├── handlers
-│   │   │   │   │   │   │   │   │   │   ├── WalletTransactionDetailHandlers.java
-│   │   │   │   │   │   │   │   ├── domain
-│   │   │   │   │   │   │   │   │   ├── models
-│   │   │   │   │   │   │   │   │   │   ├── WalletTransactionDetailRepositoryAbstract.java
-│   │   │   │   │   │   │   │   │   ├── interfaces
-│   │   │   │   │   │   │   │   │   │   ├── WalletTransactionDetailRepositoryInterface.java
-│   │   │   │   │   │   │   │   │   │   ├── WalletTransactionDetailTransactionalRepositoryInterface.java
-│   │   │   │   │   │   │   │   ├── sql
-│   │   │   │   │   │   │   │   │   ├── wallet_transaction_details.sql
-│   │   │   │   │   │   │   ├── bootstrap
-│   │   │   │   │   │   │   │   ├── ServerInitializer.java
-│   │   │   │   │   │   │   │   ├── ApplicationInitializer.java
-│   │   │   │   │   │   │   │   ├── DatabaseInitializer.java
-│   │   │   │   │   │   │   ├── cardTransactionDetails
-│   │   │   │   │   │   │   │   ├── application
-│   │   │   │   │   │   │   │   │   ├── services
-│   │   │   │   │   │   │   │   │   │   ├── CardTransactionDetailService.java
-│   │   │   │   │   │   │   │   ├── infrastructure
-│   │   │   │   │   │   │   │   │   ├── repositories
-│   │   │   │   │   │   │   │   │   │   ├── CardTransactionDetailRepositoryMySQL.java
-│   │   │   │   │   │   │   │   │   ├── controllers
-│   │   │   │   │   │   │   │   │   │   ├── CardTransactionDetailControllers.java
-│   │   │   │   │   │   │   │   │   ├── handlers
-│   │   │   │   │   │   │   │   │   │   ├── CardTransactionDetailHandlers.java
-│   │   │   │   │   │   │   │   ├── domain
-│   │   │   │   │   │   │   │   │   ├── models
-│   │   │   │   │   │   │   │   │   │   ├── CardTransactionDetailRepositoryAbstract.java
-│   │   │   │   │   │   │   │   │   ├── interfaces
-│   │   │   │   │   │   │   │   │   │   ├── CardTransactionDetailRepositoryInterface.java
-│   │   │   │   │   │   │   │   │   │   ├── CardTransactionDetailTransactionalRepositoryInterface.java
-│   │   │   │   │   │   │   │   ├── sql
-│   │   │   │   │   │   │   │   │   ├── card_transaction_details.sql
-│   │   │   │   │   │   │   ├── accountReconciliations
-│   │   │   │   │   │   │   │   ├── test
-│   │   │   │   │   │   │   │   │   ├── AccountReconciliationTestApp.java
-│   │   │   │   │   │   │   │   ├── application
-│   │   │   │   │   │   │   │   │   ├── services
-│   │   │   │   │   │   │   │   │   │   ├── AccountReconciliationService.java
-│   │   │   │   │   │   │   │   ├── infrastructure
-│   │   │   │   │   │   │   │   │   ├── repositories
-│   │   │   │   │   │   │   │   │   │   ├── AccountReconciliationRepositoryMySQL.java
-│   │   │   │   │   │   │   │   │   ├── controllers
-│   │   │   │   │   │   │   │   │   │   ├── AccountReconciliationControllers.java
-│   │   │   │   │   │   │   │   │   ├── handlers
-│   │   │   │   │   │   │   │   │   │   ├── AccountReconciliationHandlers.java
-│   │   │   │   │   │   │   │   ├── domain
-│   │   │   │   │   │   │   │   │   ├── models
-│   │   │   │   │   │   │   │   │   │   ├── AccountReconciliationRepositoryAbstract.java
-│   │   │   │   │   │   │   │   │   ├── interfaces
-│   │   │   │   │   │   │   │   │   │   ├── AccountReconciliationRepositoryInterface.java
-│   │   │   │   │   │   │   │   ├── sql
-│   │   │   │   │   │   │   │   │   ├── account_reconciliation.sql
-│   │   │   │   │   │   │   ├── accountCashbackSettings
-│   │   │   │   │   │   │   │   ├── test
-│   │   │   │   │   │   │   │   │   ├── AccountCashbackSettingTestApp.java
-│   │   │   │   │   │   │   │   ├── application
-│   │   │   │   │   │   │   │   │   ├── services
-│   │   │   │   │   │   │   │   │   │   ├── AccountCashbackSettingService.java
-│   │   │   │   │   │   │   │   ├── infrastructure
-│   │   │   │   │   │   │   │   │   ├── repositories
-│   │   │   │   │   │   │   │   │   │   ├── AccountCashbackSettingRepositoryMySQL.java
-│   │   │   │   │   │   │   │   │   ├── controllers
-│   │   │   │   │   │   │   │   │   │   ├── AccountCashbackSettingControllers.java
-│   │   │   │   │   │   │   │   │   ├── handlers
-│   │   │   │   │   │   │   │   │   │   ├── AccountCashbackSettingHandlers.java
-│   │   │   │   │   │   │   │   ├── domain
-│   │   │   │   │   │   │   │   │   ├── models
-│   │   │   │   │   │   │   │   │   │   ├── AccountCashbackSettingRepositoryAbstract.java
-│   │   │   │   │   │   │   │   │   ├── interfaces
-│   │   │   │   │   │   │   │   │   │   ├── AccountCashbackSettingRepositoryInterface.java
-│   │   │   │   │   │   │   │   ├── sql
-│   │   │   │   │   │   │   │   │   ├── account_cashback_settings.sql
-│   │   │   │   │   │   │   ├── cards
-│   │   │   │   │   │   │   │   ├── test
-│   │   │   │   │   │   │   │   │   ├── CardTestApp.java
-│   │   │   │   │   │   │   │   ├── application
-│   │   │   │   │   │   │   │   │   ├── services
-│   │   │   │   │   │   │   │   │   │   ├── CardService.java
-│   │   │   │   │   │   │   │   ├── infrastructure
-│   │   │   │   │   │   │   │   │   ├── repositories
-│   │   │   │   │   │   │   │   │   │   ├── CardRepositoryMySQL.java
-│   │   │   │   │   │   │   │   │   ├── controllers
-│   │   │   │   │   │   │   │   │   │   ├── CardControllers.java
-│   │   │   │   │   │   │   │   │   ├── handlers
-│   │   │   │   │   │   │   │   │   │   ├── CardHandlers.java
-│   │   │   │   │   │   │   │   ├── domain
-│   │   │   │   │   │   │   │   │   ├── models
-│   │   │   │   │   │   │   │   │   │   ├── CardRepositoryAbstract.java
-│   │   │   │   │   │   │   │   │   ├── interfaces
-│   │   │   │   │   │   │   │   │   │   ├── CardRepositoryInterface.java
-│   │   │   │   │   │   │   │   ├── sql
-│   │   │   │   │   │   │   │   │   ├── card.sql
-│   │   │   │   │   │   │   ├── bankClients
-│   │   │   │   │   │   │   │   ├── test
-│   │   │   │   │   │   │   │   │   ├── BankClientTestApp.java
-│   │   │   │   │   │   │   │   ├── application
-│   │   │   │   │   │   │   │   │   ├── services
-│   │   │   │   │   │   │   │   │   │   ├── BankClientService.java
-│   │   │   │   │   │   │   │   ├── infrastructure
-│   │   │   │   │   │   │   │   │   ├── repositories
-│   │   │   │   │   │   │   │   │   │   ├── BankClientRepositoryMySQL.java
-│   │   │   │   │   │   │   │   │   ├── controllers
-│   │   │   │   │   │   │   │   │   │   ├── BankClientControllers.java
-│   │   │   │   │   │   │   │   │   ├── handlers
-│   │   │   │   │   │   │   │   │   │   ├── BankClientHandlers.java
-│   │   │   │   │   │   │   │   ├── domain
-│   │   │   │   │   │   │   │   │   ├── models
-│   │   │   │   │   │   │   │   │   │   ├── BankClientRepositoryAbstract.java
-│   │   │   │   │   │   │   │   │   ├── interfaces
-│   │   │   │   │   │   │   │   │   │   ├── BankClientRepositoryInterface.java
-│   │   │   │   │   │   │   │   ├── sql
-│   │   │   │   │   │   │   │   │   ├── bankClients.sql
-│   │   │   │   │   │   │   ├── tags
-│   │   │   │   │   │   │   │   ├── test
-│   │   │   │   │   │   │   │   │   ├── TagTestApp.java
-│   │   │   │   │   │   │   │   ├── application
-│   │   │   │   │   │   │   │   │   ├── services
-│   │   │   │   │   │   │   │   │   │   ├── TagService.java
-│   │   │   │   │   │   │   │   ├── infrastructure
-│   │   │   │   │   │   │   │   │   ├── repositories
-│   │   │   │   │   │   │   │   │   │   ├── TagRepositoryMySQL.java
-│   │   │   │   │   │   │   │   │   ├── controllers
-│   │   │   │   │   │   │   │   │   │   ├── TagControllers.java
-│   │   │   │   │   │   │   │   │   ├── handlers
-│   │   │   │   │   │   │   │   │   │   ├── TagHandlers.java
-│   │   │   │   │   │   │   │   ├── domain
-│   │   │   │   │   │   │   │   │   ├── models
-│   │   │   │   │   │   │   │   │   │   ├── TagRepositoryAbstract.java
-│   │   │   │   │   │   │   │   │   ├── interfaces
-│   │   │   │   │   │   │   │   │   │   ├── TagRepositoryInterface.java
-│   │   │   │   │   │   │   │   ├── sql
-│   │   │   │   │   │   │   │   │   ├── tag.sql
-│   │   │   │   │   │   │   ├── transactionTags
-│   │   │   │   │   │   │   │   ├── infrastructure
-│   │   │   │   │   │   │   │   │   ├── repositories
-│   │   │   │   │   │   │   │   │   │   ├── TransactionTagRepositoryMySQL.java
-│   │   │   │   │   │   │   │   ├── domain
-│   │   │   │   │   │   │   │   │   ├── interfaces
-│   │   │   │   │   │   │   │   │   │   ├── TransactionTagRepositoryInterface.java
-│   │   │   │   │   │   │   │   ├── sql
-│   │   │   │   │   │   │   │   │   ├── transaction_tags.sql
-│   │   │   │   │   │   │   ├── transactions
-│   │   │   │   │   │   │   │   ├── test
-│   │   │   │   │   │   │   │   │   ├── TransactionTestApp.java
-│   │   │   │   │   │   │   │   ├── application
-│   │   │   │   │   │   │   │   │   ├── services
-│   │   │   │   │   │   │   │   │   │   ├── TransactionService.java
-│   │   │   │   │   │   │   │   │   ├── normalizers
-│   │   │   │   │   │   │   │   │   │   ├── TransactionNormalizer.java
-│   │   │   │   │   │   │   │   │   ├── validation
-│   │   │   │   │   │   │   │   │   │   ├── TransactionRule.java
-│   │   │   │   │   │   │   │   │   │   ├── TransactionValidator.java
-│   │   │   │   │   │   │   │   │   │   ├── TransactionRules.java
-│   │   │   │   │   │   │   │   │   │   ├── EnumDispatchRule.java
-│   │   │   │   │   │   │   │   │   │   ├── ValidationContext.java
-│   │   │   │   │   │   │   │   │   │   ├── ValidationContextFactory.java
-│   │   │   │   │   │   │   │   │   │   ├── rules
-│   │   │   │   │   │   │   │   │   │   │   ├── TransactionRuleSupport.java
-│   │   │   │   │   │   │   │   │   │   │   ├── CommonFieldsRule.java
-│   │   │   │   │   │   │   │   │   │   │   ├── IncomeRule.java
-│   │   │   │   │   │   │   │   │   │   │   ├── ExpenseRule.java
-│   │   │   │   │   │   │   │   │   │   │   ├── ReallocationRule.java
-│   │   │   │   │   │   │   │   │   │   │   ├── CardPaymentRule.java
-│   │   │   │   │   │   │   │   │   │   │   ├── WalletPaymentRule.java
-│   │   │   │   │   │   │   │   │   │   │   ├── InternalPaymentRule.java
-│   │   │   │   │   │   │   │   │   │   │   ├── NoDetailPaymentRule.java
-│   │   │   │   │   │   │   │   ├── infrastructure
-│   │   │   │   │   │   │   │   │   ├── repositories
-│   │   │   │   │   │   │   │   │   │   ├── TransactionRepositoryMySQL.java
-│   │   │   │   │   │   │   │   │   ├── controllers
-│   │   │   │   │   │   │   │   │   │   ├── TransactionControllers.java
-│   │   │   │   │   │   │   │   │   ├── handlers
-│   │   │   │   │   │   │   │   │   │   ├── TransactionHandlers.java
-│   │   │   │   │   │   │   │   ├── domain
-│   │   │   │   │   │   │   │   │   ├── models
-│   │   │   │   │   │   │   │   │   │   ├── TransactionRepositoryAbstract.java
-│   │   │   │   │   │   │   │   │   ├── interfaces
-│   │   │   │   │   │   │   │   │   │   ├── TransactionRepositoryInterface.java
-│   │   │   │   │   │   │   │   ├── sql
-│   │   │   │   │   │   │   │   │   ├── transactions.sql
-│   │   │   │   │   │   │   ├── accounts
-│   │   │   │   │   │   │   │   ├── test
-│   │   │   │   │   │   │   │   │   ├── AccountTestApp.java
-│   │   │   │   │   │   │   │   ├── application
-│   │   │   │   │   │   │   │   │   ├── services
-│   │   │   │   │   │   │   │   │   │   ├── AccountService.java
-│   │   │   │   │   │   │   │   ├── infrastructure
-│   │   │   │   │   │   │   │   │   ├── repositories
-│   │   │   │   │   │   │   │   │   │   ├── AccountRepositoryMySQL.java
-│   │   │   │   │   │   │   │   │   ├── controllers
-│   │   │   │   │   │   │   │   │   │   ├── AccountControllers.java
-│   │   │   │   │   │   │   │   │   ├── handlers
-│   │   │   │   │   │   │   │   │   │   ├── AccountHandlers.java
-│   │   │   │   │   │   │   │   ├── domain
-│   │   │   │   │   │   │   │   │   ├── models
-│   │   │   │   │   │   │   │   │   │   ├── AccountRepositoryAbstract.java
-│   │   │   │   │   │   │   │   │   ├── interfaces
-│   │   │   │   │   │   │   │   │   │   ├── AccountRepositoryInterface.java
-│   │   │   │   │   │   │   │   ├── sql
-│   │   │   │   │   │   │   │   │   ├── account.sql
-│   │   │   │   │   │   │   ├── users
-│   │   │   │   │   │   │   │   ├── test
-│   │   │   │   │   │   │   │   │   ├── TestUserApp.java
-│   │   │   │   │   │   │   │   ├── application
-│   │   │   │   │   │   │   │   │   ├── services
-│   │   │   │   │   │   │   │   │   │   ├── UserService.java
-│   │   │   │   │   │   │   │   ├── infrastructure
-│   │   │   │   │   │   │   │   │   ├── repositories
-│   │   │   │   │   │   │   │   │   │   ├── UserRepositoryMySQL.java
-│   │   │   │   │   │   │   │   │   ├── controllers
-│   │   │   │   │   │   │   │   │   │   ├── UserControllers.java
-│   │   │   │   │   │   │   │   │   ├── handlers
-│   │   │   │   │   │   │   │   │   │   ├── UserHandlers.java
-│   │   │   │   │   │   │   │   ├── domain
-│   │   │   │   │   │   │   │   │   ├── models
-│   │   │   │   │   │   │   │   │   │   ├── UserRepositoryAbstract.java
-│   │   │   │   │   │   │   │   │   ├── interfaces
-│   │   │   │   │   │   │   │   │   │   ├── UserRepositoryInterface.java
-│   │   │   │   │   │   │   │   ├── sql
-│   │   │   │   │   │   │   │   │   ├── users.sql
-│   │   │   │   │   │   │   ├── configs
-│   │   │   │   │   │   │   │   ├── DatabaseConfig.java
-│   │   │   │   │   │   │   │   ├── ServerConfig.java
-│   │   │   │   │   │   │   │   ├── AppConfig.java
-│   │   │   │   │   │   │   ├── Main.java
-│   │   │   │   │   │   │   ├── backend-explanation.md
-│   │   │   │   │   │   │   ├── externalEntities
-│   │   │   │   │   │   │   │   ├── test
-│   │   │   │   │   │   │   │   │   ├── ExternalEntityTestApp.java
-│   │   │   │   │   │   │   │   ├── application
-│   │   │   │   │   │   │   │   │   ├── services
-│   │   │   │   │   │   │   │   │   │   ├── ExternalEntityService.java
-│   │   │   │   │   │   │   │   ├── infrastructure
-│   │   │   │   │   │   │   │   │   ├── repositories
-│   │   │   │   │   │   │   │   │   │   ├── ExternalEntityRepositoryMySQL.java
-│   │   │   │   │   │   │   │   │   ├── controllers
-│   │   │   │   │   │   │   │   │   │   ├── ExternalEntityControllers.java
-│   │   │   │   │   │   │   │   │   ├── handlers
-│   │   │   │   │   │   │   │   │   │   ├── ExternalEntityHandlers.java
-│   │   │   │   │   │   │   │   ├── domain
-│   │   │   │   │   │   │   │   │   ├── models
-│   │   │   │   │   │   │   │   │   │   ├── ExternalEntityRepositoryAbstract.java
-│   │   │   │   │   │   │   │   │   ├── interfaces
-│   │   │   │   │   │   │   │   │   │   ├── ExternalEntityRepositoryInterface.java
-│   │   │   │   │   │   │   │   ├── sql
-│   │   │   │   │   │   │   │   │   ├── externalEntity.sql
-│   │   │   │   │   │   │   ├── categories
-│   │   │   │   │   │   │   │   ├── test
-│   │   │   │   │   │   │   │   │   ├── CategoryTestApp.java
-│   │   │   │   │   │   │   │   ├── application
-│   │   │   │   │   │   │   │   │   ├── services
-│   │   │   │   │   │   │   │   │   │   ├── CategoryService.java
-│   │   │   │   │   │   │   │   ├── infrastructure
-│   │   │   │   │   │   │   │   │   ├── repositories
-│   │   │   │   │   │   │   │   │   │   ├── CategoryRepositoryMySQL.java
-│   │   │   │   │   │   │   │   │   ├── controllers
-│   │   │   │   │   │   │   │   │   │   ├── CategoryControllers.java
-│   │   │   │   │   │   │   │   │   ├── handlers
-│   │   │   │   │   │   │   │   │   │   ├── CategoryHandlers.java
-│   │   │   │   │   │   │   │   ├── domain
-│   │   │   │   │   │   │   │   │   ├── models
-│   │   │   │   │   │   │   │   │   │   ├── CategoryRepositoryAbstract.java
-│   │   │   │   │   │   │   │   │   ├── interfaces
-│   │   │   │   │   │   │   │   │   │   ├── CategoryRepositoryInterface.java
-│   │   │   │   │   │   │   │   ├── sql
-│   │   │   │   │   │   │   │   │   ├── categories.sql
-│   │   │   │   │   │   │   ├── servers
-│   │   │   │   │   │   │   │   ├── application
-│   │   │   │   │   │   │   │   │   ├── services
-│   │   │   │   │   │   │   │   │   │   ├── ServerService.java
-│   │   │   │   │   │   │   │   ├── domain
-│   │   │   │   │   │   │   │   │   ├── models
-│   │   │   │   │   │   │   │   │   │   ├── ClientConnection.java
-│   │   │   │   │   │   │   │   │   │   ├── ServerAbstract.java
-│   │   │   │   │   │   │   │   │   ├── exceptions
-│   │   │   │   │   │   │   │   │   │   ├── ServerOperationException.java
-│   │   │   │   │   │   │   │   │   ├── handlers
-│   │   │   │   │   │   │   │   │   │   ├── MessageHandler.java
-│   │   │   │   │   │   │   │   │   ├── interfaces
-│   │   │   │   │   │   │   │   │   │   ├── ServerRegisterHandlers.java
-│   │   │   │   │   │   │   │   │   │   ├── ServerInterface.java
+# Índice de backend
+
+Generado con `python3 scripts/update_indexes.py` desde la raíz.
+
+[Arquitectura](../../ARCHITECTURE.md) · [Migración](../../MIGRATION.md) · [Agente](../../.claude/agents/finance-app-expert-backend.md)
+
+## Archivos
+
+```text
+pom.xml
+src/main/java/com/giozar04/Main.java
+src/main/java/com/giozar04/accountCashbackSettings/application/services/AccountCashbackSettingService.java
+src/main/java/com/giozar04/accountCashbackSettings/domain/interfaces/AccountCashbackSettingRepositoryInterface.java
+src/main/java/com/giozar04/accountCashbackSettings/domain/models/AccountCashbackSettingRepositoryAbstract.java
+src/main/java/com/giozar04/accountCashbackSettings/infrastructure/controllers/AccountCashbackSettingControllers.java
+src/main/java/com/giozar04/accountCashbackSettings/infrastructure/handlers/AccountCashbackSettingHandlers.java
+src/main/java/com/giozar04/accountCashbackSettings/infrastructure/repositories/AccountCashbackSettingRepositoryMySQL.java
+src/main/java/com/giozar04/accountCashbackSettings/sql/account_cashback_settings.sql
+src/main/java/com/giozar04/accountCashbackSettings/test/AccountCashbackSettingTestApp.java
+src/main/java/com/giozar04/accountReconciliations/application/services/AccountReconciliationService.java
+src/main/java/com/giozar04/accountReconciliations/domain/interfaces/AccountReconciliationRepositoryInterface.java
+src/main/java/com/giozar04/accountReconciliations/domain/models/AccountReconciliationRepositoryAbstract.java
+src/main/java/com/giozar04/accountReconciliations/infrastructure/controllers/AccountReconciliationControllers.java
+src/main/java/com/giozar04/accountReconciliations/infrastructure/handlers/AccountReconciliationHandlers.java
+src/main/java/com/giozar04/accountReconciliations/infrastructure/repositories/AccountReconciliationRepositoryMySQL.java
+src/main/java/com/giozar04/accountReconciliations/sql/account_reconciliation.sql
+src/main/java/com/giozar04/accountReconciliations/test/AccountReconciliationTestApp.java
+src/main/java/com/giozar04/accounts/application/services/AccountService.java
+src/main/java/com/giozar04/accounts/domain/interfaces/AccountRepositoryInterface.java
+src/main/java/com/giozar04/accounts/domain/models/AccountRepositoryAbstract.java
+src/main/java/com/giozar04/accounts/infrastructure/controllers/AccountControllers.java
+src/main/java/com/giozar04/accounts/infrastructure/handlers/AccountHandlers.java
+src/main/java/com/giozar04/accounts/infrastructure/repositories/AccountRepositoryMySQL.java
+src/main/java/com/giozar04/accounts/sql/account.sql
+src/main/java/com/giozar04/accounts/test/AccountTestApp.java
+src/main/java/com/giozar04/backend-explanation.md
+src/main/java/com/giozar04/bankClients/application/services/BankClientService.java
+src/main/java/com/giozar04/bankClients/domain/interfaces/BankClientRepositoryInterface.java
+src/main/java/com/giozar04/bankClients/domain/models/BankClientRepositoryAbstract.java
+src/main/java/com/giozar04/bankClients/infrastructure/controllers/BankClientControllers.java
+src/main/java/com/giozar04/bankClients/infrastructure/handlers/BankClientHandlers.java
+src/main/java/com/giozar04/bankClients/infrastructure/repositories/BankClientRepositoryMySQL.java
+src/main/java/com/giozar04/bankClients/sql/bankClients.sql
+src/main/java/com/giozar04/bankClients/test/BankClientTestApp.java
+src/main/java/com/giozar04/bootstrap/ApplicationInitializer.java
+src/main/java/com/giozar04/bootstrap/DatabaseInitializer.java
+src/main/java/com/giozar04/bootstrap/ServerInitializer.java
+src/main/java/com/giozar04/cardTransactionDetails/application/services/CardTransactionDetailService.java
+src/main/java/com/giozar04/cardTransactionDetails/domain/interfaces/CardTransactionDetailRepositoryInterface.java
+src/main/java/com/giozar04/cardTransactionDetails/domain/interfaces/CardTransactionDetailTransactionalRepositoryInterface.java
+src/main/java/com/giozar04/cardTransactionDetails/domain/models/CardTransactionDetailRepositoryAbstract.java
+src/main/java/com/giozar04/cardTransactionDetails/infrastructure/controllers/CardTransactionDetailControllers.java
+src/main/java/com/giozar04/cardTransactionDetails/infrastructure/handlers/CardTransactionDetailHandlers.java
+src/main/java/com/giozar04/cardTransactionDetails/infrastructure/repositories/CardTransactionDetailRepositoryMySQL.java
+src/main/java/com/giozar04/cardTransactionDetails/sql/card_transaction_details.sql
+src/main/java/com/giozar04/cards/application/services/CardService.java
+src/main/java/com/giozar04/cards/domain/interfaces/CardRepositoryInterface.java
+src/main/java/com/giozar04/cards/domain/models/CardRepositoryAbstract.java
+src/main/java/com/giozar04/cards/infrastructure/controllers/CardControllers.java
+src/main/java/com/giozar04/cards/infrastructure/handlers/CardHandlers.java
+src/main/java/com/giozar04/cards/infrastructure/repositories/CardRepositoryMySQL.java
+src/main/java/com/giozar04/cards/sql/card.sql
+src/main/java/com/giozar04/cards/test/CardTestApp.java
+src/main/java/com/giozar04/categories/application/services/CategoryService.java
+src/main/java/com/giozar04/categories/domain/interfaces/CategoryRepositoryInterface.java
+src/main/java/com/giozar04/categories/domain/models/CategoryRepositoryAbstract.java
+src/main/java/com/giozar04/categories/infrastructure/controllers/CategoryControllers.java
+src/main/java/com/giozar04/categories/infrastructure/handlers/CategoryHandlers.java
+src/main/java/com/giozar04/categories/infrastructure/repositories/CategoryRepositoryMySQL.java
+src/main/java/com/giozar04/categories/sql/categories.sql
+src/main/java/com/giozar04/categories/test/CategoryTestApp.java
+src/main/java/com/giozar04/configs/AppConfig.java
+src/main/java/com/giozar04/configs/DatabaseConfig.java
+src/main/java/com/giozar04/configs/ServerConfig.java
+src/main/java/com/giozar04/databases/application/services/TransactionalExecutor.java
+src/main/java/com/giozar04/databases/domain/exceptions/DatabaseExceptions.java
+src/main/java/com/giozar04/databases/domain/interfaces/DatabaseConnectionInterface.java
+src/main/java/com/giozar04/databases/domain/interfaces/SqlWork.java
+src/main/java/com/giozar04/databases/domain/models/DatabaseConnectionAbstract.java
+src/main/java/com/giozar04/databases/infrastructure/repositories/DatabaseConnectionMySQL.java
+src/main/java/com/giozar04/externalEntities/application/services/ExternalEntityService.java
+src/main/java/com/giozar04/externalEntities/domain/interfaces/ExternalEntityRepositoryInterface.java
+src/main/java/com/giozar04/externalEntities/domain/models/ExternalEntityRepositoryAbstract.java
+src/main/java/com/giozar04/externalEntities/infrastructure/controllers/ExternalEntityControllers.java
+src/main/java/com/giozar04/externalEntities/infrastructure/handlers/ExternalEntityHandlers.java
+src/main/java/com/giozar04/externalEntities/infrastructure/repositories/ExternalEntityRepositoryMySQL.java
+src/main/java/com/giozar04/externalEntities/sql/externalEntity.sql
+src/main/java/com/giozar04/externalEntities/test/ExternalEntityTestApp.java
+src/main/java/com/giozar04/servers/application/services/ServerService.java
+src/main/java/com/giozar04/servers/domain/exceptions/ServerOperationException.java
+src/main/java/com/giozar04/servers/domain/handlers/MessageHandler.java
+src/main/java/com/giozar04/servers/domain/interfaces/ServerInterface.java
+src/main/java/com/giozar04/servers/domain/interfaces/ServerRegisterHandlers.java
+src/main/java/com/giozar04/servers/domain/models/ClientConnection.java
+src/main/java/com/giozar04/servers/domain/models/ServerAbstract.java
+src/main/java/com/giozar04/tags/application/services/TagService.java
+src/main/java/com/giozar04/tags/domain/interfaces/TagRepositoryInterface.java
+src/main/java/com/giozar04/tags/domain/models/TagRepositoryAbstract.java
+src/main/java/com/giozar04/tags/infrastructure/controllers/TagControllers.java
+src/main/java/com/giozar04/tags/infrastructure/handlers/TagHandlers.java
+src/main/java/com/giozar04/tags/infrastructure/repositories/TagRepositoryMySQL.java
+src/main/java/com/giozar04/tags/sql/tag.sql
+src/main/java/com/giozar04/tags/test/TagTestApp.java
+src/main/java/com/giozar04/transactionTags/domain/interfaces/TransactionTagRepositoryInterface.java
+src/main/java/com/giozar04/transactionTags/infrastructure/repositories/TransactionTagRepositoryMySQL.java
+src/main/java/com/giozar04/transactionTags/sql/transaction_tags.sql
+src/main/java/com/giozar04/transactions/application/normalizers/TransactionNormalizer.java
+src/main/java/com/giozar04/transactions/application/services/TransactionService.java
+src/main/java/com/giozar04/transactions/application/validation/EnumDispatchRule.java
+src/main/java/com/giozar04/transactions/application/validation/TransactionRule.java
+src/main/java/com/giozar04/transactions/application/validation/TransactionRules.java
+src/main/java/com/giozar04/transactions/application/validation/TransactionValidator.java
+src/main/java/com/giozar04/transactions/application/validation/ValidationContext.java
+src/main/java/com/giozar04/transactions/application/validation/ValidationContextFactory.java
+src/main/java/com/giozar04/transactions/application/validation/rules/CardPaymentRule.java
+src/main/java/com/giozar04/transactions/application/validation/rules/CommonFieldsRule.java
+src/main/java/com/giozar04/transactions/application/validation/rules/ExpenseRule.java
+src/main/java/com/giozar04/transactions/application/validation/rules/IncomeRule.java
+src/main/java/com/giozar04/transactions/application/validation/rules/InternalPaymentRule.java
+src/main/java/com/giozar04/transactions/application/validation/rules/NoDetailPaymentRule.java
+src/main/java/com/giozar04/transactions/application/validation/rules/ReallocationRule.java
+src/main/java/com/giozar04/transactions/application/validation/rules/TransactionRuleSupport.java
+src/main/java/com/giozar04/transactions/application/validation/rules/WalletPaymentRule.java
+src/main/java/com/giozar04/transactions/domain/interfaces/TransactionRepositoryInterface.java
+src/main/java/com/giozar04/transactions/domain/models/TransactionRepositoryAbstract.java
+src/main/java/com/giozar04/transactions/infrastructure/controllers/TransactionControllers.java
+src/main/java/com/giozar04/transactions/infrastructure/handlers/TransactionHandlers.java
+src/main/java/com/giozar04/transactions/infrastructure/repositories/TransactionRepositoryMySQL.java
+src/main/java/com/giozar04/transactions/sql/transactions.sql
+src/main/java/com/giozar04/transactions/test/TransactionTestApp.java
+src/main/java/com/giozar04/users/application/services/UserService.java
+src/main/java/com/giozar04/users/domain/interfaces/UserRepositoryInterface.java
+src/main/java/com/giozar04/users/domain/models/UserRepositoryAbstract.java
+src/main/java/com/giozar04/users/infrastructure/controllers/UserControllers.java
+src/main/java/com/giozar04/users/infrastructure/handlers/UserHandlers.java
+src/main/java/com/giozar04/users/infrastructure/repositories/UserRepositoryMySQL.java
+src/main/java/com/giozar04/users/sql/users.sql
+src/main/java/com/giozar04/users/test/TestUserApp.java
+src/main/java/com/giozar04/walletCardLinks/application/services/WalletCardLinkService.java
+src/main/java/com/giozar04/walletCardLinks/domain/interfaces/WalletCardLinkRepositoryInterface.java
+src/main/java/com/giozar04/walletCardLinks/domain/models/WalletCardLinkRepositoryAbstract.java
+src/main/java/com/giozar04/walletCardLinks/infrastructure/controllers/WalletCardLinkControllers.java
+src/main/java/com/giozar04/walletCardLinks/infrastructure/handlers/WalletCardLinkHandlers.java
+src/main/java/com/giozar04/walletCardLinks/infrastructure/repositories/WalletCardLinkRepositoryMySQL.java
+src/main/java/com/giozar04/walletCardLinks/sql/wallet_card_links.sql
+src/main/java/com/giozar04/walletCardLinks/test/WalletCardLinkTestApp.java
+src/main/java/com/giozar04/walletTransactionDetails/application/services/WalletTransactionDetailService.java
+src/main/java/com/giozar04/walletTransactionDetails/domain/interfaces/WalletTransactionDetailRepositoryInterface.java
+src/main/java/com/giozar04/walletTransactionDetails/domain/interfaces/WalletTransactionDetailTransactionalRepositoryInterface.java
+src/main/java/com/giozar04/walletTransactionDetails/domain/models/WalletTransactionDetailRepositoryAbstract.java
+src/main/java/com/giozar04/walletTransactionDetails/infrastructure/controllers/WalletTransactionDetailControllers.java
+src/main/java/com/giozar04/walletTransactionDetails/infrastructure/handlers/WalletTransactionDetailHandlers.java
+src/main/java/com/giozar04/walletTransactionDetails/infrastructure/repositories/WalletTransactionDetailRepositoryMySQL.java
+src/main/java/com/giozar04/walletTransactionDetails/sql/wallet_transaction_details.sql
+```

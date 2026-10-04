@@ -1,6 +1,8 @@
+> Migración por features: consulte [ARCHITECTURE.md](../../../../../../../ARCHITECTURE.md), [MIGRATION.md](../../../../../../../MIGRATION.md) y [AGENTS.md](../../../../../../../AGENTS.md). Las features pendientes conservan la estructura documentada aquí.
+
 ## Creating and Implementing a New Feature in `java-shared`
 
-The `shared/java-shared` project acts as a shared module between the backend and frontend through RMI. Its main purpose is to centralize common resources that both sides of the application need, avoiding code duplication and ensuring that all layers work with the same data structures.
+The `shared/java-shared` project acts as a shared module between the backend and frontend through sockets and JSON. Its main purpose is to centralize common resources that both sides of the application need, avoiding code duplication and ensuring that all layers work with the same data structures.
 
 This module does not contain backend business logic or frontend UI implementation. Instead, it stores shared resources such as entities, enums, exceptions, and utility classes. This allows both the backend and frontend to work with the same models and maintain consistent communication across the application. The project structure follows a layered architecture approach and serves as a common contract between both systems. 
 
@@ -81,7 +83,7 @@ The `application` layer contains supporting resources used to work with shared e
 
 ### Utils
 
-The `utils` folder contains utility classes responsible for converting entities into generic structures and reconstructing them later. Since `java-shared` acts as a communication layer between backend and frontend through RMI, these utilities simplify the transfer and interpretation of data across both systems.
+The `utils` folder contains utility classes responsible for converting entities into generic structures and reconstructing them later. Since `java-shared` acts as a communication layer between backend and frontend through sockets and JSON, these utilities simplify the transfer and interpretation of data across both systems.
 
 Typically, utility classes provide methods to transform an entity into a `Map<String, Object>` and convert a map back into an entity object.
 
