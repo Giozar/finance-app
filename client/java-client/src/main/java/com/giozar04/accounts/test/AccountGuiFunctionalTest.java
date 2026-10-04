@@ -7,7 +7,7 @@ import javax.swing.SwingUtilities;
 
 import com.giozar04.accounts.infrastructure.services.AccountService;
 import com.giozar04.accounts.presentation.views.AccountsView;
-import com.giozar04.bankClients.infrastructure.services.BankClientService;
+import com.giozar04.bankClients.infrastructure.transport.socket.BankClientService;
 import com.giozar04.configs.ServerConnectionConfig;
 import com.giozar04.serverConnection.application.services.ServerConnectionService;
 import com.giozar04.shared.components.MainContentPanel;

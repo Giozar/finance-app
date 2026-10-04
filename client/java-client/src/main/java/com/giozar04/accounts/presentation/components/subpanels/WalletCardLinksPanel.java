@@ -24,7 +24,8 @@ import com.giozar04.accounts.domain.entities.Account;
 import com.giozar04.accounts.domain.enums.AccountTypes;
 import com.giozar04.accounts.infrastructure.services.AccountService;
 import com.giozar04.bankClient.domain.entities.BankClient;
-import com.giozar04.bankClients.infrastructure.services.BankClientService;
+import com.giozar04.bankClients.application.ports.input.BankClientOperations;
+import com.giozar04.bootstrap.ClientUseCases;
 import com.giozar04.card.domain.entities.Card;
 import com.giozar04.card.domain.enums.CardTypes;
 import com.giozar04.cards.infrastructure.services.CardService;
@@ -157,7 +158,7 @@ public class WalletCardLinksPanel extends JPanel {
             }
 
             // 3. Obtener clientes bancarios
-            List<BankClient> bankClients = BankClientService.getInstance().getAllBankClients();
+            List<BankClient> bankClients = ClientUseCases.get(BankClientOperations.class).getAllBankClients();
             Map<Long, BankClient> bankMap = new HashMap<>();
             for (BankClient bc : bankClients) {
                 bankMap.put(bc.getId(), bc);

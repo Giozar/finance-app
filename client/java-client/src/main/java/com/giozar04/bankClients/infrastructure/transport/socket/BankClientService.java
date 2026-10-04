@@ -1,4 +1,4 @@
-package com.giozar04.bankClients.infrastructure.services;
+package com.giozar04.bankClients.infrastructure.transport.socket;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,6 +11,7 @@ import com.giozar04.bankClient.application.exceptions.BankClientDeletionExceptio
 import com.giozar04.bankClient.infrastructure.serialization.BankClientParsingException;
 import com.giozar04.bankClient.application.exceptions.BankClientRetrievalException;
 import com.giozar04.bankClient.application.exceptions.BankClientUpdateException;
+import com.giozar04.bankClients.application.ports.output.BankClientGateway;
 import com.giozar04.logging.infrastructure.ConsoleLogger;
 import com.giozar04.messages.infrastructure.transport.Message;
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
@@ -18,7 +19,7 @@ import com.giozar04.serverConnection.application.services.ServerConnectionServic
 import com.giozar04.serverConnection.application.validators.ServerResponseValidator;
 
 
-public class BankClientService {
+public class BankClientService implements BankClientGateway {
 
     private final ServerConnectionService serverConnectionService;
     private static final ConsoleLogger logger = ConsoleLogger.getInstance();

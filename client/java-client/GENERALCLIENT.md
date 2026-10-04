@@ -33,7 +33,10 @@ src/main/java/com/giozar04/accounts/presentation/views/detail/SavingsAccountDeta
 src/main/java/com/giozar04/accounts/presentation/views/detail/WalletAccountDetailView.java
 src/main/java/com/giozar04/accounts/test/AccountFunctionalTest.java
 src/main/java/com/giozar04/accounts/test/AccountGuiFunctionalTest.java
-src/main/java/com/giozar04/bankClients/infrastructure/services/BankClientService.java
+src/main/java/com/giozar04/bankClients/application/ports/input/BankClientOperations.java
+src/main/java/com/giozar04/bankClients/application/ports/output/BankClientGateway.java
+src/main/java/com/giozar04/bankClients/application/usecases/BankClientUseCase.java
+src/main/java/com/giozar04/bankClients/infrastructure/transport/socket/BankClientService.java
 src/main/java/com/giozar04/bankClients/presentation/components/BankClientFormPanel.java
 src/main/java/com/giozar04/bankClients/presentation/components/BankNameCellRenderer.java
 src/main/java/com/giozar04/bankClients/presentation/views/BankClientsView.java

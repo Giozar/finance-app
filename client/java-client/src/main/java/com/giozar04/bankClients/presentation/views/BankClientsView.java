@@ -19,7 +19,8 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 
 import com.giozar04.bankClient.domain.entities.BankClient;
-import com.giozar04.bankClients.infrastructure.services.BankClientService;
+import com.giozar04.bankClients.application.ports.input.BankClientOperations;
+import com.giozar04.bootstrap.ClientUseCases;
 import com.giozar04.bankClients.presentation.components.BankClientFormPanel;
 import com.giozar04.bankClients.presentation.components.BankNameCellRenderer;
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
@@ -33,12 +34,12 @@ import com.giozar04.shared.utils.DialogUtil;
 
 public class BankClientsView extends JPanel implements PopupMenuActionHandler {
 
-    private final BankClientService bankClientService;
+    private final BankClientOperations bankClientService;
     private JTextField searchField;
     private GenericTablePanel<BankClient> tablePanel;
 
     public BankClientsView() {
-        this.bankClientService = BankClientService.getInstance();
+        this.bankClientService = ClientUseCases.get(BankClientOperations.class);
 
         setLayout(new BorderLayout());
         setBorder(new EmptyBorder(10, 10, 10, 10));

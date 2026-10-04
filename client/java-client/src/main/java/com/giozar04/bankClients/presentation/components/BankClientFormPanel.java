@@ -15,7 +15,8 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import com.giozar04.bankClient.domain.entities.BankClient;
-import com.giozar04.bankClients.infrastructure.services.BankClientService;
+import com.giozar04.bankClients.application.ports.input.BankClientOperations;
+import com.giozar04.bootstrap.ClientUseCases;
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
 import com.giozar04.shared.components.forms.FormComboBox;
 import com.giozar04.shared.components.forms.FormField;
@@ -134,10 +135,10 @@ public class BankClientFormPanel extends JPanel {
     
         try {
             if (currentClient == null) {
-                BankClientService.getInstance().createBankClient(client);
+                ClientUseCases.get(BankClientOperations.class).createBankClient(client);
                 DialogUtil.showSuccess(this, "Cliente bancario creado exitosamente.");
             } else {
-                BankClientService.getInstance().updateBankClientById(client.getId(), client);
+                ClientUseCases.get(BankClientOperations.class).updateBankClientById(client.getId(), client);
                 DialogUtil.showSuccess(this, "Cliente bancario actualizado exitosamente.");
             }
             clearForm();

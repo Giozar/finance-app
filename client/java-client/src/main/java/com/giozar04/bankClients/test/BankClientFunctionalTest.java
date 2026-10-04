@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Scanner;
 
 import com.giozar04.bankClient.domain.entities.BankClient;
-import com.giozar04.bankClients.infrastructure.services.BankClientService;
+import com.giozar04.bankClients.infrastructure.transport.socket.BankClientService;
 import com.giozar04.configs.ServerConnectionConfig;
 import com.giozar04.serverConnection.application.services.ServerConnectionService;
 

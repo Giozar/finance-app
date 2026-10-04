@@ -11,7 +11,8 @@ import javax.swing.JPanel;
 import com.giozar04.accounts.domain.entities.Account;
 import com.giozar04.accounts.domain.enums.AccountTypes;
 import com.giozar04.bankClient.domain.entities.BankClient;
-import com.giozar04.bankClients.infrastructure.services.BankClientService;
+import com.giozar04.bankClients.application.ports.input.BankClientOperations;
+import com.giozar04.bootstrap.ClientUseCases;
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
 import com.giozar04.shared.components.forms.FormComboBox;
 import com.giozar04.shared.components.forms.FormField;
@@ -30,7 +31,7 @@ public class BankDetailsSubPanel extends JPanel {
     private final FormField accountNumberField;
     private final FormField clabeField;
 
-    private final BankClientService bankClientService = BankClientService.getInstance();
+    private final BankClientOperations bankClientService = ClientUseCases.get(BankClientOperations.class);
 
     public BankDetailsSubPanel() {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
