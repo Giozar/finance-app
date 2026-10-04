@@ -17,11 +17,13 @@ public class AccountUtils {
         map.put("name", account.getName());
         map.put("type", account.getType() != null ? account.getType().getValue() : null);
         map.put("currentBalance", account.getCurrentBalance());
+        map.put("openingBalance", account.getOpeningBalance()); // solo lectura (BD)
         map.put("accountNumber", account.getAccountNumber());
         map.put("clabe", account.getClabe());
         map.put("canTransferOut", account.getCanTransferOut());
         map.put("creditLimit", account.getCreditLimit());
         map.put("creditUsed", account.getCreditUsed());
+        map.put("openingCreditUsed", account.getOpeningCreditUsed()); // solo lectura (BD)
         map.put("cutoffDay", account.getCutoffDay());
         map.put("paymentDay", account.getPaymentDay());
         map.put("annualYield", account.getAnnualYield());
@@ -64,6 +66,7 @@ public class AccountUtils {
         }
         
         account.setCurrentBalance(SharedUtils.parseDouble(map.get("currentBalance")));
+        account.setOpeningBalance(SharedUtils.parseDouble(map.get("openingBalance")));
         Object accNum = map.get("accountNumber");
         if (accNum != null && !"null".equals(accNum.toString())) account.setAccountNumber(accNum.toString());
         
@@ -72,6 +75,7 @@ public class AccountUtils {
         
         account.setCreditLimit(SharedUtils.parseNullableDouble(map.get("creditLimit")));
         account.setCreditUsed(SharedUtils.parseNullableDouble(map.get("creditUsed")));
+        account.setOpeningCreditUsed(SharedUtils.parseNullableDouble(map.get("openingCreditUsed")));
         account.setCutoffDay(SharedUtils.parseNullableInt(map.get("cutoffDay")));
         account.setPaymentDay(SharedUtils.parseNullableInt(map.get("paymentDay")));
         

@@ -55,8 +55,14 @@ negocio del backend ni UI del cliente.
 `shared/java-shared/src/main/java/com/giozar04/<feature>/`
 
 ## Features existentes (en alcance)
-`users`, `accounts`, `accountCashbackSettings`, `bankClient`, `card`, `cardTransactionDetails`,
-`walletCardLinks`, `walletTransactionDetails`, `categories`, `tags`, `externalEntities`.
+`users`, `accounts`, `accountCashbackSettings`, `accountReconciliations`, `bankClient`, `card`,
+`cardTransactionDetails`, `walletCardLinks`, `walletTransactionDetails`, `categories`, `tags`, `externalEntities`.
+
+Notas:
+- `Account.openingBalance` (`double`) y `Account.openingCreditUsed` (`Double`) son **solo lectura**: los fija un
+  trigger de la BD al crear la cuenta; backend/client no los envían en create/update, solo los leen.
+- `accountReconciliations` refleja la vista `v_account_reconciliation` (sin `id` ni fechas; importes `BigDecimal`,
+  `difference = actualNet - expectedNet`, `isBalanced()` null-safe). El ajuste lo hace `sp_reconcile_account`.
 
 Transversales:
 - `shared/utils/SharedUtils.java` – parseo seguro y formato de fechas.

@@ -11,7 +11,7 @@ El árbol completo de archivos está en `GENERALSHARED.md` y la guía para crear
 Paquete raíz: `com.giozar04.<feature>` (no existe el prefijo `com.giozar04.shared.<feature>`).
 
 Features:
-- `users`, `accounts`, `accountCashbackSettings`, `bankClient`, `card`, `cardTransactionDetails`
+- `users`, `accounts`, `accountCashbackSettings`, `accountReconciliations`, `bankClient`, `card`, `cardTransactionDetails`
 - `walletCardLinks`, `walletTransactionDetails`, `categories`, `tags`, `externalEntities`
 - `transactions` (en rediseño)
 

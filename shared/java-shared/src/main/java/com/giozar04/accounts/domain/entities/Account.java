@@ -14,6 +14,7 @@ public class Account implements Serializable {
     private String name;
     private AccountTypes type;
     private double currentBalance;
+    private double openingBalance; // solo lectura: lo fija la BD al crear
     // bank_details fields
     private String accountNumber;
     private String clabe;
@@ -21,6 +22,7 @@ public class Account implements Serializable {
     // credit_details fields
     private Double creditLimit;
     private Double creditUsed;
+    private Double openingCreditUsed; // solo lectura: lo fija la BD al crear
     private Integer cutoffDay;
     private Integer paymentDay;
     // savings_details fields
@@ -63,6 +65,9 @@ public class Account implements Serializable {
     public double getCurrentBalance() { return currentBalance; }
     public void setCurrentBalance(double currentBalance) { this.currentBalance = currentBalance; }
 
+    public double getOpeningBalance() { return openingBalance; }
+    public void setOpeningBalance(double openingBalance) { this.openingBalance = openingBalance; }
+
     public String getAccountNumber() { return accountNumber; }
     public void setAccountNumber(String accountNumber) { this.accountNumber = accountNumber; }
 
@@ -74,6 +79,9 @@ public class Account implements Serializable {
 
     public Double getCreditUsed() { return creditUsed; }
     public void setCreditUsed(Double creditUsed) { this.creditUsed = creditUsed; }
+
+    public Double getOpeningCreditUsed() { return openingCreditUsed; }
+    public void setOpeningCreditUsed(Double openingCreditUsed) { this.openingCreditUsed = openingCreditUsed; }
 
     public Integer getCutoffDay() { return cutoffDay; }
     public void setCutoffDay(Integer cutoffDay) { this.cutoffDay = cutoffDay; }
