@@ -1,10 +1,10 @@
-package com.giozar04.accountReconciliations.infrastructure.controllers;
+package com.giozar04.accountReconciliations.infrastructure.transport.socket;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import com.giozar04.accountReconciliations.application.services.AccountReconciliationService;
+import com.giozar04.accountReconciliations.application.ports.input.AccountReconciliationOperations;
 import com.giozar04.accountReconciliations.infrastructure.serialization.AccountReconciliationMapper;
 import com.giozar04.accountReconciliations.domain.entities.AccountReconciliation;
 import com.giozar04.logging.infrastructure.ConsoleLogger;
@@ -23,7 +23,7 @@ public class AccountReconciliationControllers {
         public static final String RECONCILE_ACCOUNT = "RECONCILE_ACCOUNT";
     }
 
-    public static MessageHandler getAllAccountReconciliationsController(AccountReconciliationService service) {
+    public static MessageHandler getAllAccountReconciliationsController(AccountReconciliationOperations service) {
         return (ClientConnection client, Message message) -> {
             LOGGER.info("Procesando obtención de todas las reconciliaciones de cuentas");
 
@@ -37,7 +37,7 @@ public class AccountReconciliationControllers {
         };
     }
 
-    public static MessageHandler getAccountReconciliationsByUserController(AccountReconciliationService service) {
+    public static MessageHandler getAccountReconciliationsByUserController(AccountReconciliationOperations service) {
         return (ClientConnection client, Message message) -> {
             LOGGER.info("Procesando obtención de reconciliaciones por usuario");
 
@@ -56,7 +56,7 @@ public class AccountReconciliationControllers {
         };
     }
 
-    public static MessageHandler getAccountReconciliationController(AccountReconciliationService service) {
+    public static MessageHandler getAccountReconciliationController(AccountReconciliationOperations service) {
         return (ClientConnection client, Message message) -> {
             LOGGER.info("Procesando obtención de reconciliación de cuenta");
 
@@ -74,7 +74,7 @@ public class AccountReconciliationControllers {
         };
     }
 
-    public static MessageHandler reconcileAccountController(AccountReconciliationService service) {
+    public static MessageHandler reconcileAccountController(AccountReconciliationOperations service) {
         return (ClientConnection client, Message message) -> {
             LOGGER.info("Procesando reconciliación de cuenta");
 

@@ -1,15 +1,15 @@
-package com.giozar04.accountReconciliations.infrastructure.handlers;
+package com.giozar04.accountReconciliations.infrastructure.transport.socket;
 
-import com.giozar04.accountReconciliations.application.services.AccountReconciliationService;
-import com.giozar04.accountReconciliations.infrastructure.controllers.AccountReconciliationControllers;
+import com.giozar04.accountReconciliations.application.ports.input.AccountReconciliationOperations;
+import com.giozar04.accountReconciliations.infrastructure.transport.socket.AccountReconciliationControllers;
 import com.giozar04.servers.application.services.ServerService;
 import com.giozar04.servers.domain.interfaces.ServerRegisterHandlers;
 
 public class AccountReconciliationHandlers implements ServerRegisterHandlers {
 
-    private final AccountReconciliationService accountReconciliationService;
+    private final AccountReconciliationOperations accountReconciliationService;
 
-    public AccountReconciliationHandlers(AccountReconciliationService accountReconciliationService) {
+    public AccountReconciliationHandlers(AccountReconciliationOperations accountReconciliationService) {
         this.accountReconciliationService = accountReconciliationService;
     }
 

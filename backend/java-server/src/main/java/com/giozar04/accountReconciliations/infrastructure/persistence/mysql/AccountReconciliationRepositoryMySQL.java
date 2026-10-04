@@ -1,4 +1,4 @@
-package com.giozar04.accountReconciliations.infrastructure.repositories;
+package com.giozar04.accountReconciliations.infrastructure.persistence.mysql;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -11,12 +11,12 @@ import java.util.List;
 import com.giozar04.accountReconciliations.domain.entities.AccountReconciliation;
 import com.giozar04.accountReconciliations.application.exceptions.AccountReconciliationAdjustmentException;
 import com.giozar04.accountReconciliations.application.exceptions.AccountReconciliationRetrievalException;
-import com.giozar04.accountReconciliations.domain.models.AccountReconciliationRepositoryAbstract;
+import com.giozar04.accountReconciliations.infrastructure.persistence.mysql.AbstractAccountReconciliationJdbcRepository;
 import com.giozar04.accounts.domain.enums.AccountTypes;
 import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
 
 // Solo lectura sobre la vista v_account_reconciliation; la escritura la hace sp_reconcile_account
-public class AccountReconciliationRepositoryMySQL extends AccountReconciliationRepositoryAbstract {
+public class AccountReconciliationRepositoryMySQL extends AbstractAccountReconciliationJdbcRepository {
 
     private static final String SQL_SELECT_BASE = """
         SELECT account_id, user_id, account_name, account_type,

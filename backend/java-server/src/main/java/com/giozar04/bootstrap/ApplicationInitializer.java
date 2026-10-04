@@ -63,10 +63,11 @@ import com.giozar04.users.infrastructure.transport.socket.UserHandlers;
 import com.giozar04.users.infrastructure.persistence.mysql.UserRepositoryMySQL;
 import com.giozar04.accountCashbackSettings.application.usecases.AccountCashbackSettingUseCase;
 import com.giozar04.accountCashbackSettings.application.ports.input.AccountCashbackSettingOperations;
-import com.giozar04.accountReconciliations.application.services.AccountReconciliationService;
-import com.giozar04.accountReconciliations.domain.interfaces.AccountReconciliationRepositoryInterface;
-import com.giozar04.accountReconciliations.infrastructure.handlers.AccountReconciliationHandlers;
-import com.giozar04.accountReconciliations.infrastructure.repositories.AccountReconciliationRepositoryMySQL;
+import com.giozar04.accountReconciliations.application.usecases.AccountReconciliationUseCase;
+import com.giozar04.accountReconciliations.application.ports.input.AccountReconciliationOperations;
+import com.giozar04.accountReconciliations.application.ports.output.AccountReconciliationRepository;
+import com.giozar04.accountReconciliations.infrastructure.transport.socket.AccountReconciliationHandlers;
+import com.giozar04.accountReconciliations.infrastructure.persistence.mysql.AccountReconciliationRepositoryMySQL;
 import com.giozar04.accountCashbackSettings.application.ports.output.AccountCashbackSettingRepository;
 import com.giozar04.accountCashbackSettings.infrastructure.transport.socket.AccountCashbackSettingHandlers;
 import com.giozar04.accountCashbackSettings.infrastructure.persistence.mysql.AccountCashbackSettingRepositoryMySQL;
@@ -165,10 +166,10 @@ public class ApplicationInitializer {
                 new AccountCashbackSettingUseCase(accountCashbackSettingRepository);
 
         // Inicializar repositorios y servicios de reconciliación de cuentas
-        AccountReconciliationRepositoryInterface accountReconciliationRepository =
+        AccountReconciliationRepository accountReconciliationRepository =
                 new AccountReconciliationRepositoryMySQL(dbConnection);
-        AccountReconciliationService accountReconciliationService =
-                new AccountReconciliationService(accountReconciliationRepository);
+        AccountReconciliationUseCase accountReconciliationService =
+                new AccountReconciliationUseCase(accountReconciliationRepository);
 
         // Se registran todos los servicios
         List<ServerRegisterHandlers> featureServices = List.of(

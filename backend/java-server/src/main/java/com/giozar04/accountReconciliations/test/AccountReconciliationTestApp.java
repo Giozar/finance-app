@@ -3,9 +3,9 @@ package com.giozar04.accountReconciliations.test;
 import java.util.List;
 import java.util.Scanner;
 
-import com.giozar04.accountReconciliations.application.services.AccountReconciliationService;
+import com.giozar04.accountReconciliations.application.usecases.AccountReconciliationUseCase;
 import com.giozar04.accountReconciliations.domain.entities.AccountReconciliation;
-import com.giozar04.accountReconciliations.infrastructure.repositories.AccountReconciliationRepositoryMySQL;
+import com.giozar04.accountReconciliations.infrastructure.persistence.mysql.AccountReconciliationRepositoryMySQL;
 import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
 import com.giozar04.databases.infrastructure.repositories.DatabaseConnectionMySQL;
 
@@ -27,7 +27,7 @@ public class AccountReconciliationTestApp {
             dbConnection.connect();
 
             AccountReconciliationRepositoryMySQL repository = new AccountReconciliationRepositoryMySQL(dbConnection);
-            AccountReconciliationService service = new AccountReconciliationService(repository);
+            AccountReconciliationUseCase service = new AccountReconciliationUseCase(repository);
 
             Scanner scanner = new Scanner(System.in);
             boolean exit = false;
@@ -67,7 +67,7 @@ public class AccountReconciliationTestApp {
         }
     }
 
-    private static void getByUser(AccountReconciliationService service, Scanner scanner) {
+    private static void getByUser(AccountReconciliationUseCase service, Scanner scanner) {
         System.out.print("ID del usuario: ");
         long userId = scanner.nextLong();
         scanner.nextLine();
@@ -75,7 +75,7 @@ public class AccountReconciliationTestApp {
         printList(service.getAccountReconciliationsByUserId(userId));
     }
 
-    private static void getByAccount(AccountReconciliationService service, Scanner scanner) {
+    private static void getByAccount(AccountReconciliationUseCase service, Scanner scanner) {
         System.out.print("ID de la cuenta: ");
         long accountId = scanner.nextLong();
         scanner.nextLine();
@@ -83,7 +83,7 @@ public class AccountReconciliationTestApp {
         printDetails(service.getAccountReconciliationByAccountId(accountId));
     }
 
-    private static void reconcile(AccountReconciliationService service, Scanner scanner) {
+    private static void reconcile(AccountReconciliationUseCase service, Scanner scanner) {
         System.out.print("ID de la cuenta a reconciliar: ");
         long accountId = scanner.nextLong();
         scanner.nextLine();

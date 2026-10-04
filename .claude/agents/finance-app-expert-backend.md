@@ -24,6 +24,7 @@ model: inherit
 | `walletTransactionDetails` | `WalletTransactionDetailOperations`, `WalletTransactionDetailRepository`, `WalletTransactionDetailUseCase`, `WalletTransactionDetailPolicy`, adaptadores MySQL/socket |
 | `transactionTags` | `TransactionTagJdbcOperations` y `TransactionTagRepositoryMySQL` en `infrastructure/persistence/mysql` |
 | `transactions` | `TransactionOperations`, `TransactionRepository`, `TransactionUseCase`, `TransactionPolicy`, adaptadores MySQL/socket |
+| `accountReconciliations` | `AccountReconciliationOperations`, `AccountReconciliationRepository`, `AccountReconciliationUseCase`, `AccountReconciliationPolicy`, adaptadores MySQL/socket |
 | `tags` | `TagOperations`, `TagRepository`, `TagUseCase`, `TagPolicy`, `AbstractTagJdbcRepository`, `TagRepositoryMySQL`, `TagControllers`, `TagHandlers` |
 
 El flujo de «Estructura de una feature» descrito abajo aplica a las features pendientes.

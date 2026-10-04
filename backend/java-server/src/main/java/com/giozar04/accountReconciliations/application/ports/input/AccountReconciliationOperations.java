@@ -1,10 +1,10 @@
-package com.giozar04.accountReconciliations.domain.interfaces;
+package com.giozar04.accountReconciliations.application.ports.input;
 
 import java.util.List;
 
 import com.giozar04.accountReconciliations.domain.entities.AccountReconciliation;
 
-public interface AccountReconciliationRepositoryInterface {
+public interface AccountReconciliationOperations {
 
     List<AccountReconciliation> getAllAccountReconciliations();
 

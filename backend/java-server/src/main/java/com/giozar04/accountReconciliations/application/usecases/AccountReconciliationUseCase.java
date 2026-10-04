@@ -1,15 +1,16 @@
-package com.giozar04.accountReconciliations.application.services;
+package com.giozar04.accountReconciliations.application.usecases;
 
 import java.util.List;
 
 import com.giozar04.accountReconciliations.domain.entities.AccountReconciliation;
-import com.giozar04.accountReconciliations.domain.interfaces.AccountReconciliationRepositoryInterface;
+import com.giozar04.accountReconciliations.application.ports.output.AccountReconciliationRepository;
+import com.giozar04.accountReconciliations.application.ports.input.AccountReconciliationOperations;
 
-public class AccountReconciliationService implements AccountReconciliationRepositoryInterface {
+public class AccountReconciliationUseCase implements AccountReconciliationOperations {
 
-    private final AccountReconciliationRepositoryInterface accountReconciliationRepository;
+    private final AccountReconciliationRepository accountReconciliationRepository;
 
-    public AccountReconciliationService(AccountReconciliationRepositoryInterface accountReconciliationRepository) {
+    public AccountReconciliationUseCase(AccountReconciliationRepository accountReconciliationRepository) {
         this.accountReconciliationRepository = accountReconciliationRepository;
     }
 
