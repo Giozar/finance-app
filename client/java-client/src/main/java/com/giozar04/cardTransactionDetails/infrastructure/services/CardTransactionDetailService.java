@@ -2,7 +2,7 @@ package com.giozar04.cardTransactionDetails.infrastructure.services;
 
 import java.util.Map;
 
-import com.giozar04.cardTransactionDetails.application.utils.CardTransactionDetailUtils;
+import com.giozar04.cardTransactionDetails.infrastructure.serialization.CardTransactionDetailMapper;
 import com.giozar04.cardTransactionDetails.domain.entities.CardTransactionDetail;
 import com.giozar04.logging.CustomLogger;
 import com.giozar04.messages.domain.models.Message;
@@ -42,7 +42,7 @@ public class CardTransactionDetailService {
             Message response = serverConnectionService.waitForMessage("GET_CARD_DETAIL_BY_TRANSACTION_ID");
             ServerResponseValidator.validateResponse(response);
             logger.info("Detalle de tarjeta obtenido: " + response);
-            return CardTransactionDetailUtils.fromMap((Map<String, Object>) response.getData("cardDetail"));
+            return CardTransactionDetailMapper.fromMap((Map<String, Object>) response.getData("cardDetail"));
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new ClientOperationException("Error al obtener el detalle de tarjeta", e);

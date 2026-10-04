@@ -47,9 +47,13 @@ src/main/java/com/giozar04/card/domain/entities/Card.java
 src/main/java/com/giozar04/card/domain/enums/CardTypes.java
 src/main/java/com/giozar04/card/infrastructure/serialization/CardMapper.java
 src/main/java/com/giozar04/card/infrastructure/serialization/CardParsingException.java
-src/main/java/com/giozar04/cardTransactionDetails/application/utils/CardTransactionDetailUtils.java
+src/main/java/com/giozar04/cardTransactionDetails/application/exceptions/CardTransactionDetailCreationException.java
+src/main/java/com/giozar04/cardTransactionDetails/application/exceptions/CardTransactionDetailDeletionException.java
+src/main/java/com/giozar04/cardTransactionDetails/application/exceptions/CardTransactionDetailNotFoundException.java
+src/main/java/com/giozar04/cardTransactionDetails/application/exceptions/CardTransactionDetailRetrievalException.java
+src/main/java/com/giozar04/cardTransactionDetails/application/exceptions/CardTransactionDetailUpdateException.java
 src/main/java/com/giozar04/cardTransactionDetails/domain/entities/CardTransactionDetail.java
-src/main/java/com/giozar04/cardTransactionDetails/domain/exceptions/CardTransactionDetailExceptions.java
+src/main/java/com/giozar04/cardTransactionDetails/infrastructure/serialization/CardTransactionDetailMapper.java
 src/main/java/com/giozar04/categories/application/exceptions/CategoryCreationException.java
 src/main/java/com/giozar04/categories/application/exceptions/CategoryDeletionException.java
 src/main/java/com/giozar04/categories/application/exceptions/CategoryNotFoundException.java

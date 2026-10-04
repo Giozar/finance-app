@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.giozar04.cardTransactionDetails.application.utils.CardTransactionDetailUtils;
+import com.giozar04.cardTransactionDetails.infrastructure.serialization.CardTransactionDetailMapper;
 import com.giozar04.shared.utils.SharedUtils;
 import com.giozar04.transactions.domain.entities.Transaction;
 import com.giozar04.transactions.domain.enums.OperationTypes;
@@ -36,7 +36,7 @@ public class TransactionUtils {
         map.put("tagIds", new ArrayList<>(tx.getTagIds()));
 
         if (tx.getCardDetail() != null)
-            map.put("cardDetail", CardTransactionDetailUtils.toMap(tx.getCardDetail()));
+            map.put("cardDetail", CardTransactionDetailMapper.toMap(tx.getCardDetail()));
         if (tx.getWalletDetail() != null)
             map.put("walletDetail", WalletTransactionDetailUtils.toMap(tx.getWalletDetail()));
 
@@ -79,7 +79,7 @@ public class TransactionUtils {
         tx.setTagIds(parseTagIds(map.get("tagIds")));
 
         Map<String, Object> cardDetail = parseNestedMap(map.get("cardDetail"));
-        if (cardDetail != null) tx.setCardDetail(CardTransactionDetailUtils.fromMap(cardDetail));
+        if (cardDetail != null) tx.setCardDetail(CardTransactionDetailMapper.fromMap(cardDetail));
 
         Map<String, Object> walletDetail = parseNestedMap(map.get("walletDetail"));
         if (walletDetail != null) tx.setWalletDetail(WalletTransactionDetailUtils.fromMap(walletDetail));

@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.giozar04.cardTransactionDetails.application.services.CardTransactionDetailService;
-import com.giozar04.cardTransactionDetails.application.utils.CardTransactionDetailUtils;
+import com.giozar04.cardTransactionDetails.infrastructure.serialization.CardTransactionDetailMapper;
 import com.giozar04.cardTransactionDetails.domain.entities.CardTransactionDetail;
 import com.giozar04.logging.CustomLogger;
 import com.giozar04.messages.domain.models.Message;
@@ -35,11 +35,11 @@ public class CardTransactionDetailControllers {
                 return Message.createErrorMessage(MessageTypes.CREATE_DETAIL, "Datos no proporcionados");
             }
 
-            CardTransactionDetail detail = CardTransactionDetailUtils.fromMap(data);
+            CardTransactionDetail detail = CardTransactionDetailMapper.fromMap(data);
             CardTransactionDetail created = service.createDetail(detail);
 
             Message response = Message.createSuccessMessage(MessageTypes.CREATE_DETAIL, "Detalle creado");
-            response.addData("cardTransactionDetail", CardTransactionDetailUtils.toMap(created));
+            response.addData("cardTransactionDetail", CardTransactionDetailMapper.toMap(created));
             return response;
         };
     }
@@ -55,7 +55,7 @@ public class CardTransactionDetailControllers {
 
             CardTransactionDetail detail = service.getDetailById(id);
             Message response = Message.createSuccessMessage(MessageTypes.GET_DETAIL, "Detalle obtenido");
-            response.addData("cardTransactionDetail", CardTransactionDetailUtils.toMap(detail));
+            response.addData("cardTransactionDetail", CardTransactionDetailMapper.toMap(detail));
             return response;
         };
     }
@@ -75,10 +75,10 @@ public class CardTransactionDetailControllers {
                 return Message.createErrorMessage(MessageTypes.UPDATE_DETAIL, "Datos no proporcionados");
             }
 
-            CardTransactionDetail updated = service.updateDetailById(id, CardTransactionDetailUtils.fromMap(data));
+            CardTransactionDetail updated = service.updateDetailById(id, CardTransactionDetailMapper.fromMap(data));
 
             Message response = Message.createSuccessMessage(MessageTypes.UPDATE_DETAIL, "Detalle actualizado");
-            response.addData("cardTransactionDetail", CardTransactionDetailUtils.toMap(updated));
+            response.addData("cardTransactionDetail", CardTransactionDetailMapper.toMap(updated));
             return response;
         };
     }
@@ -104,7 +104,7 @@ public class CardTransactionDetailControllers {
             List<CardTransactionDetail> list = service.getAllDetails();
             List<Map<String, Object>> mapped = new ArrayList<>();
             for (CardTransactionDetail detail : list) {
-                mapped.add(CardTransactionDetailUtils.toMap(detail));
+                mapped.add(CardTransactionDetailMapper.toMap(detail));
             }
 
             Message response = Message.createSuccessMessage(MessageTypes.GET_ALL_DETAILS, "Detalles obtenidos");
@@ -126,7 +126,7 @@ public class CardTransactionDetailControllers {
             List<CardTransactionDetail> list = service.getDetailsByTransactionId(txId);
             List<Map<String, Object>> mapped = new ArrayList<>();
             for (CardTransactionDetail d : list) {
-                mapped.add(CardTransactionDetailUtils.toMap(d));
+                mapped.add(CardTransactionDetailMapper.toMap(d));
             }
 
             Message response = Message.createSuccessMessage(MessageTypes.GET_DETAILS_BY_TRANSACTION, "Detalles obtenidos");

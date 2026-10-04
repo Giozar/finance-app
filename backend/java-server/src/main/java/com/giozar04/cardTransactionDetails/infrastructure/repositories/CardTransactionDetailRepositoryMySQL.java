@@ -13,7 +13,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.giozar04.cardTransactionDetails.domain.entities.CardTransactionDetail;
-import com.giozar04.cardTransactionDetails.domain.exceptions.CardTransactionDetailExceptions;
+import com.giozar04.cardTransactionDetails.application.exceptions.CardTransactionDetailCreationException;
+import com.giozar04.cardTransactionDetails.application.exceptions.CardTransactionDetailDeletionException;
+import com.giozar04.cardTransactionDetails.application.exceptions.CardTransactionDetailNotFoundException;
+import com.giozar04.cardTransactionDetails.application.exceptions.CardTransactionDetailRetrievalException;
+import com.giozar04.cardTransactionDetails.application.exceptions.CardTransactionDetailUpdateException;
 import com.giozar04.cardTransactionDetails.domain.interfaces.CardTransactionDetailTransactionalRepositoryInterface;
 import com.giozar04.cardTransactionDetails.domain.models.CardTransactionDetailRepositoryAbstract;
 import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
@@ -53,7 +57,7 @@ public class CardTransactionDetailRepositoryMySQL extends CardTransactionDetailR
 
         } catch (SQLException e) {
             rollback();
-            throw new CardTransactionDetailExceptions.CreationException("Error al crear detalle tarjeta: " + e.getMessage(), e);
+            throw new CardTransactionDetailCreationException("Error al crear detalle tarjeta: " + e.getMessage(), e);
         }
     }
 
@@ -67,11 +71,11 @@ public class CardTransactionDetailRepositoryMySQL extends CardTransactionDetailR
             stmt.setLong(1, id);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) return mapResultSet(rs);
-                throw new CardTransactionDetailExceptions.NotFoundException("Detalle tarjeta no encontrado con ID: " + id, null);
+                throw new CardTransactionDetailNotFoundException("Detalle tarjeta no encontrado con ID: " + id, null);
             }
 
         } catch (SQLException e) {
-            throw new CardTransactionDetailExceptions.RetrievalException("Error al obtener detalle", e);
+            throw new CardTransactionDetailRetrievalException("Error al obtener detalle", e);
         }
     }
 
@@ -99,7 +103,7 @@ public class CardTransactionDetailRepositoryMySQL extends CardTransactionDetailR
             stmt.setLong(7, id);
 
             int affected = stmt.executeUpdate();
-            if (affected == 0) throw new CardTransactionDetailExceptions.NotFoundException("No se encontró el detalle para actualizar", null);
+            if (affected == 0) throw new CardTransactionDetailNotFoundException("No se encontró el detalle para actualizar", null);
 
             databaseConnection.commitTransaction();
             detail.setId(id);
@@ -107,7 +111,7 @@ public class CardTransactionDetailRepositoryMySQL extends CardTransactionDetailR
 
         } catch (SQLException e) {
             rollback();
-            throw new CardTransactionDetailExceptions.UpdateException("Error al actualizar detalle tarjeta", e);
+            throw new CardTransactionDetailUpdateException("Error al actualizar detalle tarjeta", e);
         }
     }
 
@@ -121,14 +125,14 @@ public class CardTransactionDetailRepositoryMySQL extends CardTransactionDetailR
             stmt.setLong(1, id);
             int affected = stmt.executeUpdate();
 
-            if (affected == 0) throw new CardTransactionDetailExceptions.NotFoundException("Detalle no encontrado", null);
+            if (affected == 0) throw new CardTransactionDetailNotFoundException("Detalle no encontrado", null);
 
             databaseConnection.commitTransaction();
             logger.info("Detalle tarjeta eliminado con ID: " + id);
 
         } catch (SQLException e) {
             rollback();
-            throw new CardTransactionDetailExceptions.DeletionException("Error al eliminar detalle", e);
+            throw new CardTransactionDetailDeletionException("Error al eliminar detalle", e);
         }
     }
 
@@ -144,7 +148,7 @@ public class CardTransactionDetailRepositoryMySQL extends CardTransactionDetailR
             return list;
 
         } catch (SQLException e) {
-            throw new CardTransactionDetailExceptions.RetrievalException("Error al obtener detalles", e);
+            throw new CardTransactionDetailRetrievalException("Error al obtener detalles", e);
         }
     }
 
@@ -154,7 +158,7 @@ public class CardTransactionDetailRepositoryMySQL extends CardTransactionDetailR
             return findByTransactionId(conn, transactionId);
 
         } catch (SQLException e) {
-            throw new CardTransactionDetailExceptions.RetrievalException("Error al obtener detalles por transacción", e);
+            throw new CardTransactionDetailRetrievalException("Error al obtener detalles por transacción", e);
         }
     }
 
