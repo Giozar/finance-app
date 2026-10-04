@@ -1,4 +1,4 @@
-package com.giozar04.bankClients.infrastructure.controllers;
+package com.giozar04.bankClients.infrastructure.transport.socket;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,7 +6,7 @@ import java.util.Map;
 
 import com.giozar04.bankClient.infrastructure.serialization.BankClientMapper;
 import com.giozar04.bankClient.domain.entities.BankClient;
-import com.giozar04.bankClients.application.services.BankClientService;
+import com.giozar04.bankClients.application.ports.input.BankClientOperations;
 import com.giozar04.logging.infrastructure.ConsoleLogger;
 import com.giozar04.messages.infrastructure.transport.Message;
 import com.giozar04.servers.domain.handlers.MessageHandler;
@@ -25,7 +25,7 @@ public class BankClientControllers {
         public static final String GET_ALL_BANK_CLIENTS = "GET_ALL_BANK_CLIENTS";
     }
 
-    public static MessageHandler createBankClientController(BankClientService service) {
+    public static MessageHandler createBankClientController(BankClientOperations service) {
         return (ClientConnection conn, Message message) -> {
             LOGGER.info("Procesando creación de BankClient");
             @SuppressWarnings("unchecked")
@@ -40,7 +40,7 @@ public class BankClientControllers {
         };
     }
 
-    public static MessageHandler getBankClientController(BankClientService service) {
+    public static MessageHandler getBankClientController(BankClientOperations service) {
         return (ClientConnection conn, Message message) -> {
             Long id = parseId(message.getData("id"));
             BankClient client = service.getBankClientById(id);
@@ -52,7 +52,7 @@ public class BankClientControllers {
         };
     }
 
-    public static MessageHandler getBankClientsByUserController(BankClientService service) {
+    public static MessageHandler getBankClientsByUserController(BankClientOperations service) {
         return (ClientConnection conn, Message message) -> {
             Long userId = parseId(message.getData("userId"));
             List<BankClient> clients = service.getBankClientsByUserId(userId);
@@ -70,7 +70,7 @@ public class BankClientControllers {
         };
     }
 
-    public static MessageHandler updateBankClientController(BankClientService service) {
+    public static MessageHandler updateBankClientController(BankClientOperations service) {
         return (ClientConnection conn, Message message) -> {
             Long id = parseId(message.getData("id"));
             @SuppressWarnings("unchecked")
@@ -85,7 +85,7 @@ public class BankClientControllers {
         };
     }
 
-    public static MessageHandler deleteBankClientController(BankClientService service) {
+    public static MessageHandler deleteBankClientController(BankClientOperations service) {
         return (ClientConnection conn, Message message) -> {
             Long id = parseId(message.getData("id"));
             service.deleteBankClientById(id);
@@ -94,7 +94,7 @@ public class BankClientControllers {
         };
     }
 
-    public static MessageHandler getAllBankClientsController(BankClientService service) {
+    public static MessageHandler getAllBankClientsController(BankClientOperations service) {
         return (ClientConnection conn, Message message) -> {
             List<BankClient> clients = service.getAllBankClients();
             List<Map<String, Object>> mapped = new ArrayList<>();

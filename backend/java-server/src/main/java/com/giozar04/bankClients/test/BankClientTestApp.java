@@ -4,8 +4,8 @@ import java.util.List;
 import java.util.Scanner;
 
 import com.giozar04.bankClient.domain.entities.BankClient;
-import com.giozar04.bankClients.application.services.BankClientService;
-import com.giozar04.bankClients.infrastructure.repositories.BankClientRepositoryMySQL;
+import com.giozar04.bankClients.application.usecases.BankClientUseCase;
+import com.giozar04.bankClients.infrastructure.persistence.mysql.BankClientRepositoryMySQL;
 import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
 import com.giozar04.databases.infrastructure.repositories.DatabaseConnectionMySQL;
 
@@ -30,7 +30,7 @@ public class BankClientTestApp {
             dbConnection.connect();
 
             BankClientRepositoryMySQL repository = new BankClientRepositoryMySQL(dbConnection);
-            BankClientService service = new BankClientService(repository);
+            BankClientUseCase service = new BankClientUseCase(repository);
 
             Scanner scanner = new Scanner(System.in);
             boolean exit = false;
@@ -68,7 +68,7 @@ public class BankClientTestApp {
         }
     }
 
-    private static void createBankClient(BankClientService service, Scanner scanner) {
+    private static void createBankClient(BankClientUseCase service, Scanner scanner) {
         try {
             BankClient client = new BankClient();
 
@@ -90,7 +90,7 @@ public class BankClientTestApp {
         }
     }
 
-    private static void listAllClients(BankClientService service) {
+    private static void listAllClients(BankClientUseCase service) {
         try {
             List<BankClient> clients = service.getAllBankClients();
             if (clients.isEmpty()) {
@@ -104,7 +104,7 @@ public class BankClientTestApp {
         }
     }
 
-    private static void getClientById(BankClientService service, Scanner scanner) {
+    private static void getClientById(BankClientUseCase service, Scanner scanner) {
         try {
             System.out.print("Ingrese el ID del cliente: ");
             long id = scanner.nextLong();
@@ -117,7 +117,7 @@ public class BankClientTestApp {
         }
     }
 
-    private static void updateClient(BankClientService service, Scanner scanner) {
+    private static void updateClient(BankClientUseCase service, Scanner scanner) {
         try {
             System.out.print("ID del cliente a actualizar: ");
             long id = scanner.nextLong();
@@ -143,7 +143,7 @@ public class BankClientTestApp {
         }
     }
 
-    private static void deleteClient(BankClientService service, Scanner scanner) {
+    private static void deleteClient(BankClientUseCase service, Scanner scanner) {
         try {
             System.out.print("ID del cliente a eliminar: ");
             long id = scanner.nextLong();

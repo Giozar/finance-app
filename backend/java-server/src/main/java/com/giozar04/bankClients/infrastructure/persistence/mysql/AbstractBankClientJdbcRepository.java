@@ -1,39 +1,29 @@
-package com.giozar04.bankClients.domain.models;
+package com.giozar04.bankClients.infrastructure.persistence.mysql;
 
 import java.util.List;
 import java.util.Objects;
 
 import com.giozar04.bankClient.domain.entities.BankClient;
-import com.giozar04.bankClients.domain.interfaces.BankClientRepositoryInterface;
+import com.giozar04.bankClients.application.ports.output.BankClientRepository;
+import com.giozar04.bankClients.domain.policies.BankClientPolicy;
 import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
 import com.giozar04.logging.infrastructure.ConsoleLogger;
 
-public abstract class BankClientRepositoryAbstract implements BankClientRepositoryInterface {
+public abstract class AbstractBankClientJdbcRepository implements BankClientRepository {
 
     protected final DatabaseConnectionInterface databaseConnection;
     protected final ConsoleLogger logger = ConsoleLogger.getInstance();
 
-    protected BankClientRepositoryAbstract(DatabaseConnectionInterface databaseConnection) {
+    protected AbstractBankClientJdbcRepository(DatabaseConnectionInterface databaseConnection) {
         this.databaseConnection = Objects.requireNonNull(databaseConnection, "La conexión no puede ser nula");
     }
 
     protected void validateBankClient(BankClient client) {
-        Objects.requireNonNull(client, "El objeto BankClient no puede ser nulo");
-        if (client.getBankName() == null || client.getBankName().isBlank()) {
-            throw new IllegalArgumentException("El nombre del banco es obligatorio");
-        }
-        if (client.getClientNumber() == null || client.getClientNumber().isBlank()) {
-            throw new IllegalArgumentException("El número de cliente es obligatorio");
-        }
-        if (client.getUserId() <= 0) {
-            throw new IllegalArgumentException("El ID del usuario debe ser válido");
-        }
+        BankClientPolicy.validateBankClient(client);
     }
 
     protected void validateId(long id) {
-        if (id <= 0) {
-            throw new IllegalArgumentException("El ID debe ser mayor que cero");
-        }
+        BankClientPolicy.validateId(id);
     }
 
     @Override public abstract BankClient createBankClient(BankClient bankClient);

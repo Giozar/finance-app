@@ -33,7 +33,7 @@ comparados y compilación independiente de shared, backend y client.
 | users | Migrada; puertos, política y adaptadores verificados |
 | categories | Migrada; puertos, política y adaptadores verificados |
 | externalEntities | Migrada; puertos, política y adaptadores verificados |
-| bankClients | Pendiente |
+| bankClients | Migrada; puertos, política y adaptadores verificados |
 | accounts | Pendiente |
 | cards | Pendiente |
 | accountCashbackSettings | Pendiente |

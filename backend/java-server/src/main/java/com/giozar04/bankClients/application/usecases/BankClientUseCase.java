@@ -1,15 +1,16 @@
-package com.giozar04.bankClients.application.services;
+package com.giozar04.bankClients.application.usecases;
 
 import java.util.List;
 
 import com.giozar04.bankClient.domain.entities.BankClient;
-import com.giozar04.bankClients.domain.interfaces.BankClientRepositoryInterface;
+import com.giozar04.bankClients.application.ports.output.BankClientRepository;
+import com.giozar04.bankClients.application.ports.input.BankClientOperations;
 
-public class BankClientService implements BankClientRepositoryInterface {
+public class BankClientUseCase implements BankClientOperations {
 
-    private final BankClientRepositoryInterface bankClientRepository;
+    private final BankClientRepository bankClientRepository;
 
-    public BankClientService(BankClientRepositoryInterface bankClientRepository) {
+    public BankClientUseCase(BankClientRepository bankClientRepository) {
         this.bankClientRepository = bankClientRepository;
     }
 

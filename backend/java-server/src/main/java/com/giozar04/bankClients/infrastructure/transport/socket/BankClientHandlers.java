@@ -1,15 +1,15 @@
-package com.giozar04.bankClients.infrastructure.handlers;
+package com.giozar04.bankClients.infrastructure.transport.socket;
 
-import com.giozar04.bankClients.application.services.BankClientService;
-import com.giozar04.bankClients.infrastructure.controllers.BankClientControllers;
+import com.giozar04.bankClients.application.ports.input.BankClientOperations;
+import com.giozar04.bankClients.infrastructure.transport.socket.BankClientControllers;
 import com.giozar04.servers.application.services.ServerService;
 import com.giozar04.servers.domain.interfaces.ServerRegisterHandlers;
 
 public class BankClientHandlers implements ServerRegisterHandlers {
 
-    private final BankClientService service;
+    private final BankClientOperations service;
 
-    public BankClientHandlers(BankClientService service) {
+    public BankClientHandlers(BankClientOperations service) {
         this.service = service;
     }
 

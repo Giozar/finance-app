@@ -7,10 +7,11 @@ import com.giozar04.accounts.application.services.AccountService;
 import com.giozar04.accounts.domain.interfaces.AccountRepositoryInterface;
 import com.giozar04.accounts.infrastructure.handlers.AccountHandlers;
 import com.giozar04.accounts.infrastructure.repositories.AccountRepositoryMySQL;
-import com.giozar04.bankClients.application.services.BankClientService;
-import com.giozar04.bankClients.domain.interfaces.BankClientRepositoryInterface;
-import com.giozar04.bankClients.infrastructure.handlers.BankClientHandlers;
-import com.giozar04.bankClients.infrastructure.repositories.BankClientRepositoryMySQL;
+import com.giozar04.bankClients.application.usecases.BankClientUseCase;
+import com.giozar04.bankClients.application.ports.input.BankClientOperations;
+import com.giozar04.bankClients.application.ports.output.BankClientRepository;
+import com.giozar04.bankClients.infrastructure.transport.socket.BankClientHandlers;
+import com.giozar04.bankClients.infrastructure.persistence.mysql.BankClientRepositoryMySQL;
 import com.giozar04.cardTransactionDetails.application.services.CardTransactionDetailService;
 import com.giozar04.cardTransactionDetails.infrastructure.handlers.CardTransactionDetailHandlers;
 import com.giozar04.cardTransactionDetails.infrastructure.repositories.CardTransactionDetailRepositoryMySQL;
@@ -90,9 +91,9 @@ public class ApplicationInitializer {
         UserOperations userService = new UserUseCase(userRepository);
 
         // Inicializar repositorios y servicios de clientes de bancos
-        BankClientRepositoryInterface bankClientRepository =
+        BankClientRepository bankClientRepository =
                 new BankClientRepositoryMySQL(dbConnection);
-        BankClientService bankClientService = new BankClientService(bankClientRepository);
+        BankClientOperations bankClientService = new BankClientUseCase(bankClientRepository);
 
         // Inicializar repositorios y servicios de cuentas
         AccountRepositoryInterface accountRepository =

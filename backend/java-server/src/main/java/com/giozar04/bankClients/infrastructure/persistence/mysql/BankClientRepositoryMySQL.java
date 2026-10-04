@@ -1,4 +1,4 @@
-package com.giozar04.bankClients.infrastructure.repositories;
+package com.giozar04.bankClients.infrastructure.persistence.mysql;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -17,10 +17,10 @@ import com.giozar04.bankClient.application.exceptions.BankClientDeletionExceptio
 import com.giozar04.bankClient.application.exceptions.BankClientNotFoundException;
 import com.giozar04.bankClient.application.exceptions.BankClientRetrievalException;
 import com.giozar04.bankClient.application.exceptions.BankClientUpdateException;
-import com.giozar04.bankClients.domain.models.BankClientRepositoryAbstract;
+import com.giozar04.bankClients.infrastructure.persistence.mysql.AbstractBankClientJdbcRepository;
 import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
 
-public class BankClientRepositoryMySQL extends BankClientRepositoryAbstract {
+public class BankClientRepositoryMySQL extends AbstractBankClientJdbcRepository {
 
     private static final String SQL_INSERT = "INSERT INTO bank_clients (user_id, bank_name, client_number, created_at, updated_at) VALUES (?, ?, ?, ?, ?)";
     private static final String SQL_SELECT_BY_ID = "SELECT * FROM bank_clients WHERE id = ?";
