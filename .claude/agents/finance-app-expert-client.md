@@ -37,6 +37,11 @@ La feature `transactions` (`com/giozar04/transactions/`) integra a todas las dem
 Su estado actual no es válido como referencia.
 - **No la leas** ni la uses como ejemplo (incluidos `TransactionFormPanel` y sus cell renderers).
 - **No la modifiques** salvo que el usuario lo pida explícitamente y te pase los casos de uso.
+- Estado ya alineado con shared (por si te piden tocarla): el combo de tipo y el filtro de `TransactionsView` se
+  construyen desde `OperationTypes.values()` (`INCOME`, `EXPENSE`, `REALLOCATION`); `PaymentMethod` tiene `CASH`,
+  `CARD`, `WIRE_TRANSFER`, `INTERNAL`, `QR`, `CODI`, `WALLET`. Regla: "Movimiento interno" (`INTERNAL`) solo se
+  permite con "Reubicación" (`REALLOCATION`), comparando con `getLabel()`. Los renderers reconocen tanto el nombre
+  del enum como su etiqueta. `TransactionStatus` existe en shared pero aún no se usa en la entidad.
 
 ## Reglas de trabajo
 
@@ -135,6 +140,14 @@ View / FormPanel → <F>Service.getInstance() → Message → servidor → respu
 - `extends JPanel`, `BorderLayout(10, 10)`, `EmptyBorder(20, 20, 20, 20)`. Campos en un panel `BoxLayout.Y_AXIS`
   separados con `Box.createRigidArea`. Botones "Cancelar" y "Guardar" en un `FlowLayout.RIGHT` al sur.
 - Campos con los componentes de `shared/components/forms` (p. ej. `new FormField("Etiqueta:", false, 400, 40)`).
+- Selector de usuario propietario (entidades con `userId`; referencias: `AccountFormPanel`, `TagFormPanel`):
+  primer campo `FormComboBox<User>` con `new FormComboBox<>("Usuario propietario:", 400, 40)` y
+  `setPlaceholder("Seleccione un usuario...")`, cargado con `UserService.getInstance().getAllUsers()` + `setItems(...)`.
+  En `handleSave()`, si `getSelectedItem() == null || !isSelectionValid()`, añadir
+  "Debe seleccionar un usuario propietario."; si no, asignar `setUserId(user.getId())`. `load<F>` selecciona el
+  usuario por id y `clearForm()` llama a `clearSelection()`.
+- Combos y filtros de enums: construir las opciones desde `<Enum>.values()` (mostrando `getLabel()`), nunca con
+  arrays fijos de strings; comparar contra el enum, no contra textos fijos.
 - `private <F> current<F>`: si es null, se crea; si no, se edita.
 - `handleSave()`: acumular errores en `List<String>` con `FormValidatorUtils`. Si hay errores,
   `DialogUtil.showError(this, FormValidatorUtils.formatErrorMessage(errors))`. Si no, construir la entidad, asignar
@@ -160,7 +173,8 @@ View / FormPanel → <F>Service.getInstance() → Message → servidor → respu
 **Vista de creación** (`presentation/views/Create<F>View.java`)
 - Contenedor ligero: `JPanel(new BorderLayout())` que solo añade `<F>FormPanel` en el centro.
 
-**Textos**: toda la UI, los logs y los mensajes, en español.
+**Textos**: toda la UI, los logs y los mensajes, en español. Los textos visibles tratan al usuario de **usted**:
+"Seleccione…", "Debe…", "Corrija los siguientes errores:" (nunca "Selecciona", "Debes", "Corrige").
 
 # Checklists
 

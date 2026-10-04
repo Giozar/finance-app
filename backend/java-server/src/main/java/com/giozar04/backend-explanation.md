@@ -157,6 +157,11 @@ Typical responsibilities include:
 
 For example, `AccountRepositoryMySQL` implements SQL operations for creating, updating, retrieving, and deleting accounts. 
 
+Database rules and persistence notes:
+
+* Business rules enforced by the database (triggers with `SIGNAL SQLSTATE '45000'` and `CHECK` constraints) reach the repository as a `SQLException`. Propagate its message in the shared exception (e.g. `"Error al crear transacción: " + e.getMessage()`) so it reaches the client through `ServerService` (`"Error al procesar solicitud: ..."`).
+* Enums are persisted with `getValue()` (UPPERCASE values). They must match the values allowed by the corresponding `CHECK` constraint in `database/schemas.sql`.
+
 ## `infrastructure/controllers`
 
 This folder contains feature controllers:
@@ -216,6 +221,8 @@ These scripts may contain:
 * Database initialization scripts
 
 Although these files are not directly involved in runtime execution, they serve as structural documentation and database setup resources.
+
+Schema changes that affect existing data are not applied by editing these files: they belong to the database module as a migration in `database/migrations/` (and in `database/schemas.sql`).
 
 ## `test`
 

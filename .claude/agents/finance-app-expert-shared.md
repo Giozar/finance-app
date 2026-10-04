@@ -23,6 +23,10 @@ La feature `transactions` (`com/giozar04/transactions/`) es la que integra a tod
 rediseño**; su estado actual no es válido como referencia.
 - **No la leas** ni la uses como ejemplo de convenciones.
 - **No la modifiques** salvo que el usuario lo pida explícitamente y te pase los casos de uso.
+- Estado conocido: existen los enums `OperationTypes`, `PaymentMethod` y `TransactionStatus`
+  (`PENDING`, `COMPLETED`, `FAILED`, `CANCELLED`; coincide con `chk_tx_status` de la BD), pero la entidad
+  `Transaction` **aún no tiene** `userId`, `status`, `categoryId`, `parentTransactionId` ni `receiptUrl`.
+  Su alineación con la BD queda pendiente del rediseño.
 
 ## Reglas de trabajo
 
@@ -44,8 +48,8 @@ negocio del backend ni UI del cliente.
 - Sin dependencias externas (JSON propio en `json/utils/JsonUtils.java`).
 - Documentación: `GENERALSHARED.md` (árbol de archivos) y
   `src/main/java/com/giozar04/shared-explanation.md` (cómo crear una feature).
-- ⚠️ `README.md` de shared está desactualizado: menciona paquetes `com.giozar04.shared.<feature>...`.
-  El paquete real es **`com.giozar04.<feature>...`**. La fuente de verdad es `GENERALSHARED.md` + el código.
+- `README.md` de shared está actualizado (paquetes reales **`com.giozar04.<feature>...`**). Aun así, la
+  fuente de verdad es `GENERALSHARED.md` + el código.
 
 ## Ubicación
 `shared/java-shared/src/main/java/com/giozar04/<feature>/`
@@ -78,9 +82,12 @@ Transversales:
 - Constructor vacío público.
 - Campos privados; getters/setters en una sola línea cada uno.
 - `long id`, `long userId` (si aplica), `ZonedDateTime createdAt`, `ZonedDateTime updatedAt`.
+- Porcentajes como fracción 0-1: p. ej. `WalletTransactionDetail.cashbackRate` (`BigDecimal`, `0.02` = 2%).
 
 **Enum** (`domain/enums/<Feature>Types.java`) — referencia: `accounts/domain/enums/AccountTypes.java`
-- Cada constante con `(String value, String label)`: `value` es el código persistido, `label` el texto en español para UI.
+- Cada constante con `(String value, String label)`: `value` es el código persistido, **en MAYÚSCULAS e igual al
+  nombre de la constante** (ej. `CASH("CASH", "Efectivo")`) y debe coincidir con el CHECK de la BD; `label` es
+  el texto en español para UI.
 - Getters `getValue()` y `getLabel()`; `toString()` devuelve `label`.
 - `public static <Enum> fromValue(String value)` con `equalsIgnoreCase`; lanza `IllegalArgumentException` si no existe.
 

@@ -24,6 +24,12 @@ La feature `transactions` (`com/giozar04/transactions/`) es la que integra a tod
 rediseño**. Su estado actual no es válido como referencia.
 - **No la leas** ni la uses como ejemplo de convenciones.
 - **No la modifiques** salvo que el usuario lo pida explícitamente y te pase los casos de uso.
+- Estado actual: la tabla en BD ya tiene `user_id`, `status`, `category_id`, `parent_transaction_id` y `receipt_url`,
+  pero la entidad `Transaction` de shared **aún no** los tiene (tampoco usa el enum `TransactionStatus`). El backend
+  de transactions está desalineado con el esquema hasta que se complete el rediseño.
+- Cambios puntuales ya aplicados (no los reviertas): `TransactionRepositoryAbstract` aplica la regla
+  `INTERNAL ⇒ REALLOCATION` (igual que el CHECK `chk_tx_internal_reallocation`), y create/update propagan el
+  mensaje de la `SQLException` (errores de triggers).
 
 ## Reglas de trabajo
 
@@ -96,6 +102,8 @@ Client → Message JSON → ServerService → <F>Handlers → <F>Controllers →
 - `protected void validate<F>(x)` y `protected void validateId(long id)` que lanzan `IllegalArgumentException`
   con mensajes en español.
 - Métodos de la interfaz redeclarados como `@Override public abstract ...`.
+- Si la BD tiene un CHECK sobre un valor de texto, valida/normaliza aquí. Ejemplo: `CardRepositoryAbstract`
+  normaliza `status` con `trim().toUpperCase()` (null ⇒ `ACTIVE`) y solo acepta `ACTIVE`, `BLOCKED`, `EXPIRED`.
 
 **Repositorio MySQL** (`infrastructure/repositories/<F>RepositoryMySQL.java`) – referencia: `TagRepositoryMySQL`
 - `extends <F>RepositoryAbstract`; constructor que llama a `super(databaseConnection)`.
@@ -108,6 +116,13 @@ Client → Message JSON → ServerService → <F>Handlers → <F>Controllers →
 - Tras escribir: `databaseConnection.commitTransaction()` + `logger.info(...)`.
 - En `catch (SQLException e)`: `rollback()` y lanzar la excepción de shared correspondiente
   (`<F>Exceptions.<F>CreationException`, `...RetrievalException`, `...UpdateException`, `...DeletionException`, `...NotFoundException`).
+- Reglas de BD (triggers con `SIGNAL SQLSTATE '45000'` y CHECK) llegan como `SQLException` con mensaje en español.
+  En create/update **incluye `e.getMessage()`** en la excepción (p. ej. `"Error al crear el detalle: " + e.getMessage()`)
+  para que llegue al cliente vía `ServerService` (`"Error al procesar solicitud: ..."`).
+- Enums: se persisten con `getValue()` (MAYÚSCULAS) y deben coincidir con el CHECK de `database/schemas.sql`.
+- `wallet_transaction_details.cashback_rate`: fracción 0-1 (`WalletTransactionDetail.cashbackRate`, `BigDecimal`), opcional.
+- Cambios de esquema sobre datos existentes no se hacen aquí: van como migración en `database/migrations/`
+  (módulo database). El `sql/<feature>.sql` del backend solo se actualiza como documentación.
 
 **Service** (`application/services/<F>Service.java`)
 - `implements <F>RepositoryInterface`; recibe el repositorio por constructor y **delega** cada método.

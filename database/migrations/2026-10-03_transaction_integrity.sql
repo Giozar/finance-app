@@ -1,509 +1,121 @@
 -- ======================================================
--- FINANZAS - SCHEMA COMPLETO
+-- MIGRACIÓN 2026-10-03: INTEGRIDAD DE TRANSACCIONES
 -- ======================================================
--- NOTA: Ejecuta este archivo desde MySQL CLI con:
---   mysql -u root -p < schemas.sql
--- O desde MySQL Workbench ejecutando el script completo.
+-- Requisito: la BD ya tiene aplicadas, en orden:
+--   1. 2026-10-03_reallocation.sql
+--   2. 2026-10-03_schema_consistency.sql
+--
+-- Cambios:
+--   1. transactions.status: normalizado a MAYÚSCULAS + CHECK chk_tx_status
+--      ('PENDING', 'COMPLETED', 'FAILED', 'CANCELLED'). Solo COMPLETED afecta saldos.
+--   2. Procedimientos nuevos:
+--        sp_wallet_details_effect_for_transaction (aplica/revierte todos los detalles de wallet de una transacción)
+--        sp_validate_transaction_amount           (ABS y bloqueo de monto 0; INOUT sobre NEW.amount)
+--        sp_validate_transaction_reallocation     (reglas de REALLOCATION, antes dentro del trigger 8)
+--        sp_validate_wallet_detail                (LINKED_CARD exige card_id)
+--      sp_apply_transaction_effect, sp_revert_transaction_effect y sp_wallet_detail_effect sin cambios
+--      de lógica (se recrean igual).
+--   3. Triggers de transactions:
+--        1   tr_before_transaction_insert_val       -> ahora llama a sp_validate_transaction_amount
+--        1.1 tr_before_transaction_update_val       (NUEVO, BEFORE UPDATE)
+--        2, 3 y 4                                   -> solo aplican/revierten si status = 'COMPLETED';
+--                                                      el 3 además reacciona a cambios de status y
+--                                                      aplica/revierte los detalles de wallet
+--        4.1 tr_before_transaction_delete           (NUEVO, BEFORE DELETE: revierte los detalles de wallet
+--                                                      que el ON DELETE CASCADE borrará sin disparar el 5.2)
+--        8   tr_before_transaction_reallocation_check -> ahora llama a sp_validate_transaction_reallocation
+--        8.1 tr_before_transaction_update_reallocation_check (NUEVO, BEFORE UPDATE, FOLLOWS 1.1)
+--   4. Triggers de wallet_transaction_details:
+--        5, 5.1 y 5.2 -> solo si la transacción padre está COMPLETED (5.1 también reacciona a
+--                        cambios de transaction_id)
+--        5.3 tr_before_wallet_detail_insert_val     (NUEVO, BEFORE INSERT)
+--        5.4 tr_before_wallet_detail_update_val     (NUEVO, BEFORE UPDATE)
+--   5. Transición de datos (paso 8): las transacciones existentes que NO están COMPLETED
+--      tenían su efecto aplicado (los triggers anteriores ignoraban status). Se revierte ese
+--      efecto para que los saldos cumplan la regla nueva.
+--   6. Reporte de diagnóstico de saldos CREDIT (paso 9, solo SELECT).
+--
+-- Uso: SOLO para bases de datos con datos existentes (no borra datos).
+--   mysql -u root -p < database/migrations/2026-10-03_transaction_integrity.sql
+-- Para instalaciones nuevas basta con ejecutar database/schemas.sql.
+-- Requiere MySQL 8.0.16+ (CHECK aplicados).
+--
+-- Recomendación: respaldar antes (mysqldump finanzas > respaldo.sql).
+-- Ejecutar UNA sola vez: el paso 8 no es idempotente. Si se vuelve a ejecutar, el
+-- ADD CONSTRAINT del paso 3 falla (el constraint ya existe) y el cliente mysql se detiene
+-- antes de llegar al paso 8.
+-- Nota: los triggers afectados se eliminan ANTES del UPDATE de status para que la
+-- normalización no altere saldos; se recrean después.
+-- ======================================================
 
--- Permisos para crear triggers (necesario en algunos entornos)
-SET GLOBAL log_bin_trust_function_creators = 1;
-
-DROP DATABASE IF EXISTS finanzas;
-
-CREATE DATABASE IF NOT EXISTS finanzas;
+-- ======================================================
+-- 0. DIAGNÓSTICO PREVIO (ejecutar a mano y corregir antes de migrar)
+-- ======================================================
+-- Si esta consulta devuelve filas, el ADD CONSTRAINT chk_tx_status fallará
+-- (se compara en MAYÚSCULAS porque el paso 2 normaliza):
+--
+-- SELECT id, status FROM transactions
+--   WHERE UPPER(TRIM(status)) NOT IN ('PENDING', 'COMPLETED', 'FAILED', 'CANCELLED');
+--
+-- Transacciones cuyo efecto revertirá el paso 8 (no COMPLETED):
+--
+-- SELECT id, user_id, status, operation_type, payment_method,
+--        source_account_id, destination_account_id, amount
+--   FROM transactions
+--   WHERE UPPER(TRIM(status)) <> 'COMPLETED';
+--
+-- Detalles LINKED_CARD sin tarjeta (no los bloquea la migración; los triggers 5.3/5.4
+-- solo validan inserciones y cambios de source_type/card_id):
+--
+-- SELECT id, transaction_id, wallet_account_id, amount FROM wallet_transaction_details
+--   WHERE source_type = 'LINKED_CARD' AND card_id IS NULL;
+-- ======================================================
 
 USE finanzas;
 
--- ======================================================
--- ESTRUCTURA DE USUARIOS Y BANCOS
--- ======================================================
+SET GLOBAL log_bin_trust_function_creators = 1;
+
+-- Los UPDATE masivos no filtran por clave (Workbench los bloquea en modo seguro)
+SET SQL_SAFE_UPDATES = 0;
 
 -- ======================================================
--- 1. USERS
+-- 1. Eliminar triggers y procedimientos afectados
 -- ======================================================
-CREATE TABLE IF NOT EXISTS users (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    name VARCHAR(100) NOT NULL,
-    email VARCHAR(150) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL,
-    global_balance DECIMAL(14, 2) DEFAULT 0.00,
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
-
-CREATE INDEX idx_users_email ON users (email);
-
--- ======================================================
--- 2. BANK_CLIENTS
--- ======================================================
-CREATE TABLE IF NOT EXISTS bank_clients (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    user_id BIGINT NOT NULL,
-    bank_name VARCHAR(100) NOT NULL,
-    client_number VARCHAR(50) NOT NULL,
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    CONSTRAINT fk_bank_clients_user
-        -- Si borras al usuario, se borra su relación con el banco
-        FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
-    UNIQUE KEY unique_client_per_bank (user_id, bank_name, client_number)
-);
-
-CREATE INDEX idx_bank_clients_user_id ON bank_clients (user_id);
-CREATE INDEX idx_bank_clients_client_number ON bank_clients (client_number);
+DROP TRIGGER IF EXISTS tr_before_transaction_reallocation_check;
+DROP TRIGGER IF EXISTS tr_before_transaction_update_reallocation_check;
+DROP TRIGGER IF EXISTS tr_before_transaction_insert_val;
+DROP TRIGGER IF EXISTS tr_before_transaction_update_val;
+DROP TRIGGER IF EXISTS tr_after_transaction_insert_master;
+DROP TRIGGER IF EXISTS tr_after_transaction_update;
+DROP TRIGGER IF EXISTS tr_after_transaction_delete;
+DROP TRIGGER IF EXISTS tr_before_transaction_delete;
+DROP TRIGGER IF EXISTS tr_after_wallet_detail_insert;
+DROP TRIGGER IF EXISTS tr_after_wallet_detail_update;
+DROP TRIGGER IF EXISTS tr_after_wallet_detail_delete;
+DROP TRIGGER IF EXISTS tr_before_wallet_detail_insert_val;
+DROP TRIGGER IF EXISTS tr_before_wallet_detail_update_val;
+DROP PROCEDURE IF EXISTS sp_apply_transaction_effect;
+DROP PROCEDURE IF EXISTS sp_revert_transaction_effect;
+DROP PROCEDURE IF EXISTS sp_wallet_detail_effect;
+DROP PROCEDURE IF EXISTS sp_wallet_details_effect_for_transaction;
+DROP PROCEDURE IF EXISTS sp_validate_transaction_amount;
+DROP PROCEDURE IF EXISTS sp_validate_transaction_reallocation;
+DROP PROCEDURE IF EXISTS sp_validate_wallet_detail;
 
 -- ======================================================
--- 3. ACCOUNTS
+-- 2. Normalizar transactions.status a MAYÚSCULAS
 -- ======================================================
-
--- ======================================================
--- 3.1. ACCOUNTS (Tabla base)
--- ======================================================
-CREATE TABLE IF NOT EXISTS accounts (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    user_id BIGINT NOT NULL,
-    name VARCHAR(100) NOT NULL,
-        -- type: 'CASH', 'DEBIT', 'CREDIT', 'WALLET', 'BENEFIT', 'SAVINGS', 'INVESTMENT' (shared AccountTypes)
-    type VARCHAR(20) NOT NULL,
-    current_balance DECIMAL(12, 2) NOT NULL DEFAULT 0.00,
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    CONSTRAINT fk_acc_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    CONSTRAINT chk_account_type
-        CHECK (type IN ('CASH', 'DEBIT', 'CREDIT', 'WALLET', 'BENEFIT', 'SAVINGS', 'INVESTMENT'))
-);
-
-CREATE INDEX idx_acc_user_type ON accounts (user_id, type);
+UPDATE transactions SET status = UPPER(TRIM(status));
 
 -- ======================================================
--- 3.2. BANK_DETAILS (Extensión Bancaria y Vales)
+-- 3. CHECK de transactions.status
 -- ======================================================
-CREATE TABLE IF NOT EXISTS bank_details (
-    account_id BIGINT PRIMARY KEY,
-    bank_client_id BIGINT NULL,
-    clabe VARCHAR(18) NULL,
-    account_number VARCHAR(20) NULL,
-    can_transfer_out BOOLEAN NOT NULL DEFAULT TRUE,
-    -- si es true, se puede retirar dinero de la cuenta 
-    -- si es false, solo se puede depositar dinero en la cuenta
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    CONSTRAINT fk_bank_acc_base FOREIGN KEY (account_id) REFERENCES accounts(id) ON DELETE CASCADE,
-    CONSTRAINT fk_bank_client FOREIGN KEY (bank_client_id) REFERENCES bank_clients(id) ON DELETE SET NULL
-);
-
--- Índices de búsqueda operativa
-CREATE INDEX idx_bank_det_client ON bank_details (bank_client_id);
-CREATE INDEX idx_bank_det_clabe ON bank_details (clabe);
+ALTER TABLE transactions
+    ADD CONSTRAINT chk_tx_status CHECK (status IN ('PENDING', 'COMPLETED', 'FAILED', 'CANCELLED'));
 
 -- ======================================================
--- 3.3. CREDIT_DETAILS (Extensión de Crédito)
+-- 4. Procedimientos almacenados (copiados de database/schemas.sql)
 -- ======================================================
-CREATE TABLE IF NOT EXISTS credit_details (
-    account_id BIGINT PRIMARY KEY,
-    bank_client_id BIGINT NOT NULL,
-    credit_limit DECIMAL(12, 2) NOT NULL,
-    credit_used DECIMAL(12, 2) NOT NULL DEFAULT 0.00,
-    cutoff_day INT NOT NULL,
-    payment_deadline_day INT NOT NULL,
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    CONSTRAINT fk_credit_acc_base FOREIGN KEY (account_id) REFERENCES accounts(id) ON DELETE CASCADE,
-    CONSTRAINT fk_credit_bank_client FOREIGN KEY (bank_client_id) REFERENCES bank_clients(id) ON DELETE RESTRICT,
-    CONSTRAINT chk_cutoff_day CHECK (cutoff_day BETWEEN 1 AND 31),
-    CONSTRAINT chk_payment_day CHECK (payment_deadline_day BETWEEN 1 AND 31),
-    CONSTRAINT chk_credit_limit CHECK (credit_limit >= 0),
-    CONSTRAINT chk_credit_used CHECK (credit_used >= 0),
-    CONSTRAINT chk_credit_used_limit CHECK (credit_used <= credit_limit)
-);
--- Índices de gestión de deuda
-CREATE INDEX idx_credit_det_client ON credit_details (bank_client_id);
-
--- ======================================================
--- 3.4. SAVINGS_DETAILS (Extensión de Rendimientos)
--- ======================================================
--- annual_yield se guarda como fracción:
---   0.150000 = 15% anual
--- yield_cap_amount:
---   NULL = sin límite
---   >= 0 = monto máximo que genera rendimiento
-CREATE TABLE IF NOT EXISTS savings_details (
-    account_id BIGINT PRIMARY KEY,
-    annual_yield DECIMAL(9, 6) NOT NULL,
-    yield_cap_amount DECIMAL(12, 2) NULL, -- Monto máximo para generar rendimientos
-    last_yield_calculation DATE NULL,
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    CONSTRAINT fk_savings_acc_base
-        FOREIGN KEY (account_id) REFERENCES accounts(id) ON DELETE CASCADE,
-    CONSTRAINT chk_savings_yield
-        CHECK (annual_yield >= 0 AND annual_yield <= 1),
-    CONSTRAINT chk_savings_cap
-        CHECK (yield_cap_amount IS NULL OR yield_cap_amount >= 0)
-);
-
--- Índice para localizar cuentas pendientes de cálculo
-CREATE INDEX idx_savings_last_calc ON savings_details (last_yield_calculation);
-
-
--- ======================================================
--- 3.5. INVESTMENT_DETAILS (Posiciones de inversión a plazo)
--- ======================================================
--- Representa cada inversión/posición dentro de una cuenta contenedora (accounts).
--- Ejemplo: una cuenta "CETESDirecto" (accounts) puede tener muchas inversiones (investment_details).
-
-CREATE TABLE IF NOT EXISTS investment_details (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
-
-    -- Cuenta contenedora (ej. "CETESDirecto")
-    account_id BIGINT NOT NULL,
-
-    -- Tipo de instrumento (ej. CETES, BONDDIA)
-    instrument_type VARCHAR(20) NOT NULL,
-
-    -- Plazo en días (ej. 28, 91, 182). Para instrumentos sin plazo fijo (ej. BONDDIA), puede ser NULL.
-    term_days INT NULL,
-
-    -- Capital fijo invertido en esta posición (no cambia durante el plazo)
-    principal_amount DECIMAL(12, 2) NOT NULL,
-
-    -- Tasa anual fija para esta posición (fracción: 0.105000 = 10.5% anual)
-    annual_yield DECIMAL(9, 6) NOT NULL,
-
-    -- Base de cálculo de días (por defecto 360 para instrumentos tipo CETES; si no la necesitas, puedes fijarla en dominio)
-    day_count_basis SMALLINT NOT NULL DEFAULT 360,
-
-    -- Fechas del plazo (planificadas)
-    start_date DATE NOT NULL,
-    maturity_date DATE NOT NULL,
-
-    -- Control de ciclo de vida (fechas reales de procesamiento)
-    opened_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    matured_at DATETIME NULL,
-    cancelled_at DATETIME NULL,
-
-    -- Estado de la inversión
-    status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',   -- 'ACTIVE', 'MATURED', 'CANCELLED'
-
-    -- Reinversión automática al vencimiento (si aplica)
-    auto_reinvest BOOLEAN NOT NULL DEFAULT FALSE,
-    reinvest_term_days INT NULL,
-    reinvest_annual_yield DECIMAL(9, 6) NULL,
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    CONSTRAINT fk_investment_acc_base
-        FOREIGN KEY (account_id) REFERENCES accounts(id) ON DELETE CASCADE,
-    CONSTRAINT chk_investment_principal
-        CHECK (principal_amount > 0),
-    CONSTRAINT chk_investment_yield
-        CHECK (annual_yield >= 0 AND annual_yield <= 1),
-    CONSTRAINT chk_investment_basis
-        CHECK (day_count_basis IN (360, 365)),
-    CONSTRAINT chk_investment_dates
-        CHECK (maturity_date > start_date),
-    CONSTRAINT chk_investment_term_days
-        CHECK (term_days IS NULL OR term_days > 0),
-    CONSTRAINT chk_investment_reinvest_term
-        CHECK (reinvest_term_days IS NULL OR reinvest_term_days > 0),
-    CONSTRAINT chk_investment_reinvest_yield
-        CHECK (
-            reinvest_annual_yield IS NULL
-            OR (reinvest_annual_yield >= 0 AND reinvest_annual_yield <= 1)
-        ),
-    CONSTRAINT chk_investment_status
-        CHECK (status IN ('ACTIVE', 'MATURED', 'CANCELLED'))
-);
-
--- Índices operativos: listar por cuenta y procesar vencimientos
-CREATE INDEX idx_investment_account ON investment_details (account_id);
-CREATE INDEX idx_investment_status_maturity ON investment_details (status, maturity_date);
-CREATE INDEX idx_investment_instrument ON investment_details (instrument_type, term_days);
-CREATE INDEX idx_investment_opened_at ON investment_details (opened_at);
-CREATE INDEX idx_investment_matured_at ON investment_details (matured_at);
-
--- ======================================================
--- 3.6. ACCOUNT_CASHBACK_SETTINGS (Configuración de Cashback por Cuenta)
--- ======================================================
--- Tabla donde se configura si una cuenta (wallet) tiene activo el cashback y su tasa.
--- default_cashback_rate se guarda como fracción: 0.020000 = 2%
-
-CREATE TABLE IF NOT EXISTS account_cashback_settings (
-    account_id BIGINT PRIMARY KEY,
-    default_cashback_rate DECIMAL(9, 6) NULL,
-    cashback_enabled BOOLEAN NOT NULL DEFAULT FALSE,
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    CONSTRAINT fk_cashback_account
-        FOREIGN KEY (account_id) REFERENCES accounts(id) ON DELETE CASCADE,
-    CONSTRAINT chk_cashback_rate
-        CHECK (
-            default_cashback_rate IS NULL
-            OR (default_cashback_rate >= 0 AND default_cashback_rate <= 1)
-        )
-);
-
--- ======================================================
--- 4. CARDS
--- ======================================================
-
--- ======================================================
--- 4.1. CARDS (Tarjetas físicas o digitales de una cuenta)
--- ======================================================
-CREATE TABLE IF NOT EXISTS cards (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    account_id BIGINT NOT NULL,
-    name VARCHAR(100) NOT NULL,
-        -- card_type: 'PHYSICAL', 'DIGITAL' (shared CardTypes)
-    card_type VARCHAR(20) NOT NULL,
-    card_number VARCHAR(4) NOT NULL,
-    expiration_date DATE NOT NULL,
-        -- status: 'ACTIVE', 'BLOCKED', 'EXPIRED'
-        -- Usamos VARCHAR + CHECK en lugar de ENUM para mayor flexibilidad
-    status VARCHAR(20) DEFAULT 'ACTIVE',
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    CONSTRAINT fk_cards_account FOREIGN KEY (account_id) REFERENCES accounts (id) ON DELETE CASCADE,
-    CONSTRAINT chk_card_type CHECK (card_type IN ('PHYSICAL', 'DIGITAL')),
-    CONSTRAINT chk_card_status CHECK (status IN ('ACTIVE', 'BLOCKED', 'EXPIRED'))
-);
-
-CREATE INDEX idx_cards_account_id ON cards (account_id);
-CREATE INDEX idx_cards_card_type ON cards (card_type);
-
--- ======================================================
--- 4.2. WALLET_CARD_LINKS (Relación Muchos a Muchos wallet <-> tarjeta)
--- ======================================================
-CREATE TABLE IF NOT EXISTS wallet_card_links (
-    account_id BIGINT NOT NULL,
-    card_id BIGINT NOT NULL,
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    PRIMARY KEY (account_id, card_id),
-    CONSTRAINT fk_wallet_link_acc
-        FOREIGN KEY (account_id) REFERENCES accounts(id) ON DELETE CASCADE,
-    CONSTRAINT fk_wallet_link_card
-        FOREIGN KEY (card_id) REFERENCES cards(id) ON DELETE CASCADE
-);
-
-CREATE INDEX idx_wallet_link_card ON wallet_card_links (card_id);
-
--- ======================================================
--- CATÁLOGOS Y ENTIDADES EXTERNAS
--- ======================================================
-
--- ======================================================
--- 5. EXTERNAL_ENTITIES
--- ======================================================
-CREATE TABLE IF NOT EXISTS external_entities (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    user_id BIGINT NOT NULL,
-    name VARCHAR(100) NOT NULL,
-        -- type: 'PERSON', 'SERVICE', 'STORE' (shared ExternalEntityTypes)
-    type VARCHAR(20) NOT NULL,
-    contact VARCHAR(200),
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    CONSTRAINT fk_entities_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
-        -- Evita duplicados para el mismo usuario, pero permite que dos usuarios
-        -- distintos tengan su propia "TIENDA PEPE" sin chocar.
-    UNIQUE KEY unique_entity_per_user (user_id, name),
-    CONSTRAINT chk_external_entity_type CHECK (type IN ('PERSON', 'SERVICE', 'STORE'))
-);
-
-CREATE INDEX idx_external_entities_user ON external_entities (user_id);
-CREATE INDEX idx_external_entities_type ON external_entities (type);
-CREATE INDEX idx_external_entities_name ON external_entities (name);
-
--- ======================================================
--- 6. CATEGORIES
--- ======================================================
-CREATE TABLE IF NOT EXISTS categories (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    user_id BIGINT NOT NULL,
-    name VARCHAR(100) NOT NULL,
-        -- OPCIÓN 1: VARCHAR + CHECK (Flexibilidad)
-        -- Es un texto con una regla "pegada" que imita al ENUM.
-    type VARCHAR(20) NOT NULL,
-        -- OPCIÓN 2: ENUM (Rigidez/Optimización)
-        -- type ENUM('INCOME', 'EXPENSE', 'BOTH') NOT NULL,
-    icon VARCHAR(100) NOT NULL,
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    CONSTRAINT fk_categories_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
-        -- Tu restricción UNIQUE (user_id, name): 
-        -- Evita que tengas dos "Comida", pero permite que OTRO usuario tenga la suya.
-    CONSTRAINT unique_category_per_user UNIQUE (user_id, name),
-        -- LA REGLA "TIPO ENUM":
-        -- Obliga a que el VARCHAR solo acepte estas 3 palabras.
-    CONSTRAINT chk_category_type CHECK (type IN ('INCOME', 'EXPENSE', 'BOTH'))
-);
-
-CREATE INDEX idx_categories_user_id ON categories (user_id);
-CREATE INDEX idx_categories_type ON categories (type);
-CREATE INDEX idx_categories_name ON categories (name);
-
--- ======================================================
--- 7. TAGS
--- ======================================================
-CREATE TABLE IF NOT EXISTS tags (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    user_id BIGINT NOT NULL,
-    name VARCHAR(100) NOT NULL,
-    color VARCHAR(20) NOT NULL,
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    CONSTRAINT fk_tags_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
-        -- Llave única: El usuario 1 no puede repetir "#Cena", 
-        -- pero el usuario 2 sí puede tener su propio "#Cena".
-    CONSTRAINT unique_tag_per_user UNIQUE (user_id, name)
-);
-
-CREATE INDEX idx_tags_user_id ON tags (user_id);
-CREATE INDEX idx_tags_name ON tags (name);
-CREATE INDEX idx_tags_color ON tags (color);
-
--- ======================================================
--- MOVIMIENTOS Y TRANSACCIONES
--- ======================================================
-
--- ======================================================
--- 8. TRANSACTIONS
--- ======================================================
-CREATE TABLE IF NOT EXISTS transactions (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    user_id BIGINT NOT NULL,
-    parent_transaction_id BIGINT NULL,
-        -- operation_type: 'INCOME', 'EXPENSE', 'REALLOCATION' (reubicación entre cuentas propias)
-    operation_type VARCHAR(20) NOT NULL,
-        -- payment_method: 'CASH', 'CARD', 'WIRE_TRANSFER', 'INTERNAL', 'QR', 'CODI', 'WALLET'
-    payment_method VARCHAR(20) NOT NULL,
-        -- status: 'PENDING', 'COMPLETED', 'FAILED', 'CANCELLED'. Solo COMPLETED afecta saldos
-        -- (triggers 2, 3, 4 y 4.1, y los de wallet_transaction_details 5, 5.1 y 5.2)
-    status VARCHAR(20) NOT NULL DEFAULT 'COMPLETED',
-    source_account_id BIGINT NULL,
-    destination_account_id BIGINT NULL,
-    external_entity_id BIGINT NULL,
-    category_id BIGINT NOT NULL,
-    amount DECIMAL(12, 2) NOT NULL,
-    concept VARCHAR(100) NOT NULL,
-    description TEXT NULL,
-    receipt_url VARCHAR(255) NULL,
-    comments TEXT NULL,
-    date DATETIME NOT NULL,
-    timezone VARCHAR(50) NOT NULL,
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    CONSTRAINT fk_tx_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
-    CONSTRAINT fk_tx_parent FOREIGN KEY (parent_transaction_id) REFERENCES transactions (id) ON DELETE SET NULL,
-    CONSTRAINT fk_tx_source_account FOREIGN KEY (source_account_id) REFERENCES accounts (id) ON DELETE SET NULL,
-    CONSTRAINT fk_tx_destination_account FOREIGN KEY (destination_account_id) REFERENCES accounts (id) ON DELETE SET NULL,
-    CONSTRAINT fk_tx_entity FOREIGN KEY (external_entity_id) REFERENCES external_entities (id) ON DELETE SET NULL,
-    CONSTRAINT fk_tx_category FOREIGN KEY (category_id) REFERENCES categories (id),
-    CONSTRAINT chk_tx_operation_type CHECK (operation_type IN ('INCOME', 'EXPENSE', 'REALLOCATION')),
-    CONSTRAINT chk_tx_payment_method CHECK (payment_method IN ('CASH', 'CARD', 'WIRE_TRANSFER', 'INTERNAL', 'QR', 'CODI', 'WALLET')),
-        -- INTERNAL (movimiento entre cuentas propias) solo tiene sentido en una REALLOCATION
-    CONSTRAINT chk_tx_internal_reallocation CHECK (payment_method <> 'INTERNAL' OR operation_type = 'REALLOCATION'),
-    CONSTRAINT chk_tx_status CHECK (status IN ('PENDING', 'COMPLETED', 'FAILED', 'CANCELLED'))
-);
-
-CREATE INDEX idx_tx_user_id ON transactions (user_id);
-CREATE INDEX idx_tx_date ON transactions (date);
-CREATE INDEX idx_tx_type ON transactions (operation_type);
-CREATE INDEX idx_tx_method ON transactions (payment_method);
-CREATE INDEX idx_tx_source_account ON transactions (source_account_id);
-CREATE INDEX idx_tx_destination_account ON transactions (destination_account_id);
-CREATE INDEX idx_tx_entity ON transactions (external_entity_id);
-
--- ======================================================
--- 9. TRANSACTION_TAGS
--- ======================================================
-CREATE TABLE IF NOT EXISTS transaction_tags (
-    transaction_id BIGINT NOT NULL,
-    tag_id BIGINT NOT NULL,
-    
-    -- Llave primaria compuesta: asegura unicidad y rapidez de búsqueda por transacción
-    PRIMARY KEY (transaction_id, tag_id),
-    CONSTRAINT fk_tt_transaction
-        FOREIGN KEY (transaction_id) REFERENCES transactions (id) ON DELETE CASCADE,
-    CONSTRAINT fk_tt_tag
-        FOREIGN KEY (tag_id) REFERENCES tags (id) ON DELETE CASCADE
-);
-
--- Índice para optimizar búsquedas inversas (Estadísticas por Tag)
-CREATE INDEX idx_tt_tag_id ON transaction_tags (tag_id);
-
--- ======================================================
--- 10. CARD_TRANSACTION_DETAILS
--- ======================================================
-CREATE TABLE IF NOT EXISTS card_transaction_details (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    transaction_id BIGINT NOT NULL,
-    card_id BIGINT NOT NULL,
-    
-    -- Monto específico cargado a la tarjeta (útil en pagos mixtos)
-    amount DECIMAL(12, 2) NOT NULL,
-    
-    -- MSI: Si es NULL, es pago en una sola exhibición
-    installment_months INT NULL,
-    interest_free BOOLEAN NOT NULL DEFAULT FALSE,
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    CONSTRAINT fk_card_tx FOREIGN KEY (transaction_id) REFERENCES transactions (id) ON DELETE CASCADE,
-    CONSTRAINT fk_card_detail FOREIGN KEY (card_id) REFERENCES cards (id) ON DELETE CASCADE,
-    
-    -- Validaciones de integridad
-    CONSTRAINT chk_card_amount CHECK (amount > 0),
-    CONSTRAINT chk_installments CHECK (installment_months IS NULL OR installment_months > 0)
-);
-
--- Índices para reportes de MSI y consumo por plástico
-CREATE INDEX idx_card_tx ON card_transaction_details (transaction_id);
-CREATE INDEX idx_card_detail_card ON card_transaction_details (card_id);
-CREATE INDEX idx_card_msi ON card_transaction_details (interest_free, installment_months);
-
--- ======================================================
--- 11. WALLET_TRANSACTION_DETAILS
--- ======================================================
-CREATE TABLE IF NOT EXISTS wallet_transaction_details (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    transaction_id BIGINT NOT NULL,
-    source_type VARCHAR(20) NOT NULL, -- 'WALLET_BALANCE', 'LINKED_CARD' (shared WalletTransactionSourceType)
-    wallet_account_id BIGINT NOT NULL, -- Referencia a accounts (type='WALLET')
-    card_id BIGINT NULL,               -- Obligatorio si source_type = 'LINKED_CARD' (triggers 5.3 y 5.4, no CHECK: ver ahí)
-    amount DECIMAL(12, 2) NOT NULL,
-    cashback_rate DECIMAL(9, 6) NULL,  -- Fracción 0-1: 0.020000 = 2% (igual que default_cashback_rate)
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    CONSTRAINT fk_wallet_tx FOREIGN KEY (transaction_id) REFERENCES transactions (id) ON DELETE CASCADE,
-    CONSTRAINT fk_wallet_account FOREIGN KEY (wallet_account_id) REFERENCES accounts (id) ON DELETE CASCADE,
-    CONSTRAINT fk_wallet_card FOREIGN KEY (card_id) REFERENCES cards (id) ON DELETE SET NULL,
-    
-    -- Validaciones
-    CONSTRAINT chk_wallet_amount CHECK (amount > 0),
-    CONSTRAINT chk_wallet_source_type CHECK (source_type IN ('WALLET_BALANCE', 'LINKED_CARD')),
-    CONSTRAINT chk_wallet_cashback_rate CHECK (cashback_rate IS NULL OR (cashback_rate >= 0 AND cashback_rate <= 1))
-);
-
--- Índices para analítica de Cashback y uso de Wallet
-CREATE INDEX idx_wallet_transaction ON wallet_transaction_details (transaction_id);
-CREATE INDEX idx_wallet_payment_wallet ON wallet_transaction_details (wallet_account_id);
-CREATE INDEX idx_wallet_payment_card ON wallet_transaction_details (card_id);
-CREATE INDEX idx_wallet_cashback_rate ON wallet_transaction_details (cashback_rate);
-
--- ======================================================
--- PROCEDIMIENTOS ALMACENADOS (efecto en saldos y validaciones)
--- ======================================================
--- Centralizan la lógica para que los triggers no la dupliquen:
---   - sp_apply_transaction_effect / sp_revert_transaction_effect -> triggers 2, 3 y 4 (transactions)
---   - sp_wallet_detail_effect -> triggers 5, 5.1 y 5.2 (wallet_transaction_details)
---   - sp_wallet_details_effect_for_transaction -> triggers 3 y 4.1 (todos los detalles de wallet de una transacción)
---   - sp_validate_transaction_amount -> triggers 1 y 1.1 (monto)
---   - sp_validate_transaction_reallocation -> triggers 8 y 8.1 (reubicaciones)
---   - sp_validate_wallet_detail -> triggers 5.3 y 5.4 (LINKED_CARD exige card_id)
---
--- Regla de estado: solo las transacciones con status = 'COMPLETED' afectan saldos.
--- Los procedimientos de efecto no consultan el estado; lo filtran los triggers que los llaman.
-
 DELIMITER //
 
 -- ======================================================
@@ -850,9 +462,8 @@ END //
 DELIMITER ;
 
 -- ======================================================
--- AUTOMATIZACIÓN DE SALDOS (TRIGGERS)
+-- 5. Triggers de transactions 1 a 4.1 (copiados de database/schemas.sql)
 -- ======================================================
-
 -- ======================================================
 -- TRIGGERS DE TRANSACTIONS (1 a 4.1)
 -- ======================================================
@@ -1002,6 +613,9 @@ END //
 DELIMITER ;
 
 -- ======================================================
+-- 6. Triggers de wallet_transaction_details 5 a 5.4 (copiados de database/schemas.sql)
+-- ======================================================
+-- ======================================================
 -- TRIGGERS DE WALLET_TRANSACTION_DETAILS (5 a 5.4)
 -- ======================================================
 -- Los efectos de un detalle solo se aplican si su transacción padre está COMPLETED.
@@ -1121,106 +735,8 @@ END //
 DELIMITER ;
 
 -- ======================================================
--- TRIGGERS DE ACCOUNTS: sincronización de global_balance (6, 6.1 y 6.2)
+-- 7. Triggers 8 y 8.1 (copiados de database/schemas.sql)
 -- ======================================================
-DELIMITER //
-
--- ======================================================
--- TRIGGER 6: Sincronización de global_balance en users
--- ======================================================
-DROP TRIGGER IF EXISTS tr_sync_global_balance //
-
-CREATE TRIGGER tr_sync_global_balance
-AFTER UPDATE ON accounts
-FOR EACH ROW
-BEGIN
-    -- Solo actuamos si el saldo cambió para evitar bucles infinitos
-    IF OLD.current_balance <> NEW.current_balance THEN
-        UPDATE users
-        SET global_balance = (
-            SELECT COALESCE(SUM(current_balance), 0.00)
-            FROM accounts
-            WHERE user_id = NEW.user_id
-        )
-        WHERE id = NEW.user_id;
-    END IF;
-END //
-
--- ======================================================
--- TRIGGER 6.1: Sincronización al CREAR una cuenta (INSERT)
--- ======================================================
-DROP TRIGGER IF EXISTS tr_sync_global_balance_insert //
-
-CREATE TRIGGER tr_sync_global_balance_insert
-AFTER INSERT ON accounts
-FOR EACH ROW
-BEGIN
-    -- Solo actualizamos si la cuenta se crea con un saldo inicial diferente de cero
-    IF NEW.current_balance <> 0 THEN
-        UPDATE users
-        SET global_balance = (
-            SELECT COALESCE(SUM(current_balance), 0.00)
-            FROM accounts
-            WHERE user_id = NEW.user_id
-        )
-        WHERE id = NEW.user_id;
-    END IF;
-END //
-
--- ======================================================
--- TRIGGER 6.2: Sincronización al ELIMINAR una cuenta (DELETE)
--- ======================================================
-DROP TRIGGER IF EXISTS tr_sync_global_balance_delete //
-
-CREATE TRIGGER tr_sync_global_balance_delete
-AFTER DELETE ON accounts
-FOR EACH ROW
-BEGIN
-    -- Solo actualizamos si la cuenta eliminada tenía dinero
-    IF OLD.current_balance <> 0 THEN
-        UPDATE users
-        SET global_balance = (
-            SELECT COALESCE(SUM(current_balance), 0.00)
-            FROM accounts
-            WHERE user_id = OLD.user_id
-        )
-        WHERE id = OLD.user_id;
-    END IF;
-END //
-
-DELIMITER ;
-
--- ======================================================
--- TRIGGER DE CARDS (7)
--- ======================================================
-DELIMITER //
-
--- ======================================================
--- TRIGGER 7: Validar que la tarjeta se vincule a cuenta bancaria
--- ======================================================
-DROP TRIGGER IF EXISTS tr_before_card_insert //
-
-CREATE TRIGGER tr_before_card_insert
-BEFORE INSERT ON cards
-FOR EACH ROW
-BEGIN
-    DECLARE v_bank_id BIGINT;
-
-    -- Buscamos si la cuenta tiene vínculo bancario (en bank_details o credit_details)
-    SELECT COALESCE(
-        (SELECT bank_client_id FROM bank_details WHERE account_id = NEW.account_id),
-        (SELECT bank_client_id FROM credit_details WHERE account_id = NEW.account_id)
-    ) INTO v_bank_id;
-
-    -- Si es NULL, no es una cuenta bancaria y bloqueamos
-    IF v_bank_id IS NULL THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'Error: Solo se pueden vincular tarjetas a cuentas bancarias.';
-    END IF;
-END //
-
-DELIMITER ;
-
 -- ======================================================
 -- TRIGGERS DE TRANSACTIONS: validación de reubicaciones (8 y 8.1)
 -- ======================================================
@@ -1269,3 +785,146 @@ BEGIN
 END //
 
 DELIMITER ;
+
+-- ======================================================
+-- 8. Transición: revertir el efecto de las transacciones existentes que NO están COMPLETED
+-- ======================================================
+-- Los triggers anteriores aplicaban el efecto de toda transacción sin importar su status.
+-- Con la regla nueva, una PENDING/FAILED/CANCELLED no debe afectar saldos; si se dejara su
+-- efecto aplicado, al pasarla a COMPLETED se aplicaría dos veces y al borrarla no se revertiría.
+-- Se revierte aquí su efecto propio y el de sus detalles de wallet, con los mismos
+-- procedimientos que usan los triggers.
+-- Se ejecuta dentro de una transacción: si algún UPDATE falla (p. ej. chk_credit_used por un
+-- saldo ya descuadrado), el cliente mysql se detiene y la transacción no se confirma.
+-- En ese caso los pasos 1-7 ya quedaron aplicados: corregir el dato y ejecutar a mano
+-- solo este paso (y el 9).
+DROP PROCEDURE IF EXISTS sp_tmp_revert_non_completed_transactions;
+
+DELIMITER //
+
+CREATE PROCEDURE sp_tmp_revert_non_completed_transactions()
+BEGIN
+    DECLARE v_done BOOLEAN DEFAULT FALSE;
+    DECLARE v_id BIGINT DEFAULT NULL;
+    DECLARE v_operation_type VARCHAR(20) DEFAULT NULL;
+    DECLARE v_payment_method VARCHAR(20) DEFAULT NULL;
+    DECLARE v_source_account_id BIGINT DEFAULT NULL;
+    DECLARE v_destination_account_id BIGINT DEFAULT NULL;
+    DECLARE v_amount DECIMAL(12, 2) DEFAULT 0.00;
+
+    DECLARE cur_tx CURSOR FOR
+        SELECT id, operation_type, payment_method, source_account_id, destination_account_id, amount
+        FROM transactions
+        WHERE status <> 'COMPLETED'
+        ORDER BY id;
+
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET v_done = TRUE;
+
+    OPEN cur_tx;
+
+    tx_loop: LOOP
+        FETCH cur_tx INTO v_id, v_operation_type, v_payment_method,
+            v_source_account_id, v_destination_account_id, v_amount;
+        IF v_done THEN
+            LEAVE tx_loop;
+        END IF;
+
+        -- Efecto propio (ignora WALLET dentro del procedimiento)
+        CALL sp_revert_transaction_effect(
+            v_operation_type, v_payment_method,
+            v_source_account_id, v_destination_account_id, v_amount
+        );
+
+        -- Efecto de sus detalles de wallet
+        CALL sp_wallet_details_effect_for_transaction(v_id, -1);
+
+        -- Un NOT FOUND dentro de los procedimientos llamados también activa el handler
+        SET v_done = FALSE;
+    END LOOP;
+
+    CLOSE cur_tx;
+END //
+
+DELIMITER ;
+
+START TRANSACTION;
+CALL sp_tmp_revert_non_completed_transactions();
+COMMIT;
+
+DROP PROCEDURE IF EXISTS sp_tmp_revert_non_completed_transactions;
+
+-- ======================================================
+-- 9. DIAGNÓSTICO DE SALDOS CREDIT (solo reporte, sin UPDATE)
+-- ======================================================
+-- Limitación: los saldos ya descuadrados NO se pueden recalcular automáticamente porque
+-- el esquema no guarda el saldo inicial de cada cuenta (no existe opening_balance):
+-- current_balance y credit_used son acumulados y no se sabe con qué valor nació la cuenta.
+--
+-- Este reporte compara, por cada cuenta CREDIT, la posición actual
+--   (credit_used - current_balance)   [deuda menos saldo a favor]
+-- contra la suma de efectos de las transacciones COMPLETED según la lógica de los procedimientos:
+--   cargos_tx     = EXPENSE / REALLOCATION con origen en la cuenta (payment_method <> 'WALLET')
+--   cargos_wallet = detalles LINKED_CARD con tarjeta de la cuenta (transacción padre COMPLETED)
+--   pagos         = INCOME / REALLOCATION con destino en la cuenta (payment_method <> 'WALLET';
+--                   reducen credit_used y el sobrepago va a current_balance)
+-- diferencia = posición actual - (cargos_tx + cargos_wallet - pagos)
+-- Si los triggers siempre funcionaron bien, diferencia es la posición inicial de la cuenta
+-- (deuda con la que se dio de alta). Una diferencia inesperada indica un descuadre a revisar
+-- a mano. Cargos de tarjetas ya borradas (card_id NULL) no se pueden atribuir y aparecen
+-- dentro de la diferencia.
+SELECT
+    a.id AS account_id,
+    a.user_id,
+    a.name,
+    cd.credit_used,
+    cd.credit_limit,
+    a.current_balance,
+    (cd.credit_used - a.current_balance) AS posicion_actual,
+    COALESCE(ch.total, 0.00) AS cargos_tx,
+    COALESCE(wc.total, 0.00) AS cargos_wallet,
+    COALESCE(pg.total, 0.00) AS pagos,
+    (COALESCE(ch.total, 0.00) + COALESCE(wc.total, 0.00) - COALESCE(pg.total, 0.00)) AS neto_transacciones,
+    (cd.credit_used - a.current_balance)
+        - (COALESCE(ch.total, 0.00) + COALESCE(wc.total, 0.00) - COALESCE(pg.total, 0.00)) AS diferencia
+FROM accounts a
+INNER JOIN credit_details cd ON cd.account_id = a.id
+LEFT JOIN (
+    SELECT source_account_id AS account_id, SUM(amount) AS total
+    FROM transactions
+    WHERE status = 'COMPLETED'
+      AND payment_method <> 'WALLET'
+      AND operation_type IN ('EXPENSE', 'REALLOCATION')
+      AND source_account_id IS NOT NULL
+    GROUP BY source_account_id
+) ch ON ch.account_id = a.id
+LEFT JOIN (
+    SELECT c.account_id, SUM(w.amount) AS total
+    FROM wallet_transaction_details w
+    INNER JOIN transactions t ON t.id = w.transaction_id
+    INNER JOIN cards c ON c.id = w.card_id
+    WHERE t.status = 'COMPLETED'
+      AND w.source_type = 'LINKED_CARD'
+    GROUP BY c.account_id
+) wc ON wc.account_id = a.id
+LEFT JOIN (
+    SELECT destination_account_id AS account_id, SUM(amount) AS total
+    FROM transactions
+    WHERE status = 'COMPLETED'
+      AND payment_method <> 'WALLET'
+      AND operation_type IN ('INCOME', 'REALLOCATION')
+      AND destination_account_id IS NOT NULL
+    GROUP BY destination_account_id
+) pg ON pg.account_id = a.id
+WHERE a.type = 'CREDIT'
+ORDER BY ABS(
+    (cd.credit_used - a.current_balance)
+        - (COALESCE(ch.total, 0.00) + COALESCE(wc.total, 0.00) - COALESCE(pg.total, 0.00))
+) DESC;
+
+-- Cuentas CREDIT con valores fuera de rango (las reversiones futuras pueden fallar por
+-- chk_credit_used / chk_credit_used_limit):
+SELECT a.id AS account_id, a.name, cd.credit_used, cd.credit_limit, a.current_balance
+FROM accounts a
+INNER JOIN credit_details cd ON cd.account_id = a.id
+WHERE a.type = 'CREDIT'
+  AND (cd.credit_used < 0 OR cd.credit_used > cd.credit_limit OR a.current_balance < 0);

@@ -50,6 +50,13 @@ The `enums` folder contains enumerations used by the feature. Enums allow the sy
 
 For example, `AccountTypes` defines values such as `CASH`, `DEBIT`, `CREDIT`, `WALLET`, `SAVINGS`, and `INVESTMENT`. 
 
+Enum conventions:
+
+- Each constant is declared as `(String value, String label)`, e.g. `CASH("CASH", "Efectivo")`.
+- `value` is the persisted code: always UPPERCASE and identical to the constant name. It must match the values allowed by the corresponding `CHECK` constraint in the database.
+- `label` is the Spanish text shown in the UI; `toString()` returns `label`.
+- `fromValue(String value)` resolves the constant case-insensitively (`equalsIgnoreCase`) and throws `IllegalArgumentException` if the value does not exist.
+
 ```text
 domain
 └── enums

@@ -92,6 +92,7 @@
 │   │   │   │   │   │   │   │   │   ├── enums
 │   │   │   │   │   │   │   │   │   │   ├── PaymentMethod.java
 │   │   │   │   │   │   │   │   │   │   ├── OperationTypes.java
+│   │   │   │   │   │   │   │   │   │   ├── TransactionStatus.java
 │   │   │   │   │   │   │   │   │   ├── exceptions
 │   │   │   │   │   │   │   │   │   │   ├── TransactionExceptions.java
 │   │   │   │   │   │   │   │   │   ├── entities

@@ -109,6 +109,12 @@ clear()
 
 This approach improves maintainability and follows SOLID principles.
 
+#### Form Conventions
+
+* **Formal tone ("usted")**: every visible text (labels, placeholders, validation errors, dialogs) addresses the user as "usted", for example `"Seleccione un usuario..."`, `"Debe seleccionar un usuario propietario."` and `"Corrija los siguientes errores:"`.
+* **Enum-based options**: combo boxes and filters that list enum values must be built from `Enum.values()` (for example `OperationTypes.values()`), never from hard-coded arrays, so they stay in sync with `shared`. Display the enum label (`getLabel()`) and compare against the enum itself, not against fixed strings.
+* **Owner user selector**: entities that have a `userId` (accounts, tags, categories, external entities) include a `FormComboBox<User>` labeled `"Usuario propietario:"` as the first field, with placeholder `"Seleccione un usuario..."`. Users are loaded through `UserService.getInstance().getAllUsers()`, validation adds `"Debe seleccionar un usuario propietario."` when no valid selection exists, the selected user's id is assigned to `userId`, `loadX(...)` selects the matching user, and `clearForm()` clears the selection. References: `AccountFormPanel`, `TagFormPanel`.
+
 ---
 
 ### Views

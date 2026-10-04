@@ -1,18 +1,40 @@
 # java-shared
 
-Módulo Java con clases y utilidades compartidas entre los proyectos `java-serve` (servidor) y `java-client` (cliente), como `Message`, `Transaction`, `PaymentMethod`, etc.
+Módulo Java con los contratos compartidos entre `backend/java-server` (servidor) y `client/java-client` (cliente): entidades, enums, excepciones y utilidades de conversión. No contiene lógica de negocio ni UI. Sin dependencias externas (JSON propio en `JsonUtils`).
+
+El árbol completo de archivos está en `GENERALSHARED.md` y la guía para crear una feature en `src/main/java/com/giozar04/shared-explanation.md`.
 
 ---
 
 ## 📦 ¿Qué contiene este módulo?
 
-- `Message.java`
-- `Transaction.java`
-- `PaymentMethod.java`
-- `TransactionUtils.java`
-- `TransactionExceptions.java`
+Paquete raíz: `com.giozar04.<feature>` (no existe el prefijo `com.giozar04.shared.<feature>`).
 
-Estas clases son utilizadas por el servidor y el cliente, y ahora están centralizadas para evitar duplicación de código.
+Features:
+- `users`, `accounts`, `accountCashbackSettings`, `bankClient`, `card`, `cardTransactionDetails`
+- `walletCardLinks`, `walletTransactionDetails`, `categories`, `tags`, `externalEntities`
+- `transactions` (en rediseño)
+
+Transversales:
+- `messages/domain/models/Message.java` – mensaje cliente ↔ servidor.
+- `json/utils/JsonUtils.java` – serialización JSON.
+- `shared/utils/SharedUtils.java` – parseo seguro y formato de fechas.
+- `logging/CustomLogger.java` – logger del proyecto.
+
+Cada feature sigue la estructura:
+
+```
+<feature>/
+├─ application/utils/<Feature>Utils.java
+└─ domain/
+   ├─ entities/<Feature>.java
+   ├─ enums/<Feature>Types.java        (opcional)
+   └─ exceptions/<Feature>Exceptions.java
+```
+
+Enums: cada constante tiene `(value, label)`; `value` se guarda en MAYÚSCULAS y es igual al nombre de la constante (ej. `INCOME("INCOME", "Ingreso")`), debe coincidir con los CHECK de la base de datos; `label` es el texto en español para UI; `fromValue` no distingue mayúsculas/minúsculas.
+
+Estas clases son utilizadas por el servidor y el cliente, y están centralizadas para evitar duplicación de código.
 
 ---
 
@@ -22,21 +44,9 @@ Estas clases son utilizadas por el servidor y el cliente, y ahora están central
 
 ```
 java-shared/
-├─ src/
-│  └─ main/
-│     └─ java/
-│         └─ com/giozar04/shared/
-│             ├─ domain/
-│             │   └─ Message.java
-│             └─ transactions/
-│                 ├─ domain/
-│                 │   └─ Transaction.java
-│                 ├─ enums/
-│                 │   └─ PaymentMethod.java
-│                 ├─ exceptions/
-│                 │   └─ TransactionExceptions.java
-│                 └─ application/
-│                     └─ TransactionUtils.java
+├─ src/main/java/com/giozar04/
+│   ├─ <feature>/...
+│   ├─ json/  logging/  messages/  shared/
 ├─ pom.xml
 ```
 
@@ -68,24 +78,13 @@ Esto compilará el código y generará un archivo `.jar` dentro de `target/`, e 
 </dependency>
 ```
 
-### 2. Elimina las clases duplicadas locales (si existen):
+### 2. No dupliques clases compartidas en servidor ni cliente.
 
-- `Message.java`
-- `Transaction.java`
-- `PaymentMethod.java`
-- `TransactionUtils.java`
-- `TransactionExceptions.java`
+### 3. Importa desde el paquete real `com.giozar04.<feature>`:
 
-### 3. Ajusta los `import` en tu código:
-
-Antes:
 ```java
-import com.giozar04.transactions.domain.entities.Transaction;
-```
-
-Después:
-```java
-import com.giozar04.shared.transactions.domain.entities.Transaction;
+import com.giozar04.accounts.domain.entities.Account;
+import com.giozar04.accounts.domain.enums.AccountTypes;
 ```
 
 Haz esto en **servidor** y **cliente**.
@@ -117,7 +116,7 @@ Si en un futuro agregas campos nuevos a las clases compartidas, solo debes:
 
 1. Editar `java-shared`.
 2. Ejecutar `mvn clean install`.
-3. Volver a compilar `java-server` y `java-client`.
+3. Volver a compilar `java-server` y `java-client` (y adaptarlos si cambió el contrato).
 
 ---
 

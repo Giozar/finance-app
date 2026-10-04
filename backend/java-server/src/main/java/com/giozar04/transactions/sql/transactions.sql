@@ -3,6 +3,7 @@ CREATE TABLE transactions (
 
     operation_type VARCHAR(20) NOT NULL,              -- 'INCOME', 'EXPENSE' o 'REALLOCATION'
     payment_method VARCHAR(20) NOT NULL,              -- 'CASH', 'CARD', 'WIRE_TRANSFER', 'INTERNAL', 'QR', 'CODI', 'WALLET' (INTERNAL solo con REALLOCATION)
+    status VARCHAR(20) NOT NULL DEFAULT 'COMPLETED',  -- 'PENDING', 'COMPLETED', 'FAILED', 'CANCELLED'. Solo COMPLETED afecta saldos (triggers en database/schemas.sql)
 
     source_account_id BIGINT NULL,
     destination_account_id BIGINT NULL,
@@ -23,7 +24,8 @@ CREATE TABLE transactions (
 
     CONSTRAINT fk_tx_source_account FOREIGN KEY (source_account_id) REFERENCES accounts(id) ON DELETE SET NULL,
     CONSTRAINT fk_tx_destination_account FOREIGN KEY (destination_account_id) REFERENCES accounts(id) ON DELETE SET NULL,
-    CONSTRAINT fk_tx_entity FOREIGN KEY (external_entity_id) REFERENCES external_entities(id) ON DELETE SET NULL
+    CONSTRAINT fk_tx_entity FOREIGN KEY (external_entity_id) REFERENCES external_entities(id) ON DELETE SET NULL,
+    CONSTRAINT chk_tx_status CHECK (status IN ('PENDING', 'COMPLETED', 'FAILED', 'CANCELLED'))
 );
 
 CREATE INDEX idx_tx_type ON transactions(operation_type);

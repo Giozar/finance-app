@@ -84,7 +84,7 @@ public class WalletTransactionDetailRepositoryMySQL extends WalletTransactionDet
 
         } catch (SQLException e) {
             rollback();
-            throw new WalletTransactionDetailExceptions.CreationException("Error al crear el detalle", e);
+            throw new WalletTransactionDetailExceptions.CreationException("Error al crear el detalle: " + e.getMessage(), e);
         }
     }
 
@@ -142,7 +142,7 @@ public class WalletTransactionDetailRepositoryMySQL extends WalletTransactionDet
 
         } catch (SQLException e) {
             rollback();
-            throw new WalletTransactionDetailExceptions.UpdateException("Error al actualizar detalle", e);
+            throw new WalletTransactionDetailExceptions.UpdateException("Error al actualizar detalle: " + e.getMessage(), e);
         }
     }
 

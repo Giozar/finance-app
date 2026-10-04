@@ -1,6 +1,10 @@
 # The project has the following structure:
 ├── .
 ├── database
+│   ├── migrations
+│   │   ├── 2026-10-03_reallocation.sql
+│   │   ├── 2026-10-03_schema_consistency.sql
+│   │   ├── 2026-10-03_transaction_integrity.sql
 │   ├── schemas.sql
 ├── GENERAL.md
 ├── backend

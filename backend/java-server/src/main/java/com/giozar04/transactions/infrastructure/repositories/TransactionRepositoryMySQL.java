@@ -70,7 +70,7 @@ public class TransactionRepositoryMySQL extends TransactionRepositoryAbstract {
 
         } catch (SQLException e) {
             rollback();
-            throw new TransactionExceptions.CreationException("Error al crear transacción", e);
+            throw new TransactionExceptions.CreationException("Error al crear transacción: " + e.getMessage(), e);
         }
     }
 
@@ -113,7 +113,7 @@ public class TransactionRepositoryMySQL extends TransactionRepositoryAbstract {
 
         } catch (SQLException e) {
             rollback();
-            throw new TransactionExceptions.UpdateException("Error al actualizar transacción", e);
+            throw new TransactionExceptions.UpdateException("Error al actualizar transacción: " + e.getMessage(), e);
         }
     }
 
