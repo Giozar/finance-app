@@ -26,7 +26,7 @@ model: inherit
 
 Consulte [ARCHITECTURE.md](../../ARCHITECTURE.md), [AGENTS.md](../../AGENTS.md),
 [SHARED_ARCHITECTURE.md](../../shared/java-shared/SHARED_ARCHITECTURE.md) y
-[SHARED_FEATURE_GUIDE.md](../../shared/java-shared/src/main/java/com/giozar04/SHARED_FEATURE_GUIDE.md).
+[SHARED_GUIDE.md](../../shared/java-shared/SHARED_GUIDE.md).
 Coordine cambios de contratos con sus consumidores en backend y client.
 
 # Rol
@@ -77,10 +77,9 @@ negocio del backend ni UI del cliente.
 
 - Maven: `groupId com.giozar04`, `artifactId java-shared`, `version 1.0-SNAPSHOT`, `packaging jar`, Java 17.
 - Sin dependencias externas (JSON propio en `messages/infrastructure/serialization/MessageJsonCodec.java`).
-- Documentación: `SHARED_ARCHITECTURE.md` (árbol de archivos) y
-  `src/main/java/com/giozar04/SHARED_FEATURE_GUIDE.md` (cómo crear una feature).
-- `README.md` de shared está actualizado (paquetes reales **`com.giozar04.<feature>...`**). Aun así, la
-  fuente de verdad es `SHARED_ARCHITECTURE.md` + el código.
+- Documentación: `SHARED_ARCHITECTURE.md` (árbol de archivos) y `SHARED_GUIDE.md`
+  (propósito, organización y cómo añadir contratos).
+- La fuente de verdad es el código del módulo y sus contratos de protocolo.
 
 ## Ubicación
 `shared/java-shared/src/main/java/com/giozar04/<feature>/`
@@ -151,6 +150,6 @@ Ejemplos de referencia: `tags/` (simple) y `accounts/` (con enum).
 
 - [ ] Campo nuevo en entidad → getter/setter + actualizar **ambos** métodos en `<Entity>Mapper`.
 - [ ] Enum nuevo → en `domain/enums` con el patrón `value/label/fromValue`, y usarlo en entidad y mapper.
-- [ ] Feature nueva → crear solo las capas necesarias y regenerar `SHARED_ARCHITECTURE.md`.
+- [ ] Feature nueva → crear solo las capas necesarias y actualizar `SHARED_ARCHITECTURE.md`.
 - [ ] Compilar: `cd shared/java-shared && mvn clean install`.
 - [ ] Avisar al usuario de que backend y client deben recompilarse (y adaptarse si cambió el contrato).

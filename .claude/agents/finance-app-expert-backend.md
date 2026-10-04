@@ -27,7 +27,7 @@ model: inherit
 
 Consulte [ARCHITECTURE.md](../../ARCHITECTURE.md), [AGENTS.md](../../AGENTS.md),
 [BACKEND_ARCHITECTURE.md](../../backend/java-server/BACKEND_ARCHITECTURE.md) y
-[BACKEND_FEATURE_GUIDE.md](../../backend/java-server/src/main/java/com/giozar04/BACKEND_FEATURE_GUIDE.md).
+[BACKEND_GUIDE.md](../../backend/java-server/BACKEND_GUIDE.md).
 El mapa del módulo muestra las rutas actuales. Coordine cambios de contratos con shared
 y sus consumidores en client.
 
@@ -59,8 +59,8 @@ Contiene la lógica de negocio y la persistencia. Las entidades, enums, excepcio
 conversión (`<F>Mapper`) **no** viven aquí: se importan del JAR `java-shared` (`com.giozar04.<feature>.domain...`
 y `com.giozar04.<feature>.infrastructure.serialization...`).
 
-- Documentación: `BACKEND_ARCHITECTURE.md` (árbol de archivos) y
-  `src/main/java/com/giozar04/BACKEND_FEATURE_GUIDE.md` (cómo crear una feature).
+- Documentación: `BACKEND_ARCHITECTURE.md` (árbol de archivos) y `BACKEND_GUIDE.md`
+  (propósito, organización y cómo implementar una feature).
 - Configuración: `src/main/resources/config.properties` (servidor y BD). No subas credenciales; la plantilla es
   `config.example.properties`.
 
@@ -151,6 +151,6 @@ Transversales:
 
 ## Estructura y dependencias
 
-Consulte [la guía backend](../../backend/java-server/src/main/java/com/giozar04/BACKEND_FEATURE_GUIDE.md) para la estructura vigente. El adaptador socket invoca el puerto de entrada, el caso de uso usa el puerto de salida y el adaptador MySQL lo implementa. `DatabaseConnectionInterface`, `TransactionalExecutor` y `SqlWork` pertenecen a `databases/infrastructure/persistence/mysql`; `ServerService`, `MessageHandler` y sus tipos asociados a `servers/infrastructure/transport/socket`. Ninguna regla del dominio debe depender de ellos.
+Consulte [la guía backend](../../backend/java-server/BACKEND_GUIDE.md) para el flujo de una feature. El adaptador socket invoca el puerto de entrada, el caso de uso usa el puerto de salida y el adaptador MySQL lo implementa. `DatabaseConnectionInterface`, `TransactionalExecutor` y `SqlWork` pertenecen a `databases/infrastructure/persistence/mysql`; `ServerService`, `MessageHandler` y sus tipos asociados a `servers/infrastructure/transport/socket`. Ninguna regla del dominio debe depender de ellos.
 
 Conserve los códigos de mensajes, campos, SQL, comportamiento de rollback y mensajes de error. Ejecute las pruebas y compilación Maven relevantes. No ejecutes `database/schemas.sql` para cambios de código: ese archivo recrea la base de datos.

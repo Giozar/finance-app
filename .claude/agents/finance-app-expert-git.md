@@ -60,7 +60,7 @@ Co-Authored-By: <línea de atribución indicada por el sistema, si el commit lo 
 | `feat` | Funcionalidad nueva (tabla, columna, operación, vista, campo) |
 | `fix` | Corrección de un bug |
 | `refactor` | Cambio interno sin cambiar comportamiento (renombres, enums, reorganización) |
-| `docs` | Solo documentación (`*_ARCHITECTURE.md`, `*_FEATURE_GUIDE.md`, README y documentos raíz) |
+| `docs` | Solo documentación (`*_ARCHITECTURE.md`, `*_GUIDE.md`, README y documentos raíz) |
 | `chore` | Configuración, agentes de `.claude/`, herramientas |
 | `test` | TestApps o tests |
 

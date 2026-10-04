@@ -128,3 +128,95 @@ database.name=<nombre-base-datos>
 database.username=<usuario-base-datos>
 database.password=<password-base-datos>
 ```
+
+---
+
+## 🚀 Cómo generar el JAR
+
+1. Asegúrate de tener correctamente estructurado el proyecto:
+
+```
+java-shared/
+├─ src/main/java/com/giozar04/
+│   ├─ <feature>/...
+│   ├─ logging/  messages/  shared/
+├─ pom.xml
+```
+
+2. Declara en `pom.xml` que es un JAR:
+
+```xml
+<packaging>jar</packaging>
+```
+
+3. Ejecuta:
+
+```bash
+mvn clean install
+```
+
+Esto compilará el código y generará un archivo `.jar` dentro de `target/`, e instalará el artefacto en tu repositorio local (`~/.m2/repository`).
+
+---
+
+## 🔗 Cómo usarlo en `java-serve` y `java-client`
+
+### 1. Agrega la dependencia en el `pom.xml` de cada proyecto:
+
+```xml
+<dependency>
+  <groupId>com.giozar04</groupId>
+  <artifactId>java-shared</artifactId>
+  <version>1.0-SNAPSHOT</version>
+</dependency>
+```
+
+### 2. No dupliques clases compartidas en servidor ni cliente.
+
+### 3. Importa desde el paquete real `com.giozar04.<feature>`:
+
+```java
+import com.giozar04.accounts.domain.entities.Account;
+import com.giozar04.accounts.domain.enums.AccountTypes;
+```
+
+Haz esto en **servidor** y **cliente**.
+
+---
+
+## ✅ Compilar y ejecutar
+
+Compila los proyectos en el siguiente orden:
+
+```bash
+cd shared/java-shared
+mvn clean install
+cd ../../
+cd backend/java-server
+mvn clean install
+cd ../../
+cd client/java-client
+mvn clean install
+cd ../../
+```
+
+Luego ejecuta el servidor y el cliente. Deberían comunicarse correctamente usando las clases compartidas desde `java-shared`.
+
+---
+
+## 🧠 Nota
+
+Si en un futuro agregas campos nuevos a las clases compartidas, solo debes:
+
+1. Editar `java-shared`.
+2. Ejecutar `mvn clean install`.
+3. Volver a compilar `java-server` y `java-client` (y adaptarlos si cambió el contrato).
+
+---
+
+## 🛠️ Requisitos
+
+- Java 17
+- Apache Maven
+
+---

@@ -2,7 +2,7 @@
 
 Mapa de la estructura actual de shared.
 
-[Arquitectura común](../../ARCHITECTURE.md) · [Agente](../../.claude/agents/finance-app-expert-shared.md)
+[Arquitectura común](../../ARCHITECTURE.md) · [Guía](SHARED_GUIDE.md) · [Agente](../../.claude/agents/finance-app-expert-shared.md)
 
 ## Árbol del módulo
 
@@ -10,8 +10,8 @@ Mapa de la estructura actual de shared.
 └── java-shared
     ├── pom.xml
     ├── .gitignore
-    ├── README.md
     ├── SHARED_ARCHITECTURE.md
+    ├── SHARED_GUIDE.md
     └── src
         ├── test
         │   ├── resources
@@ -162,7 +162,6 @@ Mapa de la estructura actual de shared.
                         │   └── infrastructure
                         │       └── serialization
                         │           └── ValueParser.java
-                        ├── SHARED_FEATURE_GUIDE.md
                         ├── tags
                         │   ├── application
                         │   │   └── exceptions

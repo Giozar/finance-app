@@ -62,7 +62,7 @@ consumidores deben tener en cuenta ese comportamiento.
 
 - Este archivo define el estándar común.
 - `PROJECT_MAP.md` enlaza los mapas de arquitectura de cada módulo.
-- `*_FEATURE_GUIDE.md` explica cómo implementar una feature en cada etapa.
+- `*_GUIDE.md` explica el propósito, la organización y cómo implementar cambios en cada módulo.
 - [AGENTS.md](AGENTS.md) centraliza el flujo de trabajo.
 - Los agentes de `.claude/agents/` conservan el contexto específico de cada módulo y
   enlazan este estándar y sus mapas de archivos.

@@ -4,7 +4,7 @@ Comuníquese en español. Consulte [ARCHITECTURE.md](ARCHITECTURE.md) antes de m
 
 ## Flujo de trabajo
 
-1. Localice la feature en `PROJECT_MAP.md` y en el mapa de arquitectura del módulo (`SHARED_ARCHITECTURE.md`, `BACKEND_ARCHITECTURE.md` o `CLIENT_ARCHITECTURE.md`); después lea el agente correspondiente.
+1. Localice el módulo en `PROJECT_MAP.md`, revise su mapa de arquitectura y su guía, y lea el agente correspondiente.
 2. Identifique los consumidores antes de cambiar una API compartida.
 3. Aplique la regla de dependencias y el vocabulario de `ARCHITECTURE.md`.
 4. Coordine los cambios de API con sus consumidores para mantener la compilación y el protocolo.

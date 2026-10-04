@@ -2,7 +2,7 @@
 
 Mapa de la estructura actual del backend.
 
-[Arquitectura común](../../ARCHITECTURE.md) · [Agente](../../.claude/agents/finance-app-expert-backend.md)
+[Arquitectura común](../../ARCHITECTURE.md) · [Guía](BACKEND_GUIDE.md) · [Agente](../../.claude/agents/finance-app-expert-backend.md)
 
 ## Árbol del módulo
 
@@ -11,6 +11,7 @@ Mapa de la estructura actual del backend.
     ├── pom.xml
     ├── .gitignore
     ├── BACKEND_ARCHITECTURE.md
+    ├── BACKEND_GUIDE.md
     └── src
         ├── test
         │   └── java
@@ -102,7 +103,6 @@ Mapa de la estructura actual del backend.
                         │   │           └── AccountHandlers.java
                         │   └── sql
                         │       └── account.sql
-                        ├── BACKEND_FEATURE_GUIDE.md
                         ├── bankClients
                         │   ├── test
                         │   │   └── BankClientTestApp.java

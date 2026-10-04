@@ -24,7 +24,7 @@ El caso de uso implementa el puerto de entrada y depende del gateway. El servici
 de socket implementa el gateway. Las vistas obtienen los casos de uso en bootstrap.
 Consulte [ARCHITECTURE.md](../../ARCHITECTURE.md), [AGENTS.md](../../AGENTS.md),
 [CLIENT_ARCHITECTURE.md](../../client/java-client/CLIENT_ARCHITECTURE.md) y
-[CLIENT_FEATURE_GUIDE.md](../../client/java-client/src/main/java/com/giozar04/CLIENT_FEATURE_GUIDE.md).
+[CLIENT_GUIDE.md](../../client/java-client/CLIENT_GUIDE.md).
 
 # Rol
 
@@ -59,7 +59,7 @@ Si falta un contrato, revise la feature correspondiente y actualice todos sus co
 `walletDetail?` (solo WALLET). El servidor valida (errores juntos separados por "; ") y normaliza: monto de los
 detalles = monto; en WALLET+LINKED_CARD pone `sourceAccountId` = cuenta de la tarjeta.
 
-Estructura (patrón documentado en `CLIENT_FEATURE_GUIDE.md`, "Dynamic form pattern"):
+Estructura (patrón documentado en `CLIENT_GUIDE.md`, "Formulario de transactions"):
 - `presentation/form/`: `TransactionFormContext` (observable: usuario, operación, cuenta origen/destino con su
   tipo, método, monto; notificaciones agrupadas), `TransactionFormDataProvider` (catálogos por usuario cacheados,
   tarjetas por cuenta y por tipo, tarjetas vinculadas a una wallet, cashback de la wallet, categorías por operación
@@ -121,8 +121,8 @@ INTERNAL solo con REALLOCATION. En WALLET la cuenta origen del formulario es la 
 - Muestra datos, captura entradas del usuario, valida formularios y llama a los servicios.
 - **No** contiene lógica de negocio ni persistencia (eso es del backend).
 - Entidades, enums, excepciones y utils se importan del JAR `java-shared`.
-- Documentación: `CLIENT_ARCHITECTURE.md` (árbol de archivos) y
-  `src/main/java/com/giozar04/CLIENT_FEATURE_GUIDE.md` (cómo crear una feature).
+- Documentación: `CLIENT_ARCHITECTURE.md` (árbol de archivos) y `CLIENT_GUIDE.md`
+  (propósito, organización y cómo implementar una feature).
 - Configuración: `src/main/resources/config.properties` (host y puerto del servidor). La plantilla es
   `config.example.properties`.
 
@@ -189,6 +189,6 @@ Notas de `accountReconciliations` y `accounts`:
 
 ## Estructura y flujo vigentes
 
-Consulte [la guía del cliente](../../client/java-client/src/main/java/com/giozar04/CLIENT_FEATURE_GUIDE.md). La presentación obtiene `<Feature>Operations` desde `ClientUseCases`. `<Feature>UseCase` implementa ese puerto y depende de `<Feature>Gateway`; `<Feature>Service` es el adaptador socket que implementa el gateway. La conexión, los mensajes y el mapper de shared solo se usan en infraestructura. Las features con formulario mantienen sus componentes y vistas bajo `presentation`.
+Consulte [la guía del cliente](../../client/java-client/CLIENT_GUIDE.md). La presentación obtiene `<Feature>Operations` desde `ClientUseCases`. `<Feature>UseCase` implementa ese puerto y depende de `<Feature>Gateway`; `<Feature>Service` es el adaptador socket que implementa el gateway. La conexión, los mensajes y el mapper de shared solo se usan en infraestructura. Las features con formulario mantienen sus componentes y vistas bajo `presentation`.
 
 Las funciones de validación de formularios siguen siendo responsabilidad de presentación; las reglas de negocio se ejecutan en backend. Conserve los códigos de mensajes, campos y mensajes al usuario. Ejecute las pruebas y compilación Maven relevantes.

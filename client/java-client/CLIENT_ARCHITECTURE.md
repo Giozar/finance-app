@@ -2,7 +2,7 @@
 
 Mapa de la estructura actual del cliente.
 
-[Arquitectura común](../../ARCHITECTURE.md) · [Agente](../../.claude/agents/finance-app-expert-client.md)
+[Arquitectura común](../../ARCHITECTURE.md) · [Guía](CLIENT_GUIDE.md) · [Agente](../../.claude/agents/finance-app-expert-client.md)
 
 ## Árbol del módulo
 
@@ -11,6 +11,7 @@ Mapa de la estructura actual del cliente.
     ├── pom.xml
     ├── .gitignore
     ├── CLIENT_ARCHITECTURE.md
+    ├── CLIENT_GUIDE.md
     └── src
         ├── test
         │   └── java
@@ -169,7 +170,6 @@ Mapa de la estructura actual del cliente.
                         │       └── views
                         │           ├── CategoriesView.java
                         │           └── CreateCategoryView.java
-                        ├── CLIENT_FEATURE_GUIDE.md
                         ├── configs
                         │   ├── AppConfig.java
                         │   └── ServerConnectionConfig.java
