@@ -29,9 +29,11 @@ public class AccountRepositoryMySQL extends AccountRepositoryAbstract {
         VALUES (?, ?, ?, ?, ?, ?, ?)
     """;
 
+    // credit_used solo al crear: es la deuda inicial (el trigger la copia a opening_credit_used).
+    // Después la mueven los triggers de transacciones, por eso SQL_UPDATE_CREDIT no la incluye.
     private static final String SQL_INSERT_CREDIT = """
-        INSERT INTO credit_details (account_id, bank_client_id, credit_limit, cutoff_day, payment_deadline_day, created_at, updated_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO credit_details (account_id, bank_client_id, credit_limit, credit_used, cutoff_day, payment_deadline_day, created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     """;
 
     private static final String SQL_UPDATE_ACCOUNT = """
@@ -127,6 +129,7 @@ public class AccountRepositoryMySQL extends AccountRepositoryAbstract {
     @Override
     public Account createAccount(Account account) {
         validateAccount(account);
+        validateInitialCreditUsed(account);
 
         if (account.getCreatedAt() == null) account.setCreatedAt(ZonedDateTime.now());
         if (account.getUpdatedAt() == null) account.setUpdatedAt(ZonedDateTime.now());
@@ -186,10 +189,11 @@ public class AccountRepositoryMySQL extends AccountRepositoryAbstract {
                     stmt.setLong(1, account.getId());
                     if (account.getBankClientId() != null) stmt.setLong(2, account.getBankClientId()); else stmt.setNull(2, Types.BIGINT);
                     if (account.getCreditLimit() != null) stmt.setDouble(3, account.getCreditLimit()); else stmt.setNull(3, Types.DECIMAL);
-                    if (account.getCutoffDay() != null) stmt.setInt(4, account.getCutoffDay()); else stmt.setNull(4, Types.INTEGER);
-                    if (account.getPaymentDay() != null) stmt.setInt(5, account.getPaymentDay()); else stmt.setNull(5, Types.INTEGER);
-                    stmt.setTimestamp(6, createdTs);
-                    stmt.setTimestamp(7, updatedTs);
+                    stmt.setDouble(4, account.getCreditUsed() != null ? account.getCreditUsed() : 0.0);
+                    if (account.getCutoffDay() != null) stmt.setInt(5, account.getCutoffDay()); else stmt.setNull(5, Types.INTEGER);
+                    if (account.getPaymentDay() != null) stmt.setInt(6, account.getPaymentDay()); else stmt.setNull(6, Types.INTEGER);
+                    stmt.setTimestamp(7, createdTs);
+                    stmt.setTimestamp(8, updatedTs);
                     stmt.executeUpdate();
                 }
             }

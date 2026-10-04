@@ -75,6 +75,25 @@ public abstract class AccountRepositoryAbstract implements AccountRepositoryInte
         }
     }
 
+    /**
+     * Solo al crear: la deuda inicial de un crédito (credit_used) debe estar entre 0 y el límite.
+     * Igual que los CHECK chk_credit_used y chk_credit_used_limit. Al editar no aplica:
+     * credit_used lo mueven los triggers de transacciones.
+     */
+    protected void validateInitialCreditUsed(Account account) {
+        if (account.getType() != AccountTypes.CREDIT || account.getCreditUsed() == null) {
+            return;
+        }
+
+        if (account.getCreditUsed() < 0) {
+            throw new IllegalArgumentException("La deuda inicial del crédito no puede ser negativa.");
+        }
+
+        if (account.getCreditLimit() != null && account.getCreditUsed() > account.getCreditLimit()) {
+            throw new IllegalArgumentException("La deuda inicial del crédito no puede superar el límite de crédito.");
+        }
+    }
+
     protected void validateId(long id) {
         if (id <= 0) {
             throw new IllegalArgumentException("El ID debe ser mayor que cero");

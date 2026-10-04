@@ -34,6 +34,7 @@ import com.giozar04.serverConnection.application.exceptions.ClientOperationExcep
 import com.giozar04.shared.components.MainContentPanel;
 import com.giozar04.shared.components.forms.FormComboBox;
 import com.giozar04.shared.components.forms.FormField;
+import com.giozar04.shared.components.forms.FormHelpText;
 import com.giozar04.shared.utils.DialogUtil;
 import com.giozar04.shared.utils.FormValidatorUtils;
 import com.giozar04.users.domain.entities.User;
@@ -57,6 +58,7 @@ public class AccountFormPanel extends JPanel {
     private final FormField nameField;
     private final FormComboBox<AccountTypes> typeCombo;
     private final FormField balanceField;
+    private final FormHelpText balanceHelp;
 
     // --- Subpaneles por tipo ---
     private final BankDetailsSubPanel   bankDetailsPanel;
@@ -96,6 +98,7 @@ public class AccountFormPanel extends JPanel {
         typeCombo.setItems(List.of(AccountTypes.values()));
 
         balanceField = new FormField("Balance actual:", false, 400, 40);
+        balanceHelp  = new FormHelpText("Se modifica con transacciones o desde Conciliación.", 400);
 
         // Subpaneles de extensión
         bankDetailsPanel    = new BankDetailsSubPanel();
@@ -113,6 +116,7 @@ public class AccountFormPanel extends JPanel {
         formPanel.add(typeCombo);
         formPanel.add(Box.createRigidArea(new Dimension(0, 10)));
         formPanel.add(balanceField);
+        formPanel.add(balanceHelp);
         formPanel.add(Box.createRigidArea(new Dimension(0, 10)));
         formPanel.add(bankDetailsPanel);
         formPanel.add(Box.createRigidArea(new Dimension(0, 10)));
@@ -147,6 +151,18 @@ public class AccountFormPanel extends JPanel {
         typeCombo.addActionListener(e -> updateSubPanelVisibility());
         userCombo.addActionListener(e -> handleUserChanged());
         updateSubPanelVisibility();
+        applyEditMode(false);
+    }
+
+    /**
+     * Al editar una cuenta existente, el balance (y la deuda en crédito) son de solo lectura:
+     * se modifican con transacciones o desde Conciliación, para no descuadrar la cuenta.
+     * Al crear, se capturan como estado inicial.
+     */
+    private void applyEditMode(boolean editing) {
+        balanceField.getTextField().setEditable(!editing);
+        balanceHelp.setVisible(editing);
+        creditDetailsPanel.setEditMode(editing);
     }
 
     private void handleUserChanged() {
@@ -227,7 +243,11 @@ public class AccountFormPanel extends JPanel {
             errors.add("Debe seleccionar un usuario propietario.");
         }
         FormValidatorUtils.isRequired(nameField.getValue().trim(), "Nombre", errors);
-        FormValidatorUtils.isPositiveNumber(balanceField.getValue().trim(), "Balance actual", errors);
+        if (currentAccount == null) {
+            // Vacío = 0 (igual que "Deuda actual"); si se captura, debe ser un número no negativo
+            FormValidatorUtils.isNumeric(balanceField.getValue().trim(), "Balance actual", errors);
+            FormValidatorUtils.isPositiveNumber(balanceField.getValue().trim(), "Balance actual", errors);
+        }
 
         // Validaciones por subpanel visible
         boolean usesBankDetails = type == AccountTypes.DEBIT
@@ -265,7 +285,11 @@ public class AccountFormPanel extends JPanel {
         account.setUserId(user.getId());
         account.setName(nameField.getValue().trim());
         account.setType(type);
-        account.setCurrentBalance(Double.parseDouble(balanceField.getValue().trim()));
+        if (currentAccount == null) {
+            // Solo al crear: al editar se conserva el balance cargado (solo lectura)
+            String balance = balanceField.getValue().trim();
+            account.setCurrentBalance(balance.isEmpty() ? 0.0 : Double.parseDouble(balance));
+        }
 
         // Limpiar campos extendidos antes de aplicar
         account.setBankClientId(null);
@@ -378,6 +402,7 @@ public class AccountFormPanel extends JPanel {
 
     public void loadAccount(Account account) {
         this.currentAccount = account;
+        applyEditMode(true);
 
         // Usuario propietario
         for (int i = 0; i < userCombo.getItemCount(); i++) {
@@ -453,6 +478,7 @@ public class AccountFormPanel extends JPanel {
         cashbackSettingsPanel.clear();
         walletCardLinksPanel.clear();
         updateSubPanelVisibility();
+        applyEditMode(false);
     }
 
     // ------------------------------------------------------------------
