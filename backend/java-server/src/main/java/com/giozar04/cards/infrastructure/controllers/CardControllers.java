@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import com.giozar04.card.application.utils.CardUtils;
+import com.giozar04.card.infrastructure.serialization.CardMapper;
 import com.giozar04.card.domain.entities.Card;
 import com.giozar04.cards.application.services.CardService;
 import com.giozar04.logging.CustomLogger;
@@ -37,7 +37,7 @@ public class CardControllers {
                 }
 
                 LOGGER.info("Datos recibidos para crear tarjeta: " + data);
-                Card card = CardUtils.mapToCard(data);
+                Card card = CardMapper.fromMap(data);
                 LOGGER.info("Tarjeta parseada: accountId=" + card.getAccountId()
                         + " name=" + card.getName()
                         + " cardType=" + card.getCardType()
@@ -47,7 +47,7 @@ public class CardControllers {
                 Card created = cardService.createCard(card);
 
                 Message response = Message.createSuccessMessage(CardMessageTypes.CREATE_CARD, "Tarjeta creada exitosamente");
-                response.addData("card", CardUtils.cardToMap(created));
+                response.addData("card", CardMapper.toMap(created));
                 return response;
 
             } catch (Exception e) {
@@ -69,7 +69,7 @@ public class CardControllers {
 
             Card card = cardService.getCardById(id);
             Message response = Message.createSuccessMessage(CardMessageTypes.GET_CARD, "Tarjeta obtenida exitosamente");
-            response.addData("card", CardUtils.cardToMap(card));
+            response.addData("card", CardMapper.toMap(card));
             return response;
         };
     }
@@ -89,11 +89,11 @@ public class CardControllers {
                 return Message.createErrorMessage(CardMessageTypes.UPDATE_CARD, "Datos de tarjeta no proporcionados");
             }
 
-            Card card = CardUtils.mapToCard(data);
+            Card card = CardMapper.fromMap(data);
             Card updated = cardService.updateCardById(id, card);
 
             Message response = Message.createSuccessMessage(CardMessageTypes.UPDATE_CARD, "Tarjeta actualizada exitosamente");
-            response.addData("card", CardUtils.cardToMap(updated));
+            response.addData("card", CardMapper.toMap(updated));
             return response;
         };
     }
@@ -120,7 +120,7 @@ public class CardControllers {
             List<Map<String, Object>> list = new ArrayList<>();
 
             for (Card card : cards) {
-                list.add(CardUtils.cardToMap(card));
+                list.add(CardMapper.toMap(card));
             }
 
             Message response = Message.createSuccessMessage(CardMessageTypes.GET_ALL_CARDS, "Tarjetas obtenidas exitosamente");
@@ -144,7 +144,7 @@ public class CardControllers {
             List<Map<String, Object>> result = new ArrayList<>();
 
             for (Card item : items) {
-                result.add(CardUtils.cardToMap(item));
+                result.add(CardMapper.toMap(item));
             }
 
             Message response = Message.createSuccessMessage(CardMessageTypes.GET_CARDS_BY_ACCOUNT, "Tarjetas de la cuenta obtenidas exitosamente");

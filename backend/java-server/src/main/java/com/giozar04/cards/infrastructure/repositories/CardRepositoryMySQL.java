@@ -13,7 +13,11 @@ import java.util.List;
 
 import com.giozar04.card.domain.entities.Card;
 import com.giozar04.card.domain.enums.CardTypes;
-import com.giozar04.card.domain.exceptions.CardExceptions;
+import com.giozar04.card.application.exceptions.CardCreationException;
+import com.giozar04.card.application.exceptions.CardDeletionException;
+import com.giozar04.card.application.exceptions.CardNotFoundException;
+import com.giozar04.card.application.exceptions.CardRetrievalException;
+import com.giozar04.card.application.exceptions.CardUpdateException;
 import com.giozar04.cards.domain.models.CardRepositoryAbstract;
 import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
 
@@ -73,7 +77,7 @@ public class CardRepositoryMySQL extends CardRepositoryAbstract {
         } catch (SQLException e) {
             rollback();
             logger.error("Error de base de datos al crear tarjeta: " + e.getMessage(), e);
-            throw new CardExceptions.CardCreationException("Error al crear la tarjeta: " + e.getMessage(), e);
+            throw new CardCreationException("Error al crear la tarjeta: " + e.getMessage(), e);
         }
     }
 
@@ -89,12 +93,12 @@ public class CardRepositoryMySQL extends CardRepositoryAbstract {
                 if (rs.next()) {
                     return mapResultSetToCard(rs);
                 } else {
-                    throw new CardExceptions.CardNotFoundException("Tarjeta no encontrada con ID: " + id, null);
+                    throw new CardNotFoundException("Tarjeta no encontrada con ID: " + id, null);
                 }
             }
 
         } catch (SQLException e) {
-            throw new CardExceptions.CardRetrievalException("Error al obtener tarjeta con ID: " + id, e);
+            throw new CardRetrievalException("Error al obtener tarjeta con ID: " + id, e);
         }
     }
 
@@ -118,7 +122,7 @@ public class CardRepositoryMySQL extends CardRepositoryAbstract {
 
             int affected = stmt.executeUpdate();
             if (affected == 0) {
-                throw new CardExceptions.CardNotFoundException("Tarjeta no encontrada con ID: " + id, null);
+                throw new CardNotFoundException("Tarjeta no encontrada con ID: " + id, null);
             }
 
             databaseConnection.commitTransaction();
@@ -127,7 +131,7 @@ public class CardRepositoryMySQL extends CardRepositoryAbstract {
 
         } catch (SQLException e) {
             rollback();
-            throw new CardExceptions.CardUpdateException("Error al actualizar tarjeta con ID: " + id, e);
+            throw new CardUpdateException("Error al actualizar tarjeta con ID: " + id, e);
         }
     }
 
@@ -142,7 +146,7 @@ public class CardRepositoryMySQL extends CardRepositoryAbstract {
 
             int affected = stmt.executeUpdate();
             if (affected == 0) {
-                throw new CardExceptions.CardNotFoundException("Tarjeta no encontrada con ID: " + id, null);
+                throw new CardNotFoundException("Tarjeta no encontrada con ID: " + id, null);
             }
 
             databaseConnection.commitTransaction();
@@ -150,7 +154,7 @@ public class CardRepositoryMySQL extends CardRepositoryAbstract {
 
         } catch (SQLException e) {
             rollback();
-            throw new CardExceptions.CardDeletionException("Error al eliminar tarjeta con ID: " + id, e);
+            throw new CardDeletionException("Error al eliminar tarjeta con ID: " + id, e);
         }
     }
 
@@ -169,7 +173,7 @@ public class CardRepositoryMySQL extends CardRepositoryAbstract {
             return cards;
 
         } catch (SQLException e) {
-            throw new CardExceptions.CardRetrievalException("Error al obtener todas las tarjetas", e);
+            throw new CardRetrievalException("Error al obtener todas las tarjetas", e);
         }
     }
 
@@ -191,7 +195,7 @@ public class CardRepositoryMySQL extends CardRepositoryAbstract {
             return list;
 
         } catch (SQLException e) {
-            throw new CardExceptions.CardRetrievalException("Error al obtener las tarjetas de la cuenta con ID: " + accountId, e);
+            throw new CardRetrievalException("Error al obtener las tarjetas de la cuenta con ID: " + accountId, e);
         }
     }
 

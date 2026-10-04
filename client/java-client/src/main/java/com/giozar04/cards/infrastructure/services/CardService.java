@@ -4,9 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import com.giozar04.card.application.utils.CardUtils;
+import com.giozar04.card.infrastructure.serialization.CardMapper;
 import com.giozar04.card.domain.entities.Card;
-import com.giozar04.card.domain.exceptions.CardExceptions;
+import com.giozar04.card.application.exceptions.CardCreationException;
+import com.giozar04.card.application.exceptions.CardDeletionException;
+import com.giozar04.card.infrastructure.serialization.CardParsingException;
+import com.giozar04.card.application.exceptions.CardRetrievalException;
+import com.giozar04.card.application.exceptions.CardUpdateException;
 import com.giozar04.logging.CustomLogger;
 import com.giozar04.messages.domain.models.Message;
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
@@ -38,17 +42,17 @@ public class CardService {
     public Card createCard(Card card) throws ClientOperationException {
         Message message = new Message();
         message.setType("CREATE_CARD");
-        message.addData("card", CardUtils.cardToMap(card));
+        message.addData("card", CardMapper.toMap(card));
 
         serverConnectionService.sendMessage(message);
         try {
             Message response = serverConnectionService.waitForMessage("CREATE_CARD");
             ServerResponseValidator.validateResponse(response);
             logger.info("Tarjeta creada exitosamente: " + response);
-            return CardUtils.mapToCard((Map<String, Object>) response.getData("card"));
+            return CardMapper.fromMap((Map<String, Object>) response.getData("card"));
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new CardExceptions.CardCreationException("Error al esperar respuesta del servidor", e);
+            throw new CardCreationException("Error al esperar respuesta del servidor", e);
         }
     }
 
@@ -57,17 +61,17 @@ public class CardService {
         Message message = new Message();
         message.setType("UPDATE_CARD");
         message.addData("id", id);
-        message.addData("card", CardUtils.cardToMap(card));
+        message.addData("card", CardMapper.toMap(card));
 
         serverConnectionService.sendMessage(message);
         try {
             Message response = serverConnectionService.waitForMessage("UPDATE_CARD");
             ServerResponseValidator.validateResponse(response);
             logger.info("Tarjeta actualizada correctamente: " + response);
-            return CardUtils.mapToCard((Map<String, Object>) response.getData("card"));
+            return CardMapper.fromMap((Map<String, Object>) response.getData("card"));
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new CardExceptions.CardUpdateException("Error al esperar respuesta del servidor", e);
+            throw new CardUpdateException("Error al esperar respuesta del servidor", e);
         }
     }
 
@@ -83,7 +87,7 @@ public class CardService {
             logger.info("Tarjeta eliminada exitosamente: " + response);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new CardExceptions.CardDeletionException("Error al esperar respuesta del servidor", e);
+            throw new CardDeletionException("Error al esperar respuesta del servidor", e);
         }
     }
 
@@ -100,25 +104,25 @@ public class CardService {
             Object raw = response.getData("cards");
 
             if (raw == null) {
-                throw new CardExceptions.CardRetrievalException("Lista de tarjetas vacía", null);
+                throw new CardRetrievalException("Lista de tarjetas vacía", null);
             }
 
             if (raw instanceof List<?> rawList) {
                 List<Card> cards = new ArrayList<>();
                 for (Object item : rawList) {
                     if (item instanceof Map<?, ?> map) {
-                        cards.add(CardUtils.mapToCard((Map<String, Object>) map));
+                        cards.add(CardMapper.fromMap((Map<String, Object>) map));
                     }
                 }
                 logger.info("Tarjetas obtenidas correctamente. Total: " + cards.size());
                 return cards;
             } else {
-                throw new CardExceptions.CardParsingException("Formato inesperado: " + raw.getClass().getName(), null);
+                throw new CardParsingException("Formato inesperado: " + raw.getClass().getName(), null);
             }
 
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new CardExceptions.CardRetrievalException("Error al esperar respuesta del servidor", e);
+            throw new CardRetrievalException("Error al esperar respuesta del servidor", e);
         }
     }
 
@@ -136,25 +140,25 @@ public class CardService {
             Object raw = response.getData("cards");
 
             if (raw == null) {
-                throw new CardExceptions.CardRetrievalException("Lista de tarjetas vacía", null);
+                throw new CardRetrievalException("Lista de tarjetas vacía", null);
             }
 
             if (raw instanceof List<?> rawList) {
                 List<Card> cards = new ArrayList<>();
                 for (Object item : rawList) {
                     if (item instanceof Map<?, ?> map) {
-                        cards.add(CardUtils.mapToCard((Map<String, Object>) map));
+                        cards.add(CardMapper.fromMap((Map<String, Object>) map));
                     }
                 }
                 logger.info("Tarjetas de la cuenta obtenidas correctamente. Total: " + cards.size());
                 return cards;
             } else {
-                throw new CardExceptions.CardParsingException("Formato inesperado: " + raw.getClass().getName(), null);
+                throw new CardParsingException("Formato inesperado: " + raw.getClass().getName(), null);
             }
 
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new CardExceptions.CardRetrievalException("Error al esperar respuesta del servidor", e);
+            throw new CardRetrievalException("Error al esperar respuesta del servidor", e);
         }
     }
 }

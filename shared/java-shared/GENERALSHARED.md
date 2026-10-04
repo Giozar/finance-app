@@ -33,10 +33,15 @@ src/main/java/com/giozar04/bankClient/domain/entities/BankClient.java
 src/main/java/com/giozar04/bankClient/domain/exceptions/BankClientValidationException.java
 src/main/java/com/giozar04/bankClient/infrastructure/serialization/BankClientMapper.java
 src/main/java/com/giozar04/bankClient/infrastructure/serialization/BankClientParsingException.java
-src/main/java/com/giozar04/card/application/utils/CardUtils.java
+src/main/java/com/giozar04/card/application/exceptions/CardCreationException.java
+src/main/java/com/giozar04/card/application/exceptions/CardDeletionException.java
+src/main/java/com/giozar04/card/application/exceptions/CardNotFoundException.java
+src/main/java/com/giozar04/card/application/exceptions/CardRetrievalException.java
+src/main/java/com/giozar04/card/application/exceptions/CardUpdateException.java
 src/main/java/com/giozar04/card/domain/entities/Card.java
 src/main/java/com/giozar04/card/domain/enums/CardTypes.java
-src/main/java/com/giozar04/card/domain/exceptions/CardExceptions.java
+src/main/java/com/giozar04/card/infrastructure/serialization/CardMapper.java
+src/main/java/com/giozar04/card/infrastructure/serialization/CardParsingException.java
 src/main/java/com/giozar04/cardTransactionDetails/application/utils/CardTransactionDetailUtils.java
 src/main/java/com/giozar04/cardTransactionDetails/domain/entities/CardTransactionDetail.java
 src/main/java/com/giozar04/cardTransactionDetails/domain/exceptions/CardTransactionDetailExceptions.java

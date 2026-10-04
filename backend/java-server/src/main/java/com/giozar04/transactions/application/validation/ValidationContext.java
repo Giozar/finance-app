@@ -13,7 +13,7 @@ import com.giozar04.accounts.domain.entities.Account;
 import com.giozar04.accounts.application.exceptions.AccountNotFoundException;
 import com.giozar04.accounts.domain.interfaces.AccountRepositoryInterface;
 import com.giozar04.card.domain.entities.Card;
-import com.giozar04.card.domain.exceptions.CardExceptions;
+import com.giozar04.card.application.exceptions.CardNotFoundException;
 import com.giozar04.cards.domain.interfaces.CardRepositoryInterface;
 import com.giozar04.categories.domain.entities.Category;
 import com.giozar04.categories.application.exceptions.CategoryNotFoundException;
@@ -72,7 +72,7 @@ public class ValidationContext {
     public Card card(Long id) {
         if (id == null || id <= 0) return null;
         return cards.computeIfAbsent(id, k -> find(() -> cardRepository.getCardById(k),
-                CardExceptions.CardNotFoundException.class)).orElse(null);
+                CardNotFoundException.class)).orElse(null);
     }
 
     public Category category(long id) {
