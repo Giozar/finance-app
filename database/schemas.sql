@@ -66,6 +66,9 @@ CREATE TABLE IF NOT EXISTS accounts (
         -- type: 'CASH', 'DEBIT', 'CREDIT', 'WALLET', 'BENEFIT', 'SAVINGS', 'INVESTMENT' (shared AccountTypes)
     type VARCHAR(20) NOT NULL,
     current_balance DECIMAL(12, 2) NOT NULL DEFAULT 0.00,
+        -- opening_balance: saldo con el que se creó la cuenta. Lo fija el trigger 9
+        -- (= current_balance al insertar); no se edita después. Base de v_account_reconciliation.
+    opening_balance DECIMAL(12, 2) NOT NULL DEFAULT 0.00,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT fk_acc_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
@@ -104,6 +107,9 @@ CREATE TABLE IF NOT EXISTS credit_details (
     bank_client_id BIGINT NOT NULL,
     credit_limit DECIMAL(12, 2) NOT NULL,
     credit_used DECIMAL(12, 2) NOT NULL DEFAULT 0.00,
+        -- opening_credit_used: deuda con la que se registró el crédito. La fija el trigger 9.1
+        -- (= credit_used al insertar); no se edita después. Base de v_account_reconciliation.
+    opening_credit_used DECIMAL(12, 2) NOT NULL DEFAULT 0.00,
     cutoff_day INT NOT NULL,
     payment_deadline_day INT NOT NULL,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -114,7 +120,8 @@ CREATE TABLE IF NOT EXISTS credit_details (
     CONSTRAINT chk_payment_day CHECK (payment_deadline_day BETWEEN 1 AND 31),
     CONSTRAINT chk_credit_limit CHECK (credit_limit >= 0),
     CONSTRAINT chk_credit_used CHECK (credit_used >= 0),
-    CONSTRAINT chk_credit_used_limit CHECK (credit_used <= credit_limit)
+    CONSTRAINT chk_credit_used_limit CHECK (credit_used <= credit_limit),
+    CONSTRAINT chk_opening_credit_used CHECK (opening_credit_used >= 0)
 );
 -- Índices de gestión de deuda
 CREATE INDEX idx_credit_det_client ON credit_details (bank_client_id);
@@ -500,6 +507,8 @@ CREATE INDEX idx_wallet_cashback_rate ON wallet_transaction_details (cashback_ra
 --   - sp_validate_transaction_amount -> triggers 1 y 1.1 (monto)
 --   - sp_validate_transaction_reallocation -> triggers 8 y 8.1 (reubicaciones)
 --   - sp_validate_wallet_detail -> triggers 5.3 y 5.4 (LINKED_CARD exige card_id)
+--   - sp_reconcile_account (PROCEDIMIENTO 8) -> definido al final, en RECONCILIACIÓN DE CUENTAS
+--     (usa la vista v_account_reconciliation)
 --
 -- Regla de estado: solo las transacciones con status = 'COMPLETED' afectan saldos.
 -- Los procedimientos de efecto no consultan el estado; lo filtran los triggers que los llaman.
@@ -1265,6 +1274,212 @@ BEGIN
         CALL sp_validate_transaction_reallocation(
             NEW.operation_type, NEW.source_account_id, NEW.destination_account_id
         );
+    END IF;
+END //
+
+DELIMITER ;
+
+-- ======================================================
+-- RECONCILIACIÓN DE CUENTAS
+-- ======================================================
+-- Compara el saldo guardado de cada cuenta con el que se deduce de su saldo de
+-- apertura + el historial de transacciones COMPLETED, y permite ajustarlo.
+--
+-- Posición neta de una cuenta = current_balance - COALESCE(credit_details.credit_used, 0)
+-- (en CREDIT el sobrepago vive en current_balance y la deuda en credit_used).
+--
+-- Valores de apertura (accounts.opening_balance, credit_details.opening_credit_used):
+-- los fijan los triggers 9 y 9.1 al insertar y NO se editan después (backend y
+-- client no los envían). Solo la migración 2026-10-04_account_reconciliation.sql
+-- los calculó para las cuentas existentes; si se conoce el saldo inicial real, se
+-- puede corregir con un UPDATE manual.
+
+-- ======================================================
+-- TRIGGERS DE APERTURA (9 y 9.1)
+-- ======================================================
+-- Únicos BEFORE INSERT sobre accounts y credit_details (no requieren FOLLOWS).
+DELIMITER //
+
+-- ======================================================
+-- TRIGGER 9: Fijar el saldo de apertura de la cuenta
+-- ======================================================
+DROP TRIGGER IF EXISTS tr_before_account_insert_opening //
+
+CREATE TRIGGER tr_before_account_insert_opening
+BEFORE INSERT ON accounts
+FOR EACH ROW
+BEGIN
+    SET NEW.opening_balance = NEW.current_balance;
+END //
+
+-- ======================================================
+-- TRIGGER 9.1: Fijar la deuda de apertura del crédito
+-- ======================================================
+DROP TRIGGER IF EXISTS tr_before_credit_details_insert_opening //
+
+CREATE TRIGGER tr_before_credit_details_insert_opening
+BEFORE INSERT ON credit_details
+FOR EACH ROW
+BEGIN
+    SET NEW.opening_credit_used = NEW.credit_used;
+END //
+
+DELIMITER ;
+
+-- ======================================================
+-- VISTA: v_account_reconciliation (una fila por cuenta)
+-- ======================================================
+-- Replica las reglas de sp_apply_transaction_effect y sp_wallet_detail_effect:
+--   Entradas (total_inflows): transacciones COMPLETED, payment_method <> 'WALLET',
+--     destination_account_id = cuenta y operation_type IN ('INCOME', 'REALLOCATION').
+--     (En destino CREDIT el pago reduce credit_used y el sobrepago va a current_balance:
+--     la posición neta sube el monto completo en ambos casos.)
+--   Salidas (total_outflows):
+--     a) transacciones COMPLETED, payment_method <> 'WALLET', source_account_id = cuenta
+--        y operation_type IN ('EXPENSE', 'REALLOCATION');
+--     b) detalles de wallet WALLET_BALANCE (padre COMPLETED) -> salida de wallet_account_id;
+--     c) detalles de wallet LINKED_CARD con card_id no nulo (padre COMPLETED) -> salida de
+--        cards.account_id.
+--     Los detalles de wallet cuentan sin importar el payment_method del padre (igual que
+--     los triggers 5, 5.1, 5.2, 3 y 4.1).
+--   Excepción (igual que los procedimientos): en una cuenta CREDIT SIN fila en
+--     credit_details, los procedimientos actualizan credit_details (0 filas) y no tienen
+--     efecto, así que a) y c) no cuentan para ella. b) sí cuenta (actúa en current_balance).
+-- expected_net = opening_net + total_inflows - total_outflows
+-- difference   = actual_net - expected_net (0 = cuenta cuadrada)
+-- Usa subconsultas escalares correlacionadas (no joins que multipliquen filas). Todos los
+-- importes se exponen como DECIMAL(14, 2).
+CREATE OR REPLACE VIEW v_account_reconciliation AS
+SELECT
+    r.account_id,
+    r.user_id,
+    r.account_name,
+    r.account_type,
+    r.opening_net,
+    r.total_inflows,
+    r.total_outflows,
+    CAST(r.opening_net + r.total_inflows - r.total_outflows AS DECIMAL(14, 2)) AS expected_net,
+    r.actual_net,
+    CAST(r.actual_net - (r.opening_net + r.total_inflows - r.total_outflows) AS DECIMAL(14, 2)) AS difference
+FROM (
+    SELECT
+        a.id AS account_id,
+        a.user_id AS user_id,
+        a.name AS account_name,
+        a.type AS account_type,
+        CAST(a.opening_balance - COALESCE(cd.opening_credit_used, 0) AS DECIMAL(14, 2)) AS opening_net,
+        CAST(a.current_balance - COALESCE(cd.credit_used, 0) AS DECIMAL(14, 2)) AS actual_net,
+        CAST(COALESCE((
+            SELECT SUM(t.amount)
+            FROM transactions t
+            WHERE t.destination_account_id = a.id
+              AND t.status = 'COMPLETED'
+              AND t.payment_method <> 'WALLET'
+              AND t.operation_type IN ('INCOME', 'REALLOCATION')
+        ), 0) AS DECIMAL(14, 2)) AS total_inflows,
+        CAST(
+            -- a) Transacciones con la cuenta como origen
+            (CASE WHEN a.type = 'CREDIT' AND cd.account_id IS NULL THEN 0 ELSE COALESCE((
+                SELECT SUM(t.amount)
+                FROM transactions t
+                WHERE t.source_account_id = a.id
+                  AND t.status = 'COMPLETED'
+                  AND t.payment_method <> 'WALLET'
+                  AND t.operation_type IN ('EXPENSE', 'REALLOCATION')
+            ), 0) END)
+            -- b) Pagos con saldo de la wallet
+            + COALESCE((
+                SELECT SUM(w.amount)
+                FROM wallet_transaction_details w
+                INNER JOIN transactions t ON t.id = w.transaction_id
+                WHERE w.wallet_account_id = a.id
+                  AND w.source_type = 'WALLET_BALANCE'
+                  AND t.status = 'COMPLETED'
+            ), 0)
+            -- c) Pagos de wallet con una tarjeta de esta cuenta
+            + (CASE WHEN a.type = 'CREDIT' AND cd.account_id IS NULL THEN 0 ELSE COALESCE((
+                SELECT SUM(w.amount)
+                FROM wallet_transaction_details w
+                INNER JOIN cards c ON c.id = w.card_id
+                INNER JOIN transactions t ON t.id = w.transaction_id
+                WHERE c.account_id = a.id
+                  AND w.source_type = 'LINKED_CARD'
+                  AND t.status = 'COMPLETED'
+            ), 0) END)
+        AS DECIMAL(14, 2)) AS total_outflows
+    FROM accounts a
+    LEFT JOIN credit_details cd ON cd.account_id = a.id
+) r;
+
+-- ======================================================
+-- PROCEDIMIENTO 8: Reconciliar una cuenta (difference = 0)
+-- ======================================================
+-- Lee expected_net de v_account_reconciliation y ajusta la cuenta:
+--   no CREDIT -> current_balance = expected_net (se calcula como current_balance - difference,
+--                que es lo mismo y además cuadra si hubiera una fila anómala en credit_details)
+--   CREDIT    -> expected_net >= 0: credit_used = 0, current_balance = expected_net
+--                expected_net <  0: credit_used = -expected_net, current_balance = 0
+--                (misma regla de sobrepago que sp_apply_transaction_effect).
+--                SIGNAL si la deuda supera credit_limit o si no hay fila en credit_details.
+-- SIGNAL si la cuenta no existe. users.global_balance lo actualiza el trigger 6.
+-- No abre transacción: si se quiere atomicidad con otras operaciones, envolver la llamada.
+DELIMITER //
+
+DROP PROCEDURE IF EXISTS sp_reconcile_account //
+
+CREATE PROCEDURE sp_reconcile_account(
+    IN p_account_id BIGINT
+)
+BEGIN
+    DECLARE v_account_type VARCHAR(20) DEFAULT NULL;
+    DECLARE v_expected_net DECIMAL(14, 2) DEFAULT 0.00;
+    DECLARE v_difference DECIMAL(14, 2) DEFAULT 0.00;
+    DECLARE v_has_credit_details BOOLEAN DEFAULT FALSE;
+    DECLARE v_credit_limit DECIMAL(12, 2) DEFAULT 0.00;
+
+    SELECT type INTO v_account_type FROM accounts WHERE id = p_account_id;
+
+    IF v_account_type IS NULL THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Error: La cuenta a reconciliar no existe.';
+    END IF;
+
+    SELECT expected_net, difference INTO v_expected_net, v_difference
+    FROM v_account_reconciliation
+    WHERE account_id = p_account_id;
+
+    IF v_account_type <> 'CREDIT' THEN
+        UPDATE accounts SET current_balance = current_balance - v_difference
+        WHERE id = p_account_id;
+    ELSE
+        SELECT TRUE, credit_limit INTO v_has_credit_details, v_credit_limit
+        FROM credit_details WHERE account_id = p_account_id;
+
+        IF v_expected_net >= 0 THEN
+            -- Sin deuda: la posición positiva es saldo a favor
+            IF v_has_credit_details THEN
+                UPDATE credit_details SET credit_used = 0
+                WHERE account_id = p_account_id;
+            END IF;
+            UPDATE accounts SET current_balance = v_expected_net
+            WHERE id = p_account_id;
+        ELSE
+            -- Con deuda: va a credit_used y el saldo a favor queda en 0
+            IF NOT v_has_credit_details THEN
+                SIGNAL SQLSTATE '45000'
+                SET MESSAGE_TEXT = 'Error: La cuenta de crédito no tiene detalle de crédito; no se puede registrar la deuda.';
+            END IF;
+
+            IF -v_expected_net > v_credit_limit THEN
+                SIGNAL SQLSTATE '45000'
+                SET MESSAGE_TEXT = 'Error: La deuda calculada supera el límite de crédito; no se puede reconciliar la cuenta.';
+            END IF;
+
+            UPDATE credit_details SET credit_used = -v_expected_net
+            WHERE account_id = p_account_id;
+            UPDATE accounts SET current_balance = 0
+            WHERE id = p_account_id;
+        END IF;
     END IF;
 END //
 
