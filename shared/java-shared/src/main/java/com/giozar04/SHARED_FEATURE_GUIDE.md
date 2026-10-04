@@ -1,10 +1,10 @@
 # Crear una feature en shared
 
 [Arquitectura](../../../../../../../ARCHITECTURE.md) ·
-[Estado](../../../../../../../MIGRATION.md)
+[Mapa de shared](../../../../../../../shared/java-shared/SHARED_ARCHITECTURE.md)
 
 Shared publica modelos y contratos entre el servidor y el cliente mediante sockets y
-JSON. No implementa casos de uso, persistencia ni UI. Cada feature migrada usa:
+JSON. No implementa casos de uso, persistencia ni UI. Cada feature usa:
 
 ```text
 <feature>/
@@ -15,7 +15,7 @@ JSON. No implementa casos de uso, persistencia ni UI. Cada feature migrada usa:
 └── infrastructure/serialization/<Entity>Mapper.java
 ```
 
-Cree únicamente las carpetas necesarias. `tags` es la primera referencia migrada:
+Cree únicamente las carpetas necesarias. `tags` es una referencia sencilla:
 `Tag` conserva sus propiedades y `TagMapper.toMap/fromMap` convierte el payload.
 Las excepciones de creación, lectura, actualización, borrado y ausencia están en
 archivos separados de `application/exceptions`.
@@ -26,7 +26,6 @@ financieras al mapper. `Transaction` es la raíz del agregado y compone los mapp
 los detalles sin duplicar sus claves. Los códigos de enum deben coincidir con los CHECK
 vigentes de la base de datos; sus etiquetas españolas se usan en la UI.
 
-Al migrar una feature, actualice los imports del backend y client en el mismo cambio,
-regenere índices con `python3 scripts/update_indexes.py`, compare los contratos con
-`python3 scripts/verify_shared.py`, y actualice `MIGRATION.md` y el agente de shared.
-`MIGRATION.md` indica el estado de backend y client.
+Al cambiar una entidad o su mapper, actualice los imports y consumidores de backend y
+client. Mantenga al día el árbol en `SHARED_ARCHITECTURE.md` y ejecute las pruebas o
+compilación Maven relevantes.

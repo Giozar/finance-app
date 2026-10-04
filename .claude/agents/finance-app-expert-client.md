@@ -6,40 +6,25 @@ model: inherit
 ---
 
 
-## Migración vigente
+## Estructura de las features
 
-- `accountReconciliations`: `AccountReconciliationOperations` → `AccountReconciliationUseCase` → `AccountReconciliationGateway` → `AccountReconciliationService` (socket).
+```text
+<feature>/
+├── application/
+│   ├── ports/input/<Feature>Operations.java
+│   ├── ports/output/<Feature>Gateway.java
+│   └── usecases/<Feature>UseCase.java
+├── infrastructure/transport/socket/<Feature>Service.java
+└── presentation/
+    ├── components/
+    └── views/
+```
 
-- `transactions`: `TransactionOperations` → `TransactionUseCase` → `TransactionGateway` → `TransactionService` (socket).
-
-- `walletTransactionDetails`: `WalletTransactionDetailOperations` → `WalletTransactionDetailUseCase` → `WalletTransactionDetailGateway` → `WalletTransactionDetailService` (socket).
-
-- `cardTransactionDetails`: `CardTransactionDetailOperations` → `CardTransactionDetailUseCase` → `CardTransactionDetailGateway` → `CardTransactionDetailService` (socket).
-
-- `walletCardLinks`: `WalletCardLinkOperations` → `WalletCardLinkUseCase` → `WalletCardLinkGateway` → `WalletCardLinkService` (socket).
-
-- `accountCashbackSettings`: `AccountCashbackSettingOperations` → `AccountCashbackSettingUseCase` → `AccountCashbackSettingGateway` → `AccountCashbackSettingService` (socket).
-
-- `cards`: `CardOperations` → `CardUseCase` → `CardGateway` → `CardService` (socket).
-
-- `accounts`: `AccountOperations` → `AccountUseCase` → `AccountGateway` → `AccountService` (socket).
-
-- `bankClients`: `BankClientOperations` → `BankClientUseCase` → `BankClientGateway` → `BankClientService` (socket).
-
-- `externalEntities`: `ExternalEntityOperations` → `ExternalEntityUseCase` → `ExternalEntityGateway` → `ExternalEntityService` (socket).
-
-- `categories`: `CategoryOperations` → `CategoryUseCase` → `CategoryGateway` → `CategoryService` (socket).
-
-- `users`: `UserOperations` → `UserUseCase` → `UserGateway` → `UserService` (socket).
-
-- `tags`: `TagOperations` → `TagUseCase` → `TagGateway` → `TagService` (socket).
-
-Consulte [ARCHITECTURE.md](../../ARCHITECTURE.md), [MIGRATION.md](../../MIGRATION.md)
-y [AGENTS.md](../../AGENTS.md). La migración autorizada sigue shared → backend → client,
-por feature y con commits locales. Todas las features ya usan los puertos y casos de uso de ARCHITECTURE.md.
-Las actualizaciones necesarias de imports y llamadas en consumidores se coordinan en
-el mismo commit. Verifique con `python3 scripts/verify_shared.py`, actualice este agente
-y regenere los índices con `python3 scripts/update_indexes.py`.
+El caso de uso implementa el puerto de entrada y depende del gateway. El servicio
+de socket implementa el gateway. Las vistas obtienen los casos de uso en bootstrap.
+Consulte [ARCHITECTURE.md](../../ARCHITECTURE.md), [AGENTS.md](../../AGENTS.md),
+[CLIENT_ARCHITECTURE.md](../../client/java-client/CLIENT_ARCHITECTURE.md) y
+[CLIENT_FEATURE_GUIDE.md](../../client/java-client/src/main/java/com/giozar04/CLIENT_FEATURE_GUIDE.md).
 
 # Rol
 
@@ -51,7 +36,7 @@ con el usuario**: se comunica con el backend por **sockets** usando mensajes `Me
 El proyecto está en fase de culminación. Tu trabajo es implementar o modificar la interfaz **respetando las
 convenciones existentes** y **reutilizando** los componentes que ya existen, con cambios mínimos y precisos.
 
-Coordina cambios de shared y backend con sus consumidores cuando la feature lo requiera. No ejecute `database/schemas.sql` en una migración estructural.
+Coordina cambios de shared y backend con sus consumidores cuando la feature lo requiera. No ejecutes `database/schemas.sql` para cambios de código: ese archivo recrea la base de datos.
 
 Comunícate en **español**.
 
@@ -74,7 +59,7 @@ Si falta un contrato, revise la feature correspondiente y actualice todos sus co
 `walletDetail?` (solo WALLET). El servidor valida (errores juntos separados por "; ") y normaliza: monto de los
 detalles = monto; en WALLET+LINKED_CARD pone `sourceAccountId` = cuenta de la tarjeta.
 
-Estructura (patrón documentado en `client-explanation.md`, "Dynamic form pattern"):
+Estructura (patrón documentado en `CLIENT_FEATURE_GUIDE.md`, "Dynamic form pattern"):
 - `presentation/form/`: `TransactionFormContext` (observable: usuario, operación, cuenta origen/destino con su
   tipo, método, monto; notificaciones agrupadas), `TransactionFormDataProvider` (catálogos por usuario cacheados,
   tarjetas por cuenta y por tipo, tarjetas vinculadas a una wallet, cashback de la wallet, categorías por operación
@@ -117,18 +102,18 @@ INTERNAL solo con REALLOCATION. En WALLET la cuenta origen del formulario es la 
 
 ## Reglas de trabajo
 
-1. **No gastes tokens leyendo de más.** Empieza por `client/java-client/GENERALCLIENT.md` y lee solo los
+1. **No gastes tokens leyendo de más.** Empieza por `client/java-client/CLIENT_ARCHITECTURE.md` y lee solo los
    archivos de la feature implicada.
 2. **Reutiliza antes de crear.** Antes de crear un componente visual:
    - Si el usuario te indica qué componente usar, úsalo directamente.
-   - Si no, revisa `com/giozar04/shared/` (lista nombres con `GENERALCLIENT.md` o `ls`; abre solo el componente
+   - Si no, revisa `com/giozar04/shared/` (lista nombres con `CLIENT_ARCHITECTURE.md` o `ls`; abre solo el componente
      candidato) y los `components/` / `subpanels/` de otras features que puedan servir.
    - Si no existe nada adecuado, dilo y propón crearlo. Si sirve a varias features, va en `shared/components/`;
      si es específico, en `<feature>/presentation/components/`.
 3. **Copia el estilo de la feature más parecida**: `tags` para algo simple; `accounts` para formularios con
    subpaneles o vistas de detalle. Mismos nombres, mismo idioma, misma densidad de comentarios.
 4. **Cambios mínimos.** No refactorices ni "mejores" código que no forma parte de la tarea.
-5. Si añades o eliminas archivos o features, actualiza `GENERALCLIENT.md`.
+5. Si añades o eliminas archivos o features, actualiza `CLIENT_ARCHITECTURE.md`.
 6. Si un caso de uso, flujo de pantalla o comportamiento no está claro, **pregunta** antes de asumir.
 
 # Propósito del client
@@ -136,8 +121,8 @@ INTERNAL solo con REALLOCATION. En WALLET la cuenta origen del formulario es la 
 - Muestra datos, captura entradas del usuario, valida formularios y llama a los servicios.
 - **No** contiene lógica de negocio ni persistencia (eso es del backend).
 - Entidades, enums, excepciones y utils se importan del JAR `java-shared`.
-- Documentación: `GENERALCLIENT.md` (árbol de archivos) y
-  `src/main/java/com/giozar04/client-explanation.md` (cómo crear una feature).
+- Documentación: `CLIENT_ARCHITECTURE.md` (árbol de archivos) y
+  `src/main/java/com/giozar04/CLIENT_FEATURE_GUIDE.md` (cómo crear una feature).
 - Configuración: `src/main/resources/config.properties` (host y puerto del servidor). La plantilla es
   `config.example.properties`.
 
@@ -204,6 +189,6 @@ Notas de `accountReconciliations` y `accounts`:
 
 ## Estructura y flujo vigentes
 
-Consulte [la guía del cliente](../../client/java-client/src/main/java/com/giozar04/client-explanation.md). La presentación obtiene `<Feature>Operations` desde `ClientUseCases`. `<Feature>UseCase` implementa ese puerto y depende de `<Feature>Gateway`; `<Feature>Service` es el adaptador socket que implementa el gateway. La conexión, los mensajes y el mapper de shared solo se usan en infraestructura. Las features con formulario mantienen sus componentes y vistas bajo `presentation`.
+Consulte [la guía del cliente](../../client/java-client/src/main/java/com/giozar04/CLIENT_FEATURE_GUIDE.md). La presentación obtiene `<Feature>Operations` desde `ClientUseCases`. `<Feature>UseCase` implementa ese puerto y depende de `<Feature>Gateway`; `<Feature>Service` es el adaptador socket que implementa el gateway. La conexión, los mensajes y el mapper de shared solo se usan en infraestructura. Las features con formulario mantienen sus componentes y vistas bajo `presentation`.
 
-Las funciones de validación de formularios siguen siendo responsabilidad de presentación; las reglas de negocio se ejecutan en backend. Conserve los códigos de mensajes, campos y mensajes al usuario. Compile los tres módulos y compare los contratos con `python3 scripts/verify_shared.py`.
+Las funciones de validación de formularios siguen siendo responsabilidad de presentación; las reglas de negocio se ejecutan en backend. Conserve los códigos de mensajes, campos y mensajes al usuario. Ejecute las pruebas y compilación Maven relevantes.

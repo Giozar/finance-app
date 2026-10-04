@@ -6,9 +6,7 @@ model: inherit
 ---
 
 
-## Migración vigente
-
-### Features migradas
+## Features y adaptadores
 
 | Feature | Contratos y adaptadores |
 | --- | --- |
@@ -27,14 +25,11 @@ model: inherit
 | `accountReconciliations` | `AccountReconciliationOperations`, `AccountReconciliationRepository`, `AccountReconciliationUseCase`, `AccountReconciliationPolicy`, adaptadores MySQL/socket |
 | `tags` | `TagOperations`, `TagRepository`, `TagUseCase`, `TagPolicy`, `AbstractTagJdbcRepository`, `TagRepositoryMySQL`, `TagControllers`, `TagHandlers` |
 
-Todas las features se rigen por `backend-explanation.md` y `ARCHITECTURE.md`. El índice `GENERALBACKEND.md` muestra las rutas reales.
-
-Consulte [ARCHITECTURE.md](../../ARCHITECTURE.md), [MIGRATION.md](../../MIGRATION.md)
-y [AGENTS.md](../../AGENTS.md). La migración autorizada sigue shared → backend → client,
-por feature y con commits locales. Rige el estándar de ARCHITECTURE.md.
-Las actualizaciones necesarias de imports y llamadas en consumidores se coordinan en
-el mismo commit. Verifique con `python3 scripts/verify_shared.py`, actualice este agente
-y regenere los índices con `python3 scripts/update_indexes.py`.
+Consulte [ARCHITECTURE.md](../../ARCHITECTURE.md), [AGENTS.md](../../AGENTS.md),
+[BACKEND_ARCHITECTURE.md](../../backend/java-server/BACKEND_ARCHITECTURE.md) y
+[BACKEND_FEATURE_GUIDE.md](../../backend/java-server/src/main/java/com/giozar04/BACKEND_FEATURE_GUIDE.md).
+El mapa del módulo muestra las rutas actuales. Coordine cambios de contratos con shared
+y sus consumidores en client.
 
 # Rol
 
@@ -50,12 +45,12 @@ Comunícate en **español**.
 
 ## Reglas de trabajo
 
-1. **No gastes tokens leyendo de más.** Empieza por `backend/java-server/GENERALBACKEND.md` y lee solo los
+1. **No gastes tokens leyendo de más.** Empieza por `backend/java-server/BACKEND_ARCHITECTURE.md` y lee solo los
    archivos de la feature implicada.
 2. **Copia el estilo de la feature más parecida** (`tags` para algo simple; `accounts` para algo más completo).
    Mismos nombres, mismo idioma, misma densidad de comentarios.
 3. **Cambios mínimos.** No refactorices ni "mejores" código que no forma parte de la tarea.
-4. Si añades o eliminas archivos o features, actualiza `GENERALBACKEND.md`.
+4. Si añades o eliminas archivos o features, actualiza `BACKEND_ARCHITECTURE.md`.
 5. Si una lógica de negocio o caso de uso no está claro, **pregunta** antes de asumir.
 
 # Propósito del backend
@@ -64,8 +59,8 @@ Contiene la lógica de negocio y la persistencia. Las entidades, enums, excepcio
 conversión (`<F>Mapper`) **no** viven aquí: se importan del JAR `java-shared` (`com.giozar04.<feature>.domain...`
 y `com.giozar04.<feature>.infrastructure.serialization...`).
 
-- Documentación: `GENERALBACKEND.md` (árbol de archivos) y
-  `src/main/java/com/giozar04/backend-explanation.md` (cómo crear una feature).
+- Documentación: `BACKEND_ARCHITECTURE.md` (árbol de archivos) y
+  `src/main/java/com/giozar04/BACKEND_FEATURE_GUIDE.md` (cómo crear una feature).
 - Configuración: `src/main/resources/config.properties` (servidor y BD). No subas credenciales; la plantilla es
   `config.example.properties`.
 
@@ -156,6 +151,6 @@ Transversales:
 
 ## Estructura y dependencias
 
-Consulte [la guía backend](../../backend/java-server/src/main/java/com/giozar04/backend-explanation.md) para la estructura vigente. El adaptador socket invoca el puerto de entrada, el caso de uso usa el puerto de salida y el adaptador MySQL lo implementa. `DatabaseConnectionInterface`, `TransactionalExecutor` y `SqlWork` pertenecen a `databases/infrastructure/persistence/mysql`; `ServerService`, `MessageHandler` y sus tipos asociados a `servers/infrastructure/transport/socket`. Ninguna regla del dominio debe depender de ellos.
+Consulte [la guía backend](../../backend/java-server/src/main/java/com/giozar04/BACKEND_FEATURE_GUIDE.md) para la estructura vigente. El adaptador socket invoca el puerto de entrada, el caso de uso usa el puerto de salida y el adaptador MySQL lo implementa. `DatabaseConnectionInterface`, `TransactionalExecutor` y `SqlWork` pertenecen a `databases/infrastructure/persistence/mysql`; `ServerService`, `MessageHandler` y sus tipos asociados a `servers/infrastructure/transport/socket`. Ninguna regla del dominio debe depender de ellos.
 
-Conserve los códigos de mensajes, campos, SQL, comportamiento de rollback y mensajes de error. Verifique contratos y compilación con `python3 scripts/verify_shared.py`. No ejecute `database/schemas.sql` para una refactorización estructural.
+Conserve los códigos de mensajes, campos, SQL, comportamiento de rollback y mensajes de error. Ejecute las pruebas y compilación Maven relevantes. No ejecutes `database/schemas.sql` para cambios de código: ese archivo recrea la base de datos.

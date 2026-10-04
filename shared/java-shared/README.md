@@ -1,10 +1,10 @@
-> Migración por features: consulte [ARCHITECTURE.md](../../ARCHITECTURE.md), [MIGRATION.md](../../MIGRATION.md) y [AGENTS.md](../../AGENTS.md). Las features pendientes conservan la estructura documentada aquí.
+> Consulte [ARCHITECTURE.md](../../ARCHITECTURE.md) y [AGENTS.md](../../AGENTS.md). Las features de shared siguen la estructura descrita aquí.
 
 # java-shared
 
 Módulo Java con los contratos compartidos entre `backend/java-server` (servidor) y `client/java-client` (cliente): entidades, enums, excepciones y utilidades de conversión. No contiene lógica de negocio ni UI. Sin dependencias externas (JSON propio en `MessageJsonCodec`).
 
-El árbol completo de archivos está en `GENERALSHARED.md` y la guía para crear una feature en `src/main/java/com/giozar04/shared-explanation.md`.
+El árbol completo de archivos está en `SHARED_ARCHITECTURE.md` y la guía para crear una feature en `src/main/java/com/giozar04/SHARED_FEATURE_GUIDE.md`.
 
 ---
 
@@ -23,7 +23,7 @@ Transversales:
 - `shared/infrastructure/serialization/ValueParser.java` – parseo seguro y formato de fechas.
 - `logging/infrastructure/ConsoleLogger.java` – logger del proyecto.
 
-Las features migradas siguen esta estructura, creando solo las carpetas necesarias:
+Las features siguen esta estructura, creando solo las carpetas necesarias:
 
 ```text
 <feature>/
@@ -32,8 +32,7 @@ Las features migradas siguen esta estructura, creando solo las carpetas necesari
 └─ infrastructure/serialization/<Entity>Mapper.java
 ```
 
-`tags` es la referencia ya migrada: `TagMapper.toMap/fromMap`. Todas las features de shared usan este patrón. Consulte `MIGRATION.md` en la raíz
-para el estado de las etapas de backend y client.
+`tags` es una referencia sencilla: `TagMapper.toMap/fromMap`. Todas las features de shared siguen este patrón.
 
 Enums: cada constante tiene `(value, label)`; `value` se guarda en MAYÚSCULAS y es igual al nombre de la constante (ej. `INCOME("INCOME", "Ingreso")`), debe coincidir con los CHECK de la base de datos; `label` es el texto en español para UI; `fromValue` no distingue mayúsculas/minúsculas.
 
@@ -129,5 +128,4 @@ Si en un futuro agregas campos nuevos a las clases compartidas, solo debes:
 - Apache Maven
 
 ---
-
 

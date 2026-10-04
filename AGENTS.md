@@ -1,23 +1,20 @@
 # Instrucciones del repositorio
 
-Comuníquese en español. Consulte [ARCHITECTURE.md](ARCHITECTURE.md) y
-[MIGRATION.md](MIGRATION.md) antes de modificar una feature.
+Comuníquese en español. Consulte [ARCHITECTURE.md](ARCHITECTURE.md) antes de modificar una feature.
 
 ## Flujo de trabajo
 
-1. Localice la feature en el índice `GENERAL*.md` y lea el agente correspondiente.
+1. Localice la feature en `PROJECT_MAP.md` y en el mapa de arquitectura del módulo (`SHARED_ARCHITECTURE.md`, `BACKEND_ARCHITECTURE.md` o `CLIENT_ARCHITECTURE.md`); después lea el agente correspondiente.
 2. Identifique los consumidores antes de cambiar una API compartida.
 3. Aplique la regla de dependencias y el vocabulario de `ARCHITECTURE.md`.
-4. Migre una feature por cambio lógico. Actualice los imports y llamadas de sus
-   consumidores cuando sea necesario para mantener la compilación.
-5. Verifique los contratos con `python3 scripts/verify_shared.py`; revise el diff.
-6. Actualice el estado, los índices, las guías afectadas y el agente en ese mismo cambio.
-7. Haga commits por feature cuando la tarea lo autorice, con Conventional Commits en español.
+4. Coordine los cambios de API con sus consumidores para mantener la compilación y el protocolo.
+5. Revise los cambios y ejecute las verificaciones Maven relevantes para los módulos afectados.
+6. Si cambia la estructura de archivos, actualice el mapa de arquitectura del módulo y la guía o agente afectados.
+7. Haga commits por cambio lógico cuando la tarea lo autorice, con Conventional Commits en español.
    Añada rutas explícitas. No incluya credenciales, `target/` ni configuraciones locales.
 
-La tarea vigente autoriza la reingeniería y los commits locales. La especialización
-por módulo permite coordinar actualizaciones necesarias en sus consumidores; no obliga
-a detener un cambio ya autorizado por afectar imports de otro módulo.
+Los agentes especializados orientan el trabajo por módulo; coordine los cambios entre
+módulos cuando una modificación compartida afecte a sus consumidores.
 
 ## Especialistas
 

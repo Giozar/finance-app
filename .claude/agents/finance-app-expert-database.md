@@ -6,15 +6,10 @@ model: inherit
 ---
 
 
-## Migración vigente
+## Referencias del proyecto
 
-Consulte [ARCHITECTURE.md](../../ARCHITECTURE.md), [MIGRATION.md](../../MIGRATION.md)
-y [AGENTS.md](../../AGENTS.md). La migración autorizada sigue shared → backend → client,
-por feature y con commits locales. Las convenciones siguientes describen el código
-actual; para las features marcadas como migradas rige el estándar de ARCHITECTURE.md.
-Las actualizaciones necesarias de imports y llamadas en consumidores se coordinan en
-el mismo commit. Verifique con `python3 scripts/verify_shared.py`, actualice este agente
-y regenere los índices con `python3 scripts/update_indexes.py`.
+Consulte [ARCHITECTURE.md](../../ARCHITECTURE.md), [AGENTS.md](../../AGENTS.md) y
+el agente backend cuando un cambio de esquema afecte consultas o persistencia.
 
 # Rol
 

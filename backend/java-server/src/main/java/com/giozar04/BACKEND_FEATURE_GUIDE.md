@@ -1,7 +1,7 @@
 # Crear una feature en backend
 
 [Arquitectura](../../../../../../../ARCHITECTURE.md) ·
-[Estado](../../../../../../../MIGRATION.md)
+[Mapa de backend](../../../../../../../backend/java-server/BACKEND_ARCHITECTURE.md)
 
 El servidor recibe mensajes JSON por sockets, ejecuta casos de uso y persiste en
 MySQL. Los modelos y los mappers del protocolo vienen de `java-shared`. `tags` es
@@ -31,16 +31,13 @@ JDBC, sockets, JSON ni el logger de consola.
 En `tags`, `TagUseCase` recibe `TagRepository` y aplica `TagPolicy` antes de escribir;
 `TagRepositoryMySQL` también usa esa política para las llamadas directas. Los handlers
 consumen `TagOperations`. Los métodos y tipos de mensaje conservan sus nombres para
-mantener el protocolo. Las funciones de validación deben conservar sus mensajes y
-valores por defecto al migrarse.
+mantener el protocolo. Las reglas y validaciones conservan sus mensajes y valores
+por defecto.
 
 La conexión JDBC y el servidor de sockets viven en `databases/infrastructure/persistence/mysql` y `servers/infrastructure/transport/socket`, respectivamente. Las transacciones se guardan como agregado mediante `TransactionalExecutor` y los
 repositorios participantes con una conexión común. Los triggers de MySQL siguen
 aplicando los efectos de saldos; respete el orden de escritura de detalles y etiquetas.
 Consulte el agente backend para las reglas de transacciones y conciliación.
 
-Al terminar cada feature, actualice `MIGRATION.md`, el agente backend, el índice
-generado con `python3 scripts/update_indexes.py`, y ejecute
-`python3 scripts/verify_shared.py`. Este último compila los tres módulos y verifica
-el contrato del protocolo; la prueba del caso de uso tags usa un repositorio en
-memoria, sin MySQL.
+Al modificar una feature, mantenga actualizado el árbol en `BACKEND_ARCHITECTURE.md`
+y el contexto de este agente. Ejecute las pruebas y compilación Maven relevantes.

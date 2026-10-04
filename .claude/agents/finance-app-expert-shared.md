@@ -6,34 +6,28 @@ model: inherit
 ---
 
 
-## Migración vigente
-
-### Estado por feature
+## Contratos por feature
 
 | Feature | Estructura |
 | --- | --- |
-| `tags` | Migrada: `TagMapper.toMap/fromMap`; excepciones en `application/exceptions` |
-| `users` | Migrada: `UserMapper.toMap/fromMap`; excepciones separadas |
-| `categories` | Migrada: `CategoryMapper.toMap/fromMap`; excepciones separadas |
-| `externalEntities` | Migrada: `ExternalEntityMapper.toMap/fromMap`; excepciones separadas |
-| `bankClient` | Migrada: `BankClientMapper.toMap/fromMap`; excepciones separadas |
-| `accounts` | Migrada: `AccountMapper.toMap/fromMap`; excepciones separadas |
-| `card` | Migrada: `CardMapper.toMap/fromMap`; excepciones separadas |
-| `accountCashbackSettings` | Migrada: `AccountCashbackSettingMapper.toMap/fromMap`; excepciones separadas |
-| `walletCardLinks` | Migrada: `WalletCardLinkMapper.toMap/fromMap`; excepciones separadas |
-| `cardTransactionDetails` | Migrada: `CardTransactionDetailMapper.toMap/fromMap`; excepciones separadas |
-| `walletTransactionDetails` | Migrada: `WalletTransactionDetailMapper.toMap/fromMap`; excepciones separadas |
-| `transactions` | Migrada: `TransactionMapper.toMap/fromMap`; excepciones separadas |
-| `accountReconciliations` | Migrada: `AccountReconciliationMapper.toMap/fromMap`; excepciones separadas |
+| `tags` | `TagMapper.toMap/fromMap`; errores por operación en `application/exceptions` |
+| `users` | `UserMapper.toMap/fromMap`; errores por operación en `application/exceptions` |
+| `categories` | `CategoryMapper.toMap/fromMap`; errores por operación en `application/exceptions` |
+| `externalEntities` | `ExternalEntityMapper.toMap/fromMap`; errores por operación en `application/exceptions` |
+| `bankClient` | `BankClientMapper.toMap/fromMap`; errores por operación en `application/exceptions` |
+| `accounts` | `AccountMapper.toMap/fromMap`; errores por operación en `application/exceptions` |
+| `card` | `CardMapper.toMap/fromMap`; errores por operación en `application/exceptions` |
+| `accountCashbackSettings` | `AccountCashbackSettingMapper.toMap/fromMap`; errores por operación en `application/exceptions` |
+| `walletCardLinks` | `WalletCardLinkMapper.toMap/fromMap`; errores por operación en `application/exceptions` |
+| `cardTransactionDetails` | `CardTransactionDetailMapper.toMap/fromMap`; errores por operación en `application/exceptions` |
+| `walletTransactionDetails` | `WalletTransactionDetailMapper.toMap/fromMap`; errores por operación en `application/exceptions` |
+| `transactions` | `TransactionMapper.toMap/fromMap`; errores por operación en `application/exceptions` |
+| `accountReconciliations` | `AccountReconciliationMapper.toMap/fromMap`; errores por operación en `application/exceptions` |
 
-Las features migradas siguen las secciones siguientes.
-
-Consulte [ARCHITECTURE.md](../../ARCHITECTURE.md), [MIGRATION.md](../../MIGRATION.md)
-y [AGENTS.md](../../AGENTS.md). La migración autorizada sigue shared → backend → client,
-por feature y con commits locales. Las convenciones siguientes describen el código actual y se complementan con ARCHITECTURE.md.
-Las actualizaciones necesarias de imports y llamadas en consumidores se coordinan en
-el mismo commit. Verifique con `python3 scripts/verify_shared.py`, actualice este agente
-y regenere los índices con `python3 scripts/update_indexes.py`.
+Consulte [ARCHITECTURE.md](../../ARCHITECTURE.md), [AGENTS.md](../../AGENTS.md),
+[SHARED_ARCHITECTURE.md](../../shared/java-shared/SHARED_ARCHITECTURE.md) y
+[SHARED_FEATURE_GUIDE.md](../../shared/java-shared/src/main/java/com/giozar04/SHARED_FEATURE_GUIDE.md).
+Coordine cambios de contratos con sus consumidores en backend y client.
 
 # Rol
 
@@ -67,12 +61,12 @@ Comunícate en **español**.
 
 ## Reglas de trabajo
 
-1. **No gastes tokens leyendo de más.** Empieza por `shared/java-shared/GENERALSHARED.md` y lee solo los
+1. **No gastes tokens leyendo de más.** Empieza por `shared/java-shared/SHARED_ARCHITECTURE.md` y lee solo los
    archivos de la feature implicada.
 2. **Copia el estilo de la feature más parecida** (`tags` para algo simple; `accounts` para algo con enums).
    Mismos nombres, mismo idioma, misma densidad de comentarios.
 3. **Cambios mínimos.** No refactorices ni "mejores" código que no forma parte de la tarea.
-4. Si añades/eliminas archivos o features, actualiza `GENERALSHARED.md`.
+4. Si añades/eliminas archivos o features, actualiza `SHARED_ARCHITECTURE.md`.
 5. Si una lógica o caso de uso no está claro, **pregunta** antes de asumir.
 
 # Propósito de shared
@@ -83,10 +77,10 @@ negocio del backend ni UI del cliente.
 
 - Maven: `groupId com.giozar04`, `artifactId java-shared`, `version 1.0-SNAPSHOT`, `packaging jar`, Java 17.
 - Sin dependencias externas (JSON propio en `messages/infrastructure/serialization/MessageJsonCodec.java`).
-- Documentación: `GENERALSHARED.md` (árbol de archivos) y
-  `src/main/java/com/giozar04/shared-explanation.md` (cómo crear una feature).
+- Documentación: `SHARED_ARCHITECTURE.md` (árbol de archivos) y
+  `src/main/java/com/giozar04/SHARED_FEATURE_GUIDE.md` (cómo crear una feature).
 - `README.md` de shared está actualizado (paquetes reales **`com.giozar04.<feature>...`**). Aun así, la
-  fuente de verdad es `GENERALSHARED.md` + el código.
+  fuente de verdad es `SHARED_ARCHITECTURE.md` + el código.
 
 ## Ubicación
 `shared/java-shared/src/main/java/com/giozar04/<feature>/`
@@ -157,6 +151,6 @@ Ejemplos de referencia: `tags/` (simple) y `accounts/` (con enum).
 
 - [ ] Campo nuevo en entidad → getter/setter + actualizar **ambos** métodos en `<Entity>Mapper`.
 - [ ] Enum nuevo → en `domain/enums` con el patrón `value/label/fromValue`, y usarlo en entidad y mapper.
-- [ ] Feature nueva → crear solo las capas necesarias y regenerar `GENERALSHARED.md`.
+- [ ] Feature nueva → crear solo las capas necesarias y regenerar `SHARED_ARCHITECTURE.md`.
 - [ ] Compilar: `cd shared/java-shared && mvn clean install`.
 - [ ] Avisar al usuario de que backend y client deben recompilarse (y adaptarse si cambió el contrato).

@@ -1,6 +1,6 @@
 # Crear una feature en el cliente
 
-[Arquitectura](../../../../../../../ARCHITECTURE.md) · [Estado](../../../../../../../MIGRATION.md)
+[Arquitectura](../../../../../../../ARCHITECTURE.md) · [Mapa de client](../../../../../../../client/java-client/CLIENT_ARCHITECTURE.md)
 
 Cada feature del cliente separa presentación, aplicación e infraestructura. Las vistas
 dependen de un puerto de entrada; el caso de uso utiliza un puerto de salida y el
@@ -224,7 +224,7 @@ cada caso de uso en `ClientUseCases` y arranca Swing. El registro pertenece a
 `bootstrap`; las vistas acceden solo a las interfaces `*Operations`.
 
 Al crear una feature, añada sus puertos, caso de uso y adaptador socket, registre
-el caso de uso en bootstrap y conecte las vistas con el puerto de entrada. Actualice
-el agente, `MIGRATION.md` y los índices. Compile los tres módulos y compare los
-contratos con `python3 scripts/verify_shared.py`. Los formularios y componentes
-reutilizables se describen en las secciones anteriores.
+el caso de uso en bootstrap y conecte las vistas con el puerto de entrada. Mantenga
+actualizados `CLIENT_ARCHITECTURE.md` y el contexto de este agente. Ejecute las
+pruebas y compilación Maven relevantes. Los formularios y componentes reutilizables
+se describen en las secciones anteriores.

@@ -6,15 +6,10 @@ model: inherit
 ---
 
 
-## Migración vigente
+## Referencias del proyecto
 
-Consulte [ARCHITECTURE.md](../../ARCHITECTURE.md), [MIGRATION.md](../../MIGRATION.md)
-y [AGENTS.md](../../AGENTS.md). La migración autorizada sigue shared → backend → client,
-por feature y con commits locales. Las convenciones siguientes describen el código
-actual; para las features marcadas como migradas rige el estándar de ARCHITECTURE.md.
-Las actualizaciones necesarias de imports y llamadas en consumidores se coordinan en
-el mismo commit. Verifique con `python3 scripts/verify_shared.py`, actualice este agente
-y regenere los índices con `python3 scripts/update_indexes.py`.
+Consulte [AGENTS.md](../../AGENTS.md) para el flujo de trabajo y [PROJECT_MAP.md](../../PROJECT_MAP.md)
+para localizar los mapas de arquitectura y agentes de cada módulo.
 
 # Rol
 
@@ -65,7 +60,7 @@ Co-Authored-By: <línea de atribución indicada por el sistema, si el commit lo 
 | `feat` | Funcionalidad nueva (tabla, columna, operación, vista, campo) |
 | `fix` | Corrección de un bug |
 | `refactor` | Cambio interno sin cambiar comportamiento (renombres, enums, reorganización) |
-| `docs` | Solo documentación (`GENERAL*.md`, README, `*-explanation.md`) |
+| `docs` | Solo documentación (`*_ARCHITECTURE.md`, `*_FEATURE_GUIDE.md`, README y documentos raíz) |
 | `chore` | Configuración, agentes de `.claude/`, herramientas |
 | `test` | TestApps o tests |
 
@@ -83,10 +78,10 @@ Un commit = un cambio lógico que compila por sí mismo. Orden recomendado cuand
 (sigue la dependencia: shared es un JAR del que dependen backend y client):
 
 1. `database`: `database/schemas.sql` + su migración en `database/migrations/` + el agente de database si actualizó su índice.
-2. `shared`: entidades, enums, utils y `GENERALSHARED.md`.
-3. `backend`: repositorios, servicios, controllers, handlers, `sql/` y `GENERALBACKEND.md`.
-4. `client`: servicios, vistas, componentes y `GENERALCLIENT.md`.
-5. `docs` / `chore(agents)`: documentación transversal (`GENERAL.md`, explanations) y archivos de agentes, si no
+2. `shared`: entidades, enums, utils y `SHARED_ARCHITECTURE.md`.
+3. `backend`: repositorios, servicios, controllers, handlers, `sql/` y `BACKEND_ARCHITECTURE.md`.
+4. `client`: servicios, vistas, componentes y `CLIENT_ARCHITECTURE.md`.
+5. `docs` / `chore(agents)`: documentación transversal (`PROJECT_MAP.md`, guías de features) y archivos de agentes, si no
    encajaron en los anteriores.
 
 La documentación y el agente de un módulo pueden ir **en el mismo commit** que el código de ese módulo (es lo que

@@ -1,10 +1,11 @@
-# Arquitectura por features
+# Arquitectura del proyecto
 
-## Objetivo y estado
+## Organización
 
-La migración sigue el orden shared → backend → client y se realiza por feature.
-Cada commit actualiza sus consumidores, documentación y agente. El protocolo y los
-resultados observables se conservan. El estado real se registra en [MIGRATION.md](MIGRATION.md).
+El código se organiza por feature y separa dominio, aplicación, infraestructura y,
+en el cliente, presentación. Los mapas de [shared](shared/java-shared/SHARED_ARCHITECTURE.md),
+[backend](backend/java-server/BACKEND_ARCHITECTURE.md) y
+[client](client/java-client/CLIENT_ARCHITECTURE.md) muestran los archivos actuales.
 
 ## Regla de dependencias
 
@@ -41,40 +42,27 @@ Backend y client separan puertos, casos de uso y adaptadores por feature.
 
 Cada excepción nueva tiene su archivo y un nombre que identifica su feature. No se
 añaden contenedores `*Exceptions` ni utilidades genéricas para responsabilidades nuevas.
-Los nombres históricos de paquetes de features se conservan en esta etapa; no se
-renombran entidades, propiedades, enums ni códigos del protocolo por razones cosméticas.
+Los nombres existentes de paquetes, entidades, propiedades, enums y códigos del protocolo
+se conservan para mantener compatibilidad con sus consumidores.
 
 ## Compatibilidad
 
-Los cambios de API Java de shared se aplican junto con sus referencias en backend y
-client en el mismo commit, y ambos se recompilan. La compatibilidad garantizada por
-esta etapa es del protocolo JSON y del código del repositorio recompilado; no es una
-promesa de compatibilidad binaria con JAR antiguos o serialización nativa de Java.
+Los cambios de API de shared se coordinan con sus referencias en backend y client.
+La compatibilidad del sistema se basa en los contratos del protocolo JSON y en que
+los módulos se compilen juntos; no implica compatibilidad binaria con JAR antiguos.
 
 Se conservan campos camelCase, códigos de enums, nulls, valores por defecto, tipos
-numéricos, escalas, fechas y mensajes de error. Las reglas de saldos permanecen en los
-triggers y procedimientos existentes durante esta migración estructural.
+numéricos, escalas, fechas y mensajes de error. Las reglas de saldos se implementan
+en los triggers y procedimientos existentes.
 
-Los cambios funcionales detectados se registran y se abordan aparte. Por ejemplo,
-la conversión actual de una fecha ausente o inválida devuelve la hora actual.
-
-## Verificación
-
-`python3 scripts/verify_shared.py` requiere Python 3 y JDK 17. Compila separadamente
-los tres módulos contra el shared del checkout en un directorio temporal y compara
-los contratos con `shared/java-shared/src/test/resources/contracts.json`.
-La referencia se captura antes de la migración y no se regenera para hacer pasar un refactor.
-El probe incluye campos completos, defaults, ida y vuelta por mapas y JSON, todos los
-valores de enum, detalles anidados, nulos, etiquetas, caracteres escapados y fechas.
-
-Esta verificación no arranca Swing, sockets ni MySQL. La comprobación funcional con
-servidor y base de datos requiere un entorno aislado con configuración real.
+La conversión compartida de fechas ausentes o inválidas devuelve la hora actual; los
+consumidores deben tener en cuenta ese comportamiento.
 
 ## Documentación y agentes
 
 - Este archivo define el estándar común.
-- `GENERAL.md` y los `GENERAL*.md` de los módulos contienen índices generados del código.
-- Las guías `*-explanation.md` explican cómo implementar una feature en cada etapa.
+- `PROJECT_MAP.md` enlaza los mapas de arquitectura de cada módulo.
+- `*_FEATURE_GUIDE.md` explica cómo implementar una feature en cada etapa.
 - [AGENTS.md](AGENTS.md) centraliza el flujo de trabajo.
 - Los agentes de `.claude/agents/` conservan el contexto específico de cada módulo y
-  enlazan el estándar; sus instrucciones anteriores se adaptan a la migración vigente.
+  enlazan este estándar y sus mapas de archivos.
