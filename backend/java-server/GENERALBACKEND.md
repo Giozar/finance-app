@@ -121,7 +121,9 @@ src/main/java/com/giozar04/transactionTags/infrastructure/persistence/mysql/Tran
 src/main/java/com/giozar04/transactionTags/infrastructure/persistence/mysql/TransactionTagRepositoryMySQL.java
 src/main/java/com/giozar04/transactionTags/sql/transaction_tags.sql
 src/main/java/com/giozar04/transactions/application/normalizers/TransactionNormalizer.java
-src/main/java/com/giozar04/transactions/application/services/TransactionService.java
+src/main/java/com/giozar04/transactions/application/ports/input/TransactionOperations.java
+src/main/java/com/giozar04/transactions/application/ports/output/TransactionRepository.java
+src/main/java/com/giozar04/transactions/application/usecases/TransactionUseCase.java
 src/main/java/com/giozar04/transactions/application/validation/EnumDispatchRule.java
 src/main/java/com/giozar04/transactions/application/validation/TransactionRule.java
 src/main/java/com/giozar04/transactions/application/validation/TransactionRules.java
@@ -137,11 +139,11 @@ src/main/java/com/giozar04/transactions/application/validation/rules/NoDetailPay
 src/main/java/com/giozar04/transactions/application/validation/rules/ReallocationRule.java
 src/main/java/com/giozar04/transactions/application/validation/rules/TransactionRuleSupport.java
 src/main/java/com/giozar04/transactions/application/validation/rules/WalletPaymentRule.java
-src/main/java/com/giozar04/transactions/domain/interfaces/TransactionRepositoryInterface.java
-src/main/java/com/giozar04/transactions/domain/models/TransactionRepositoryAbstract.java
-src/main/java/com/giozar04/transactions/infrastructure/controllers/TransactionControllers.java
-src/main/java/com/giozar04/transactions/infrastructure/handlers/TransactionHandlers.java
-src/main/java/com/giozar04/transactions/infrastructure/repositories/TransactionRepositoryMySQL.java
+src/main/java/com/giozar04/transactions/domain/policies/TransactionPolicy.java
+src/main/java/com/giozar04/transactions/infrastructure/persistence/mysql/AbstractTransactionJdbcRepository.java
+src/main/java/com/giozar04/transactions/infrastructure/persistence/mysql/TransactionRepositoryMySQL.java
+src/main/java/com/giozar04/transactions/infrastructure/transport/socket/TransactionControllers.java
+src/main/java/com/giozar04/transactions/infrastructure/transport/socket/TransactionHandlers.java
 src/main/java/com/giozar04/transactions/sql/transactions.sql
 src/main/java/com/giozar04/transactions/test/TransactionTestApp.java
 src/main/java/com/giozar04/users/application/ports/input/UserOperations.java
@@ -175,4 +177,5 @@ src/main/java/com/giozar04/walletTransactionDetails/infrastructure/transport/soc
 src/main/java/com/giozar04/walletTransactionDetails/infrastructure/transport/socket/WalletTransactionDetailHandlers.java
 src/main/java/com/giozar04/walletTransactionDetails/sql/wallet_transaction_details.sql
 src/test/java/com/giozar04/tags/TagUseCaseProbe.java
+src/test/java/com/giozar04/transactions/TransactionUseCaseProbe.java
 ```

@@ -48,13 +48,14 @@ import com.giozar04.tags.infrastructure.persistence.mysql.TagRepositoryMySQL;
 import com.giozar04.transactionTags.infrastructure.persistence.mysql.TransactionTagJdbcOperations;
 import com.giozar04.transactionTags.infrastructure.persistence.mysql.TransactionTagRepositoryMySQL;
 import com.giozar04.transactions.application.normalizers.TransactionNormalizer;
-import com.giozar04.transactions.application.services.TransactionService;
+import com.giozar04.transactions.application.usecases.TransactionUseCase;
+import com.giozar04.transactions.application.ports.input.TransactionOperations;
 import com.giozar04.transactions.application.validation.TransactionRules;
 import com.giozar04.transactions.application.validation.TransactionValidator;
 import com.giozar04.transactions.application.validation.ValidationContextFactory;
-import com.giozar04.transactions.domain.interfaces.TransactionRepositoryInterface;
-import com.giozar04.transactions.infrastructure.handlers.TransactionHandlers;
-import com.giozar04.transactions.infrastructure.repositories.TransactionRepositoryMySQL;
+import com.giozar04.transactions.application.ports.output.TransactionRepository;
+import com.giozar04.transactions.infrastructure.transport.socket.TransactionHandlers;
+import com.giozar04.transactions.infrastructure.persistence.mysql.TransactionRepositoryMySQL;
 import com.giozar04.users.application.usecases.UserUseCase;
 import com.giozar04.users.application.ports.input.UserOperations;
 import com.giozar04.users.application.ports.output.UserRepository;
@@ -145,13 +146,13 @@ public class ApplicationInitializer {
         // Inicializar repositorios y servicios de transacciones (agregado: transacción + detalle + tags)
         TransactionalExecutor transactionalExecutor = new TransactionalExecutor(dbConnection);
         TransactionTagJdbcOperations transactionTagRepository = new TransactionTagRepositoryMySQL();
-        TransactionRepositoryInterface transactionRepository =
+        TransactionRepository transactionRepository =
                 new TransactionRepositoryMySQL(dbConnection, transactionalExecutor,
                         cardTransactionDetailRepository, walletTransactionDetailRepository, transactionTagRepository);
         ValidationContextFactory transactionValidationContextFactory = new ValidationContextFactory(
                 accountRepository, cardRepository, walletCardLinkRepository,
                 categoryRepository, externalEntityRepository, tagRepository);
-        TransactionService transactionService = new TransactionService(
+        TransactionOperations transactionService = new TransactionUseCase(
                 transactionRepository,
                 transactionValidationContextFactory,
                 new TransactionNormalizer(),

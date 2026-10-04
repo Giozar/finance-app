@@ -1,4 +1,4 @@
-package com.giozar04.transactions.application.services;
+package com.giozar04.transactions.application.usecases;
 
 import java.util.List;
 import java.util.Objects;
@@ -8,7 +8,8 @@ import com.giozar04.transactions.application.validation.TransactionValidator;
 import com.giozar04.transactions.application.validation.ValidationContext;
 import com.giozar04.transactions.application.validation.ValidationContextFactory;
 import com.giozar04.transactions.domain.entities.Transaction;
-import com.giozar04.transactions.domain.interfaces.TransactionRepositoryInterface;
+import com.giozar04.transactions.application.ports.output.TransactionRepository;
+import com.giozar04.transactions.application.ports.input.TransactionOperations;
 
 /**
  * Orquesta las escrituras del agregado: normalizar → validar → repositorio.
@@ -17,14 +18,14 @@ import com.giozar04.transactions.domain.interfaces.TransactionRepositoryInterfac
  * Ambos comparten un ValidationContext por petición (caché de consultas).
  * Las lecturas y el borrado se delegan sin más.
  */
-public class TransactionService implements TransactionRepositoryInterface {
+public class TransactionUseCase implements TransactionOperations {
 
-    private final TransactionRepositoryInterface repository;
+    private final TransactionRepository repository;
     private final ValidationContextFactory contextFactory;
     private final TransactionNormalizer normalizer;
     private final TransactionValidator validator;
 
-    public TransactionService(TransactionRepositoryInterface repository,
+    public TransactionUseCase(TransactionRepository repository,
                               ValidationContextFactory contextFactory,
                               TransactionNormalizer normalizer,
                               TransactionValidator validator) {

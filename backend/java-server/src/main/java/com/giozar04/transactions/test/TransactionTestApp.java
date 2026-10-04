@@ -19,7 +19,7 @@ import com.giozar04.externalEntities.infrastructure.persistence.mysql.ExternalEn
 import com.giozar04.tags.infrastructure.persistence.mysql.TagRepositoryMySQL;
 import com.giozar04.transactionTags.infrastructure.persistence.mysql.TransactionTagRepositoryMySQL;
 import com.giozar04.transactions.application.normalizers.TransactionNormalizer;
-import com.giozar04.transactions.application.services.TransactionService;
+import com.giozar04.transactions.application.usecases.TransactionUseCase;
 import com.giozar04.transactions.application.validation.TransactionRules;
 import com.giozar04.transactions.application.validation.TransactionValidator;
 import com.giozar04.transactions.application.validation.ValidationContextFactory;
@@ -27,7 +27,7 @@ import com.giozar04.transactions.domain.entities.Transaction;
 import com.giozar04.transactions.domain.enums.OperationTypes;
 import com.giozar04.transactions.domain.enums.PaymentMethod;
 import com.giozar04.transactions.domain.enums.TransactionStatus;
-import com.giozar04.transactions.infrastructure.repositories.TransactionRepositoryMySQL;
+import com.giozar04.transactions.infrastructure.persistence.mysql.TransactionRepositoryMySQL;
 import com.giozar04.walletCardLinks.infrastructure.persistence.mysql.WalletCardLinkRepositoryMySQL;
 import com.giozar04.walletTransactionDetails.infrastructure.persistence.mysql.WalletTransactionDetailRepositoryMySQL;
 
@@ -48,7 +48,7 @@ public class TransactionTestApp {
             );
             dbConnection.connect();
 
-            TransactionService service = buildService(dbConnection);
+            TransactionUseCase service = buildService(dbConnection);
 
             Scanner scanner = new Scanner(System.in);
             boolean exit = false;
@@ -91,7 +91,7 @@ public class TransactionTestApp {
     }
 
     /** Mismo cableado que ApplicationInitializer. */
-    private static TransactionService buildService(DatabaseConnectionInterface dbConnection) {
+    private static TransactionUseCase buildService(DatabaseConnectionInterface dbConnection) {
         TransactionRepositoryMySQL repository = new TransactionRepositoryMySQL(
                 dbConnection,
                 new TransactionalExecutor(dbConnection),
@@ -107,11 +107,11 @@ public class TransactionTestApp {
                 new ExternalEntityRepositoryMySQL(dbConnection),
                 new TagRepositoryMySQL(dbConnection));
 
-        return new TransactionService(repository, contextFactory,
+        return new TransactionUseCase(repository, contextFactory,
                 new TransactionNormalizer(), new TransactionValidator(TransactionRules.defaultRules()));
     }
 
-    private static void createExpense(TransactionService service, Scanner scanner, PaymentMethod method) {
+    private static void createExpense(TransactionUseCase service, Scanner scanner, PaymentMethod method) {
         Transaction tx = new Transaction();
         tx.setOperationType(OperationTypes.EXPENSE);
         tx.setPaymentMethod(method);
@@ -161,17 +161,17 @@ public class TransactionTestApp {
         print(created);
     }
 
-    private static void getByUser(TransactionService service, Scanner scanner) {
+    private static void getByUser(TransactionUseCase service, Scanner scanner) {
         System.out.print("ID usuario: ");
         printList(service.getTransactionsByUserId(readLong(scanner)));
     }
 
-    private static void getById(TransactionService service, Scanner scanner) {
+    private static void getById(TransactionUseCase service, Scanner scanner) {
         System.out.print("ID a buscar: ");
         print(service.getTransactionById(readLong(scanner)));
     }
 
-    private static void deleteTransaction(TransactionService service, Scanner scanner) {
+    private static void deleteTransaction(TransactionUseCase service, Scanner scanner) {
         System.out.print("ID a eliminar: ");
         service.deleteTransactionById(readLong(scanner));
         System.out.println("Transacción eliminada.");

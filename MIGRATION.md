@@ -40,7 +40,7 @@ comparados y compilación independiente de shared, backend y client.
 | walletCardLinks | Migrada; puertos, política y adaptadores verificados |
 | cardTransactionDetails | Migrada; puertos, política y adaptadores verificados |
 | walletTransactionDetails | Migrada; puertos, política y adaptadores verificados |
-| transactions | Pendiente |
+| transactions | Migrada; puertos, política y adaptadores verificados |
 | accountReconciliations | Pendiente |
 | transactionTags | Migrada; contrato JDBC dentro de infraestructura |
 | databases y servers | Pendiente |

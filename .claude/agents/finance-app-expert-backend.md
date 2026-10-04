@@ -23,6 +23,7 @@ model: inherit
 | `cardTransactionDetails` | `CardTransactionDetailOperations`, `CardTransactionDetailRepository`, `CardTransactionDetailUseCase`, `CardTransactionDetailPolicy`, adaptadores MySQL/socket |
 | `walletTransactionDetails` | `WalletTransactionDetailOperations`, `WalletTransactionDetailRepository`, `WalletTransactionDetailUseCase`, `WalletTransactionDetailPolicy`, adaptadores MySQL/socket |
 | `transactionTags` | `TransactionTagJdbcOperations` y `TransactionTagRepositoryMySQL` en `infrastructure/persistence/mysql` |
+| `transactions` | `TransactionOperations`, `TransactionRepository`, `TransactionUseCase`, `TransactionPolicy`, adaptadores MySQL/socket |
 | `tags` | `TagOperations`, `TagRepository`, `TagUseCase`, `TagPolicy`, `AbstractTagJdbcRepository`, `TagRepositoryMySQL`, `TagControllers`, `TagHandlers` |
 
 El flujo de «Estructura de una feature» descrito abajo aplica a las features pendientes.
@@ -103,7 +104,7 @@ walletDetail? (solo WALLET)`. Conversión: `TransactionMapper.toMap / fromMap`.
 `UPDATE_TRANSACTION` (`"id"` + `"transaction"`), `DELETE_TRANSACTION` (`"id"`), `GET_ALL_TRANSACTIONS`,
 `GET_TRANSACTIONS_BY_USER` (`"userId"`). Respuestas: `"transaction"` (map del agregado) o `"transactions"` + `"count"`.
 
-Flujo de escritura en `TransactionService`: **normalizar → validar → repositorio** (un `ValidationContext` por petición).
+Flujo de escritura en `TransactionUseCase`: **normalizar → validar → repositorio** (un `ValidationContext` por petición).
 - `TransactionNormalizer` (reglas derivadas): status null ⇒ COMPLETED; quita detalles que no corresponden al
   método; monto de los detalles = monto de la transacción; WALLET + WALLET_BALANCE ⇒ `sourceAccountId` = wallet
   (y `cardId` null); WALLET + LINKED_CARD ⇒ `sourceAccountId` = `card.accountId`.
@@ -144,8 +145,8 @@ Patrón para cualquier operación nueva que escriba varias tablas de forma atóm
 - `databases/application/services/TransactionalExecutor.inTransaction(SqlWork<T>)`: abre, ejecuta, commit, rollback
   ante cualquier excepción (la relanza tal cual) y cierra. `SqlWork<T>` está en `databases/domain/interfaces`.
 - Los repositorios participantes exponen métodos que **reciben la `Connection`** (no hacen commit/rollback/close),
-  declarados en una interfaz aparte (`CardTransactionDetailTransactionalRepositoryInterface`,
-  `WalletTransactionDetailTransactionalRepositoryInterface`, `TransactionTagRepositoryInterface`), y su CRUD
+  declarados en una interfaz aparte (`CardTransactionDetailJdbcOperations`,
+  `WalletTransactionDetailJdbcOperations`, `TransactionTagJdbcOperations`), y su CRUD
   clásico reutiliza ese SQL. Quien llama envuelve la `SQLException` con `e.getMessage()`.
 
 Transversales:
@@ -185,7 +186,7 @@ Client → Message JSON → ServerService → <F>Handlers → <F>Controllers →
 - CRUD: `create<F>(x)`, `get<F>ById(long id)`, `update<F>ById(long id, x)`, `delete<F>ById(long id)`, `getAll<F>s()`.
 - Las operaciones extra (filtros, búsquedas) también se declaran aquí.
 
-**Abstract** (`domain/models/<F>RepositoryAbstract.java`) – referencia: `tags/domain/models/TagRepositoryAbstract.java`
+**Abstract** (`domain/models/<F>RepositoryAbstract.java`) – referencia: `tags/domain/models/AbstractTagJdbcRepository.java`
 - `implements <F>RepositoryInterface`.
 - `protected final DatabaseConnectionInterface databaseConnection` (con `Objects.requireNonNull` y mensaje en español).
 - `protected final ConsoleLogger logger = ConsoleLogger.getInstance();`
@@ -221,7 +222,7 @@ Client → Message JSON → ServerService → <F>Handlers → <F>Controllers →
 
 **Service** (`application/services/<F>Service.java`)
 - `implements <F>RepositoryInterface`; recibe el repositorio por constructor y **delega** cada método.
-- Excepción: si hay reglas de negocio (p. ej. `TransactionService`), el service las orquesta (normalizar → validar)
+- Excepción: si hay reglas de negocio (p. ej. `TransactionUseCase`), el caso de uso las orquesta (normalizar → validar)
   antes de delegar; las reglas se inyectan desde `ApplicationInitializer`.
 
 **Controllers** (`infrastructure/controllers/<F>Controllers.java`) – referencia: `TagControllers`

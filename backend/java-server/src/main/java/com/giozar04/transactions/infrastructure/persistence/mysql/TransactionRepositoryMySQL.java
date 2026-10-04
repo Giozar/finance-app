@@ -1,4 +1,4 @@
-package com.giozar04.transactions.infrastructure.repositories;
+package com.giozar04.transactions.infrastructure.persistence.mysql;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -30,7 +30,7 @@ import com.giozar04.transactions.application.exceptions.TransactionDeletionExcep
 import com.giozar04.transactions.application.exceptions.TransactionRetrievalException;
 import com.giozar04.transactions.application.exceptions.TransactionUpdateException;
 import com.giozar04.transactions.domain.exceptions.TransactionValidationException;
-import com.giozar04.transactions.domain.models.TransactionRepositoryAbstract;
+import com.giozar04.transactions.infrastructure.persistence.mysql.AbstractTransactionJdbcRepository;
 import com.giozar04.walletTransactionDetails.domain.entities.WalletTransactionDetail;
 import com.giozar04.walletTransactionDetails.infrastructure.persistence.mysql.WalletTransactionDetailJdbcOperations;
 
@@ -46,7 +46,7 @@ import com.giozar04.walletTransactionDetails.infrastructure.persistence.mysql.Wa
  *
  * La columna date guarda la hora local de la zona {@code timezone} de la transacción.
  */
-public class TransactionRepositoryMySQL extends TransactionRepositoryAbstract {
+public class TransactionRepositoryMySQL extends AbstractTransactionJdbcRepository {
 
     private static final String SQL_INSERT = """
         INSERT INTO transactions (

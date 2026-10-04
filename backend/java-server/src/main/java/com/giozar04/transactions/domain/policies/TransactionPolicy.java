@@ -1,31 +1,16 @@
-package com.giozar04.transactions.domain.models;
+package com.giozar04.transactions.domain.policies;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
-
-import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
-import com.giozar04.logging.infrastructure.ConsoleLogger;
 import com.giozar04.transactions.domain.entities.Transaction;
 import com.giozar04.transactions.domain.enums.OperationTypes;
 import com.giozar04.transactions.domain.enums.PaymentMethod;
-import com.giozar04.transactions.domain.interfaces.TransactionRepositoryInterface;
 
-/**
- * Validación estructural mínima para que el repositorio pueda persistir sin errores de nulos.
- * Las reglas de negocio completas viven en TransactionValidator (capa application) y se
- * ejecutan en TransactionService antes de llegar aquí.
- */
-public abstract class TransactionRepositoryAbstract implements TransactionRepositoryInterface {
+public final class TransactionPolicy {
+    private TransactionPolicy() {}
 
-    protected final DatabaseConnectionInterface databaseConnection;
-    protected final ConsoleLogger logger = ConsoleLogger.getInstance();
-
-    protected TransactionRepositoryAbstract(DatabaseConnectionInterface databaseConnection) {
-        this.databaseConnection = Objects.requireNonNull(databaseConnection, "La conexión a la base de datos no puede ser nula");
-    }
-
-    protected void validateTransaction(Transaction tx) {
+    public static void validateTransaction(Transaction tx) {
         Objects.requireNonNull(tx, "La transacción no puede ser nula");
 
         if (tx.getUserId() <= 0)
@@ -60,27 +45,9 @@ public abstract class TransactionRepositoryAbstract implements TransactionReposi
             throw new IllegalArgumentException("El método de pago \"" + PaymentMethod.INTERNAL.getLabel() + "\" solo se permite con el tipo \"" + OperationTypes.REALLOCATION.getLabel() + "\"");
     }
 
-    protected void validateId(long id) {
+    public static void validateId(long id) {
         if (id <= 0) {
             throw new IllegalArgumentException("El ID debe ser mayor que cero");
         }
     }
-
-    @Override
-    public abstract Transaction createTransaction(Transaction tx);
-
-    @Override
-    public abstract Transaction getTransactionById(long id);
-
-    @Override
-    public abstract Transaction updateTransactionById(long id, Transaction tx);
-
-    @Override
-    public abstract void deleteTransactionById(long id);
-
-    @Override
-    public abstract List<Transaction> getAllTransactions();
-
-    @Override
-    public abstract List<Transaction> getTransactionsByUserId(long userId);
 }

@@ -1,4 +1,4 @@
-package com.giozar04.transactions.infrastructure.controllers;
+package com.giozar04.transactions.infrastructure.transport.socket;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,7 +8,7 @@ import com.giozar04.logging.infrastructure.ConsoleLogger;
 import com.giozar04.messages.infrastructure.transport.Message;
 import com.giozar04.servers.domain.handlers.MessageHandler;
 import com.giozar04.servers.domain.models.ClientConnection;
-import com.giozar04.transactions.application.services.TransactionService;
+import com.giozar04.transactions.application.ports.input.TransactionOperations;
 import com.giozar04.transactions.infrastructure.serialization.TransactionMapper;
 import com.giozar04.transactions.domain.entities.Transaction;
 
@@ -26,7 +26,7 @@ public class TransactionControllers {
     }
 
     @SuppressWarnings("unchecked")
-    public static MessageHandler createTransactionController(TransactionService service) {
+    public static MessageHandler createTransactionController(TransactionOperations service) {
         return (ClientConnection client, Message message) -> {
             LOGGER.info("Procesando creación de transacción");
 
@@ -43,7 +43,7 @@ public class TransactionControllers {
         };
     }
 
-    public static MessageHandler getTransactionController(TransactionService service) {
+    public static MessageHandler getTransactionController(TransactionOperations service) {
         return (ClientConnection client, Message message) -> {
             LOGGER.info("Procesando obtención de transacción");
 
@@ -60,7 +60,7 @@ public class TransactionControllers {
     }
 
     @SuppressWarnings("unchecked")
-    public static MessageHandler updateTransactionController(TransactionService service) {
+    public static MessageHandler updateTransactionController(TransactionOperations service) {
         return (ClientConnection client, Message message) -> {
             LOGGER.info("Procesando actualización de transacción");
 
@@ -82,7 +82,7 @@ public class TransactionControllers {
         };
     }
 
-    public static MessageHandler deleteTransactionController(TransactionService service) {
+    public static MessageHandler deleteTransactionController(TransactionOperations service) {
         return (ClientConnection client, Message message) -> {
             LOGGER.info("Procesando eliminación de transacción");
 
@@ -96,7 +96,7 @@ public class TransactionControllers {
         };
     }
 
-    public static MessageHandler getAllTransactionsController(TransactionService service) {
+    public static MessageHandler getAllTransactionsController(TransactionOperations service) {
         return (ClientConnection client, Message message) -> {
             LOGGER.info("Procesando obtención de todas las transacciones");
             return listResponse(TransactionMessageTypes.GET_ALL_TRANSACTIONS, "Transacciones obtenidas exitosamente",
@@ -104,7 +104,7 @@ public class TransactionControllers {
         };
     }
 
-    public static MessageHandler getTransactionsByUserController(TransactionService service) {
+    public static MessageHandler getTransactionsByUserController(TransactionOperations service) {
         return (ClientConnection client, Message message) -> {
             LOGGER.info("Procesando obtención de transacciones por usuario");
 

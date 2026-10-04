@@ -34,15 +34,20 @@ def verify(capture=False):
         probe_result = json.loads(run("java", "-ea", "-classpath", str(shared),
                                      "com.giozar04.contracts.ContractProbe"))
         actual = {key: json.loads(value) for key, value in probe_result["data"].items()}
-        backend_probe = ROOT / MODULES[1] / "src/test/java/com/giozar04/tags/TagUseCaseProbe.java"
-        if backend_probe.exists():
-            destination = output / "java-server"
+        destination = output / "java-server"
+        for probe_name, main_class in (
+            ("tags/TagUseCaseProbe.java", "com.giozar04.tags.TagUseCaseProbe"),
+            ("transactions/TransactionUseCaseProbe.java", "com.giozar04.transactions.TransactionUseCaseProbe"),
+        ):
+            backend_probe = ROOT / MODULES[1] / "src/test/java/com/giozar04" / probe_name
+            if not backend_probe.exists():
+                continue
             run("javac", "--release", "17", "-encoding", "UTF-8",
                 "-classpath", str(shared) + ":" + str(destination),
                 "-d", str(destination), str(backend_probe))
             run("java", "-ea", "-classpath", str(shared) + ":" + str(destination),
-                "com.giozar04.tags.TagUseCaseProbe")
-            print("Caso de uso tags: operaciones y validaciones correctas.")
+                main_class)
+            print(f"Caso de uso verificado: {main_class}.")
         if capture:
             FIXTURE.parent.mkdir(parents=True, exist_ok=True)
             FIXTURE.write_text(json.dumps(actual, ensure_ascii=False, indent=2, sort_keys=True) + "\n")
