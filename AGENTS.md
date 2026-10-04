@@ -116,10 +116,15 @@ Antes de terminar, busque en los `.md` los nombres antiguos que haya cambiado.
 ## Commits y ramas
 
 Haga commits solo cuando la tarea lo autorice, siguiendo al agente
-[git](.claude/agents/finance-app-expert-git.md): Conventional Commits en español, un
-commit por cambio lógico que compile, rutas explícitas en `git add` y ramas por
-funcionalidad. No incluya credenciales, `target/` ni configuraciones locales. No haga
-push, merge ni abra PRs sin confirmación explícita.
+[git](.claude/agents/finance-app-expert-git.md):
+
+- Conventional Commits en español con la descripción en minúscula:
+  `docs(client): completar la guía del cliente`.
+- Un commit por cambio lógico que compile, con rutas explícitas en `git add`.
+- Ramas `<tipo>/<descripcion>` creadas desde `main` o desde la rama de la que dependan.
+  La documentación y el contexto de agentes van en su propia rama `docs/...`.
+- No incluya credenciales, `target/` ni configuraciones locales.
+- No haga push, merge ni abra PRs sin confirmación explícita.
 
 ## Especialistas
 

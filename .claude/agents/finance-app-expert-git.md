@@ -28,12 +28,12 @@ Comunícate en **español**.
 - No modifiques código para "arreglar" algo antes del commit. Si ves un problema, repórtalo.
 - No uses comandos interactivos (`git add -p`, `git rebase -i`).
 
-# Estilo de commits del proyecto (extraído del historial)
+# Estilo de commits del proyecto
 
 ## Formato
 
 ```
-<tipo>(<scope>): <Descripción en español, verbo en infinitivo, con mayúscula inicial>
+<tipo>(<scope>): <descripción en español, en infinitivo y en minúscula>
 
 - Se <verbo en pasado impersonal> ...
 - Se ...
@@ -42,16 +42,19 @@ Co-Authored-By: <línea de atribución indicada por el sistema, si el commit lo 
 ```
 
 - **Idioma:** español.
-- **Asunto:** `tipo(scope): Verbo …`. El verbo va en infinitivo y con mayúscula: "Añadir", "Actualizar",
-  "Corregir", "Refactorizar", "Eliminar". Sin punto final. Intenta no pasar de ~72 caracteres; si no cabe, resume
-  en el asunto y detalla en el cuerpo.
-- **Cuerpo (opcional, recomendado si hay más de un archivo o una decisión):** viñetas `- Se creó…`, `- Se actualizó…`,
+- **Asunto:** `tipo(scope): verbo …`, con el verbo en infinitivo y en minúscula ("añadir", "actualizar", "corregir",
+  "migrar", "eliminar"), como recomienda Conventional Commits y validan herramientas como commitlint. Sin punto final.
+  No pases de ~72 caracteres; si no cabe, resume en el asunto y detalla en el cuerpo.
+- Los commits anteriores a `refactor/clean-architecture` empiezan con mayúscula ("Añadir…"); no se reescriben, pero
+  los nuevos siguen la forma en minúscula.
+- **Cuerpo (recomendado si hay más de un archivo o una decisión):** viñetas `- Se creó…`, `- Se actualizó…`,
   `- Se corrigió…`, que explican **qué y por qué**, no línea por línea.
-- Ejemplos reales del historial:
-  - `feat(database): Añadir lógica de gestión de crédito y triggers para actualizar el saldo de crédito utilizado`
-  - `fix(database): Ajustar comentarios y formato en el esquema de la base de datos`
-  - `feat: Añadir selección de usuario propietario en formularios de categoría, entidad externa y etiqueta`
-  - `feat(accounts): …`, `refactor(schemas): …`
+- Ejemplos:
+  - `refactor(client): migrar tags a puertos y caso de uso`
+  - `refactor(backend): ubicar JDBC y sockets en infraestructura`
+  - `docs(shared): completar la guía y el agente del contrato compartido`
+  - `feat(database): añadir reconciliación de cuentas con saldo de apertura`
+  - `fix(shared): escapar caracteres especiales y parsear null en el codec JSON`
 
 ## Tipos
 
@@ -59,18 +62,21 @@ Co-Authored-By: <línea de atribución indicada por el sistema, si el commit lo 
 |------|-----|
 | `feat` | Funcionalidad nueva (tabla, columna, operación, vista, campo) |
 | `fix` | Corrección de un bug |
-| `refactor` | Cambio interno sin cambiar comportamiento (renombres, enums, reorganización) |
-| `docs` | Solo documentación (`*_ARCHITECTURE.md`, `*_GUIDE.md`, README y documentos raíz) |
-| `chore` | Configuración, agentes de `.claude/`, herramientas |
-| `test` | TestApps o tests |
+| `refactor` | Cambio interno sin cambiar comportamiento (renombres, reorganización de capas) |
+| `docs` | Documentación y contexto: `AGENTS.md`, `ARCHITECTURE.md`, `PROJECT_MAP.md`, README, `*_GUIDE.md`, `*_ARCHITECTURE.md` y los agentes de `.claude/agents/` |
+| `test` | Probes, `contracts.json`, TestApps o pruebas funcionales |
+| `chore` | Configuración, herramientas y archivos de proyecto que no son documentación |
 
 ## Scopes
 
 Usa el **módulo** o la **feature** afectada:
-- Módulos: `database`, `shared`, `backend`, `client`, `agents`, `docs`.
-- Features: `accounts`, `cards`, `categories`, `tags`, `external-entities`, `transactions`, `wallet`, `users`.
-- Si el cambio cruza módulos para **una sola feature**, usa la feature (p. ej. `feat(accounts): …`).
-  Si es transversal sin feature clara, omite el scope (`feat: …`).
+- Módulos: `database`, `shared`, `backend`, `client`, `agents`.
+- Features: `users`, `accounts`, `bank-clients`, `cards`, `categories`, `tags`, `external-entities`,
+  `account-cashback-settings`, `wallet-card-links`, `card-transaction-details`, `wallet-transaction-details`,
+  `transactions`, `account-reconciliations`. En el historial también aparece la forma camelCase del paquete
+  (`accountReconciliations`); usa la forma con guiones en los nuevos.
+- Si el cambio cruza módulos para **una sola feature**, usa la feature (`feat(accounts): …`).
+  Si es transversal sin feature ni módulo claro, omite el scope (`docs: …`).
 
 # Cómo dividir los commits
 
@@ -78,10 +84,10 @@ Un commit = un cambio lógico que compila por sí mismo. Orden recomendado cuand
 (sigue la dependencia: shared es un JAR del que dependen backend y client):
 
 1. `database`: `database/schemas.sql` + su migración en `database/migrations/` + el agente de database si actualizó su índice.
-2. `shared`: entidades, enums, utils y `SHARED_ARCHITECTURE.md`.
-3. `backend`: repositorios, servicios, controllers, handlers, `sql/` y `BACKEND_ARCHITECTURE.md`.
-4. `client`: servicios, vistas, componentes y `CLIENT_ARCHITECTURE.md`.
-5. `docs` / `chore(agents)`: documentación transversal (`PROJECT_MAP.md`, guías de features) y archivos de agentes, si no
+2. `shared`: entidades, enums, excepciones, mappers, `contracts.json` si cambió el contrato y `SHARED_ARCHITECTURE.md`.
+3. `backend`: políticas, puertos, casos de uso, repositorios, controllers, handlers, `sql/` y `BACKEND_ARCHITECTURE.md`.
+4. `client`: puertos, casos de uso, servicios socket, vistas, componentes y `CLIENT_ARCHITECTURE.md`.
+5. `docs`: documentación transversal (`AGENTS.md`, `ARCHITECTURE.md`, `PROJECT_MAP.md`, README) y agentes, si no
    encajaron en los anteriores.
 
 La documentación y el agente de un módulo pueden ir **en el mismo commit** que el código de ese módulo (es lo que
@@ -89,13 +95,18 @@ hace el autor), o en un `docs:` aparte si el cambio de docs es grande.
 
 # Ramas y PRs
 
-- Se trabaja en **ramas por funcionalidad** (p. ej. `accounts`, `credit-details`, `cat-tag-ext`,
-  `transactions-logic`, `accounts-reconciliation`) que se integran a `main` mediante **Pull Request**
+- Se trabaja en **ramas por funcionalidad** que se integran a `main` mediante **Pull Request**
   ("Merge pull request #N from Giozar/<rama>").
-- Nombres de rama en minúsculas con guiones, describiendo la funcionalidad.
-- Si estás en `main` y hay que commitear, **crea una rama** antes.
+- Nombre de rama: `<tipo>/<descripcion-con-guiones>` en minúsculas, con el mismo tipo que el cambio principal
+  (`refactor/clean-architecture`, `docs/project-context`, `feat/account-reconciliation`). Las ramas antiguas no
+  tienen prefijo (`accounts`, `credit-details`); no se renombran.
+- Si estás en `main` y hay que commitear, **crea una rama** antes. Si el trabajo depende de una rama que aún no está
+  en `main`, crea la nueva a partir de esa rama y menciónalo en el PR.
+- Mantén separados los cambios de distinta naturaleza: la documentación y el contexto de agentes van en su propia
+  rama `docs/...` cuando no acompañan a un cambio de código.
 - Descripción de PR (solo si se pide): título con el mismo estilo que el commit principal; cuerpo con un resumen en
-  viñetas por módulo, cómo probarlo y migraciones a ejecutar, y al final la línea de atribución indicada por el sistema.
+  viñetas por módulo, cómo probarlo, migraciones a ejecutar, la rama base si no es `main`, y al final la línea de
+  atribución indicada por el sistema.
 
 # Procedimiento
 
@@ -105,7 +116,7 @@ hace el autor), o en un `docs:` aparte si el cambio de docs es grande.
 4. Por cada commit: `git add <rutas>` → `git diff --cached --stat` → `git commit` con el mensaje usando un heredoc:
    ```bash
    git commit -F - <<'EOF'
-   feat(database): Añadir ...
+   feat(database): añadir ...
 
    - Se ...
    EOF
