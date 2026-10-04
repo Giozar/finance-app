@@ -31,7 +31,8 @@ import com.giozar04.accountCashbackSettings.domain.entities.AccountCashbackSetti
 import com.giozar04.accountCashbackSettings.application.ports.input.AccountCashbackSettingOperations;
 import com.giozar04.bootstrap.ClientUseCases;
 import com.giozar04.walletCardLinks.domain.entities.WalletCardLink;
-import com.giozar04.walletCardLinks.infrastructure.services.WalletCardLinkService;
+import com.giozar04.walletCardLinks.application.ports.input.WalletCardLinkOperations;
+import com.giozar04.bootstrap.ClientUseCases;
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
 import com.giozar04.shared.components.MainContentPanel;
 import com.giozar04.shared.components.forms.FormComboBox;
@@ -375,7 +376,7 @@ public class AccountFormPanel extends JPanel {
                         WalletCardLink newLink = new WalletCardLink();
                         newLink.setWalletAccountId(accountId);
                         newLink.setCardId(cardId);
-                        WalletCardLinkService.getInstance().createWalletCardLink(newLink);
+                        ClientUseCases.get(WalletCardLinkOperations.class).createWalletCardLink(newLink);
                     }
                 }
 
@@ -383,7 +384,7 @@ public class AccountFormPanel extends JPanel {
                 for (Map.Entry<Long, WalletCardLink> entry : existingByCardId.entrySet()) {
                     Long cardId = entry.getKey();
                     if (!selectedCards.contains(cardId)) {
-                        WalletCardLinkService.getInstance().deleteWalletCardLinkById(entry.getValue().getId());
+                        ClientUseCases.get(WalletCardLinkOperations.class).deleteWalletCardLinkById(entry.getValue().getId());
                     }
                 }
             }
@@ -447,7 +448,7 @@ public class AccountFormPanel extends JPanel {
         // Cargar vínculos de tarjeta si aplica
         if (type == AccountTypes.WALLET) {
             try {
-                existingWalletLinks = WalletCardLinkService.getInstance().getAllByWalletId(account.getId());
+                existingWalletLinks = ClientUseCases.get(WalletCardLinkOperations.class).getAllByWalletId(account.getId());
                 List<Long> cardIds = new ArrayList<>();
                 for (WalletCardLink link : existingWalletLinks) {
                     cardIds.add(link.getCardId());

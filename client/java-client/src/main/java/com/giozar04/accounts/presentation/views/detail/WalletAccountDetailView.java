@@ -15,7 +15,8 @@ import javax.swing.border.EmptyBorder;
 import com.giozar04.accounts.domain.entities.Account;
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
 import com.giozar04.walletCardLinks.domain.entities.WalletCardLink;
-import com.giozar04.walletCardLinks.infrastructure.services.WalletCardLinkService;
+import com.giozar04.walletCardLinks.application.ports.input.WalletCardLinkOperations;
+import com.giozar04.bootstrap.ClientUseCases;
 
 /**
  * Vista de detalle para cuentas de tipo <b>WALLET (Billetera Virtual)</b>.
@@ -24,7 +25,7 @@ import com.giozar04.walletCardLinks.infrastructure.services.WalletCardLinkServic
  * <ul>
  *   <li>Balance disponible</li>
  *   <li>Datos bancarios vinculados</li>
- *   <li>Tarjetas asociadas (cargadas desde {@link WalletCardLinkService})</li>
+ *   <li>Tarjetas asociadas (cargadas desde {@link WalletCardLinkOperations})</li>
  * </ul>
  */
 public class WalletAccountDetailView extends BaseAccountDetailView {
@@ -68,7 +69,7 @@ public class WalletAccountDetailView extends BaseAccountDetailView {
         container.setAlignmentX(LEFT_ALIGNMENT);
 
         try {
-            List<WalletCardLink> links = WalletCardLinkService.getInstance()
+            List<WalletCardLink> links = ClientUseCases.get(WalletCardLinkOperations.class)
                     .getAllByWalletId(account.getId());
 
             if (links == null || links.isEmpty()) {

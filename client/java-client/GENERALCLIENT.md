@@ -148,7 +148,10 @@ src/main/java/com/giozar04/users/presentation/views/CreateUserView.java
 src/main/java/com/giozar04/users/presentation/views/UsersView.java
 src/main/java/com/giozar04/users/test/UserFunctionalTest.java
 src/main/java/com/giozar04/users/test/UserGuiFunctionalTest.java
-src/main/java/com/giozar04/walletCardLinks/infrastructure/services/WalletCardLinkService.java
+src/main/java/com/giozar04/walletCardLinks/application/ports/input/WalletCardLinkOperations.java
+src/main/java/com/giozar04/walletCardLinks/application/ports/output/WalletCardLinkGateway.java
+src/main/java/com/giozar04/walletCardLinks/application/usecases/WalletCardLinkUseCase.java
+src/main/java/com/giozar04/walletCardLinks/infrastructure/transport/socket/WalletCardLinkService.java
 src/main/java/com/giozar04/walletTransactionDetails/infrastructure/services/WalletTransactionDetailService.java
 src/test/java/TestTable.java
 ```

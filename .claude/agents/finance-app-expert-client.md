@@ -8,6 +8,8 @@ model: inherit
 
 ## Migración vigente
 
+- `walletCardLinks`: `WalletCardLinkOperations` → `WalletCardLinkUseCase` → `WalletCardLinkGateway` → `WalletCardLinkService` (socket).
+
 - `accountCashbackSettings`: `AccountCashbackSettingOperations` → `AccountCashbackSettingUseCase` → `AccountCashbackSettingGateway` → `AccountCashbackSettingService` (socket).
 
 - `cards`: `CardOperations` → `CardUseCase` → `CardGateway` → `CardService` (socket).

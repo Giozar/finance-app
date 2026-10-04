@@ -49,6 +49,7 @@ comparados y compilación independiente de shared, backend y client.
 
 | Feature | Estado |
 | --- | --- |
+| walletCardLinks | Migrada; puerto de entrada, caso de uso, puerto de salida y adaptador socket verificados |
 | accountCashbackSettings | Migrada; puerto de entrada, caso de uso, puerto de salida y adaptador socket verificados |
 | cards | Migrada; puerto de entrada, caso de uso, puerto de salida y adaptador socket verificados |
 | accounts | Migrada; puerto de entrada, caso de uso, puerto de salida y adaptador socket verificados |

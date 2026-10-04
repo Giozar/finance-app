@@ -1,9 +1,10 @@
-package com.giozar04.walletCardLinks.infrastructure.services;
+package com.giozar04.walletCardLinks.infrastructure.transport.socket;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.giozar04.walletCardLinks.application.ports.output.WalletCardLinkGateway;
 import com.giozar04.logging.infrastructure.ConsoleLogger;
 import com.giozar04.messages.infrastructure.transport.Message;
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
@@ -12,7 +13,7 @@ import com.giozar04.serverConnection.application.validators.ServerResponseValida
 import com.giozar04.walletCardLinks.infrastructure.serialization.WalletCardLinkMapper;
 import com.giozar04.walletCardLinks.domain.entities.WalletCardLink;
 
-public class WalletCardLinkService {
+public class WalletCardLinkService implements WalletCardLinkGateway {
 
     private final ServerConnectionService serverConnectionService;
     private static final ConsoleLogger logger = ConsoleLogger.getInstance();

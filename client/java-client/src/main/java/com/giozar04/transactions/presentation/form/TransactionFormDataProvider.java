@@ -32,7 +32,8 @@ import com.giozar04.tags.application.ports.input.TagOperations;
 import com.giozar04.bootstrap.ClientUseCases;
 import com.giozar04.transactions.domain.enums.OperationTypes;
 import com.giozar04.walletCardLinks.domain.entities.WalletCardLink;
-import com.giozar04.walletCardLinks.infrastructure.services.WalletCardLinkService;
+import com.giozar04.walletCardLinks.application.ports.input.WalletCardLinkOperations;
+import com.giozar04.bootstrap.ClientUseCases;
 
 /**
  * Datos del formulario de transacciones (SRP): carga y cachea, por usuario, los catálogos que usan las
@@ -41,7 +42,7 @@ import com.giozar04.walletCardLinks.infrastructure.services.WalletCardLinkServic
  * <ul>
  *   <li>Cuentas, categorías, etiquetas y entidades externas del usuario ({@code *_BY_USER}).</li>
  *   <li>Tarjetas de una cuenta ({@code GET_CARDS_BY_ACCOUNT}), opcionalmente por tipo (física/digital).</li>
- *   <li>Tarjetas vinculadas a una wallet ({@code WalletCardLinkService} → tarjetas).</li>
+ *   <li>Tarjetas vinculadas a una wallet ({@code WalletCardLinkOperations} → tarjetas).</li>
  *   <li>Configuración de cashback de una wallet ({@code AccountCashbackSettingOperations}).</li>
  *   <li>Categorías compatibles con una operación (mismo tipo o {@code BOTH}).</li>
  * </ul>
@@ -241,7 +242,7 @@ public class TransactionFormDataProvider {
             return new ArrayList<>(cached);
         }
         try {
-            List<WalletCardLink> links = WalletCardLinkService.getInstance().getAllByWalletId(walletAccountId);
+            List<WalletCardLink> links = ClientUseCases.get(WalletCardLinkOperations.class).getAllByWalletId(walletAccountId);
             Map<Long, Card> cardsById = getAllCardsById();
             List<Card> cards = new ArrayList<>();
             for (WalletCardLink link : links) {
