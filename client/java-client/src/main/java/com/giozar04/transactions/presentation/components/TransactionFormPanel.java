@@ -1,216 +1,258 @@
 package com.giozar04.transactions.presentation.components;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
-import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
-import javax.swing.border.TitledBorder;
 
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
-import com.giozar04.shared.components.DatePickerComponent;
-import com.giozar04.shared.components.forms.FormField;
-import com.giozar04.shared.components.forms.FormLabel;
-import com.giozar04.shared.components.forms.FormTextArea;
+import com.giozar04.shared.components.MainContentPanel;
 import com.giozar04.shared.utils.DialogUtil;
 import com.giozar04.shared.utils.FormValidatorUtils;
-import com.giozar04.transactions.application.utils.TransactionUtils;
 import com.giozar04.transactions.domain.entities.Transaction;
-import com.giozar04.transactions.domain.enums.OperationTypes;
-import com.giozar04.transactions.domain.enums.PaymentMethod;
 import com.giozar04.transactions.infrastructure.services.TransactionService;
+import com.giozar04.transactions.presentation.components.sections.CardDetailsSection;
+import com.giozar04.transactions.presentation.components.sections.ClassificationSection;
+import com.giozar04.transactions.presentation.components.sections.GeneralInfoSection;
+import com.giozar04.transactions.presentation.components.sections.OperationSection;
+import com.giozar04.transactions.presentation.components.sections.PartiesSection;
+import com.giozar04.transactions.presentation.components.sections.PaymentMethodSection;
+import com.giozar04.transactions.presentation.components.sections.WalletDetailsSection;
+import com.giozar04.transactions.presentation.form.PaymentMethodPolicy;
+import com.giozar04.transactions.presentation.form.TransactionFormContext;
+import com.giozar04.transactions.presentation.form.TransactionFormDataProvider;
+import com.giozar04.transactions.presentation.form.TransactionFormSection;
+import com.giozar04.transactions.presentation.views.TransactionsView;
 
+/**
+ * Formulario único y dinámico para crear y editar transacciones (orquestador).
+ *
+ * <ul>
+ *   <li>{@link TransactionFormContext}: estado observable (usuario, operación, cuentas, método, monto).</li>
+ *   <li>{@link TransactionFormDataProvider}: catálogos del usuario, cacheados.</li>
+ *   <li>{@link TransactionFormSection}: cada sección se muestra, oculta o limpia según el contexto y sabe
+ *       validarse, aplicarse al agregado y cargarse.</li>
+ *   <li>{@link PaymentMethodPolicy}: métodos de pago permitidos.</li>
+ * </ul>
+ *
+ * Este panel solo compone las secciones, valida, construye el agregado {@link Transaction} y lo guarda.
+ */
 public class TransactionFormPanel extends JPanel {
 
+    private static final long serialVersionUID = 1L;
+
+    private final TransactionFormContext context = new TransactionFormContext();
+    private final TransactionFormDataProvider provider = new TransactionFormDataProvider();
+
+    private final OperationSection operationSection;
+    private final List<TransactionFormSection> sections;
+
     private final JLabel titleLabel;
-    private FormField conceptField;
-    private JComboBox<String> comboType;
-    private JComboBox<String> comboPaymentMethod;
-    private FormField amountField;
-    private FormField categoryField;
-    private DatePickerComponent datePicker;
-    private FormTextArea descriptionField;
-    private FormTextArea commentsField;
-    private FormField tagsField;
 
-    private JButton saveButton;
-    private JButton cancelButton;
-
-    private Transaction editingTransaction = null;
-    private final TransactionService transactionService = TransactionService.getInstance();
+    private Transaction currentTransaction;
 
     public TransactionFormPanel() {
-        super(new BorderLayout(10, 10));
+        setLayout(new BorderLayout(10, 10));
         setBorder(new EmptyBorder(20, 20, 20, 20));
 
-        titleLabel = new JLabel("Nueva Transacción");
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 18));
-        titleLabel.setBorder(new EmptyBorder(0, 0, 10, 0));
+        provider.setOnError(message -> DialogUtil.showError(this, message));
+        // Primer listener: los catálogos del usuario deben estar cargados antes de que reaccionen las secciones
+        context.addListener(ctx -> provider.loadForUser(ctx.getUserId()));
+
+        operationSection = new OperationSection(context, provider);
+        sections = List.of(
+                operationSection,
+                new PartiesSection(context, provider),
+                new PaymentMethodSection(context, provider, new PaymentMethodPolicy()),
+                new CardDetailsSection(context, provider),
+                new WalletDetailsSection(context, provider),
+                new ClassificationSection(context, provider),
+                new GeneralInfoSection(context, provider));
+
+        JPanel formPanel = new JPanel();
+        formPanel.setLayout(new BoxLayout(formPanel, BoxLayout.Y_AXIS));
+        formPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
+        for (TransactionFormSection section : sections) {
+            context.addListener(section::onContextChanged);
+            Component component = (Component) section;
+            formPanel.add(component);
+            formPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+        }
+
+        JPanel content = new JPanel(new BorderLayout());
+        content.add(formPanel, BorderLayout.NORTH);
+        JScrollPane scrollPane = new JScrollPane(content);
+        scrollPane.setBorder(null);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+
+        titleLabel = new JLabel();
+        titleLabel.setFont(new Font("SansSerif", Font.BOLD, 20));
+
         add(titleLabel, BorderLayout.NORTH);
+        add(scrollPane, BorderLayout.CENTER);
 
-        add(createFormFieldsPanel(), BorderLayout.CENTER);
-        add(createButtonsPanel(), BorderLayout.SOUTH);
+        // Botones
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JButton cancelButton = new JButton("Cancelar");
+        JButton saveButton = new JButton("Guardar");
+        JButton backButton = new JButton("Regresar");
 
-        saveButton.addActionListener(e -> handleSave());
         cancelButton.addActionListener(e -> clearForm());
+        saveButton.addActionListener(e -> handleSave());
+        backButton.addActionListener(e -> handleBack());
+
+        buttonPanel.add(cancelButton);
+        buttonPanel.add(saveButton);
+        buttonPanel.add(backButton);
+        add(buttonPanel, BorderLayout.SOUTH);
+
+        context.refresh(); // estado inicial de las secciones
+        updateTitle();
     }
 
-    private JPanel createFormFieldsPanel() {
-        JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        panel.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createTitledBorder(
-                        BorderFactory.createLineBorder(new Color(180, 180, 180)),
-                        "Datos de la Transacción",
-                        TitledBorder.LEFT, TitledBorder.TOP, new Font("Arial", Font.BOLD, 12)),
-                new EmptyBorder(10, 10, 10, 10)));
-
-        conceptField = new FormField("Concepto:", false, 400, 40);
-        comboType = new JComboBox<>(Arrays.stream(OperationTypes.values()).map(Enum::name).toArray(String[]::new));
-        comboPaymentMethod = new JComboBox<>(Arrays.stream(PaymentMethod.values()).map(Enum::name).toArray(String[]::new));
-        amountField = new FormField("Monto:", false, 400, 40);
-        categoryField = new FormField("Categoría:", false, 400, 40);
-        datePicker = new DatePickerComponent();
-        descriptionField = new FormTextArea("Descripción:", 3, 20);
-        commentsField = new FormTextArea("Comentarios:", 3, 20);
-        tagsField = new FormField("Tags (separados por comas):", false, 400, 40);
-
-        // Añadir campos con separación
-        panel.add(conceptField);
-        panel.add(Box.createRigidArea(new Dimension(0, 10)));
-        panel.add(new FormLabel("Tipo:", comboType));
-        panel.add(Box.createRigidArea(new Dimension(0, 10)));
-        panel.add(new FormLabel("Método de Pago:", comboPaymentMethod));
-        panel.add(Box.createRigidArea(new Dimension(0, 10)));
-        panel.add(amountField);
-        panel.add(Box.createRigidArea(new Dimension(0, 10)));
-        panel.add(categoryField);
-        panel.add(Box.createRigidArea(new Dimension(0, 10)));
-        panel.add(new FormLabel("Fecha:", datePicker));
-        panel.add(Box.createRigidArea(new Dimension(0, 10)));
-        panel.add(descriptionField);
-        panel.add(Box.createRigidArea(new Dimension(0, 10)));
-        panel.add(commentsField);
-        panel.add(Box.createRigidArea(new Dimension(0, 10)));
-        panel.add(tagsField);
-
-        return panel;
-    }
-
-    private JPanel createButtonsPanel() {
-        JPanel panel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        saveButton = new JButton("Guardar");
-        cancelButton = new JButton("Cancelar");
-        panel.add(cancelButton);
-        panel.add(saveButton);
-        return panel;
-    }
+    // ------------------------------------------------------------------
+    // Guardar
+    // ------------------------------------------------------------------
 
     private void handleSave() {
         List<String> errors = new ArrayList<>();
-
-        String concept = conceptField.getValue().trim();
-        String amount = amountField.getValue().trim();
-
-        FormValidatorUtils.isRequired(concept, "Concepto", errors);
-        FormValidatorUtils.isRequired(amount, "Monto", errors);
-        FormValidatorUtils.isNumeric(amount, "Monto", errors);
-        FormValidatorUtils.isPositiveNumber(amount, "Monto", errors);
-
-        // El método INTERNAL solo se permite con el tipo REALLOCATION
-        if (PaymentMethod.INTERNAL.name().equals(comboPaymentMethod.getSelectedItem())
-                && !OperationTypes.REALLOCATION.name().equals(comboType.getSelectedItem())) {
-            errors.add("El método de pago \"" + PaymentMethod.INTERNAL.getLabel()
-                    + "\" solo puede usarse con el tipo \"" + OperationTypes.REALLOCATION.getLabel()
-                    + "\". Seleccione otro método de pago o cambie el tipo.");
+        for (TransactionFormSection section : sections) {
+            section.validate(errors);
         }
-
         if (!errors.isEmpty()) {
-            String message = FormValidatorUtils.formatErrorMessage(errors);
-            DialogUtil.showError(this, message, "Errores de Validación");
+            DialogUtil.showError(this, FormValidatorUtils.formatErrorMessage(errors));
             return;
         }
 
-        Map<String, Object> data = new HashMap<>();
-        data.put("concept", concept);
-        data.put("operationType", comboType.getSelectedItem());
-        data.put("paymentMethod", comboPaymentMethod.getSelectedItem());
-        data.put("amount", amount);
-        data.put("category", categoryField.getValue());
-        data.put("description", descriptionField.getValue());
-        data.put("comments", commentsField.getValue());
-
-        if (datePicker.getDate() != null) {
-            data.put("date", datePicker.getISODate());
-        }
-
-        String tagsText = tagsField.getValue().trim();
-        if (!tagsText.isEmpty()) {
-            List<String> tagsList = Arrays.stream(tagsText.split(","))
-                    .map(String::trim).filter(tag -> !tag.isEmpty()).collect(Collectors.toList());
-            data.put("tags", tagsList);
-        }
-
-        Transaction transaction = TransactionUtils.fromMap(data);
-
+        Transaction tx = buildTransaction();
+        boolean creating = currentTransaction == null;
         try {
-            if (editingTransaction == null) {
-                transactionService.createTransaction(transaction);
-                DialogUtil.showSuccess(this, "Transacción creada correctamente.");
+            if (creating) {
+                TransactionService.getInstance().createTransaction(tx);
+                DialogUtil.showSuccess(this, "Transacción registrada exitosamente.");
             } else {
-                transactionService.updateTransactionById(editingTransaction.getId(), transaction);
-                DialogUtil.showSuccess(this, "Transacción actualizada correctamente.");
+                TransactionService.getInstance().updateTransactionById(tx.getId(), tx);
+                DialogUtil.showSuccess(this, "Transacción actualizada exitosamente.");
             }
+            // Se conserva el usuario para capturar la siguiente transacción (los catálogos se recargan)
+            long userId = tx.getUserId();
             clearForm();
-        } catch (ClientOperationException e) {
-            DialogUtil.showError(this, "Error al guardar: " + e.getMessage());
+            operationSection.selectUserById(userId);
+        } catch (ClientOperationException | RuntimeException ex) {
+            DialogUtil.showError(this, formatServerError(ex.getMessage()));
         }
     }
 
-    public void loadTransaction(Transaction t) {
-        this.editingTransaction = t;
-        titleLabel.setText("Editar Transacción");
-        saveButton.setText("Actualizar");
+    /** Construye el agregado: cada sección aplica lo suyo; los detalles toman el monto de la transacción. */
+    private Transaction buildTransaction() {
+        Transaction tx = new Transaction();
+        ZonedDateTime now = ZonedDateTime.now();
+        if (currentTransaction != null) {
+            tx.setId(currentTransaction.getId());
+            tx.setParentTransactionId(currentTransaction.getParentTransactionId());
+            tx.setCreatedAt(currentTransaction.getCreatedAt());
+        } else {
+            tx.setCreatedAt(now);
+        }
+        tx.setUpdatedAt(now);
 
-        conceptField.setValue(t.getConcept());
-        comboType.setSelectedItem(t.getOperationType().name());
-        comboPaymentMethod.setSelectedItem(t.getPaymentMethod().name());
-        amountField.setValue(String.valueOf(t.getAmount()));
-        categoryField.setValue(t.getCategory());
-        datePicker.setDate(t.getDate());
-        descriptionField.setValue(t.getDescription());
-        commentsField.setValue(t.getComments());
-        tagsField.setValue(t.getTags());
+        for (TransactionFormSection section : sections) {
+            section.applyTo(tx);
+        }
+
+        if (tx.getCardDetail() != null) {
+            tx.getCardDetail().setAmount(tx.getAmount());
+        }
+        if (tx.getWalletDetail() != null) {
+            tx.getWalletDetail().setAmount(tx.getAmount());
+        }
+        return tx;
     }
+
+    /** El servidor envía los errores de validación juntos, separados por "; ". */
+    private static String formatServerError(String message) {
+        if (message == null || message.isBlank()) {
+            return "Error al guardar la transacción.";
+        }
+        List<String> parts = Arrays.stream(message.split(";\\s+"))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .toList();
+        if (parts.size() <= 1) {
+            return "Error al guardar la transacción: " + message;
+        }
+        StringBuilder sb = new StringBuilder("No se pudo guardar la transacción:\n\n");
+        for (String part : parts) {
+            sb.append("• ").append(part).append("\n");
+        }
+        return sb.toString();
+    }
+
+    // ------------------------------------------------------------------
+    // Cargar para edición
+    // ------------------------------------------------------------------
+
+    /**
+     * Rellena el formulario para editar. Primero el usuario (carga sus catálogos) y después cada sección
+     * en orden, porque cada una depende del contexto que fijan las anteriores.
+     */
+    public void loadTransaction(Transaction transaction) {
+        clearForm();
+        currentTransaction = transaction;
+        for (TransactionFormSection section : sections) {
+            section.loadFrom(transaction);
+        }
+        operationSection.setEditMode(true);
+        updateTitle();
+    }
+
+    // ------------------------------------------------------------------
+    // Limpiar
+    // ------------------------------------------------------------------
 
     public void clearForm() {
-        editingTransaction = null;
-        titleLabel.setText("Nueva Transacción");
-        saveButton.setText("Guardar");
+        currentTransaction = null;
+        operationSection.setEditMode(false);
+        for (TransactionFormSection section : sections) {
+            section.clear();
+        }
+        updateTitle();
+    }
 
-        conceptField.clear();
-        comboType.setSelectedIndex(0);
-        comboPaymentMethod.setSelectedIndex(0);
-        amountField.clear();
-        categoryField.clear();
-        datePicker.clear();
-        descriptionField.clear();
-        commentsField.clear();
-        tagsField.clear();
+    private void updateTitle() {
+        titleLabel.setText(currentTransaction == null ? "Nueva transacción" : "Editar transacción");
+    }
+
+    // ------------------------------------------------------------------
+    // Navegación
+    // ------------------------------------------------------------------
+
+    private void handleBack() {
+        MainContentPanel mainPanel = getMainContentPanel();
+        if (mainPanel != null) {
+            mainPanel.setView(new TransactionsView());
+        }
+    }
+
+    private MainContentPanel getMainContentPanel() {
+        Container parent = getParent();
+        while (parent != null && !(parent instanceof MainContentPanel)) {
+            parent = parent.getParent();
+        }
+        return (MainContentPanel) parent;
     }
 }

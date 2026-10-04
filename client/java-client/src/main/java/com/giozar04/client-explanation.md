@@ -114,7 +114,7 @@ This approach improves maintainability and follows SOLID principles.
 * **Formal tone ("usted")**: every visible text (labels, placeholders, validation errors, dialogs) addresses the user as "usted", for example `"Seleccione un usuario..."`, `"Debe seleccionar un usuario propietario."` and `"Corrija los siguientes errores:"`.
 * **Enum-based options**: combo boxes and filters that list enum values must be built from `Enum.values()` (for example `OperationTypes.values()`), never from hard-coded arrays, so they stay in sync with `shared`. Display the enum label (`getLabel()`) and compare against the enum itself, not against fixed strings.
 * **Owner user selector**: entities that have a `userId` (accounts, tags, categories, external entities) include a `FormComboBox<User>` labeled `"Usuario propietario:"` as the first field, with placeholder `"Seleccione un usuario..."`. Users are loaded through `UserService.getInstance().getAllUsers()`, validation adds `"Debe seleccionar un usuario propietario."` when no valid selection exists, the selected user's id is assigned to `userId`, `loadX(...)` selects the matching user, and `clearForm()` clears the selection. References: `AccountFormPanel`, `TagFormPanel`.
-* **Opening balances are read-only when editing**: in `AccountFormPanel` the "Balance actual" field (and "Deuda actual" in `CreditDetailsSubPanel`) is captured only when **creating** an account (it becomes the opening state through the database trigger). When **editing**, both are read-only and show the help text `"Se modifica con transacciones o desde Conciliación."` (`FormHelpText`), so the account never goes out of balance.
+* **Opening balances are read-only when editing**: in `AccountFormPanel` the "Balance actual" field (and "Deuda actual" in `CreditDetailsSubPanel`) is captured only when **creating** an account (it becomes the opening state through the database trigger). When **editing**, both are read-only and show the help text `"Se modifica con transacciones o desde Conciliación."` (`FormHelpText`), so the account never goes out of balance. When creating, an empty value means `0` (if captured it must be a non-negative number).
 
 #### Quick-create pattern
 
@@ -137,6 +137,39 @@ QuickCreateDialog.show(this, "Nueva categoría", form, form::setOnSaved)
 ```
 
 The dialog is modal (owner = the window of `parent`), closes as soon as the form calls `onSaved` and returns `Optional.empty()` if the user closes the window. `QuickCreateDialog.open(parent, title, form, form::setOnSaved, onCreated)` is the callback variant.
+
+#### Dynamic form pattern (context + sections + policy)
+
+When a single form must show only what makes sense for the current choices (reference: `transactions`), split it into:
+
+```text
+presentation/form/                      (no layout code)
+├── <F>FormContext          observable state (Observer); setters notify only on change
+├── <F>FormDataProvider     loads and caches catalogs per user through the services (SRP)
+├── <Rule>Policy            pure class with the business table (e.g. PaymentMethodPolicy)
+└── <F>FormSection          interface: onContextChanged(ctx), validate(errors), applyTo(x), loadFrom(x), clear()
+presentation/components/
+├── sections/               one JPanel per section (extends AbstractTransactionSection)
+└── <F>FormPanel            orchestrator: composes sections, validates, builds the aggregate, saves
+```
+
+Rules of the pattern:
+
+* **Sections write to the context, never to each other.** Each section publishes what the user chooses
+  (`ctx.setOperation(...)`, `ctx.setSourceAccount(...)`) and reacts in `onContextChanged`: show/hide rows,
+  reload its items and **clear what no longer applies** (e.g. switching from CARD to WALLET clears the card).
+* **Notifications are coalesced**: if a listener changes the context while it is notifying, a new round runs
+  afterwards, so every section always sees the final state. Sections must be idempotent (track the last user,
+  operation or account they loaded for and only reload when it changes).
+* **The data provider is the first listener** (`ctx -> provider.loadForUser(ctx.getUserId())`), so catalogs are
+  loaded before sections react. Errors go to `provider.setOnError(...)`.
+* **Business tables live in a pure policy class** (`PaymentMethodPolicy.allowedMethods(operation, sourceType,
+  destinationType)`); the section only renders the result (auto-select and lock when only one option remains).
+* **The orchestrator** calls `validate` on every section (one combined error dialog), builds a new aggregate with
+  `applyTo` in section order, and for editing calls `loadFrom` in section order after selecting the user, because
+  each section depends on the context set by the previous ones.
+* `AbstractTransactionSection` provides the titled `BoxLayout` panel, `addRow`/`setRowVisible` (hides the row and
+  its spacer) and `selectInCombo(combo, predicate)` (entities do not implement `equals`).
 
 ---
 

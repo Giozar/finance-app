@@ -16,11 +16,12 @@ public class PaymentMethodCellRenderer extends DefaultTableCellRenderer {
     @Override
     public Component getTableCellRendererComponent(JTable table, Object value,
                                                    boolean isSelected, boolean hasFocus, int row, int column) {
-        JLabel label = new JLabel(value.toString());
+        String text = value != null ? value.toString() : "";
+        JLabel label = new JLabel(text);
         label.setOpaque(true);
         label.setBorder(new EmptyBorder(5, 10, 5, 10));
         // Asignar color de fondo según el método de pago
-        switch (value.toString().toUpperCase()) {
+        switch (text.toUpperCase()) {
             case "TARJETA", "CARD" -> label.setBackground(new Color(220, 230, 241));
             case "EFECTIVO", "CASH" -> label.setBackground(new Color(220, 241, 229));
             case "TRANSFERENCIA (SPEI)", "WIRE_TRANSFER" -> label.setBackground(new Color(241, 220, 220));

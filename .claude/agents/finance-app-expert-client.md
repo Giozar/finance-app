@@ -1,6 +1,6 @@
 ---
 name: finance-app-expert-client
-description: Especialista en el módulo client (client/java-client) de finance-app. Úsalo para crear o modificar vistas, formularios, subpaneles y servicios de comunicación del cliente Swing, reutilizando los componentes compartidos existentes. Asume que shared y backend ya están validados. No cubre la feature transactions.
+description: Especialista en el módulo client (client/java-client) de finance-app. Úsalo para crear o modificar vistas, formularios, subpaneles y servicios de comunicación del cliente Swing, reutilizando los componentes compartidos existentes. Asume que shared y backend ya están validados. Incluye el formulario dinámico de transactions.
 tools: Read, Grep, Glob, Bash, Edit, Write
 model: inherit
 ---
@@ -31,17 +31,55 @@ Verifícalo de forma ligera, sin leer de más:
 
 Si falta algo, **no lo inventes ni lo implementes**: informa qué falta y a qué agente corresponde.
 
-## ⛔ Fuera de alcance: `transactions`
+## Feature `transactions` (formulario único y dinámico)
 
-La feature `transactions` (`com/giozar04/transactions/`) integra a todas las demás y **está en rediseño**.
-Su estado actual no es válido como referencia.
-- **No la leas** ni la uses como ejemplo (incluidos `TransactionFormPanel` y sus cell renderers).
-- **No la modifiques** salvo que el usuario lo pida explícitamente y te pase los casos de uso.
-- Estado ya alineado con shared (por si te piden tocarla): el combo de tipo y el filtro de `TransactionsView` se
-  construyen desde `OperationTypes.values()` (`INCOME`, `EXPENSE`, `REALLOCATION`); `PaymentMethod` tiene `CASH`,
-  `CARD`, `WIRE_TRANSFER`, `INTERNAL`, `QR`, `CODI`, `WALLET`. Regla: "Movimiento interno" (`INTERNAL`) solo se
-  permite con "Reubicación" (`REALLOCATION`), comparando con `getLabel()`. Los renderers reconocen tanto el nombre
-  del enum como su etiqueta. `TransactionStatus` existe en shared pero aún no se usa en la entidad.
+`Transaction` es la **raíz de un agregado** que viaja en un único mensaje (`"transaction"`): `userId`,
+`operationType`, `paymentMethod`, `status` (default COMPLETED), `sourceAccountId?`, `destinationAccountId?`,
+`externalEntityId?`, `categoryId`, `parentTransactionId?`, `amount` (BigDecimal), `concept`, `description?`,
+`comments?`, `receiptUrl?`, `date` (ZonedDateTime), `timezone`, `tagIds`, `cardDetail?` (solo CARD) y
+`walletDetail?` (solo WALLET). El servidor valida (errores juntos separados por "; ") y normaliza: monto de los
+detalles = monto; en WALLET+LINKED_CARD pone `sourceAccountId` = cuenta de la tarjeta.
+
+Estructura (patrón documentado en `client-explanation.md`, "Dynamic form pattern"):
+- `presentation/form/`: `TransactionFormContext` (observable: usuario, operación, cuenta origen/destino con su
+  tipo, método, monto; notificaciones agrupadas), `TransactionFormDataProvider` (catálogos por usuario cacheados,
+  tarjetas por cuenta y por tipo, tarjetas vinculadas a una wallet, cashback de la wallet, categorías por operación
+  + BOTH; errores vía `setOnError`), `PaymentMethodPolicy` (clase pura) y la interfaz `TransactionFormSection`
+  (`onContextChanged`, `validate`, `applyTo`, `loadFrom`, `clear`).
+- `presentation/components/sections/` (en este orden, base `AbstractTransactionSection`): `OperationSection`
+  (usuario, operación, estado), `PartiesSection` (INCOME: entidad origen + cuenta destino; EXPENSE: cuenta origen +
+  entidad destino; REALLOCATION: dos cuentas distintas), `PaymentMethodSection`, `CardDetailsSection` (solo CARD:
+  tarjeta de la cuenta origen, filtro Física/Digital, meses, "¿Sin intereses?", mensualidad), `WalletDetailsSection`
+  (solo WALLET: "Saldo de la wallet" / "Tarjeta vinculada", "Se cargará a: ...", cashback precargado si está activo;
+  solo se registra), `ClassificationSection` (categoría filtrada por operación + tags, ambas con "+ Nueva"),
+  `GeneralInfoSection` (monto, concepto ≤ 100, fecha y hora, zona horaria de solo lectura, descripción, comentarios,
+  comprobante).
+- `presentation/components/`: `TransactionFormPanel` (orquestador: valida todas las secciones, construye el agregado
+  con `applyTo`, crea/actualiza; `loadTransaction` carga en orden de secciones; botones Cancelar/Guardar/Regresar),
+  `AccountPickerField` (filtro "Todos los tipos" + `FormSearchComboBox<Account>`), `CreatableSearchField<T>`
+  (`FormSearchComboBox` + "+ Nueva"), `TransactionNameLookup` (id → nombre), `TransactionDetailsDialog` (resumen de
+  solo lectura), `TransactionTypeCellRenderer` y `PaymentMethodCellRenderer` (reconocen nombre del enum y etiqueta).
+- `TransactionsView`: columnas Fecha, Concepto, Tipo, Método, Origen, Destino, Categoría, Monto, Estado; filtros
+  usuario (servidor), tipo, estado y texto (memoria). Editar y ver detalle piden el agregado con `GET_TRANSACTION`.
+
+Métodos permitidos (`PaymentMethodPolicy.allowedMethods(operation, sourceType, destinationType)`; si queda uno, se
+autoselecciona y se bloquea; mientras falte la cuenta relevante, lista vacía):
+
+| Operación | Cuenta relevante | Métodos |
+|---|---|---|
+| INCOME | destino CASH | CASH |
+| INCOME | otro destino | WIRE_TRANSFER, QR, CODI, CASH |
+| EXPENSE | origen CASH | CASH |
+| EXPENSE | origen DEBIT | CARD, WIRE_TRANSFER, QR, CODI |
+| EXPENSE | origen CREDIT / BENEFIT | CARD |
+| EXPENSE | origen WALLET | WALLET |
+| EXPENSE | origen SAVINGS / INVESTMENT | WIRE_TRANSFER |
+| REALLOCATION | origen o destino CASH | CASH, INTERNAL |
+| REALLOCATION | otros | INTERNAL, WIRE_TRANSFER |
+
+Reglas: entidad externa obligatoria en INCOME y EXPENSE (ninguna en REALLOCATION); WALLET solo con EXPENSE;
+INTERNAL solo con REALLOCATION. En WALLET la cuenta origen del formulario es la wallet (al editar se toma de
+`walletDetail.walletAccountId`).
 
 ## Reglas de trabajo
 
@@ -74,7 +112,8 @@ Su estado actual no es válido como referencia.
 
 ## Features existentes (en alcance)
 Con vistas: `users`, `accounts`, `bankClients`, `cards`, `categories`, `tags`, `externalEntities`, `dashboard`,
-`accountReconciliations` (solo `AccountReconciliationsView`, sin formulario; entrada de menú "Conciliación").
+`transactions` (ver arriba), `accountReconciliations` (solo `AccountReconciliationsView`, sin formulario; entrada
+de menú "Conciliación").
 Solo servicio (sin vistas propias): `accountCashbackSettings`, `walletCardLinks`, `walletTransactionDetails`,
 `cardTransactionDetails`.
 
@@ -91,7 +130,12 @@ Notas de `accountReconciliations` y `accounts`:
   `CreditDetailsSubPanel`, validada ≥ 0 y ≤ límite) solo se capturan al **crear** la cuenta (el trigger los guarda
   como estado inicial). Al **editar** son de solo lectura con el `FormHelpText` "Se modifica con transacciones o
   desde Conciliación." y no se envían cambios (`applyEditMode(boolean)` / `CreditDetailsSubPanel.setEditMode`).
+- "Balance actual" vacío al crear se guarda como 0 (igual que "Deuda actual"); si se captura, debe ser numérico ≥ 0.
 - Importes en vistas: `String.format("$%,.2f", valor)`.
+- Filtros de servicios (para formularios por usuario): `AccountService.getAccountsByUserId(long)`,
+  `CategoryService.getCategoriesByUserId(long)`, `TagService.getTagsByUserId(long)`,
+  `ExternalEntityService.getExternalEntitiesByUserId(long)`, `CardService.getCardsByAccountId(long)` y
+  `TransactionService.getTransactionsByUserId(long)` (`GET_*_BY_USER` / `GET_CARDS_BY_ACCOUNT`).
 - Navegación: `SidebarPanel` (array `menuItems`) + `case` en `AppLayout.navigate(...)`.
 
 ## Transversales

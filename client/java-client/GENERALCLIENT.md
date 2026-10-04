@@ -118,10 +118,28 @@
 │   │   │   │   │   │   │   │   │   ├── services
 │   │   │   │   │   │   │   │   │   │   ├── TransactionService.java
 │   │   │   │   │   │   │   │   ├── presentation
+│   │   │   │   │   │   │   │   │   ├── form
+│   │   │   │   │   │   │   │   │   │   ├── TransactionFormContext.java
+│   │   │   │   │   │   │   │   │   │   ├── TransactionFormDataProvider.java
+│   │   │   │   │   │   │   │   │   │   ├── PaymentMethodPolicy.java
+│   │   │   │   │   │   │   │   │   │   ├── TransactionFormSection.java
 │   │   │   │   │   │   │   │   │   ├── components
+│   │   │   │   │   │   │   │   │   │   ├── sections
+│   │   │   │   │   │   │   │   │   │   │   ├── AbstractTransactionSection.java
+│   │   │   │   │   │   │   │   │   │   │   ├── OperationSection.java
+│   │   │   │   │   │   │   │   │   │   │   ├── PartiesSection.java
+│   │   │   │   │   │   │   │   │   │   │   ├── PaymentMethodSection.java
+│   │   │   │   │   │   │   │   │   │   │   ├── CardDetailsSection.java
+│   │   │   │   │   │   │   │   │   │   │   ├── WalletDetailsSection.java
+│   │   │   │   │   │   │   │   │   │   │   ├── ClassificationSection.java
+│   │   │   │   │   │   │   │   │   │   │   ├── GeneralInfoSection.java
+│   │   │   │   │   │   │   │   │   │   ├── TransactionFormPanel.java
+│   │   │   │   │   │   │   │   │   │   ├── AccountPickerField.java
+│   │   │   │   │   │   │   │   │   │   ├── CreatableSearchField.java
+│   │   │   │   │   │   │   │   │   │   ├── TransactionNameLookup.java
+│   │   │   │   │   │   │   │   │   │   ├── TransactionDetailsDialog.java
 │   │   │   │   │   │   │   │   │   │   ├── TransactionTypeCellRenderer.java
 │   │   │   │   │   │   │   │   │   │   ├── PaymentMethodCellRenderer.java
-│   │   │   │   │   │   │   │   │   │   ├── TransactionFormPanel.java
 │   │   │   │   │   │   │   │   │   ├── views
 │   │   │   │   │   │   │   │   │   │   ├── CreateTransactionView.java
 │   │   │   │   │   │   │   │   │   │   ├── TransactionsView.java
