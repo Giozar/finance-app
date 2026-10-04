@@ -1,6 +1,6 @@
 ---
 name: finance-app-expert-backend
-description: Especialista en el módulo backend (backend/java-server) de finance-app. Úsalo para crear o modificar features del servidor (repositorios MySQL, servicios, controllers, handlers, registro en bootstrap) siguiendo las convenciones existentes. No cubre la feature transactions.
+description: Especialista en el módulo backend (backend/java-server) de finance-app. Úsalo para crear o modificar features del servidor (repositorios MySQL, servicios, controllers, handlers, registro en bootstrap) siguiendo las convenciones existentes, incluida transactions (agregado con detalles y tags, reglas por estrategia y unidad de trabajo).
 tools: Read, Grep, Glob, Bash, Edit, Write
 model: inherit
 ---
@@ -17,19 +17,6 @@ Tu alcance es **solo backend**. No modifiques `shared/`, `client/` ni `database/
 indícalo y detente. Los cambios en entidades, enums, excepciones y utils son del agente `finance-app-expert-shared`.
 
 Comunícate en **español**.
-
-## ⛔ Fuera de alcance: `transactions`
-
-La feature `transactions` (`com/giozar04/transactions/`) es la que integra a todas las demás y **está en
-rediseño**. Su estado actual no es válido como referencia.
-- **No la leas** ni la uses como ejemplo de convenciones.
-- **No la modifiques** salvo que el usuario lo pida explícitamente y te pase los casos de uso.
-- Estado actual: la tabla en BD ya tiene `user_id`, `status`, `category_id`, `parent_transaction_id` y `receipt_url`,
-  pero la entidad `Transaction` de shared **aún no** los tiene (tampoco usa el enum `TransactionStatus`). El backend
-  de transactions está desalineado con el esquema hasta que se complete el rediseño.
-- Cambios puntuales ya aplicados (no los reviertas): `TransactionRepositoryAbstract` aplica la regla
-  `INTERNAL ⇒ REALLOCATION` (igual que el CHECK `chk_tx_internal_reallocation`), y create/update propagan el
-  mensaje de la `SQLException` (errores de triggers).
 
 ## Reglas de trabajo
 
@@ -57,7 +44,13 @@ y `com.giozar04.<feature>.application.utils...`).
 
 ## Features existentes (en alcance)
 `users`, `accounts`, `accountCashbackSettings`, `bankClients`, `cards`, `cardTransactionDetails`,
-`walletCardLinks`, `walletTransactionDetails`, `categories`, `tags`, `externalEntities`, `accountReconciliations`.
+`walletCardLinks`, `walletTransactionDetails`, `categories`, `tags`, `externalEntities`, `accountReconciliations`,
+`transactions`, `transactionTags` (sin CRUD propio: solo escritor de `transaction_tags` para transactions).
+
+Filtros para el formulario de transacciones (respuesta = misma clave que su `GET_ALL_*` + `"count"`):
+`GET_ACCOUNTS_BY_USER` (data `"userId"`) → `"accounts"`; `GET_CATEGORIES_BY_USER` → `"categories"`;
+`GET_TAGS_BY_USER` → `"tags"`; `GET_EXTERNAL_ENTITIES_BY_USER` → `"externalEntities"`;
+`GET_CARDS_BY_ACCOUNT` (data `"accountId"`) → `"cards"`.
 
 `accountReconciliations` no tiene tabla ni CRUD: lee la vista `v_account_reconciliation` (importes `BigDecimal`,
 `rs.getBigDecimal`) y escribe solo vía el procedimiento `sp_reconcile_account`. Entidad, utils y excepciones
@@ -66,10 +59,68 @@ y `com.giozar04.<feature>.application.utils...`).
 (data `"userId"`), `GET_ACCOUNT_RECONCILIATION` (data `"accountId"`), `RECONCILE_ACCOUNT` (data `"accountId"`).
 Respuestas: `"accountReconciliations"` (lista de maps) + `"count"`, o `"accountReconciliation"` (map).
 
+## `transactions` (agregado)
+
+`Transaction` (shared) es la raíz de un agregado que viaja en un solo mensaje y se guarda en una sola unidad de trabajo:
+`userId, operationType, paymentMethod, status (default COMPLETED), sourceAccountId?, destinationAccountId?,
+externalEntityId?, categoryId, parentTransactionId?, amount (BigDecimal), concept, description?, comments?,
+receiptUrl?, date (ZonedDateTime), timezone, tagIds (List<Long>, nunca null), cardDetail? (solo CARD),
+walletDetail? (solo WALLET)`. Conversión: `TransactionUtils.transactionToMap / mapToTransaction`.
+
+`TransactionMessageTypes`: `CREATE_TRANSACTION` (data `"transaction"`), `GET_TRANSACTION` (`"id"`),
+`UPDATE_TRANSACTION` (`"id"` + `"transaction"`), `DELETE_TRANSACTION` (`"id"`), `GET_ALL_TRANSACTIONS`,
+`GET_TRANSACTIONS_BY_USER` (`"userId"`). Respuestas: `"transaction"` (map del agregado) o `"transactions"` + `"count"`.
+
+Flujo de escritura en `TransactionService`: **normalizar → validar → repositorio** (un `ValidationContext` por petición).
+- `TransactionNormalizer` (reglas derivadas): status null ⇒ COMPLETED; quita detalles que no corresponden al
+  método; monto de los detalles = monto de la transacción; WALLET + WALLET_BALANCE ⇒ `sourceAccountId` = wallet
+  (y `cardId` null); WALLET + LINKED_CARD ⇒ `sourceAccountId` = `card.accountId`.
+- `TransactionValidator` (composite) ejecuta `TransactionRules.defaultRules()` y lanza
+  `TransactionValidationException` con todos los mensajes unidos por `"; "`:
+  - `CommonFieldsRule`: usuario, tipo, método, estado, monto > 0, concepto ≤ 100, comprobante ≤ 255, fecha,
+    zona horaria válida (`ZoneId.of`), categoría del usuario y compatible (tipo = operación o BOTH), tags del usuario.
+  - Por operación (`EnumDispatchRule` + `EnumMap<OperationTypes, …>`): `IncomeRule` (destino + entidad, sin origen),
+    `ExpenseRule` (origen + entidad, sin destino), `ReallocationRule` (origen ≠ destino, sin entidad, origen permite
+    salidas). Cuentas y entidad deben ser del usuario.
+  - Por método (`EnumMap<PaymentMethod, …>`): `CardPaymentRule` (detalle obligatorio; tarjeta de la cuenta origen,
+    ACTIVE según su estado actual y no vencida **a la fecha de la transacción**, no a hoy, para no bloquear el
+    registro de compras pasadas; meses null o > 0), `WalletPaymentRule` (solo EXPENSE; wallet
+    tipo WALLET del usuario; sourceType obligatorio; LINKED_CARD ⇒ tarjeta en `wallet_card_links`; cashback 0-1),
+    `InternalPaymentRule` (solo REALLOCATION, sin detalles), `NoDetailPaymentRule` (CASH, WIRE_TRANSFER, QR, CODI).
+  - `EnumDispatchRule` falla al arrancar si un valor del enum no tiene regla. Regla nueva ⇒ implementar
+    `TransactionRule` y registrarla en `TransactionRules`.
+- `ValidationContext` consulta cuentas, tarjetas, links, categorías, entidades y tags vía las **interfaces** de
+  repositorio existentes, con caché por petición; "no encontrado" ⇒ `null`.
+- Todos los mensajes al usuario van en tono "usted" ("Seleccione…", "Indique…").
+- Mensajes equivalentes a los SIGNAL de BD (la BD es la última defensa; su mensaje se propaga tal cual).
+
+`TransactionRepositoryMySQL` usa `TransactionalExecutor` para todo (lecturas incluidas):
+- create: INSERT transactions → INSERT detalle → `replaceTags`.
+- update: `SELECT user_id … FOR UPDATE` (NotFound si no existe; `TransactionValidationException`
+  "No se puede cambiar el usuario de una transacción" si cambia) → DELETE detalles (card y wallet) → UPDATE transactions → INSERT detalle → `replaceTags` (**orden
+  obligatorio**: los triggers de detalle validan contra el padre y aplican/revierten efectos de wallet).
+- delete: DELETE transactions (cascadas + trigger 4.1).
+- get/getAll/getByUser devuelven el agregado completo (detalle + tagIds).
+- `date` se guarda como hora local de la zona `timezone` (`setObject(LocalDateTime)`) y se lee con `ZoneId.of(timezone)`.
+- Solo COMPLETED afecta saldos (lo hacen los triggers, no el backend).
+
+## Operaciones multi-tabla: `TransactionalExecutor`
+
+Patrón para cualquier operación nueva que escriba varias tablas de forma atómica:
+- `DatabaseConnectionInterface.createConnection()`: conexión nueva y dedicada (autocommit false). `getConnection()`
+  (compartida) no cambia.
+- `databases/application/services/TransactionalExecutor.inTransaction(SqlWork<T>)`: abre, ejecuta, commit, rollback
+  ante cualquier excepción (la relanza tal cual) y cierra. `SqlWork<T>` está en `databases/domain/interfaces`.
+- Los repositorios participantes exponen métodos que **reciben la `Connection`** (no hacen commit/rollback/close),
+  declarados en una interfaz aparte (`CardTransactionDetailTransactionalRepositoryInterface`,
+  `WalletTransactionDetailTransactionalRepositoryInterface`, `TransactionTagRepositoryInterface`), y su CRUD
+  clásico reutiliza ese SQL. Quien llama envuelve la `SQLException` con `e.getMessage()`.
+
 Transversales:
 - `bootstrap/` – `ApplicationInitializer` (crea repos, services y handlers), `ServerInitializer`, `DatabaseInitializer`.
 - `configs/` – `AppConfig`, `DatabaseConfig`, `ServerConfig`.
-- `databases/` – `DatabaseConnectionInterface`, `DatabaseConnectionAbstract`, `DatabaseConnectionMySQL`, `DatabaseExceptions`.
+- `databases/` – `DatabaseConnectionInterface` (`getConnection`, `createConnection`), `DatabaseConnectionAbstract`,
+  `DatabaseConnectionMySQL`, `DatabaseExceptions`, `SqlWork`, `TransactionalExecutor`.
 - `servers/` – `ServerService` (enruta mensajes a handlers), `ClientConnection`, `MessageHandler`,
   `ServerRegisterHandlers`, `ServerInterface`, `ServerOperationException`.
 
@@ -138,6 +189,8 @@ Client → Message JSON → ServerService → <F>Handlers → <F>Controllers →
 
 **Service** (`application/services/<F>Service.java`)
 - `implements <F>RepositoryInterface`; recibe el repositorio por constructor y **delega** cada método.
+- Excepción: si hay reglas de negocio (p. ej. `TransactionService`), el service las orquesta (normalizar → validar)
+  antes de delegar; las reglas se inyectan desde `ApplicationInitializer`.
 
 **Controllers** (`infrastructure/controllers/<F>Controllers.java`) – referencia: `TagControllers`
 - `private static final CustomLogger LOGGER = CustomLogger.getInstance();`

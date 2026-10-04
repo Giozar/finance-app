@@ -1,16 +1,35 @@
 package com.giozar04.transactions.test;
 
 import java.math.BigDecimal;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
+import com.giozar04.accounts.infrastructure.repositories.AccountRepositoryMySQL;
+import com.giozar04.cardTransactionDetails.domain.entities.CardTransactionDetail;
+import com.giozar04.cardTransactionDetails.infrastructure.repositories.CardTransactionDetailRepositoryMySQL;
+import com.giozar04.cards.infrastructure.repositories.CardRepositoryMySQL;
+import com.giozar04.categories.infrastructure.repositories.CategoryRepositoryMySQL;
+import com.giozar04.databases.application.services.TransactionalExecutor;
 import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
 import com.giozar04.databases.infrastructure.repositories.DatabaseConnectionMySQL;
+import com.giozar04.externalEntities.infrastructure.repositories.ExternalEntityRepositoryMySQL;
+import com.giozar04.tags.infrastructure.repositories.TagRepositoryMySQL;
+import com.giozar04.transactionTags.infrastructure.repositories.TransactionTagRepositoryMySQL;
+import com.giozar04.transactions.application.normalizers.TransactionNormalizer;
 import com.giozar04.transactions.application.services.TransactionService;
+import com.giozar04.transactions.application.validation.TransactionRules;
+import com.giozar04.transactions.application.validation.TransactionValidator;
+import com.giozar04.transactions.application.validation.ValidationContextFactory;
 import com.giozar04.transactions.domain.entities.Transaction;
 import com.giozar04.transactions.domain.enums.OperationTypes;
 import com.giozar04.transactions.domain.enums.PaymentMethod;
+import com.giozar04.transactions.domain.enums.TransactionStatus;
 import com.giozar04.transactions.infrastructure.repositories.TransactionRepositoryMySQL;
+import com.giozar04.walletCardLinks.infrastructure.repositories.WalletCardLinkRepositoryMySQL;
+import com.giozar04.walletTransactionDetails.infrastructure.repositories.WalletTransactionDetailRepositoryMySQL;
 
 public class TransactionTestApp {
 
@@ -29,32 +48,37 @@ public class TransactionTestApp {
             );
             dbConnection.connect();
 
-            TransactionRepositoryMySQL repository = new TransactionRepositoryMySQL(dbConnection);
-            TransactionService service = new TransactionService(repository);
+            TransactionService service = buildService(dbConnection);
 
             Scanner scanner = new Scanner(System.in);
             boolean exit = false;
 
             while (!exit) {
                 System.out.println("\n===== MENÚ TRANSACCIONES =====");
-                System.out.println("1. Crear transacción");
-                System.out.println("2. Ver todas");
-                System.out.println("3. Buscar por ID");
-                System.out.println("4. Actualizar");
-                System.out.println("5. Eliminar");
+                System.out.println("1. Crear gasto en efectivo (EXPENSE + CASH)");
+                System.out.println("2. Crear gasto con tarjeta (EXPENSE + CARD)");
+                System.out.println("3. Ver transacciones de un usuario");
+                System.out.println("4. Ver todas");
+                System.out.println("5. Buscar por ID");
+                System.out.println("6. Eliminar");
                 System.out.println("0. Salir");
                 System.out.print("Opción: ");
                 int option = scanner.nextInt();
                 scanner.nextLine();
 
-                switch (option) {
-                    case 1 -> createTransaction(service, scanner);
-                    case 2 -> getAll(service);
-                    case 3 -> getById(service, scanner);
-                    case 4 -> updateTransaction(service, scanner);
-                    case 5 -> deleteTransaction(service, scanner);
-                    case 0 -> exit = true;
-                    default -> System.out.println("Opción inválida.");
+                try {
+                    switch (option) {
+                        case 1 -> createExpense(service, scanner, PaymentMethod.CASH);
+                        case 2 -> createExpense(service, scanner, PaymentMethod.CARD);
+                        case 3 -> getByUser(service, scanner);
+                        case 4 -> printList(service.getAllTransactions());
+                        case 5 -> getById(service, scanner);
+                        case 6 -> deleteTransaction(service, scanner);
+                        case 0 -> exit = true;
+                        default -> System.out.println("Opción inválida.");
+                    }
+                } catch (Exception e) {
+                    System.err.println("Error: " + e.getMessage());
                 }
             }
 
@@ -66,100 +90,94 @@ public class TransactionTestApp {
         }
     }
 
-    private static void createTransaction(TransactionService service, Scanner scanner) {
+    /** Mismo cableado que ApplicationInitializer. */
+    private static TransactionService buildService(DatabaseConnectionInterface dbConnection) {
+        TransactionRepositoryMySQL repository = new TransactionRepositoryMySQL(
+                dbConnection,
+                new TransactionalExecutor(dbConnection),
+                new CardTransactionDetailRepositoryMySQL(dbConnection),
+                new WalletTransactionDetailRepositoryMySQL(dbConnection),
+                new TransactionTagRepositoryMySQL());
+
+        ValidationContextFactory contextFactory = new ValidationContextFactory(
+                new AccountRepositoryMySQL(dbConnection),
+                new CardRepositoryMySQL(dbConnection),
+                new WalletCardLinkRepositoryMySQL(dbConnection),
+                new CategoryRepositoryMySQL(dbConnection),
+                new ExternalEntityRepositoryMySQL(dbConnection),
+                new TagRepositoryMySQL(dbConnection));
+
+        return new TransactionService(repository, contextFactory,
+                new TransactionNormalizer(), new TransactionValidator(TransactionRules.defaultRules()));
+    }
+
+    private static void createExpense(TransactionService service, Scanner scanner, PaymentMethod method) {
         Transaction tx = new Transaction();
+        tx.setOperationType(OperationTypes.EXPENSE);
+        tx.setPaymentMethod(method);
+        tx.setStatus(TransactionStatus.COMPLETED);
 
-        System.out.print("Tipo de operación (income / expense): ");
-        tx.setOperationType(OperationTypes.fromValue(scanner.nextLine()));
+        System.out.print("ID usuario: ");
+        tx.setUserId(readLong(scanner));
 
-        System.out.print("Método de pago (cash / card / transfer / qr / codi / wallet): ");
-        tx.setPaymentMethod(PaymentMethod.fromValue(scanner.nextLine()));
+        System.out.print("ID cuenta origen: ");
+        tx.setSourceAccountId(readLong(scanner));
 
-        System.out.print("ID cuenta origen (0 si nulo): ");
-        long srcId = scanner.nextLong(); scanner.nextLine();
-        tx.setSourceAccountId(srcId > 0 ? srcId : null);
+        System.out.print("ID entidad externa (a quién se paga): ");
+        tx.setExternalEntityId(readLong(scanner));
 
-        System.out.print("ID cuenta destino (0 si nulo): ");
-        long dstId = scanner.nextLong(); scanner.nextLine();
-        tx.setDestinationAccountId(dstId > 0 ? dstId : null);
-
-        System.out.print("ID entidad externa (0 si nulo): ");
-        long entityId = scanner.nextLong(); scanner.nextLine();
-        tx.setExternalEntityId(entityId > 0 ? entityId : null);
+        System.out.print("ID categoría (EXPENSE o BOTH): ");
+        tx.setCategoryId(readLong(scanner));
 
         System.out.print("Monto: ");
-        tx.setAmount(scanner.nextBigDecimal());
-        scanner.nextLine();
+        tx.setAmount(new BigDecimal(scanner.nextLine().trim()));
 
         System.out.print("Concepto: ");
         tx.setConcept(scanner.nextLine());
 
-        System.out.print("Categoría: ");
-        tx.setCategory(scanner.nextLine());
+        System.out.print("IDs de etiquetas separados por coma (vacío = ninguna): ");
+        tx.setTagIds(parseIds(scanner.nextLine()));
 
-        System.out.print("Descripción (opcional): ");
-        String desc = scanner.nextLine();
-        tx.setDescription(desc.isBlank() ? null : desc);
+        if (method == PaymentMethod.CARD) {
+            CardTransactionDetail detail = new CardTransactionDetail();
+            System.out.print("ID tarjeta (de la cuenta origen): ");
+            detail.setCardId(readLong(scanner));
 
-        System.out.print("Comentarios (opcional): ");
-        String comments = scanner.nextLine();
-        tx.setComments(comments.isBlank() ? null : comments);
+            System.out.print("Meses (0 = contado): ");
+            long months = readLong(scanner);
+            detail.setInstallmentMonths(months > 0 ? (int) months : null);
 
-        System.out.print("Zona horaria (ej. America/Mexico_City): ");
-        tx.setTimezone(scanner.nextLine());
+            System.out.print("¿Sin intereses? (s/n): ");
+            detail.setInterestFree(scanner.nextLine().trim().equalsIgnoreCase("s"));
+            tx.setCardDetail(detail); // el monto lo fija el normalizador
+        }
 
-        System.out.print("Tags separados por coma: ");
-        tx.setTags(scanner.nextLine());
-
-        tx.setDate(ZonedDateTime.now());
-        tx.setCreatedAt(ZonedDateTime.now());
-        tx.setUpdatedAt(ZonedDateTime.now());
+        String timezone = ZoneId.systemDefault().getId();
+        tx.setTimezone(timezone);
+        tx.setDate(ZonedDateTime.now(ZoneId.of(timezone)));
 
         Transaction created = service.createTransaction(tx);
         System.out.println("Transacción creada con ID: " + created.getId());
+        print(created);
     }
 
-    private static void updateTransaction(TransactionService service, Scanner scanner) {
-        System.out.print("ID de la transacción a actualizar: ");
-        long id = scanner.nextLong(); scanner.nextLine();
-
-        Transaction tx = service.getTransactionById(id);
-
-        System.out.print("Nuevo concepto (" + tx.getConcept() + "): ");
-        String concept = scanner.nextLine();
-        if (!concept.isBlank()) tx.setConcept(concept);
-
-        System.out.print("Nuevo monto (" + tx.getAmount() + "): ");
-        String monto = scanner.nextLine();
-        if (!monto.isBlank()) tx.setAmount(new BigDecimal(monto));
-
-        System.out.print("Nueva categoría (" + tx.getCategory() + "): ");
-        String category = scanner.nextLine();
-        if (!category.isBlank()) tx.setCategory(category);
-
-        tx.setUpdatedAt(ZonedDateTime.now());
-
-        service.updateTransactionById(id, tx);
-        System.out.println("Transacción actualizada.");
-    }
-
-    private static void deleteTransaction(TransactionService service, Scanner scanner) {
-        System.out.print("ID a eliminar: ");
-        long id = scanner.nextLong();
-        scanner.nextLine();
-        service.deleteTransactionById(id);
-        System.out.println("Transacción eliminada.");
+    private static void getByUser(TransactionService service, Scanner scanner) {
+        System.out.print("ID usuario: ");
+        printList(service.getTransactionsByUserId(readLong(scanner)));
     }
 
     private static void getById(TransactionService service, Scanner scanner) {
         System.out.print("ID a buscar: ");
-        long id = scanner.nextLong(); scanner.nextLine();
-        Transaction tx = service.getTransactionById(id);
-        print(tx);
+        print(service.getTransactionById(readLong(scanner)));
     }
 
-    private static void getAll(TransactionService service) {
-        var list = service.getAllTransactions();
+    private static void deleteTransaction(TransactionService service, Scanner scanner) {
+        System.out.print("ID a eliminar: ");
+        service.deleteTransactionById(readLong(scanner));
+        System.out.println("Transacción eliminada.");
+    }
+
+    private static void printList(List<Transaction> list) {
         if (list.isEmpty()) {
             System.out.println("No hay transacciones registradas.");
         } else {
@@ -168,22 +186,37 @@ public class TransactionTestApp {
     }
 
     private static void print(Transaction tx) {
-        System.out.println("ID: " + tx.getId());
-        System.out.println("Tipo: " + tx.getOperationType().getLabel());
-        System.out.println("Método: " + tx.getPaymentMethod().getLabel());
-        System.out.println("Cuenta origen: " + tx.getSourceAccountId());
-        System.out.println("Cuenta destino: " + tx.getDestinationAccountId());
-        System.out.println("Entidad externa: " + tx.getExternalEntityId());
-        System.out.println("Monto: $" + tx.getAmount());
-        System.out.println("Concepto: " + tx.getConcept());
-        System.out.println("Categoría: " + tx.getCategory());
-        System.out.println("Descripción: " + tx.getDescription());
-        System.out.println("Comentarios: " + tx.getComments());
-        System.out.println("Fecha: " + tx.getDate());
-        System.out.println("Zona horaria: " + tx.getTimezone());
-        System.out.println("Tags: " + tx.getTags());
-        System.out.println("Creado: " + tx.getCreatedAt());
-        System.out.println("Actualizado: " + tx.getUpdatedAt());
+        System.out.println("ID: " + tx.getId() + " | Usuario: " + tx.getUserId());
+        System.out.println("Tipo: " + tx.getOperationType().getLabel() + " | Método: " + tx.getPaymentMethod().getLabel()
+                + " | Estado: " + tx.getStatus().getLabel());
+        System.out.println("Origen: " + tx.getSourceAccountId() + " | Destino: " + tx.getDestinationAccountId()
+                + " | Entidad: " + tx.getExternalEntityId() + " | Categoría: " + tx.getCategoryId());
+        System.out.println("Monto: $" + tx.getAmount() + " | Concepto: " + tx.getConcept());
+        System.out.println("Fecha: " + tx.getDate() + " | Zona horaria: " + tx.getTimezone());
+        System.out.println("Etiquetas: " + tx.getTagIds());
+        if (tx.getCardDetail() != null) {
+            System.out.println("Tarjeta: " + tx.getCardDetail().getCardId()
+                    + " | Meses: " + tx.getCardDetail().getInstallmentMonths()
+                    + " | Sin intereses: " + tx.getCardDetail().isInterestFree());
+        }
+        if (tx.getWalletDetail() != null) {
+            System.out.println("Wallet: " + tx.getWalletDetail().getWalletAccountId()
+                    + " | Origen: " + tx.getWalletDetail().getSourceType()
+                    + " | Tarjeta vinculada: " + tx.getWalletDetail().getCardId());
+        }
         System.out.println("----------------------------------------");
+    }
+
+    private static long readLong(Scanner scanner) {
+        return Long.parseLong(scanner.nextLine().trim());
+    }
+
+    private static List<Long> parseIds(String raw) {
+        List<Long> ids = new ArrayList<>();
+        if (raw == null || raw.isBlank()) return ids;
+        for (String part : raw.split(",")) {
+            if (!part.isBlank()) ids.add(Long.valueOf(part.trim()));
+        }
+        return ids;
     }
 }

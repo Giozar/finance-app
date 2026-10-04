@@ -278,6 +278,53 @@ List<ServerRegisterHandlers> featureServices = List.of(
 
 Finally, `ServerInitializer` receives all handlers and registers them inside `ServerService`. 
 
+## Multi-table Operations: `TransactionalExecutor`
+
+Most features write a single table through the shared connection (`databaseConnection.getConnection()` + `commitTransaction()`). When one operation must write **several tables atomically**, use the unit-of-work pattern instead:
+
+```txt
+databases/application/services/TransactionalExecutor.java   <T> T inTransaction(SqlWork<T> work) throws SQLException
+databases/domain/interfaces/SqlWork.java                    T execute(Connection c) throws SQLException
+DatabaseConnectionInterface.createConnection()              new dedicated connection, autocommit = false
+```
+
+`inTransaction` opens a dedicated connection, runs the work, commits, rolls back on **any** exception (rethrowing it unchanged) and closes the connection. Because it never touches the shared connection, it is thread-safe.
+
+Rules for the participating repositories:
+
+* Expose methods that **receive the `Connection`** (e.g. `insert(Connection, detail)`, `deleteByTransactionId(Connection, id)`, `findByTransactionId(Connection, id)`). They never commit, roll back or close it.
+* Declare them in a separate interface (e.g. `CardTransactionDetailTransactionalRepositoryInterface`) so the service-facing CRUD interface does not leak `Connection`.
+* The classic CRUD methods reuse those same methods (no duplicated SQL).
+* The caller wraps the `SQLException` into its feature exception **including `e.getMessage()`**, so trigger/CHECK messages reach the client.
+
+Reference: `transactions/infrastructure/repositories/TransactionRepositoryMySQL` (transaction + card/wallet detail + `transaction_tags`). Insertion order matters because the detail triggers validate against the parent row:
+
+```txt
+create: INSERT transactions → INSERT detail → replaceTags
+update: DELETE details → UPDATE transactions → INSERT detail → replaceTags
+delete: DELETE transactions (FK cascades + trigger 4.1 do the rest)
+```
+
+## Business Rules by Strategy (`transactions`)
+
+When an entity has many conditional rules, keep them out of the repository and use small strategies:
+
+```txt
+transactions/application/validation/
+├── TransactionRule            void validate(Transaction tx, ValidationContext ctx, List<String> errors)
+├── ValidationContext          per-request cached lookups through EXISTING repository interfaces (DIP)
+├── ValidationContextFactory   creates a fresh context (empty cache) per request
+├── EnumDispatchRule<E>        EnumMap<E, TransactionRule>; fails at startup if an enum value has no rule
+├── TransactionRules           default rule set (common + by operation type + by payment method)
+├── TransactionValidator       composite: runs every rule, joins errors with "; ",
+│                              throws TransactionValidationException (shared)
+└── rules/                     CommonFieldsRule, IncomeRule, ExpenseRule, ReallocationRule,
+                               CardPaymentRule, WalletPaymentRule, InternalPaymentRule, NoDetailPaymentRule
+transactions/application/normalizers/TransactionNormalizer   derived data the user does not type
+```
+
+`TransactionService` runs **normalize → validate → repository** for create/update, sharing one `ValidationContext`. Rules only add messages (in Spanish) and never throw. To add a rule, implement `TransactionRule` and register it in `TransactionRules` (or in the matching `EnumMap`). The database keeps its own checks as the last line of defence; backend messages should be equivalent to the `SIGNAL` texts.
+
 ## Summary
 
 To create a fully functional feature in the backend, the following steps should be completed:

@@ -7,18 +7,37 @@ import com.giozar04.transactions.infrastructure.controllers.TransactionControlle
 
 public class TransactionHandlers implements ServerRegisterHandlers {
 
-    private final TransactionService service;
+    private final TransactionService transactionService;
 
-    public TransactionHandlers(TransactionService service) {
-        this.service = service;
+    public TransactionHandlers(TransactionService transactionService) {
+        this.transactionService = transactionService;
     }
 
     @Override
     public void register(ServerService server) {
-        server.registerHandler(TransactionControllers.MessageTypes.CREATE, TransactionControllers.createTransactionController(service));
-        server.registerHandler(TransactionControllers.MessageTypes.GET, TransactionControllers.getTransactionController(service));
-        server.registerHandler(TransactionControllers.MessageTypes.UPDATE, TransactionControllers.updateTransactionController(service));
-        server.registerHandler(TransactionControllers.MessageTypes.DELETE, TransactionControllers.deleteTransactionController(service));
-        server.registerHandler(TransactionControllers.MessageTypes.GET_ALL, TransactionControllers.getAllTransactionsController(service));
+        server.registerHandler(
+            TransactionControllers.TransactionMessageTypes.CREATE_TRANSACTION,
+            TransactionControllers.createTransactionController(transactionService)
+        );
+        server.registerHandler(
+            TransactionControllers.TransactionMessageTypes.GET_TRANSACTION,
+            TransactionControllers.getTransactionController(transactionService)
+        );
+        server.registerHandler(
+            TransactionControllers.TransactionMessageTypes.UPDATE_TRANSACTION,
+            TransactionControllers.updateTransactionController(transactionService)
+        );
+        server.registerHandler(
+            TransactionControllers.TransactionMessageTypes.DELETE_TRANSACTION,
+            TransactionControllers.deleteTransactionController(transactionService)
+        );
+        server.registerHandler(
+            TransactionControllers.TransactionMessageTypes.GET_ALL_TRANSACTIONS,
+            TransactionControllers.getAllTransactionsController(transactionService)
+        );
+        server.registerHandler(
+            TransactionControllers.TransactionMessageTypes.GET_TRANSACTIONS_BY_USER,
+            TransactionControllers.getTransactionsByUserController(transactionService)
+        );
     }
 }

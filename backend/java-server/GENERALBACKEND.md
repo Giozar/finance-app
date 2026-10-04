@@ -23,6 +23,9 @@
 │   │   │   │   │   ├── com
 │   │   │   │   │   │   ├── giozar04
 │   │   │   │   │   │   │   ├── databases
+│   │   │   │   │   │   │   │   ├── application
+│   │   │   │   │   │   │   │   │   ├── services
+│   │   │   │   │   │   │   │   │   │   ├── TransactionalExecutor.java
 │   │   │   │   │   │   │   │   ├── infrastructure
 │   │   │   │   │   │   │   │   │   ├── repositories
 │   │   │   │   │   │   │   │   │   │   ├── DatabaseConnectionMySQL.java
@@ -33,6 +36,7 @@
 │   │   │   │   │   │   │   │   │   │   ├── DatabaseExceptions.java
 │   │   │   │   │   │   │   │   │   ├── interfaces
 │   │   │   │   │   │   │   │   │   │   ├── DatabaseConnectionInterface.java
+│   │   │   │   │   │   │   │   │   │   ├── SqlWork.java
 │   │   │   │   │   │   │   ├── walletCardLinks
 │   │   │   │   │   │   │   │   ├── test
 │   │   │   │   │   │   │   │   │   ├── WalletCardLinkTestApp.java
@@ -69,6 +73,7 @@
 │   │   │   │   │   │   │   │   │   │   ├── WalletTransactionDetailRepositoryAbstract.java
 │   │   │   │   │   │   │   │   │   ├── interfaces
 │   │   │   │   │   │   │   │   │   │   ├── WalletTransactionDetailRepositoryInterface.java
+│   │   │   │   │   │   │   │   │   │   ├── WalletTransactionDetailTransactionalRepositoryInterface.java
 │   │   │   │   │   │   │   │   ├── sql
 │   │   │   │   │   │   │   │   │   ├── wallet_transaction_details.sql
 │   │   │   │   │   │   │   ├── bootstrap
@@ -91,6 +96,7 @@
 │   │   │   │   │   │   │   │   │   │   ├── CardTransactionDetailRepositoryAbstract.java
 │   │   │   │   │   │   │   │   │   ├── interfaces
 │   │   │   │   │   │   │   │   │   │   ├── CardTransactionDetailRepositoryInterface.java
+│   │   │   │   │   │   │   │   │   │   ├── CardTransactionDetailTransactionalRepositoryInterface.java
 │   │   │   │   │   │   │   │   ├── sql
 │   │   │   │   │   │   │   │   │   ├── card_transaction_details.sql
 │   │   │   │   │   │   │   ├── accountReconciliations
@@ -193,12 +199,40 @@
 │   │   │   │   │   │   │   │   │   │   ├── TagRepositoryInterface.java
 │   │   │   │   │   │   │   │   ├── sql
 │   │   │   │   │   │   │   │   │   ├── tag.sql
+│   │   │   │   │   │   │   ├── transactionTags
+│   │   │   │   │   │   │   │   ├── infrastructure
+│   │   │   │   │   │   │   │   │   ├── repositories
+│   │   │   │   │   │   │   │   │   │   ├── TransactionTagRepositoryMySQL.java
+│   │   │   │   │   │   │   │   ├── domain
+│   │   │   │   │   │   │   │   │   ├── interfaces
+│   │   │   │   │   │   │   │   │   │   ├── TransactionTagRepositoryInterface.java
+│   │   │   │   │   │   │   │   ├── sql
+│   │   │   │   │   │   │   │   │   ├── transaction_tags.sql
 │   │   │   │   │   │   │   ├── transactions
 │   │   │   │   │   │   │   │   ├── test
 │   │   │   │   │   │   │   │   │   ├── TransactionTestApp.java
 │   │   │   │   │   │   │   │   ├── application
 │   │   │   │   │   │   │   │   │   ├── services
 │   │   │   │   │   │   │   │   │   │   ├── TransactionService.java
+│   │   │   │   │   │   │   │   │   ├── normalizers
+│   │   │   │   │   │   │   │   │   │   ├── TransactionNormalizer.java
+│   │   │   │   │   │   │   │   │   ├── validation
+│   │   │   │   │   │   │   │   │   │   ├── TransactionRule.java
+│   │   │   │   │   │   │   │   │   │   ├── TransactionValidator.java
+│   │   │   │   │   │   │   │   │   │   ├── TransactionRules.java
+│   │   │   │   │   │   │   │   │   │   ├── EnumDispatchRule.java
+│   │   │   │   │   │   │   │   │   │   ├── ValidationContext.java
+│   │   │   │   │   │   │   │   │   │   ├── ValidationContextFactory.java
+│   │   │   │   │   │   │   │   │   │   ├── rules
+│   │   │   │   │   │   │   │   │   │   │   ├── TransactionRuleSupport.java
+│   │   │   │   │   │   │   │   │   │   │   ├── CommonFieldsRule.java
+│   │   │   │   │   │   │   │   │   │   │   ├── IncomeRule.java
+│   │   │   │   │   │   │   │   │   │   │   ├── ExpenseRule.java
+│   │   │   │   │   │   │   │   │   │   │   ├── ReallocationRule.java
+│   │   │   │   │   │   │   │   │   │   │   ├── CardPaymentRule.java
+│   │   │   │   │   │   │   │   │   │   │   ├── WalletPaymentRule.java
+│   │   │   │   │   │   │   │   │   │   │   ├── InternalPaymentRule.java
+│   │   │   │   │   │   │   │   │   │   │   ├── NoDetailPaymentRule.java
 │   │   │   │   │   │   │   │   ├── infrastructure
 │   │   │   │   │   │   │   │   │   ├── repositories
 │   │   │   │   │   │   │   │   │   │   ├── TransactionRepositoryMySQL.java

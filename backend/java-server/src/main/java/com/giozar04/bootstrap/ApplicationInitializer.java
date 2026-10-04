@@ -12,7 +12,6 @@ import com.giozar04.bankClients.domain.interfaces.BankClientRepositoryInterface;
 import com.giozar04.bankClients.infrastructure.handlers.BankClientHandlers;
 import com.giozar04.bankClients.infrastructure.repositories.BankClientRepositoryMySQL;
 import com.giozar04.cardTransactionDetails.application.services.CardTransactionDetailService;
-import com.giozar04.cardTransactionDetails.domain.interfaces.CardTransactionDetailRepositoryInterface;
 import com.giozar04.cardTransactionDetails.infrastructure.handlers.CardTransactionDetailHandlers;
 import com.giozar04.cardTransactionDetails.infrastructure.repositories.CardTransactionDetailRepositoryMySQL;
 import com.giozar04.cards.application.services.CardService;
@@ -25,6 +24,7 @@ import com.giozar04.categories.infrastructure.handlers.CategoryHandlers;
 import com.giozar04.categories.infrastructure.repositories.CategoryRepositoryMySQL;
 import com.giozar04.configs.DatabaseConfig;
 import com.giozar04.configs.ServerConfig;
+import com.giozar04.databases.application.services.TransactionalExecutor;
 import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
 import com.giozar04.externalEntities.application.services.ExternalEntityService;
 import com.giozar04.externalEntities.domain.interfaces.ExternalEntityRepositoryInterface;
@@ -38,7 +38,13 @@ import com.giozar04.tags.application.services.TagService;
 import com.giozar04.tags.domain.interfaces.TagRepositoryInterface;
 import com.giozar04.tags.infrastructure.handlers.TagHandlers;
 import com.giozar04.tags.infrastructure.repositories.TagRepositoryMySQL;
+import com.giozar04.transactionTags.domain.interfaces.TransactionTagRepositoryInterface;
+import com.giozar04.transactionTags.infrastructure.repositories.TransactionTagRepositoryMySQL;
+import com.giozar04.transactions.application.normalizers.TransactionNormalizer;
 import com.giozar04.transactions.application.services.TransactionService;
+import com.giozar04.transactions.application.validation.TransactionRules;
+import com.giozar04.transactions.application.validation.TransactionValidator;
+import com.giozar04.transactions.application.validation.ValidationContextFactory;
 import com.giozar04.transactions.domain.interfaces.TransactionRepositoryInterface;
 import com.giozar04.transactions.infrastructure.handlers.TransactionHandlers;
 import com.giozar04.transactions.infrastructure.repositories.TransactionRepositoryMySQL;
@@ -59,7 +65,6 @@ import com.giozar04.walletCardLinks.domain.interfaces.WalletCardLinkRepositoryIn
 import com.giozar04.walletCardLinks.infrastructure.handlers.WalletCardLinkHandlers;
 import com.giozar04.walletCardLinks.infrastructure.repositories.WalletCardLinkRepositoryMySQL;
 import com.giozar04.walletTransactionDetails.application.services.WalletTransactionDetailService;
-import com.giozar04.walletTransactionDetails.domain.interfaces.WalletTransactionDetailRepositoryInterface;
 import com.giozar04.walletTransactionDetails.infrastructure.handlers.WalletTransactionDetailHandlers;
 import com.giozar04.walletTransactionDetails.infrastructure.repositories.WalletTransactionDetailRepositoryMySQL;
 
@@ -110,19 +115,14 @@ public class ApplicationInitializer {
                 new ExternalEntityRepositoryMySQL(dbConnection);
         ExternalEntityService externalEntityService = new ExternalEntityService(externalEntityRepository);
 
-        // Inicializar repositorios y servicios de transacciones
-        TransactionRepositoryInterface transactionRepository =
-                new TransactionRepositoryMySQL(dbConnection);
-        TransactionService transactionService =
-                new TransactionService(transactionRepository);
-
         // Inicializar repositorios y servicios de detalles de transacciones con tarjeta
-        CardTransactionDetailRepositoryInterface cardTransactionDetailRepository =
+        // (la misma instancia MySQL sirve al CRUD y, como escritor, a la unidad de trabajo de transactions)
+        CardTransactionDetailRepositoryMySQL cardTransactionDetailRepository =
                 new CardTransactionDetailRepositoryMySQL(dbConnection);
         CardTransactionDetailService cardTransactionDetailService = new CardTransactionDetailService(cardTransactionDetailRepository);
 
         // Inicializar repositorios y servicios de detalles de transacciones de wallet
-        WalletTransactionDetailRepositoryInterface walletTransactionDetailRepository =
+        WalletTransactionDetailRepositoryMySQL walletTransactionDetailRepository =
                 new WalletTransactionDetailRepositoryMySQL(dbConnection);
         WalletTransactionDetailService walletTransactionDetailService = new WalletTransactionDetailService(walletTransactionDetailRepository);
 
@@ -130,6 +130,21 @@ public class ApplicationInitializer {
         WalletCardLinkRepositoryInterface walletCardLinkRepository =
                 new WalletCardLinkRepositoryMySQL(dbConnection);
         WalletCardLinkService walletCardLinkService = new WalletCardLinkService(walletCardLinkRepository);
+
+        // Inicializar repositorios y servicios de transacciones (agregado: transacción + detalle + tags)
+        TransactionalExecutor transactionalExecutor = new TransactionalExecutor(dbConnection);
+        TransactionTagRepositoryInterface transactionTagRepository = new TransactionTagRepositoryMySQL();
+        TransactionRepositoryInterface transactionRepository =
+                new TransactionRepositoryMySQL(dbConnection, transactionalExecutor,
+                        cardTransactionDetailRepository, walletTransactionDetailRepository, transactionTagRepository);
+        ValidationContextFactory transactionValidationContextFactory = new ValidationContextFactory(
+                accountRepository, cardRepository, walletCardLinkRepository,
+                categoryRepository, externalEntityRepository, tagRepository);
+        TransactionService transactionService = new TransactionService(
+                transactionRepository,
+                transactionValidationContextFactory,
+                new TransactionNormalizer(),
+                new TransactionValidator(TransactionRules.defaultRules()));
 
         // Inicializar repositorios y servicios de configuraciones de cashback
         AccountCashbackSettingRepositoryInterface accountCashbackSettingRepository =

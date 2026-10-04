@@ -11,6 +11,11 @@ import com.giozar04.transactions.domain.enums.OperationTypes;
 import com.giozar04.transactions.domain.enums.PaymentMethod;
 import com.giozar04.transactions.domain.interfaces.TransactionRepositoryInterface;
 
+/**
+ * Validación estructural mínima para que el repositorio pueda persistir sin errores de nulos.
+ * Las reglas de negocio completas viven en TransactionValidator (capa application) y se
+ * ejecutan en TransactionService antes de llegar aquí.
+ */
 public abstract class TransactionRepositoryAbstract implements TransactionRepositoryInterface {
 
     protected final DatabaseConnectionInterface databaseConnection;
@@ -23,11 +28,17 @@ public abstract class TransactionRepositoryAbstract implements TransactionReposi
     protected void validateTransaction(Transaction tx) {
         Objects.requireNonNull(tx, "La transacción no puede ser nula");
 
+        if (tx.getUserId() <= 0)
+            throw new IllegalArgumentException("El usuario es obligatorio");
+
         if (tx.getOperationType() == null)
             throw new IllegalArgumentException("El tipo de operación es obligatorio");
 
         if (tx.getPaymentMethod() == null)
             throw new IllegalArgumentException("El método de pago es obligatorio");
+
+        if (tx.getStatus() == null)
+            throw new IllegalArgumentException("El estado es obligatorio");
 
         if (tx.getAmount() == null || tx.getAmount().compareTo(BigDecimal.ZERO) <= 0)
             throw new IllegalArgumentException("El monto debe ser mayor que cero");
@@ -35,7 +46,7 @@ public abstract class TransactionRepositoryAbstract implements TransactionReposi
         if (tx.getConcept() == null || tx.getConcept().isBlank())
             throw new IllegalArgumentException("El concepto es obligatorio");
 
-        if (tx.getCategory() == null || tx.getCategory().isBlank())
+        if (tx.getCategoryId() <= 0)
             throw new IllegalArgumentException("La categoría es obligatoria");
 
         if (tx.getDate() == null)
@@ -44,14 +55,7 @@ public abstract class TransactionRepositoryAbstract implements TransactionReposi
         if (tx.getTimezone() == null || tx.getTimezone().isBlank())
             throw new IllegalArgumentException("La zona horaria es obligatoria");
 
-        // Validación opcional: tags, comentarios, descripción
-        try {
-            OperationTypes.fromValue(tx.getOperationType().getValue());
-            PaymentMethod.fromValue(tx.getPaymentMethod().getValue());
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Tipo de operación o método de pago inválido", e);
-        }
-
+        // Igual que el CHECK chk_tx_internal_reallocation
         if (tx.getPaymentMethod() == PaymentMethod.INTERNAL && tx.getOperationType() != OperationTypes.REALLOCATION)
             throw new IllegalArgumentException("El método de pago \"" + PaymentMethod.INTERNAL.getLabel() + "\" solo se permite con el tipo \"" + OperationTypes.REALLOCATION.getLabel() + "\"");
     }
@@ -76,4 +80,7 @@ public abstract class TransactionRepositoryAbstract implements TransactionReposi
 
     @Override
     public abstract List<Transaction> getAllTransactions();
+
+    @Override
+    public abstract List<Transaction> getTransactionsByUserId(long userId);
 }

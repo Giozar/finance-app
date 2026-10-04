@@ -7,40 +7,83 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.time.DateTimeException;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
+import com.giozar04.cardTransactionDetails.domain.entities.CardTransactionDetail;
+import com.giozar04.cardTransactionDetails.domain.interfaces.CardTransactionDetailTransactionalRepositoryInterface;
+import com.giozar04.databases.application.services.TransactionalExecutor;
 import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
+import com.giozar04.transactionTags.domain.interfaces.TransactionTagRepositoryInterface;
 import com.giozar04.transactions.domain.entities.Transaction;
 import com.giozar04.transactions.domain.enums.OperationTypes;
 import com.giozar04.transactions.domain.enums.PaymentMethod;
+import com.giozar04.transactions.domain.enums.TransactionStatus;
 import com.giozar04.transactions.domain.exceptions.TransactionExceptions;
 import com.giozar04.transactions.domain.models.TransactionRepositoryAbstract;
+import com.giozar04.walletTransactionDetails.domain.entities.WalletTransactionDetail;
+import com.giozar04.walletTransactionDetails.domain.interfaces.WalletTransactionDetailTransactionalRepositoryInterface;
 
+/**
+ * Persiste el agregado Transaction en una única unidad de trabajo (TransactionalExecutor):
+ * transactions + card_transaction_details / wallet_transaction_details + transaction_tags.
+ *
+ * Orden obligatorio (los triggers de detalle validan contra la transacción padre):
+ * - create: INSERT transactions → INSERT detalle → replaceTags.
+ * - update: (bloquea la fila y comprueba que no cambie el usuario) → DELETE detalles → UPDATE transactions
+ *           → INSERT detalle → replaceTags.
+ * - delete: DELETE transactions (cascadas + trigger 4.1 revierten el resto).
+ *
+ * La columna date guarda la hora local de la zona {@code timezone} de la transacción.
+ */
 public class TransactionRepositoryMySQL extends TransactionRepositoryAbstract {
 
     private static final String SQL_INSERT = """
         INSERT INTO transactions (
-            operation_type, payment_method, source_account_id, destination_account_id, external_entity_id,
-            amount, concept, category, description, comments, date, timezone, tags, created_at, updated_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            user_id, parent_transaction_id, operation_type, payment_method, status,
+            source_account_id, destination_account_id, external_entity_id, category_id,
+            amount, concept, description, receipt_url, comments, date, timezone, created_at, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """;
 
-    private static final String SQL_SELECT_BY_ID = "SELECT * FROM transactions WHERE id = ?";
     private static final String SQL_UPDATE = """
         UPDATE transactions SET
-            operation_type = ?, payment_method = ?, source_account_id = ?, destination_account_id = ?, external_entity_id = ?,
-            amount = ?, concept = ?, category = ?, description = ?, comments = ?, date = ?, timezone = ?, tags = ?, updated_at = ?
+            user_id = ?, parent_transaction_id = ?, operation_type = ?, payment_method = ?, status = ?,
+            source_account_id = ?, destination_account_id = ?, external_entity_id = ?, category_id = ?,
+            amount = ?, concept = ?, description = ?, receipt_url = ?, comments = ?, date = ?, timezone = ?,
+            updated_at = ?
         WHERE id = ?
     """;
 
+    private static final String SQL_SELECT_BY_ID = "SELECT * FROM transactions WHERE id = ?";
+    private static final String SQL_SELECT_USER_FOR_UPDATE = "SELECT user_id FROM transactions WHERE id = ? FOR UPDATE";
+    private static final String SQL_SELECT_ALL = "SELECT * FROM transactions ORDER BY date DESC, id DESC";
+    private static final String SQL_SELECT_BY_USER = "SELECT * FROM transactions WHERE user_id = ? ORDER BY date DESC, id DESC";
     private static final String SQL_DELETE = "DELETE FROM transactions WHERE id = ?";
-    private static final String SQL_SELECT_ALL = "SELECT * FROM transactions";
 
-    public TransactionRepositoryMySQL(DatabaseConnectionInterface databaseConnection) {
+    // Número de columnas comunes a INSERT y UPDATE (user_id ... timezone)
+    private static final int COMMON_COLUMNS = 16;
+
+    private final TransactionalExecutor executor;
+    private final CardTransactionDetailTransactionalRepositoryInterface cardDetailRepository;
+    private final WalletTransactionDetailTransactionalRepositoryInterface walletDetailRepository;
+    private final TransactionTagRepositoryInterface transactionTagRepository;
+
+    public TransactionRepositoryMySQL(DatabaseConnectionInterface databaseConnection,
+                                      TransactionalExecutor executor,
+                                      CardTransactionDetailTransactionalRepositoryInterface cardDetailRepository,
+                                      WalletTransactionDetailTransactionalRepositoryInterface walletDetailRepository,
+                                      TransactionTagRepositoryInterface transactionTagRepository) {
         super(databaseConnection);
+        this.executor = Objects.requireNonNull(executor, "El ejecutor transaccional no puede ser nulo");
+        this.cardDetailRepository = Objects.requireNonNull(cardDetailRepository, "El repositorio de detalles de tarjeta no puede ser nulo");
+        this.walletDetailRepository = Objects.requireNonNull(walletDetailRepository, "El repositorio de detalles de wallet no puede ser nulo");
+        this.transactionTagRepository = Objects.requireNonNull(transactionTagRepository, "El repositorio de etiquetas de transacción no puede ser nulo");
     }
 
     @Override
@@ -50,27 +93,17 @@ public class TransactionRepositoryMySQL extends TransactionRepositoryAbstract {
         if (tx.getCreatedAt() == null) tx.setCreatedAt(ZonedDateTime.now());
         if (tx.getUpdatedAt() == null) tx.setUpdatedAt(ZonedDateTime.now());
 
-        try (Connection conn = databaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
-
-            setStatementValues(stmt, tx, false);
-
-            int affected = stmt.executeUpdate();
-            if (affected == 0) throw new SQLException("No se pudo insertar la transacción");
-
-            try (ResultSet keys = stmt.getGeneratedKeys()) {
-                if (keys.next()) {
-                    tx.setId(keys.getLong(1));
-                }
-            }
-
-            databaseConnection.commitTransaction();
-            logger.info("Transacción creada con ID: " + tx.getId());
-            return tx;
+        try {
+            Transaction created = executor.inTransaction(conn -> {
+                long id = insertTransaction(conn, tx);
+                writeChildren(conn, id, tx);
+                return findById(conn, id);
+            });
+            logger.info("Transacción creada con ID: " + created.getId());
+            return created;
 
         } catch (SQLException e) {
-            rollback();
-            throw new TransactionExceptions.CreationException("Error al crear transacción: " + e.getMessage(), e);
+            throw new TransactionExceptions.TransactionCreationException("Error al crear la transacción: " + e.getMessage(), e);
         }
     }
 
@@ -78,17 +111,15 @@ public class TransactionRepositoryMySQL extends TransactionRepositoryAbstract {
     public Transaction getTransactionById(long id) {
         validateId(id);
 
-        try (Connection conn = databaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(SQL_SELECT_BY_ID)) {
-
-            stmt.setLong(1, id);
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) return mapResultSet(rs);
+        try {
+            Transaction tx = executor.inTransaction(conn -> findById(conn, id));
+            if (tx == null) {
                 throw new TransactionExceptions.NotFoundException("Transacción no encontrada con ID: " + id, null);
             }
+            return tx;
 
         } catch (SQLException e) {
-            throw new TransactionExceptions.RetrievalException("Error al obtener transacción", e);
+            throw new TransactionExceptions.TransactionRetrievalException("Error al obtener la transacción con ID: " + id, e);
         }
     }
 
@@ -98,22 +129,36 @@ public class TransactionRepositoryMySQL extends TransactionRepositoryAbstract {
         validateTransaction(tx);
         tx.setUpdatedAt(ZonedDateTime.now());
 
-        try (Connection conn = databaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(SQL_UPDATE)) {
+        try {
+            Transaction updated = executor.inTransaction(conn -> {
+                // 0) Bloquea la fila y verifica que exista y que no cambie de usuario
+                checkSameUser(conn, id, tx.getUserId());
 
-            setStatementValues(stmt, tx, true);
-            stmt.setLong(15, id);
+                // 1) Primero se quitan los detalles: así sus triggers revierten su efecto
+                //    contra el padre todavía sin cambiar.
+                cardDetailRepository.deleteByTransactionId(conn, id);
+                walletDetailRepository.deleteByTransactionId(conn, id);
 
-            int affected = stmt.executeUpdate();
-            if (affected == 0) throw new TransactionExceptions.NotFoundException("No se encontró la transacción a actualizar", null);
+                // 2) UPDATE del padre (los triggers revierten y reaplican su efecto)
+                try (PreparedStatement stmt = conn.prepareStatement(SQL_UPDATE)) {
+                    setCommonValues(stmt, tx);
+                    stmt.setTimestamp(COMMON_COLUMNS + 1, Timestamp.valueOf(tx.getUpdatedAt().toLocalDateTime()));
+                    stmt.setLong(COMMON_COLUMNS + 2, id);
 
-            databaseConnection.commitTransaction();
-            tx.setId(id);
-            return tx;
+                    if (stmt.executeUpdate() == 0) {
+                        throw new TransactionExceptions.NotFoundException("Transacción no encontrada con ID: " + id, null);
+                    }
+                }
+
+                // 3) Detalle nuevo + etiquetas
+                writeChildren(conn, id, tx);
+                return findById(conn, id);
+            });
+            logger.info("Transacción actualizada con ID: " + id);
+            return updated;
 
         } catch (SQLException e) {
-            rollback();
-            throw new TransactionExceptions.UpdateException("Error al actualizar transacción: " + e.getMessage(), e);
+            throw new TransactionExceptions.TransactionUpdateException("Error al actualizar la transacción: " + e.getMessage(), e);
         }
     }
 
@@ -121,103 +166,214 @@ public class TransactionRepositoryMySQL extends TransactionRepositoryAbstract {
     public void deleteTransactionById(long id) {
         validateId(id);
 
-        try (Connection conn = databaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(SQL_DELETE)) {
-
-            stmt.setLong(1, id);
-            int affected = stmt.executeUpdate();
-            if (affected == 0) throw new TransactionExceptions.NotFoundException("Transacción no encontrada", null);
-
-            databaseConnection.commitTransaction();
+        try {
+            executor.inTransaction(conn -> {
+                try (PreparedStatement stmt = conn.prepareStatement(SQL_DELETE)) {
+                    stmt.setLong(1, id);
+                    if (stmt.executeUpdate() == 0) {
+                        throw new TransactionExceptions.NotFoundException("Transacción no encontrada con ID: " + id, null);
+                    }
+                }
+                return null;
+            });
             logger.info("Transacción eliminada con ID: " + id);
 
         } catch (SQLException e) {
-            rollback();
-            throw new TransactionExceptions.DeletionException("Error al eliminar transacción", e);
+            throw new TransactionExceptions.TransactionDeletionException("Error al eliminar la transacción: " + e.getMessage(), e);
         }
     }
 
     @Override
     public List<Transaction> getAllTransactions() {
-        List<Transaction> list = new ArrayList<>();
-
-        try (Connection conn = databaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(SQL_SELECT_ALL);
-             ResultSet rs = stmt.executeQuery()) {
-
-            while (rs.next()) {
-                list.add(mapResultSet(rs));
-            }
-
-            return list;
+        try {
+            return executor.inTransaction(conn -> {
+                try (PreparedStatement stmt = conn.prepareStatement(SQL_SELECT_ALL)) {
+                    return loadAggregates(conn, stmt);
+                }
+            });
 
         } catch (SQLException e) {
-            throw new TransactionExceptions.RetrievalException("Error al obtener transacciones", e);
+            throw new TransactionExceptions.TransactionRetrievalException("Error al obtener las transacciones", e);
         }
+    }
+
+    @Override
+    public List<Transaction> getTransactionsByUserId(long userId) {
+        validateId(userId);
+
+        try {
+            return executor.inTransaction(conn -> {
+                try (PreparedStatement stmt = conn.prepareStatement(SQL_SELECT_BY_USER)) {
+                    stmt.setLong(1, userId);
+                    return loadAggregates(conn, stmt);
+                }
+            });
+
+        } catch (SQLException e) {
+            throw new TransactionExceptions.TransactionRetrievalException("Error al obtener las transacciones del usuario con ID: " + userId, e);
+        }
+    }
+
+    // ---- Escritura ----
+
+    /** El usuario de una transacción no puede cambiar (sus cuentas, categoría y tags son de ese usuario). */
+    private void checkSameUser(Connection conn, long id, long newUserId) throws SQLException {
+        try (PreparedStatement stmt = conn.prepareStatement(SQL_SELECT_USER_FOR_UPDATE)) {
+            stmt.setLong(1, id);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (!rs.next()) {
+                    throw new TransactionExceptions.NotFoundException("Transacción no encontrada con ID: " + id, null);
+                }
+                if (rs.getLong("user_id") != newUserId) {
+                    throw new TransactionExceptions.TransactionValidationException("No se puede cambiar el usuario de una transacción");
+                }
+            }
+        }
+    }
+
+    private long insertTransaction(Connection conn, Transaction tx) throws SQLException {
+        try (PreparedStatement stmt = conn.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
+            setCommonValues(stmt, tx);
+            stmt.setTimestamp(COMMON_COLUMNS + 1, Timestamp.valueOf(tx.getCreatedAt().toLocalDateTime()));
+            stmt.setTimestamp(COMMON_COLUMNS + 2, Timestamp.valueOf(tx.getUpdatedAt().toLocalDateTime()));
+
+            if (stmt.executeUpdate() == 0) throw new SQLException("No se pudo insertar la transacción");
+
+            try (ResultSet keys = stmt.getGeneratedKeys()) {
+                if (!keys.next()) throw new SQLException("No se obtuvo el ID de la transacción");
+                long id = keys.getLong(1);
+                tx.setId(id);
+                return id;
+            }
+        }
+    }
+
+    /** Inserta el detalle que corresponda (ya normalizado) y reemplaza las etiquetas. */
+    private void writeChildren(Connection conn, long transactionId, Transaction tx) throws SQLException {
+        CardTransactionDetail cardDetail = tx.getCardDetail();
+        if (cardDetail != null) {
+            cardDetail.setId(0);
+            cardDetail.setTransactionId(transactionId);
+            cardDetail.setCreatedAt(null);
+            cardDetail.setUpdatedAt(null);
+            cardDetailRepository.insert(conn, cardDetail);
+        }
+
+        WalletTransactionDetail walletDetail = tx.getWalletDetail();
+        if (walletDetail != null) {
+            walletDetail.setId(0);
+            walletDetail.setTransactionId(transactionId);
+            walletDetail.setCreatedAt(null);
+            walletDetail.setUpdatedAt(null);
+            walletDetailRepository.insert(conn, walletDetail);
+        }
+
+        transactionTagRepository.replaceTags(conn, transactionId, tx.getTagIds());
+    }
+
+    private void setCommonValues(PreparedStatement stmt, Transaction tx) throws SQLException {
+        stmt.setLong(1, tx.getUserId());
+        setNullableLong(stmt, 2, tx.getParentTransactionId());
+        stmt.setString(3, tx.getOperationType().getValue());
+        stmt.setString(4, tx.getPaymentMethod().getValue());
+        stmt.setString(5, tx.getStatus().getValue());
+        setNullableLong(stmt, 6, tx.getSourceAccountId());
+        setNullableLong(stmt, 7, tx.getDestinationAccountId());
+        setNullableLong(stmt, 8, tx.getExternalEntityId());
+        stmt.setLong(9, tx.getCategoryId());
+        stmt.setBigDecimal(10, tx.getAmount());
+        stmt.setString(11, tx.getConcept());
+        stmt.setString(12, tx.getDescription());
+        stmt.setString(13, tx.getReceiptUrl());
+        stmt.setString(14, tx.getComments());
+        // Hora local en la zona de la transacción (LocalDateTime: el driver no la convierte)
+        stmt.setObject(15, tx.getDate().withZoneSameInstant(zoneOf(tx.getTimezone())).toLocalDateTime());
+        stmt.setString(16, tx.getTimezone());
+    }
+
+    private void setNullableLong(PreparedStatement stmt, int index, Long value) throws SQLException {
+        if (value != null) stmt.setLong(index, value);
+        else stmt.setNull(index, Types.BIGINT);
+    }
+
+    // ---- Lectura del agregado ----
+
+    private Transaction findById(Connection conn, long id) throws SQLException {
+        try (PreparedStatement stmt = conn.prepareStatement(SQL_SELECT_BY_ID)) {
+            stmt.setLong(1, id);
+            List<Transaction> list = loadAggregates(conn, stmt);
+            return list.isEmpty() ? null : list.get(0);
+        }
+    }
+
+    /** Ejecuta la consulta y completa cada transacción con su detalle y sus tagIds. */
+    private List<Transaction> loadAggregates(Connection conn, PreparedStatement stmt) throws SQLException {
+        List<Transaction> list = new ArrayList<>();
+        try (ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) list.add(mapResultSet(rs));
+        }
+
+        for (Transaction tx : list) {
+            List<CardTransactionDetail> cardDetails = cardDetailRepository.findByTransactionId(conn, tx.getId());
+            tx.setCardDetail(cardDetails.isEmpty() ? null : cardDetails.get(0));
+
+            List<WalletTransactionDetail> walletDetails = walletDetailRepository.findByTransactionId(conn, tx.getId());
+            tx.setWalletDetail(walletDetails.isEmpty() ? null : walletDetails.get(0));
+
+            tx.setTagIds(transactionTagRepository.findTagIds(conn, tx.getId()));
+        }
+        return list;
     }
 
     private Transaction mapResultSet(ResultSet rs) throws SQLException {
         Transaction tx = new Transaction();
-        ZoneId zone = ZoneId.systemDefault();
+        ZoneId systemZone = ZoneId.systemDefault();
 
         tx.setId(rs.getLong("id"));
+        tx.setUserId(rs.getLong("user_id"));
+        tx.setParentTransactionId(getNullableLong(rs, "parent_transaction_id"));
         tx.setOperationType(OperationTypes.fromValue(rs.getString("operation_type")));
         tx.setPaymentMethod(PaymentMethod.fromValue(rs.getString("payment_method")));
+        tx.setStatus(TransactionStatus.fromValue(rs.getString("status")));
 
-        tx.setSourceAccountId(rs.getObject("source_account_id") != null ? rs.getLong("source_account_id") : null);
-        tx.setDestinationAccountId(rs.getObject("destination_account_id") != null ? rs.getLong("destination_account_id") : null);
-        tx.setExternalEntityId(rs.getObject("external_entity_id") != null ? rs.getLong("external_entity_id") : null);
+        tx.setSourceAccountId(getNullableLong(rs, "source_account_id"));
+        tx.setDestinationAccountId(getNullableLong(rs, "destination_account_id"));
+        tx.setExternalEntityId(getNullableLong(rs, "external_entity_id"));
+        tx.setCategoryId(rs.getLong("category_id"));
 
         tx.setAmount(rs.getBigDecimal("amount"));
         tx.setConcept(rs.getString("concept"));
-        tx.setCategory(rs.getString("category"));
         tx.setDescription(rs.getString("description"));
+        tx.setReceiptUrl(rs.getString("receipt_url"));
         tx.setComments(rs.getString("comments"));
-        tx.setDate(ZonedDateTime.of(rs.getTimestamp("date").toLocalDateTime(), zone));
-        tx.setTimezone(rs.getString("timezone"));
-        tx.setTags(rs.getString("tags"));
 
-        tx.setCreatedAt(ZonedDateTime.of(rs.getTimestamp("created_at").toLocalDateTime(), zone));
-        tx.setUpdatedAt(ZonedDateTime.of(rs.getTimestamp("updated_at").toLocalDateTime(), zone));
+        String timezone = rs.getString("timezone");
+        tx.setTimezone(timezone);
+        LocalDateTime localDate = rs.getObject("date", LocalDateTime.class);
+        if (localDate != null) tx.setDate(ZonedDateTime.of(localDate, zoneOf(timezone)));
+
+        Timestamp created = rs.getTimestamp("created_at");
+        if (created != null) tx.setCreatedAt(ZonedDateTime.of(created.toLocalDateTime(), systemZone));
+
+        Timestamp updated = rs.getTimestamp("updated_at");
+        if (updated != null) tx.setUpdatedAt(ZonedDateTime.of(updated.toLocalDateTime(), systemZone));
 
         return tx;
     }
 
-    private void setStatementValues(PreparedStatement stmt, Transaction tx, boolean isUpdate) throws SQLException {
-        stmt.setString(1, tx.getOperationType().getValue());
-        stmt.setString(2, tx.getPaymentMethod().getValue());
-
-        if (tx.getSourceAccountId() != null) stmt.setLong(3, tx.getSourceAccountId());
-        else stmt.setNull(3, Types.BIGINT);
-
-        if (tx.getDestinationAccountId() != null) stmt.setLong(4, tx.getDestinationAccountId());
-        else stmt.setNull(4, Types.BIGINT);
-
-        if (tx.getExternalEntityId() != null) stmt.setLong(5, tx.getExternalEntityId());
-        else stmt.setNull(5, Types.BIGINT);
-
-        stmt.setBigDecimal(6, tx.getAmount());
-        stmt.setString(7, tx.getConcept());
-        stmt.setString(8, tx.getCategory());
-        stmt.setString(9, tx.getDescription());
-        stmt.setString(10, tx.getComments());
-        stmt.setTimestamp(11, Timestamp.valueOf(tx.getDate().toLocalDateTime()));
-        stmt.setString(12, tx.getTimezone());
-        stmt.setString(13, tx.getTags());
-
-        if (!isUpdate) {
-            stmt.setTimestamp(14, Timestamp.valueOf(tx.getCreatedAt().toLocalDateTime()));
-            stmt.setTimestamp(15, Timestamp.valueOf(tx.getUpdatedAt().toLocalDateTime()));
-        } else {
-            stmt.setTimestamp(14, Timestamp.valueOf(tx.getUpdatedAt().toLocalDateTime()));
-        }
+    private Long getNullableLong(ResultSet rs, String column) throws SQLException {
+        long value = rs.getLong(column);
+        return rs.wasNull() ? null : value;
     }
 
-    private void rollback() {
+    /** Zona de la transacción; si el valor guardado no es válido se usa la del sistema. */
+    private ZoneId zoneOf(String timezone) {
+        if (timezone == null || timezone.isBlank()) return ZoneId.systemDefault();
         try {
-            databaseConnection.rollbackTransaction();
-        } catch (SQLException e) {
-            logger.error("Error al hacer rollback en transacción", e);
+            return ZoneId.of(timezone.trim());
+        } catch (DateTimeException e) {
+            logger.warn("Zona horaria inválida en transacción: " + timezone + ", se usa la del sistema", null);
+            return ZoneId.systemDefault();
         }
     }
 }
