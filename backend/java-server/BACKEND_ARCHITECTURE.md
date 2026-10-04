@@ -24,7 +24,7 @@ Mapa de la estructura actual del backend.
         └── main
             ├── resources
             │   ├── config.example.properties
-            │   └── config.properties
+            │   └── config.properties          (local, ignorado por Git)
             └── java
                 └── com
                     └── giozar04
