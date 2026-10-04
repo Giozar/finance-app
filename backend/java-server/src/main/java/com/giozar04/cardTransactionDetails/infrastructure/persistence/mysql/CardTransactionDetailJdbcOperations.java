@@ -1,4 +1,4 @@
-package com.giozar04.cardTransactionDetails.domain.interfaces;
+package com.giozar04.cardTransactionDetails.infrastructure.persistence.mysql;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -10,7 +10,7 @@ import com.giozar04.cardTransactionDetails.domain.entities.CardTransactionDetail
  * Operaciones sobre card_transaction_details que participan en una unidad de trabajo externa
  * (TransactionalExecutor). Reciben la conexión: no hacen commit, rollback ni la cierran.
  */
-public interface CardTransactionDetailTransactionalRepositoryInterface {
+public interface CardTransactionDetailJdbcOperations {
     CardTransactionDetail insert(Connection conn, CardTransactionDetail detail) throws SQLException;
     int deleteByTransactionId(Connection conn, long transactionId) throws SQLException;
     List<CardTransactionDetail> findByTransactionId(Connection conn, long transactionId) throws SQLException;

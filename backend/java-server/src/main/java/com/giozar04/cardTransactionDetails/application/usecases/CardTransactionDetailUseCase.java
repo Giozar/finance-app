@@ -1,15 +1,16 @@
-package com.giozar04.cardTransactionDetails.application.services;
+package com.giozar04.cardTransactionDetails.application.usecases;
 
 import java.util.List;
 
 import com.giozar04.cardTransactionDetails.domain.entities.CardTransactionDetail;
-import com.giozar04.cardTransactionDetails.domain.interfaces.CardTransactionDetailRepositoryInterface;
+import com.giozar04.cardTransactionDetails.application.ports.output.CardTransactionDetailRepository;
+import com.giozar04.cardTransactionDetails.application.ports.input.CardTransactionDetailOperations;
 
-public class CardTransactionDetailService implements CardTransactionDetailRepositoryInterface {
+public class CardTransactionDetailUseCase implements CardTransactionDetailOperations {
 
-    private final CardTransactionDetailRepositoryInterface repository;
+    private final CardTransactionDetailRepository repository;
 
-    public CardTransactionDetailService(CardTransactionDetailRepositoryInterface repository) {
+    public CardTransactionDetailUseCase(CardTransactionDetailRepository repository) {
         this.repository = repository;
     }
 

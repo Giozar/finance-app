@@ -13,9 +13,10 @@ import com.giozar04.bankClients.application.ports.input.BankClientOperations;
 import com.giozar04.bankClients.application.ports.output.BankClientRepository;
 import com.giozar04.bankClients.infrastructure.transport.socket.BankClientHandlers;
 import com.giozar04.bankClients.infrastructure.persistence.mysql.BankClientRepositoryMySQL;
-import com.giozar04.cardTransactionDetails.application.services.CardTransactionDetailService;
-import com.giozar04.cardTransactionDetails.infrastructure.handlers.CardTransactionDetailHandlers;
-import com.giozar04.cardTransactionDetails.infrastructure.repositories.CardTransactionDetailRepositoryMySQL;
+import com.giozar04.cardTransactionDetails.application.usecases.CardTransactionDetailUseCase;
+import com.giozar04.cardTransactionDetails.application.ports.input.CardTransactionDetailOperations;
+import com.giozar04.cardTransactionDetails.infrastructure.transport.socket.CardTransactionDetailHandlers;
+import com.giozar04.cardTransactionDetails.infrastructure.persistence.mysql.CardTransactionDetailRepositoryMySQL;
 import com.giozar04.cards.application.usecases.CardUseCase;
 import com.giozar04.cards.application.ports.input.CardOperations;
 import com.giozar04.cards.application.ports.output.CardRepository;
@@ -128,7 +129,7 @@ public class ApplicationInitializer {
         // (la misma instancia MySQL sirve al CRUD y, como escritor, a la unidad de trabajo de transactions)
         CardTransactionDetailRepositoryMySQL cardTransactionDetailRepository =
                 new CardTransactionDetailRepositoryMySQL(dbConnection);
-        CardTransactionDetailService cardTransactionDetailService = new CardTransactionDetailService(cardTransactionDetailRepository);
+        CardTransactionDetailOperations cardTransactionDetailService = new CardTransactionDetailUseCase(cardTransactionDetailRepository);
 
         // Inicializar repositorios y servicios de detalles de transacciones de wallet
         WalletTransactionDetailRepositoryMySQL walletTransactionDetailRepository =

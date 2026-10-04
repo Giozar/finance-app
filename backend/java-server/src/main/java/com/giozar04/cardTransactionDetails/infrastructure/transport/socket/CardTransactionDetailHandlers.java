@@ -1,15 +1,15 @@
-package com.giozar04.cardTransactionDetails.infrastructure.handlers;
+package com.giozar04.cardTransactionDetails.infrastructure.transport.socket;
 
-import com.giozar04.cardTransactionDetails.application.services.CardTransactionDetailService;
-import com.giozar04.cardTransactionDetails.infrastructure.controllers.CardTransactionDetailControllers;
+import com.giozar04.cardTransactionDetails.application.ports.input.CardTransactionDetailOperations;
+import com.giozar04.cardTransactionDetails.infrastructure.transport.socket.CardTransactionDetailControllers;
 import com.giozar04.servers.application.services.ServerService;
 import com.giozar04.servers.domain.interfaces.ServerRegisterHandlers;
 
 public class CardTransactionDetailHandlers implements ServerRegisterHandlers {
 
-    private final CardTransactionDetailService service;
+    private final CardTransactionDetailOperations service;
 
-    public CardTransactionDetailHandlers(CardTransactionDetailService service) {
+    public CardTransactionDetailHandlers(CardTransactionDetailOperations service) {
         this.service = service;
     }
 

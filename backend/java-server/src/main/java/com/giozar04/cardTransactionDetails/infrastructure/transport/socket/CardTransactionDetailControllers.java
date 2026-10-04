@@ -1,10 +1,10 @@
-package com.giozar04.cardTransactionDetails.infrastructure.controllers;
+package com.giozar04.cardTransactionDetails.infrastructure.transport.socket;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import com.giozar04.cardTransactionDetails.application.services.CardTransactionDetailService;
+import com.giozar04.cardTransactionDetails.application.ports.input.CardTransactionDetailOperations;
 import com.giozar04.cardTransactionDetails.infrastructure.serialization.CardTransactionDetailMapper;
 import com.giozar04.cardTransactionDetails.domain.entities.CardTransactionDetail;
 import com.giozar04.logging.infrastructure.ConsoleLogger;
@@ -26,7 +26,7 @@ public class CardTransactionDetailControllers {
     }
 
     @SuppressWarnings("unchecked")
-    public static MessageHandler createDetailController(CardTransactionDetailService service) {
+    public static MessageHandler createDetailController(CardTransactionDetailOperations service) {
         return (ClientConnection client, Message message) -> {
             LOGGER.info("Creando detalle de transacción con tarjeta");
 
@@ -44,7 +44,7 @@ public class CardTransactionDetailControllers {
         };
     }
 
-    public static MessageHandler getDetailController(CardTransactionDetailService service) {
+    public static MessageHandler getDetailController(CardTransactionDetailOperations service) {
         return (ClientConnection client, Message message) -> {
             LOGGER.info("Consultando detalle de transacción con tarjeta");
 
@@ -61,7 +61,7 @@ public class CardTransactionDetailControllers {
     }
 
     @SuppressWarnings("unchecked")
-    public static MessageHandler updateDetailController(CardTransactionDetailService service) {
+    public static MessageHandler updateDetailController(CardTransactionDetailOperations service) {
         return (ClientConnection client, Message message) -> {
             LOGGER.info("Actualizando detalle");
 
@@ -83,7 +83,7 @@ public class CardTransactionDetailControllers {
         };
     }
 
-    public static MessageHandler deleteDetailController(CardTransactionDetailService service) {
+    public static MessageHandler deleteDetailController(CardTransactionDetailOperations service) {
         return (ClientConnection client, Message message) -> {
             LOGGER.info("Eliminando detalle de transacción con tarjeta");
 
@@ -97,7 +97,7 @@ public class CardTransactionDetailControllers {
         };
     }
 
-    public static MessageHandler getAllDetailsController(CardTransactionDetailService service) {
+    public static MessageHandler getAllDetailsController(CardTransactionDetailOperations service) {
         return (ClientConnection client, Message message) -> {
             LOGGER.info("Obteniendo todos los detalles de transacciones con tarjeta");
 
@@ -114,7 +114,7 @@ public class CardTransactionDetailControllers {
         };
     }
 
-    public static MessageHandler getDetailsByTransactionController(CardTransactionDetailService service) {
+    public static MessageHandler getDetailsByTransactionController(CardTransactionDetailOperations service) {
         return (ClientConnection client, Message message) -> {
             LOGGER.info("Obteniendo detalles por ID de transacción");
 

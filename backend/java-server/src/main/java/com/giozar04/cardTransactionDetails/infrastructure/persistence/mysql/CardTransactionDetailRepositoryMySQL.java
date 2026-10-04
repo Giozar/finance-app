@@ -1,4 +1,4 @@
-package com.giozar04.cardTransactionDetails.infrastructure.repositories;
+package com.giozar04.cardTransactionDetails.infrastructure.persistence.mysql;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -18,12 +18,12 @@ import com.giozar04.cardTransactionDetails.application.exceptions.CardTransactio
 import com.giozar04.cardTransactionDetails.application.exceptions.CardTransactionDetailNotFoundException;
 import com.giozar04.cardTransactionDetails.application.exceptions.CardTransactionDetailRetrievalException;
 import com.giozar04.cardTransactionDetails.application.exceptions.CardTransactionDetailUpdateException;
-import com.giozar04.cardTransactionDetails.domain.interfaces.CardTransactionDetailTransactionalRepositoryInterface;
-import com.giozar04.cardTransactionDetails.domain.models.CardTransactionDetailRepositoryAbstract;
+import com.giozar04.cardTransactionDetails.infrastructure.persistence.mysql.CardTransactionDetailJdbcOperations;
+import com.giozar04.cardTransactionDetails.infrastructure.persistence.mysql.AbstractCardTransactionDetailJdbcRepository;
 import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
 
-public class CardTransactionDetailRepositoryMySQL extends CardTransactionDetailRepositoryAbstract
-        implements CardTransactionDetailTransactionalRepositoryInterface {
+public class CardTransactionDetailRepositoryMySQL extends AbstractCardTransactionDetailJdbcRepository
+        implements CardTransactionDetailJdbcOperations {
 
     private static final String SQL_INSERT = """
         INSERT INTO card_transaction_details (

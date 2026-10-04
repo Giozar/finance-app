@@ -9,7 +9,7 @@ import java.util.Scanner;
 
 import com.giozar04.accounts.infrastructure.persistence.mysql.AccountRepositoryMySQL;
 import com.giozar04.cardTransactionDetails.domain.entities.CardTransactionDetail;
-import com.giozar04.cardTransactionDetails.infrastructure.repositories.CardTransactionDetailRepositoryMySQL;
+import com.giozar04.cardTransactionDetails.infrastructure.persistence.mysql.CardTransactionDetailRepositoryMySQL;
 import com.giozar04.cards.infrastructure.persistence.mysql.CardRepositoryMySQL;
 import com.giozar04.categories.infrastructure.persistence.mysql.CategoryRepositoryMySQL;
 import com.giozar04.databases.application.services.TransactionalExecutor;

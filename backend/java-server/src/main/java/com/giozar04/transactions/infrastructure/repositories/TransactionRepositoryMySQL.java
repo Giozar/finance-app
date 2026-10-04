@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Objects;
 
 import com.giozar04.cardTransactionDetails.domain.entities.CardTransactionDetail;
-import com.giozar04.cardTransactionDetails.domain.interfaces.CardTransactionDetailTransactionalRepositoryInterface;
+import com.giozar04.cardTransactionDetails.infrastructure.persistence.mysql.CardTransactionDetailJdbcOperations;
 import com.giozar04.databases.application.services.TransactionalExecutor;
 import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
 import com.giozar04.transactionTags.domain.interfaces.TransactionTagRepositoryInterface;
@@ -75,13 +75,13 @@ public class TransactionRepositoryMySQL extends TransactionRepositoryAbstract {
     private static final int COMMON_COLUMNS = 16;
 
     private final TransactionalExecutor executor;
-    private final CardTransactionDetailTransactionalRepositoryInterface cardDetailRepository;
+    private final CardTransactionDetailJdbcOperations cardDetailRepository;
     private final WalletTransactionDetailTransactionalRepositoryInterface walletDetailRepository;
     private final TransactionTagRepositoryInterface transactionTagRepository;
 
     public TransactionRepositoryMySQL(DatabaseConnectionInterface databaseConnection,
                                       TransactionalExecutor executor,
-                                      CardTransactionDetailTransactionalRepositoryInterface cardDetailRepository,
+                                      CardTransactionDetailJdbcOperations cardDetailRepository,
                                       WalletTransactionDetailTransactionalRepositoryInterface walletDetailRepository,
                                       TransactionTagRepositoryInterface transactionTagRepository) {
         super(databaseConnection);
