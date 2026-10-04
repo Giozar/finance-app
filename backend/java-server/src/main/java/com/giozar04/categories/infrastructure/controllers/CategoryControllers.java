@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.giozar04.categories.application.services.CategoryService;
-import com.giozar04.categories.application.utils.CategoryUtils;
+import com.giozar04.categories.infrastructure.serialization.CategoryMapper;
 import com.giozar04.categories.domain.entities.Category;
 import com.giozar04.logging.CustomLogger;
 import com.giozar04.messages.domain.models.Message;
@@ -35,11 +35,11 @@ public class CategoryControllers {
                 return Message.createErrorMessage(CategoryMessageTypes.CREATE_CATEGORY, "Datos no proporcionados");
             }
 
-            Category category = CategoryUtils.mapToCategory(data);
+            Category category = CategoryMapper.fromMap(data);
             Category created = categoryService.createCategory(category);
 
             Message response = Message.createSuccessMessage(CategoryMessageTypes.CREATE_CATEGORY, "Categoría creada exitosamente");
-            response.addData("category", CategoryUtils.categoryToMap(created));
+            response.addData("category", CategoryMapper.toMap(created));
             return response;
         };
     }
@@ -55,7 +55,7 @@ public class CategoryControllers {
 
             Category category = categoryService.getCategoryById(id);
             Message response = Message.createSuccessMessage(CategoryMessageTypes.GET_CATEGORY, "Categoría obtenida");
-            response.addData("category", CategoryUtils.categoryToMap(category));
+            response.addData("category", CategoryMapper.toMap(category));
             return response;
         };
     }
@@ -75,10 +75,10 @@ public class CategoryControllers {
                 return Message.createErrorMessage(CategoryMessageTypes.UPDATE_CATEGORY, "Datos no proporcionados");
             }
 
-            Category updated = categoryService.updateCategoryById(id, CategoryUtils.mapToCategory(data));
+            Category updated = categoryService.updateCategoryById(id, CategoryMapper.fromMap(data));
 
             Message response = Message.createSuccessMessage(CategoryMessageTypes.UPDATE_CATEGORY, "Categoría actualizada exitosamente");
-            response.addData("category", CategoryUtils.categoryToMap(updated));
+            response.addData("category", CategoryMapper.toMap(updated));
             return response;
         };
     }
@@ -105,7 +105,7 @@ public class CategoryControllers {
             List<Map<String, Object>> result = new ArrayList<>();
 
             for (Category c : categories) {
-                result.add(CategoryUtils.categoryToMap(c));
+                result.add(CategoryMapper.toMap(c));
             }
 
             Message response = Message.createSuccessMessage(CategoryMessageTypes.GET_ALL_CATEGORIES, "Categorías obtenidas exitosamente");
@@ -129,7 +129,7 @@ public class CategoryControllers {
             List<Map<String, Object>> result = new ArrayList<>();
 
             for (Category item : items) {
-                result.add(CategoryUtils.categoryToMap(item));
+                result.add(CategoryMapper.toMap(item));
             }
 
             Message response = Message.createSuccessMessage(CategoryMessageTypes.GET_CATEGORIES_BY_USER, "Categorías del usuario obtenidas exitosamente");

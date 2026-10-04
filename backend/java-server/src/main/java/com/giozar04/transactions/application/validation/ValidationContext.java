@@ -16,7 +16,7 @@ import com.giozar04.card.domain.entities.Card;
 import com.giozar04.card.domain.exceptions.CardExceptions;
 import com.giozar04.cards.domain.interfaces.CardRepositoryInterface;
 import com.giozar04.categories.domain.entities.Category;
-import com.giozar04.categories.domain.exceptions.CategoryExceptions;
+import com.giozar04.categories.application.exceptions.CategoryNotFoundException;
 import com.giozar04.categories.domain.interfaces.CategoryRepositoryInterface;
 import com.giozar04.externalEntities.domain.entities.ExternalEntity;
 import com.giozar04.externalEntities.domain.exceptions.ExternalEntityExceptions;
@@ -78,7 +78,7 @@ public class ValidationContext {
     public Category category(long id) {
         if (id <= 0) return null;
         return categories.computeIfAbsent(id, k -> find(() -> categoryRepository.getCategoryById(k),
-                CategoryExceptions.CategoryNotFoundException.class)).orElse(null);
+                CategoryNotFoundException.class)).orElse(null);
     }
 
     public ExternalEntity externalEntity(Long id) {

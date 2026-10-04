@@ -4,9 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import com.giozar04.categories.application.utils.CategoryUtils;
+import com.giozar04.categories.infrastructure.serialization.CategoryMapper;
 import com.giozar04.categories.domain.entities.Category;
-import com.giozar04.categories.domain.exceptions.CategoryExceptions;
+import com.giozar04.categories.application.exceptions.CategoryCreationException;
+import com.giozar04.categories.application.exceptions.CategoryDeletionException;
+import com.giozar04.categories.application.exceptions.CategoryRetrievalException;
+import com.giozar04.categories.application.exceptions.CategoryUpdateException;
 import com.giozar04.logging.CustomLogger;
 import com.giozar04.messages.domain.models.Message;
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
@@ -38,17 +41,17 @@ public class CategoryService {
     public Category createCategory(Category category) throws ClientOperationException {
         Message message = new Message();
         message.setType("CREATE_CATEGORY");
-        message.addData("category", CategoryUtils.categoryToMap(category));
+        message.addData("category", CategoryMapper.toMap(category));
 
         serverConnectionService.sendMessage(message);
         try {
             Message response = serverConnectionService.waitForMessage("CREATE_CATEGORY");
             ServerResponseValidator.validateResponse(response);
             logger.info("Categoría creada exitosamente: " + response);
-            return CategoryUtils.mapToCategory((Map<String, Object>) response.getData("category"));
+            return CategoryMapper.fromMap((Map<String, Object>) response.getData("category"));
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new CategoryExceptions.CategoryCreationException("Error al esperar respuesta del servidor", e);
+            throw new CategoryCreationException("Error al esperar respuesta del servidor", e);
         }
     }
 
@@ -57,17 +60,17 @@ public class CategoryService {
         Message message = new Message();
         message.setType("UPDATE_CATEGORY");
         message.addData("id", id);
-        message.addData("category", CategoryUtils.categoryToMap(category));
+        message.addData("category", CategoryMapper.toMap(category));
 
         serverConnectionService.sendMessage(message);
         try {
             Message response = serverConnectionService.waitForMessage("UPDATE_CATEGORY");
             ServerResponseValidator.validateResponse(response);
             logger.info("Categoría actualizada correctamente: " + response);
-            return CategoryUtils.mapToCategory((Map<String, Object>) response.getData("category"));
+            return CategoryMapper.fromMap((Map<String, Object>) response.getData("category"));
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new CategoryExceptions.CategoryUpdateException("Error al esperar respuesta del servidor", e);
+            throw new CategoryUpdateException("Error al esperar respuesta del servidor", e);
         }
     }
 
@@ -83,7 +86,7 @@ public class CategoryService {
             logger.info("Categoría eliminada exitosamente: " + response);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new CategoryExceptions.CategoryDeletionException("Error al esperar respuesta del servidor", e);
+            throw new CategoryDeletionException("Error al esperar respuesta del servidor", e);
         }
     }
 
@@ -100,25 +103,25 @@ public class CategoryService {
             Object raw = response.getData("categories");
 
             if (raw == null) {
-                throw new CategoryExceptions.CategoryRetrievalException("Lista de categorías vacía", null);
+                throw new CategoryRetrievalException("Lista de categorías vacía", null);
             }
 
             if (raw instanceof List<?> rawList) {
                 List<Category> categories = new ArrayList<>();
                 for (Object item : rawList) {
                     if (item instanceof Map<?, ?> map) {
-                        categories.add(CategoryUtils.mapToCategory((Map<String, Object>) map));
+                        categories.add(CategoryMapper.fromMap((Map<String, Object>) map));
                     }
                 }
                 logger.info("Categorías obtenidas correctamente. Total: " + categories.size());
                 return categories;
             } else {
-                throw new CategoryExceptions.CategoryRetrievalException("Formato inesperado: " + raw.getClass().getName(), null);
+                throw new CategoryRetrievalException("Formato inesperado: " + raw.getClass().getName(), null);
             }
 
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new CategoryExceptions.CategoryRetrievalException("Error al esperar respuesta del servidor", e);
+            throw new CategoryRetrievalException("Error al esperar respuesta del servidor", e);
         }
     }
 
@@ -136,25 +139,25 @@ public class CategoryService {
             Object raw = response.getData("categories");
 
             if (raw == null) {
-                throw new CategoryExceptions.CategoryRetrievalException("Lista de categorías vacía", null);
+                throw new CategoryRetrievalException("Lista de categorías vacía", null);
             }
 
             if (raw instanceof List<?> rawList) {
                 List<Category> categories = new ArrayList<>();
                 for (Object item : rawList) {
                     if (item instanceof Map<?, ?> map) {
-                        categories.add(CategoryUtils.mapToCategory((Map<String, Object>) map));
+                        categories.add(CategoryMapper.fromMap((Map<String, Object>) map));
                     }
                 }
                 logger.info("Categorías del usuario obtenidas correctamente. Total: " + categories.size());
                 return categories;
             } else {
-                throw new CategoryExceptions.CategoryRetrievalException("Formato inesperado: " + raw.getClass().getName(), null);
+                throw new CategoryRetrievalException("Formato inesperado: " + raw.getClass().getName(), null);
             }
 
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new CategoryExceptions.CategoryRetrievalException("Error al esperar respuesta del servidor", e);
+            throw new CategoryRetrievalException("Error al esperar respuesta del servidor", e);
         }
     }
 }

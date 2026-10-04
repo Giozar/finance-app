@@ -29,10 +29,14 @@ src/main/java/com/giozar04/card/domain/exceptions/CardExceptions.java
 src/main/java/com/giozar04/cardTransactionDetails/application/utils/CardTransactionDetailUtils.java
 src/main/java/com/giozar04/cardTransactionDetails/domain/entities/CardTransactionDetail.java
 src/main/java/com/giozar04/cardTransactionDetails/domain/exceptions/CardTransactionDetailExceptions.java
-src/main/java/com/giozar04/categories/application/utils/CategoryUtils.java
+src/main/java/com/giozar04/categories/application/exceptions/CategoryCreationException.java
+src/main/java/com/giozar04/categories/application/exceptions/CategoryDeletionException.java
+src/main/java/com/giozar04/categories/application/exceptions/CategoryNotFoundException.java
+src/main/java/com/giozar04/categories/application/exceptions/CategoryRetrievalException.java
+src/main/java/com/giozar04/categories/application/exceptions/CategoryUpdateException.java
 src/main/java/com/giozar04/categories/domain/entities/Category.java
 src/main/java/com/giozar04/categories/domain/enums/CategoryTypes.java
-src/main/java/com/giozar04/categories/domain/exceptions/CategoryExceptions.java
+src/main/java/com/giozar04/categories/infrastructure/serialization/CategoryMapper.java
 src/main/java/com/giozar04/externalEntities/application/utils/ExternalEntityUtils.java
 src/main/java/com/giozar04/externalEntities/domain/entities/ExternalEntity.java
 src/main/java/com/giozar04/externalEntities/domain/enums/ExternalEntityTypes.java

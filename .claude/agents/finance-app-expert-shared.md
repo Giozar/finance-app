@@ -14,6 +14,7 @@ model: inherit
 | --- | --- |
 | `tags` | Migrada: `TagMapper.toMap/fromMap`; excepciones en `application/exceptions` |
 | `users` | Migrada: `UserMapper.toMap/fromMap`; excepciones separadas |
+| `categories` | Migrada: `CategoryMapper.toMap/fromMap`; excepciones separadas |
 | Resto | Estructura anterior hasta su commit; consulte `MIGRATION.md` |
 
 Las secciones «Estructura de una feature» y «Convenciones» más abajo describen

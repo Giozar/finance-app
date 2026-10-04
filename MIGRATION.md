@@ -9,7 +9,7 @@ Referencia funcional inicial: `a68517e`.
 | --- | --- |
 | tags | Migrada; contratos y consumidores verificados |
 | users | Migrada; contratos y consumidores verificados |
-| categories | Pendiente |
+| categories | Migrada; contratos y consumidores verificados |
 | externalEntities | Pendiente |
 | bankClient | Pendiente |
 | accounts | Pendiente |

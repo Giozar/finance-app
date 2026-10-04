@@ -13,7 +13,11 @@ import java.util.List;
 
 import com.giozar04.categories.domain.entities.Category;
 import com.giozar04.categories.domain.enums.CategoryTypes;
-import com.giozar04.categories.domain.exceptions.CategoryExceptions;
+import com.giozar04.categories.application.exceptions.CategoryCreationException;
+import com.giozar04.categories.application.exceptions.CategoryDeletionException;
+import com.giozar04.categories.application.exceptions.CategoryNotFoundException;
+import com.giozar04.categories.application.exceptions.CategoryRetrievalException;
+import com.giozar04.categories.application.exceptions.CategoryUpdateException;
 import com.giozar04.categories.domain.models.CategoryRepositoryAbstract;
 import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
 
@@ -70,7 +74,7 @@ public class CategoryRepositoryMySQL extends CategoryRepositoryAbstract {
 
         } catch (SQLException e) {
             rollback();
-            throw new CategoryExceptions.CategoryCreationException("Error al crear la categoría", e);
+            throw new CategoryCreationException("Error al crear la categoría", e);
         }
     }
 
@@ -86,12 +90,12 @@ public class CategoryRepositoryMySQL extends CategoryRepositoryAbstract {
                 if (rs.next()) {
                     return mapResultSetToCategory(rs);
                 } else {
-                    throw new CategoryExceptions.CategoryNotFoundException("Categoría no encontrada con ID: " + id, null);
+                    throw new CategoryNotFoundException("Categoría no encontrada con ID: " + id, null);
                 }
             }
 
         } catch (SQLException e) {
-            throw new CategoryExceptions.CategoryRetrievalException("Error al obtener categoría con ID: " + id, e);
+            throw new CategoryRetrievalException("Error al obtener categoría con ID: " + id, e);
         }
     }
 
@@ -113,7 +117,7 @@ public class CategoryRepositoryMySQL extends CategoryRepositoryAbstract {
 
             int affected = stmt.executeUpdate();
             if (affected == 0) {
-                throw new CategoryExceptions.CategoryNotFoundException("Categoría no encontrada con ID: " + id, null);
+                throw new CategoryNotFoundException("Categoría no encontrada con ID: " + id, null);
             }
 
             databaseConnection.commitTransaction();
@@ -122,7 +126,7 @@ public class CategoryRepositoryMySQL extends CategoryRepositoryAbstract {
 
         } catch (SQLException e) {
             rollback();
-            throw new CategoryExceptions.CategoryUpdateException("Error al actualizar categoría con ID: " + id, e);
+            throw new CategoryUpdateException("Error al actualizar categoría con ID: " + id, e);
         }
     }
 
@@ -137,7 +141,7 @@ public class CategoryRepositoryMySQL extends CategoryRepositoryAbstract {
 
             int affected = stmt.executeUpdate();
             if (affected == 0) {
-                throw new CategoryExceptions.CategoryNotFoundException("Categoría no encontrada con ID: " + id, null);
+                throw new CategoryNotFoundException("Categoría no encontrada con ID: " + id, null);
             }
 
             databaseConnection.commitTransaction();
@@ -145,7 +149,7 @@ public class CategoryRepositoryMySQL extends CategoryRepositoryAbstract {
 
         } catch (SQLException e) {
             rollback();
-            throw new CategoryExceptions.CategoryDeletionException("Error al eliminar categoría con ID: " + id, e);
+            throw new CategoryDeletionException("Error al eliminar categoría con ID: " + id, e);
         }
     }
 
@@ -164,7 +168,7 @@ public class CategoryRepositoryMySQL extends CategoryRepositoryAbstract {
             return categories;
 
         } catch (SQLException e) {
-            throw new CategoryExceptions.CategoryRetrievalException("Error al obtener todas las categorías", e);
+            throw new CategoryRetrievalException("Error al obtener todas las categorías", e);
         }
     }
 
@@ -186,7 +190,7 @@ public class CategoryRepositoryMySQL extends CategoryRepositoryAbstract {
             return list;
 
         } catch (SQLException e) {
-            throw new CategoryExceptions.CategoryRetrievalException("Error al obtener las categorías del usuario con ID: " + userId, e);
+            throw new CategoryRetrievalException("Error al obtener las categorías del usuario con ID: " + userId, e);
         }
     }
 
