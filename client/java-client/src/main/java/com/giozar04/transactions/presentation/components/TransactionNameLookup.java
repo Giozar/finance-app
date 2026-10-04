@@ -9,7 +9,8 @@ import com.giozar04.accounts.domain.entities.Account;
 import com.giozar04.accounts.application.ports.input.AccountOperations;
 import com.giozar04.bootstrap.ClientUseCases;
 import com.giozar04.card.domain.entities.Card;
-import com.giozar04.cards.infrastructure.services.CardService;
+import com.giozar04.cards.application.ports.input.CardOperations;
+import com.giozar04.bootstrap.ClientUseCases;
 import com.giozar04.categories.domain.entities.Category;
 import com.giozar04.categories.application.ports.input.CategoryOperations;
 import com.giozar04.bootstrap.ClientUseCases;
@@ -133,7 +134,7 @@ public class TransactionNameLookup {
         if (cards == null) {
             cards = new HashMap<>();
             try {
-                for (Card card : CardService.getInstance().getAllCards()) {
+                for (Card card : ClientUseCases.get(CardOperations.class).getAllCards()) {
                     cards.put(card.getId(), card);
                 }
             } catch (ClientOperationException | RuntimeException e) {

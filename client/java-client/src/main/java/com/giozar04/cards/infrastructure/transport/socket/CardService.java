@@ -1,4 +1,4 @@
-package com.giozar04.cards.infrastructure.services;
+package com.giozar04.cards.infrastructure.transport.socket;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,13 +11,14 @@ import com.giozar04.card.application.exceptions.CardDeletionException;
 import com.giozar04.card.infrastructure.serialization.CardParsingException;
 import com.giozar04.card.application.exceptions.CardRetrievalException;
 import com.giozar04.card.application.exceptions.CardUpdateException;
+import com.giozar04.cards.application.ports.output.CardGateway;
 import com.giozar04.logging.infrastructure.ConsoleLogger;
 import com.giozar04.messages.infrastructure.transport.Message;
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
 import com.giozar04.serverConnection.application.services.ServerConnectionService;
 import com.giozar04.serverConnection.application.validators.ServerResponseValidator;
 
-public class CardService {
+public class CardService implements CardGateway {
 
     private final ServerConnectionService serverConnectionService;
     private static final ConsoleLogger logger = ConsoleLogger.getInstance();

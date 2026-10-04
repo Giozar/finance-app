@@ -13,7 +13,9 @@ import com.giozar04.bankClients.infrastructure.transport.socket.BankClientServic
 import com.giozar04.bankClients.application.usecases.BankClientUseCase;
 import com.giozar04.bankClients.application.ports.input.BankClientOperations;
 import com.giozar04.cardTransactionDetails.infrastructure.services.CardTransactionDetailService;
-import com.giozar04.cards.infrastructure.services.CardService;
+import com.giozar04.cards.infrastructure.transport.socket.CardService;
+import com.giozar04.cards.application.usecases.CardUseCase;
+import com.giozar04.cards.application.ports.input.CardOperations;
 import com.giozar04.categories.infrastructure.transport.socket.CategoryService;
 import com.giozar04.categories.application.usecases.CategoryUseCase;
 import com.giozar04.categories.application.ports.input.CategoryOperations;
@@ -85,6 +87,7 @@ public class ApplicationInitializer {
             System.out.println("✅ Servicios de cuentas conectado correctamente");
 
             this.cardService = CardService.connectService(connectionService);
+            ClientUseCases.register(CardOperations.class, new CardUseCase(CardService.getInstance()));
             System.out.println("✅ Servicio de tarjetas conectado correctamente.");
 
             this.categoryService = CategoryService.connectService(connectionService);

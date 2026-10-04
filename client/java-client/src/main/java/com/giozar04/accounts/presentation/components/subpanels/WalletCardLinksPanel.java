@@ -29,7 +29,8 @@ import com.giozar04.bankClients.application.ports.input.BankClientOperations;
 import com.giozar04.bootstrap.ClientUseCases;
 import com.giozar04.card.domain.entities.Card;
 import com.giozar04.card.domain.enums.CardTypes;
-import com.giozar04.cards.infrastructure.services.CardService;
+import com.giozar04.cards.application.ports.input.CardOperations;
+import com.giozar04.bootstrap.ClientUseCases;
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
 import com.giozar04.shared.components.forms.FormComboBox;
 import com.giozar04.shared.utils.DialogUtil;
@@ -148,7 +149,7 @@ public class WalletCardLinksPanel extends JPanel {
             }
 
             // 2. Obtener todas las tarjetas del sistema
-            List<Card> allCards = CardService.getInstance().getAllCards();
+            List<Card> allCards = ClientUseCases.get(CardOperations.class).getAllCards();
 
             // Filtrar tarjetas asociadas a las cuentas del usuario
             List<Card> userCards = new ArrayList<>();

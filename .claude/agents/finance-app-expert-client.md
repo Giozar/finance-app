@@ -8,6 +8,8 @@ model: inherit
 
 ## Migración vigente
 
+- `cards`: `CardOperations` → `CardUseCase` → `CardGateway` → `CardService` (socket).
+
 - `accounts`: `AccountOperations` → `AccountUseCase` → `AccountGateway` → `AccountService` (socket).
 
 - `bankClients`: `BankClientOperations` → `BankClientUseCase` → `BankClientGateway` → `BankClientService` (socket).

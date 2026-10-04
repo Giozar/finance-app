@@ -9,7 +9,7 @@ import com.giozar04.accounts.domain.enums.AccountTypes;
 import com.giozar04.accounts.infrastructure.transport.socket.AccountService;
 import com.giozar04.card.domain.entities.Card;
 import com.giozar04.card.domain.enums.CardTypes;
-import com.giozar04.cards.infrastructure.services.CardService;
+import com.giozar04.cards.infrastructure.transport.socket.CardService;
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
 import com.giozar04.serverConnection.application.services.ServerConnectionService;
 import com.giozar04.users.domain.entities.User;

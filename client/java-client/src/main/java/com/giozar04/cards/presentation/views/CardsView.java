@@ -20,7 +20,8 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 
 import com.giozar04.card.domain.entities.Card;
-import com.giozar04.cards.infrastructure.services.CardService;
+import com.giozar04.cards.application.ports.input.CardOperations;
+import com.giozar04.bootstrap.ClientUseCases;
 import com.giozar04.cards.presentation.components.CardFormPanel;
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
 import com.giozar04.shared.components.MainContentPanel;
@@ -33,12 +34,12 @@ import com.giozar04.shared.utils.DialogUtil;
 
 public class CardsView extends JPanel implements PopupMenuActionHandler {
 
-    private final CardService cardService;
+    private final CardOperations cardService;
     private JTextField searchField;
     private GenericTablePanel<Card> tablePanel;
 
     public CardsView() {
-        cardService = CardService.getInstance();
+        cardService = ClientUseCases.get(CardOperations.class);
 
         setLayout(new BorderLayout());
         setBorder(new EmptyBorder(10, 10, 10, 10));

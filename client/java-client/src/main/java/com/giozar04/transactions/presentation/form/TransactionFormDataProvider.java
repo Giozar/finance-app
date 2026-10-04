@@ -15,7 +15,8 @@ import com.giozar04.accounts.application.ports.input.AccountOperations;
 import com.giozar04.bootstrap.ClientUseCases;
 import com.giozar04.card.domain.entities.Card;
 import com.giozar04.card.domain.enums.CardTypes;
-import com.giozar04.cards.infrastructure.services.CardService;
+import com.giozar04.cards.application.ports.input.CardOperations;
+import com.giozar04.bootstrap.ClientUseCases;
 import com.giozar04.categories.domain.entities.Category;
 import com.giozar04.categories.domain.enums.CategoryTypes;
 import com.giozar04.categories.application.ports.input.CategoryOperations;
@@ -213,7 +214,7 @@ public class TransactionFormDataProvider {
         List<Card> cached = cardsByAccount.get(accountId);
         if (cached == null) {
             try {
-                cached = new ArrayList<>(CardService.getInstance().getCardsByAccountId(accountId));
+                cached = new ArrayList<>(ClientUseCases.get(CardOperations.class).getCardsByAccountId(accountId));
             } catch (ClientOperationException | RuntimeException e) {
                 reportError("Error al cargar las tarjetas de la cuenta: " + e.getMessage());
                 return List.of();
@@ -283,7 +284,7 @@ public class TransactionFormDataProvider {
     private Map<Long, Card> getAllCardsById() throws ClientOperationException {
         if (allCardsById == null) {
             Map<Long, Card> byId = new HashMap<>();
-            for (Card card : CardService.getInstance().getAllCards()) {
+            for (Card card : ClientUseCases.get(CardOperations.class).getAllCards()) {
                 byId.put(card.getId(), card);
             }
             allCardsById = byId;

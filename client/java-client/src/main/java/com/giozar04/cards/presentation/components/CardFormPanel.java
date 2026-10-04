@@ -20,7 +20,8 @@ import com.giozar04.accounts.application.ports.input.AccountOperations;
 import com.giozar04.bootstrap.ClientUseCases;
 import com.giozar04.card.domain.entities.Card;
 import com.giozar04.card.domain.enums.CardTypes;
-import com.giozar04.cards.infrastructure.services.CardService;
+import com.giozar04.cards.application.ports.input.CardOperations;
+import com.giozar04.bootstrap.ClientUseCases;
 import com.giozar04.cards.presentation.views.CardsView;
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
 import com.giozar04.shared.components.MainContentPanel;
@@ -245,10 +246,10 @@ public class CardFormPanel extends JPanel {
 
         try {
             if (currentCard == null) {
-                CardService.getInstance().createCard(card);
+                ClientUseCases.get(CardOperations.class).createCard(card);
                 DialogUtil.showSuccess(this, "Tarjeta creada exitosamente.");
             } else {
-                CardService.getInstance().updateCardById(card.getId(), card);
+                ClientUseCases.get(CardOperations.class).updateCardById(card.getId(), card);
                 DialogUtil.showSuccess(this, "Tarjeta actualizada exitosamente.");
             }
             clearForm();
