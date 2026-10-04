@@ -13,7 +13,7 @@ import com.giozar04.categories.domain.entities.Category;
 import com.giozar04.categories.infrastructure.services.CategoryService;
 import com.giozar04.externalEntities.domain.entities.ExternalEntity;
 import com.giozar04.externalEntities.infrastructure.services.ExternalEntityService;
-import com.giozar04.logging.CustomLogger;
+import com.giozar04.logging.infrastructure.ConsoleLogger;
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
 import com.giozar04.tags.domain.entities.Tag;
 import com.giozar04.tags.infrastructure.services.TagService;
@@ -30,7 +30,7 @@ import com.giozar04.walletTransactionDetails.domain.enums.WalletTransactionSourc
  */
 public class TransactionNameLookup {
 
-    private static final CustomLogger logger = CustomLogger.getInstance();
+    private static final ConsoleLogger logger = ConsoleLogger.getInstance();
 
     private final Map<Long, Account> accounts = new HashMap<>();
     private final Map<Long, String> entityNames = new HashMap<>();

@@ -7,12 +7,12 @@ import java.util.Objects;
 import com.giozar04.accountCashbackSettings.domain.entities.AccountCashbackSetting;
 import com.giozar04.accountCashbackSettings.domain.interfaces.AccountCashbackSettingRepositoryInterface;
 import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
-import com.giozar04.logging.CustomLogger;
+import com.giozar04.logging.infrastructure.ConsoleLogger;
 
 public abstract class AccountCashbackSettingRepositoryAbstract implements AccountCashbackSettingRepositoryInterface {
 
     protected final DatabaseConnectionInterface databaseConnection;
-    protected final CustomLogger logger = CustomLogger.getInstance();
+    protected final ConsoleLogger logger = ConsoleLogger.getInstance();
 
     protected AccountCashbackSettingRepositoryAbstract(DatabaseConnectionInterface databaseConnection) {
         this.databaseConnection = Objects.requireNonNull(databaseConnection,

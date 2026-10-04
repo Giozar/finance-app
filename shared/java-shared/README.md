@@ -2,7 +2,7 @@
 
 # java-shared
 
-Módulo Java con los contratos compartidos entre `backend/java-server` (servidor) y `client/java-client` (cliente): entidades, enums, excepciones y utilidades de conversión. No contiene lógica de negocio ni UI. Sin dependencias externas (JSON propio en `JsonUtils`).
+Módulo Java con los contratos compartidos entre `backend/java-server` (servidor) y `client/java-client` (cliente): entidades, enums, excepciones y utilidades de conversión. No contiene lógica de negocio ni UI. Sin dependencias externas (JSON propio en `MessageJsonCodec`).
 
 El árbol completo de archivos está en `GENERALSHARED.md` y la guía para crear una feature en `src/main/java/com/giozar04/shared-explanation.md`.
 
@@ -18,10 +18,10 @@ Features:
 - `transactions`: raíz de agregado (`Transaction` con `tagIds` y `cardDetail`/`walletDetail` anidados; `TransactionMapper.toMap/fromMap`)
 
 Transversales:
-- `messages/domain/models/Message.java` – mensaje cliente ↔ servidor.
-- `json/utils/JsonUtils.java` – serialización JSON (escapa/desescapa strings; el literal `null` se lee como `null`).
-- `shared/utils/SharedUtils.java` – parseo seguro y formato de fechas.
-- `logging/CustomLogger.java` – logger del proyecto.
+- `messages/infrastructure/transport/Message.java` – mensaje cliente ↔ servidor.
+- `messages/infrastructure/serialization/MessageJsonCodec.java` – serialización JSON (escapa/desescapa strings; el literal `null` se lee como `null`).
+- `shared/infrastructure/serialization/ValueParser.java` – parseo seguro y formato de fechas.
+- `logging/infrastructure/ConsoleLogger.java` – logger del proyecto.
 
 Las features migradas siguen esta estructura, creando solo las carpetas necesarias:
 
@@ -32,9 +32,8 @@ Las features migradas siguen esta estructura, creando solo las carpetas necesari
 └─ infrastructure/serialization/<Entity>Mapper.java
 ```
 
-`tags` es la referencia ya migrada: `TagMapper.toMap/fromMap`. Las features
-pendientes conservan `application/utils` y contenedores `domain/exceptions` hasta
-su commit. Consulte `MIGRATION.md` en la raíz para el estado exacto.
+`tags` es la referencia ya migrada: `TagMapper.toMap/fromMap`. Todas las features de shared usan este patrón. Consulte `MIGRATION.md` en la raíz
+para el estado de las etapas de backend y client.
 
 Enums: cada constante tiene `(value, label)`; `value` se guarda en MAYÚSCULAS y es igual al nombre de la constante (ej. `INCOME("INCOME", "Ingreso")`), debe coincidir con los CHECK de la base de datos; `label` es el texto en español para UI; `fromValue` no distingue mayúsculas/minúsculas.
 
@@ -50,7 +49,7 @@ Estas clases son utilizadas por el servidor y el cliente, y están centralizadas
 java-shared/
 ├─ src/main/java/com/giozar04/
 │   ├─ <feature>/...
-│   ├─ json/  logging/  messages/  shared/
+│   ├─ logging/  messages/  shared/
 ├─ pom.xml
 ```
 

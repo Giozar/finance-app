@@ -11,8 +11,8 @@ import com.giozar04.accounts.application.exceptions.AccountDeletionException;
 import com.giozar04.accounts.infrastructure.serialization.AccountParsingException;
 import com.giozar04.accounts.application.exceptions.AccountRetrievalException;
 import com.giozar04.accounts.application.exceptions.AccountUpdateException;
-import com.giozar04.logging.CustomLogger;
-import com.giozar04.messages.domain.models.Message;
+import com.giozar04.logging.infrastructure.ConsoleLogger;
+import com.giozar04.messages.infrastructure.transport.Message;
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
 import com.giozar04.serverConnection.application.services.ServerConnectionService;
 import com.giozar04.serverConnection.application.validators.ServerResponseValidator;
@@ -21,7 +21,7 @@ import com.giozar04.serverConnection.application.validators.ServerResponseValida
 public class AccountService {
 
     private final ServerConnectionService serverConnectionService;
-    private static final CustomLogger logger = CustomLogger.getInstance();
+    private static final ConsoleLogger logger = ConsoleLogger.getInstance();
     private static AccountService instance;
 
     private AccountService(ServerConnectionService serverConnectionService) {

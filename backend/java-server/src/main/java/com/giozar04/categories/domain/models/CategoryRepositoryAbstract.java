@@ -7,12 +7,12 @@ import com.giozar04.categories.domain.entities.Category;
 import com.giozar04.categories.domain.enums.CategoryTypes;
 import com.giozar04.categories.domain.interfaces.CategoryRepositoryInterface;
 import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
-import com.giozar04.logging.CustomLogger;
+import com.giozar04.logging.infrastructure.ConsoleLogger;
 
 public abstract class CategoryRepositoryAbstract implements CategoryRepositoryInterface {
 
     protected final DatabaseConnectionInterface databaseConnection;
-    protected final CustomLogger logger = CustomLogger.getInstance();
+    protected final ConsoleLogger logger = ConsoleLogger.getInstance();
 
     protected CategoryRepositoryAbstract(DatabaseConnectionInterface databaseConnection) {
         this.databaseConnection = Objects.requireNonNull(databaseConnection, "La conexión a base de datos no puede ser nula");

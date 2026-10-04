@@ -13,7 +13,7 @@ import com.giozar04.cards.infrastructure.services.CardService;
 import com.giozar04.categories.infrastructure.services.CategoryService;
 import com.giozar04.configs.ServerConnectionConfig;
 import com.giozar04.externalEntities.infrastructure.services.ExternalEntityService;
-import com.giozar04.logging.CustomLogger;
+import com.giozar04.logging.infrastructure.ConsoleLogger;
 import com.giozar04.serverConnection.application.services.ServerConnectionService;
 import com.giozar04.shared.layouts.AppLayout;
 import com.giozar04.tags.infrastructure.services.TagService;
@@ -25,7 +25,7 @@ import com.giozar04.walletTransactionDetails.infrastructure.services.WalletTrans
 
 public class ApplicationInitializer {
 
-    private final CustomLogger logger = CustomLogger.getInstance();
+    private final ConsoleLogger logger = ConsoleLogger.getInstance();
 
     private ServerConnectionService connectionService;
     private UserService userService;

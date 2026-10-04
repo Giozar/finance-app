@@ -7,14 +7,14 @@ import java.util.Map;
 import com.giozar04.accountCashbackSettings.application.services.AccountCashbackSettingService;
 import com.giozar04.accountCashbackSettings.infrastructure.serialization.AccountCashbackSettingMapper;
 import com.giozar04.accountCashbackSettings.domain.entities.AccountCashbackSetting;
-import com.giozar04.logging.CustomLogger;
-import com.giozar04.messages.domain.models.Message;
+import com.giozar04.logging.infrastructure.ConsoleLogger;
+import com.giozar04.messages.infrastructure.transport.Message;
 import com.giozar04.servers.domain.handlers.MessageHandler;
 import com.giozar04.servers.domain.models.ClientConnection;
 
 public class AccountCashbackSettingControllers {
 
-    private static final CustomLogger LOGGER = CustomLogger.getInstance();
+    private static final ConsoleLogger LOGGER = ConsoleLogger.getInstance();
 
     public static final class MessageTypes {
         public static final String CREATE_ACCOUNT_CASHBACK_SETTING  = "CREATE_ACCOUNT_CASHBACK_SETTING";

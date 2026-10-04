@@ -8,8 +8,8 @@ import com.giozar04.accountReconciliations.infrastructure.serialization.AccountR
 import com.giozar04.accountReconciliations.domain.entities.AccountReconciliation;
 import com.giozar04.accountReconciliations.application.exceptions.AccountReconciliationAdjustmentException;
 import com.giozar04.accountReconciliations.application.exceptions.AccountReconciliationRetrievalException;
-import com.giozar04.logging.CustomLogger;
-import com.giozar04.messages.domain.models.Message;
+import com.giozar04.logging.infrastructure.ConsoleLogger;
+import com.giozar04.messages.infrastructure.transport.Message;
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
 import com.giozar04.serverConnection.application.services.ServerConnectionService;
 import com.giozar04.serverConnection.application.validators.ServerResponseValidator;
@@ -17,7 +17,7 @@ import com.giozar04.serverConnection.application.validators.ServerResponseValida
 public class AccountReconciliationService {
 
     private final ServerConnectionService serverConnectionService;
-    private static final CustomLogger logger = CustomLogger.getInstance();
+    private static final ConsoleLogger logger = ConsoleLogger.getInstance();
     private static AccountReconciliationService instance;
 
     private AccountReconciliationService(ServerConnectionService serverConnectionService) {

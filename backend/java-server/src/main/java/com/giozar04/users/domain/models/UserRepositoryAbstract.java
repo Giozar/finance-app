@@ -4,14 +4,14 @@ import java.util.List;
 import java.util.Objects;
 
 import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
-import com.giozar04.logging.CustomLogger;
+import com.giozar04.logging.infrastructure.ConsoleLogger;
 import com.giozar04.users.domain.entities.User;
 import com.giozar04.users.domain.interfaces.UserRepositoryInterface;
 
 public abstract class UserRepositoryAbstract implements UserRepositoryInterface {
 
     protected final DatabaseConnectionInterface databaseConnection;
-    protected final CustomLogger logger =  CustomLogger.getInstance();
+    protected final ConsoleLogger logger =  ConsoleLogger.getInstance();
 
     protected UserRepositoryAbstract(DatabaseConnectionInterface databaseConnection) {
         this.databaseConnection = Objects.requireNonNull(databaseConnection, 

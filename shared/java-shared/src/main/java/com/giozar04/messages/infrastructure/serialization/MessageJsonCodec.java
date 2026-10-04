@@ -1,18 +1,18 @@
-package com.giozar04.json.utils;
+package com.giozar04.messages.infrastructure.serialization;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.giozar04.messages.domain.models.Message;
+import com.giozar04.messages.infrastructure.transport.Message;
 
 /**
  * Utilidades para convertir objetos a JSON y viceversa sin librerías externas.
  */
-public class JsonUtils {
+public class MessageJsonCodec {
 
-    public static String messageToJson(Message msg) {
+    public static String encode(Message msg) {
         StringBuilder sb = new StringBuilder();
         sb.append("{")
           .append("\"type\":\"").append(msg.getType() == null ? "" : escape(msg.getType())).append("\",")
@@ -23,7 +23,7 @@ public class JsonUtils {
         return sb.toString();
     }
 
-    public static Message jsonToMessage(String json) {
+    public static Message decode(String json) {
         Message message = new Message();
         String typeValue = extractJsonField(json, "type");
         message.setType(typeValue);

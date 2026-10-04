@@ -7,14 +7,14 @@ import java.util.Map;
 import com.giozar04.accountReconciliations.application.services.AccountReconciliationService;
 import com.giozar04.accountReconciliations.infrastructure.serialization.AccountReconciliationMapper;
 import com.giozar04.accountReconciliations.domain.entities.AccountReconciliation;
-import com.giozar04.logging.CustomLogger;
-import com.giozar04.messages.domain.models.Message;
+import com.giozar04.logging.infrastructure.ConsoleLogger;
+import com.giozar04.messages.infrastructure.transport.Message;
 import com.giozar04.servers.domain.handlers.MessageHandler;
 import com.giozar04.servers.domain.models.ClientConnection;
 
 public class AccountReconciliationControllers {
 
-    private static final CustomLogger LOGGER = CustomLogger.getInstance();
+    private static final ConsoleLogger LOGGER = ConsoleLogger.getInstance();
 
     public static final class AccountReconciliationMessageTypes {
         public static final String GET_ALL_ACCOUNT_RECONCILIATIONS = "GET_ALL_ACCOUNT_RECONCILIATIONS";

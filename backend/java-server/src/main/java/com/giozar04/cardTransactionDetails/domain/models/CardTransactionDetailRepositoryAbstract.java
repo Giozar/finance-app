@@ -7,12 +7,12 @@ import java.util.Objects;
 import com.giozar04.cardTransactionDetails.domain.entities.CardTransactionDetail;
 import com.giozar04.cardTransactionDetails.domain.interfaces.CardTransactionDetailRepositoryInterface;
 import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
-import com.giozar04.logging.CustomLogger;
+import com.giozar04.logging.infrastructure.ConsoleLogger;
 
 public abstract class CardTransactionDetailRepositoryAbstract implements CardTransactionDetailRepositoryInterface {
 
     protected final DatabaseConnectionInterface databaseConnection;
-    protected final CustomLogger logger = CustomLogger.getInstance();
+    protected final ConsoleLogger logger = ConsoleLogger.getInstance();
 
     protected CardTransactionDetailRepositoryAbstract(DatabaseConnectionInterface databaseConnection) {
         this.databaseConnection = Objects.requireNonNull(databaseConnection, "La conexión a base de datos no puede ser nula");

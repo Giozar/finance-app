@@ -10,9 +10,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import com.giozar04.json.utils.JsonUtils;
-import com.giozar04.messages.domain.models.Message;
-import com.giozar04.shared.utils.SharedUtils;
+import com.giozar04.messages.infrastructure.serialization.MessageJsonCodec;
+import com.giozar04.messages.infrastructure.transport.Message;
+import com.giozar04.shared.infrastructure.serialization.ValueParser;
 
 /** Caracterización del protocolo antes de migrar. La referencia se compara con un parser JSON independiente. */
 public final class ContractProbe {
@@ -52,7 +52,7 @@ public final class ContractProbe {
                 // Documentar también los rechazos actuales de entradas incompletas.
                 scenarios.put(feature.name() + ".defaults", wire(Map.of("exception", error.getCause().getClass().getName())));
             }
-            Message decoded = JsonUtils.jsonToMessage(wire(full));
+            Message decoded = MessageJsonCodec.decode(wire(full));
             scenarios.put(feature.name() + ".jsonRoundtrip", wire(asMap(write.invoke(null, read.invoke(null, decoded.getData())))));
 
             // Cada valor de enum debe conservar sus códigos de intercambio.
@@ -78,14 +78,14 @@ public final class ContractProbe {
             }
         }
         ZonedDateTime before = ZonedDateTime.now();
-        ZonedDateTime fallback = SharedUtils.parseZonedDateTime("invalid");
+        ZonedDateTime fallback = ValueParser.parseZonedDateTime("invalid");
         if (fallback.isBefore(before) || fallback.isAfter(ZonedDateTime.now()))
             throw new AssertionError("Cambió el fallback de fechas");
-        if (SharedUtils.parseLong("invalid") != 0L || SharedUtils.parseNullableLong("invalid") != null)
+        if (ValueParser.parseLong("invalid") != 0L || ValueParser.parseNullableLong("invalid") != null)
             throw new AssertionError("Cambió el fallback numérico");
         Message result = new Message("contracts", "Baseline de shared");
         result.setData(scenarios);
-        System.out.println(JsonUtils.messageToJson(result));
+        System.out.println(MessageJsonCodec.encode(result));
     }
 
     private static List<Method> setters(Class<?> type) {
@@ -123,6 +123,6 @@ public final class ContractProbe {
     private static String wire(Map<String, Object> data) {
         Message message = new Message("CONTRACT", "Comillas: \"; barra: \\; salto: \n; tab: \t; unicode: á");
         message.setData(data);
-        return JsonUtils.messageToJson(message);
+        return MessageJsonCodec.encode(message);
     }
 }

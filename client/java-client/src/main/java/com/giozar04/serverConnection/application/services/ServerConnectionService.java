@@ -10,8 +10,8 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import com.giozar04.json.utils.JsonUtils;
-import com.giozar04.messages.domain.models.Message;
+import com.giozar04.messages.infrastructure.serialization.MessageJsonCodec;
+import com.giozar04.messages.infrastructure.transport.Message;
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
 import com.giozar04.serverConnection.domain.models.ServerConnectionAbstract;
 
@@ -54,7 +54,7 @@ public class ServerConnectionService extends ServerConnectionAbstract {
                         break;
                     }
 
-                    Message message = JsonUtils.jsonToMessage(line);
+                    Message message = MessageJsonCodec.decode(line);
                     if (message != null) {
                         processIncomingMessage(message); // extensible para el futuro
 
@@ -92,7 +92,7 @@ public class ServerConnectionService extends ServerConnectionAbstract {
     public void sendMessage(Message message) throws ClientOperationException {
         if (socket != null && !socket.isClosed() && out != null) {
             try {
-                String json = JsonUtils.messageToJson(message);
+                String json = MessageJsonCodec.encode(message);
                 out.println(json);
             } catch (Exception e) {
                 throw new ClientOperationException("Error al enviar el mensaje: " + e.getMessage(), e);

@@ -9,7 +9,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
-import com.giozar04.logging.CustomLogger;
+import com.giozar04.logging.infrastructure.ConsoleLogger;
 import com.giozar04.servers.domain.exceptions.ServerOperationException;
 import com.giozar04.servers.domain.interfaces.ServerInterface;
 
@@ -25,7 +25,7 @@ public abstract class ServerAbstract implements ServerInterface {
     protected final int serverPort;
     protected volatile boolean isRunning;
     protected final ExecutorService threadPool;
-    protected final CustomLogger logger = CustomLogger.getInstance();
+    protected final ConsoleLogger logger = ConsoleLogger.getInstance();
     protected final AtomicInteger connectedClientsCount = new AtomicInteger(0);
     // Generador único de identificadores para clientes
     protected final AtomicInteger clientIdGenerator = new AtomicInteger(0);

@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import com.giozar04.logging.CustomLogger;
-import com.giozar04.messages.domain.models.Message;
+import com.giozar04.logging.infrastructure.ConsoleLogger;
+import com.giozar04.messages.infrastructure.transport.Message;
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
 import com.giozar04.serverConnection.application.services.ServerConnectionService;
 import com.giozar04.serverConnection.application.validators.ServerResponseValidator;
@@ -19,7 +19,7 @@ import com.giozar04.tags.application.exceptions.TagUpdateException;
 public class TagService {
 
     private final ServerConnectionService serverConnectionService;
-    private static final CustomLogger logger = CustomLogger.getInstance();
+    private static final ConsoleLogger logger = ConsoleLogger.getInstance();
     private static TagService instance;
 
     private TagService(ServerConnectionService serverConnectionService) {

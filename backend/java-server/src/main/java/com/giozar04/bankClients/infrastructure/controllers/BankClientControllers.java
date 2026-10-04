@@ -7,14 +7,14 @@ import java.util.Map;
 import com.giozar04.bankClient.infrastructure.serialization.BankClientMapper;
 import com.giozar04.bankClient.domain.entities.BankClient;
 import com.giozar04.bankClients.application.services.BankClientService;
-import com.giozar04.logging.CustomLogger;
-import com.giozar04.messages.domain.models.Message;
+import com.giozar04.logging.infrastructure.ConsoleLogger;
+import com.giozar04.messages.infrastructure.transport.Message;
 import com.giozar04.servers.domain.handlers.MessageHandler;
 import com.giozar04.servers.domain.models.ClientConnection;
 
 public class BankClientControllers {
 
-    private static final CustomLogger LOGGER = CustomLogger.getInstance();
+    private static final ConsoleLogger LOGGER = ConsoleLogger.getInstance();
 
     public static final class BankClientMessageTypes {
         public static final String CREATE_BANK_CLIENT = "CREATE_BANK_CLIENT";

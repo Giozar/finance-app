@@ -1,6 +1,6 @@
 package com.giozar04.serverConnection.application.validators;
 
-import com.giozar04.messages.domain.models.Message;
+import com.giozar04.messages.infrastructure.transport.Message;
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
 
 public class ServerResponseValidator {

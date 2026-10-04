@@ -25,17 +25,12 @@ model: inherit
 | `walletTransactionDetails` | Migrada: `WalletTransactionDetailMapper.toMap/fromMap`; excepciones separadas |
 | `transactions` | Migrada: `TransactionMapper.toMap/fromMap`; excepciones separadas |
 | `accountReconciliations` | Migrada: `AccountReconciliationMapper.toMap/fromMap`; excepciones separadas |
-| Resto | Estructura anterior hasta su commit; consulte `MIGRATION.md` |
 
-Las secciones «Estructura de una feature» y «Convenciones» más abajo describen
-las features pendientes. En las migradas, `ARCHITECTURE.md` y
-`shared-explanation.md` definen la estructura. No vuelva a crear `TagUtils` ni
-`TagExceptions`.
+Las features migradas siguen las secciones siguientes.
 
 Consulte [ARCHITECTURE.md](../../ARCHITECTURE.md), [MIGRATION.md](../../MIGRATION.md)
 y [AGENTS.md](../../AGENTS.md). La migración autorizada sigue shared → backend → client,
-por feature y con commits locales. Las convenciones siguientes describen el código
-actual; para las features marcadas como migradas rige el estándar de ARCHITECTURE.md.
+por feature y con commits locales. Las convenciones siguientes describen el código actual y se complementan con ARCHITECTURE.md.
 Las actualizaciones necesarias de imports y llamadas en consumidores se coordinan en
 el mismo commit. Verifique con `python3 scripts/verify_shared.py`, actualice este agente
 y regenere los índices con `python3 scripts/update_indexes.py`.
@@ -87,7 +82,7 @@ Módulo compartido entre backend (`backend/java-server`) y client (`client/java-
 negocio del backend ni UI del cliente.
 
 - Maven: `groupId com.giozar04`, `artifactId java-shared`, `version 1.0-SNAPSHOT`, `packaging jar`, Java 17.
-- Sin dependencias externas (JSON propio en `json/utils/JsonUtils.java`).
+- Sin dependencias externas (JSON propio en `messages/infrastructure/serialization/MessageJsonCodec.java`).
 - Documentación: `GENERALSHARED.md` (árbol de archivos) y
   `src/main/java/com/giozar04/shared-explanation.md` (cómo crear una feature).
 - `README.md` de shared está actualizado (paquetes reales **`com.giozar04.<feature>...`**). Aun así, la
@@ -109,22 +104,25 @@ Notas:
 - `CategoryTypes`: `INCOME`, `EXPENSE`, `REALLOCATION` (Reubicación), `BOTH`.
 
 Transversales:
-- `shared/utils/SharedUtils.java` – parseo seguro y formato de fechas.
-- `json/utils/JsonUtils.java` – serialización JSON: escapa `\`, `"`, `\n`, `\r`, `\t` y control (`\uXXXX`) y
+- `shared/infrastructure/serialization/ValueParser.java` – parseo seguro y formato de fechas.
+- `messages/infrastructure/serialization/MessageJsonCodec.java` – serialización JSON: escapa `\`, `"`, `\n`, `\r`, `\t` y control (`\uXXXX`) y
   los desescapa al leer; el literal `null` llega como clave ausente (`get` → null); escalares llegan como String.
-- `messages/domain/models/Message.java` – mensaje de comunicación cliente ↔ servidor.
-- `logging/CustomLogger.java` – logger del proyecto.
+- `messages/infrastructure/transport/Message.java` – mensaje de comunicación cliente ↔ servidor.
+- `logging/infrastructure/ConsoleLogger.java` – logger del proyecto.
 
 ## Estructura de una feature
 
 ```text
-<feature>
-├── application/utils/<Feature>Utils.java
-└── domain
-    ├── entities/<Feature>.java
-    ├── enums/<Feature>Types.java        (opcional, solo si hay valores controlados)
-    └── exceptions/<Feature>Exceptions.java
+<feature>/
+├── domain/entities/<Entity>.java
+├── domain/enums/<Enum>.java                         (si aplica)
+├── domain/exceptions/<Entity>ValidationException.java (si aplica)
+├── application/exceptions/<Entity><Operation>Exception.java
+└── infrastructure/serialization/<Entity>Mapper.java
 ```
+
+Los errores de parsing van en `infrastructure/serialization`. No cree
+contenedores `*Exceptions` ni `application/utils` para conversiones nuevas.
 
 # Convenciones
 
@@ -142,28 +140,23 @@ Transversales:
 - Getters `getValue()` y `getLabel()`; `toString()` devuelve `label`.
 - `public static <Enum> fromValue(String value)` con `equalsIgnoreCase`; lanza `IllegalArgumentException` si no existe.
 
-**Excepciones** (`domain/exceptions/<Feature>Exceptions.java`)
-- Clase contenedora con clases `public static class ... extends RuntimeException`.
-- Nombres: `<Feature>CreationException`, `<Feature>RetrievalException`, `<Feature>UpdateException`,
-  `<Feature>DeletionException`, `<Feature>NotFoundException`, etc.
-- Cada una con constructores `(String message)` y `(String message, Throwable cause)`.
+**Excepciones**
+- Cada excepción tiene su archivo, nombre específico de feature y constructores que
+  correspondan a los usos reales. Las reglas del dominio van en `domain/exceptions`;
+  las operaciones en `application/exceptions`; parsing en `infrastructure/serialization`.
 
-**Utils** (`application/utils/<Feature>Utils.java`)
-- `public static Map<String, Object> <feature>ToMap(<Feature> x)` y
-  `public static <Feature> mapTo<Feature>(Map<String, Object> map)`.
-- Claves del map en camelCase, idénticas al nombre del campo.
-- Fechas: en `toMap` solo si no son null, con `.format(SharedUtils.getFormatter())` (ISO_ZONED_DATE_TIME);
-  en `mapTo` con `SharedUtils.parseZonedDateTime(...)`.
-- Números: `SharedUtils.parseLong/parseDouble`; nullables con `parseNullableLong/parseNullableDouble`.
-- Enums: en `toMap` → `x.getType() != null ? x.getType().getValue() : null`;
-  en `mapTo` → `<Enum>.fromValue(str)` comprobando null antes.
+**Mapper** (`infrastructure/serialization/<Entity>Mapper.java`)
+- `toMap(<Entity>)` y `fromMap(Map<String, Object>)` conservan las claves camelCase.
+- Fechas con `ValueParser.getFormatter()` y `ValueParser.parseZonedDateTime(...)`.
+- Números con `ValueParser.parseLong/parseDouble` o variantes nullables.
+- Enums con `getValue()`/`fromValue(...)`, comprobando los nulls que admite el contrato.
 
 Ejemplos de referencia: `tags/` (simple) y `accounts/` (con enum).
 
 # Checklist al modificar shared
 
-- [ ] Campo nuevo en entidad → getter/setter + actualizar **ambos** métodos en `<Feature>Utils`.
-- [ ] Enum nuevo → en `domain/enums` con el patrón `value/label/fromValue`, y usarlo en entidad y utils.
-- [ ] Feature nueva → crear estructura completa y añadirla a `GENERALSHARED.md`.
+- [ ] Campo nuevo en entidad → getter/setter + actualizar **ambos** métodos en `<Entity>Mapper`.
+- [ ] Enum nuevo → en `domain/enums` con el patrón `value/label/fromValue`, y usarlo en entidad y mapper.
+- [ ] Feature nueva → crear solo las capas necesarias y regenerar `GENERALSHARED.md`.
 - [ ] Compilar: `cd shared/java-shared && mvn clean install`.
 - [ ] Avisar al usuario de que backend y client deben recompilarse (y adaptarse si cambió el contrato).

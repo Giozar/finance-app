@@ -7,7 +7,7 @@ import java.util.Properties;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
-import com.giozar04.logging.CustomLogger;
+import com.giozar04.logging.infrastructure.ConsoleLogger;
 
 /**
  * Clase abstracta que implementa funcionalidad común para conexiones a bases de datos.
@@ -22,7 +22,7 @@ public abstract class DatabaseConnectionAbstract implements DatabaseConnectionIn
     protected Connection connection;
     
     // Logger personalizado
-    protected final CustomLogger logger = CustomLogger.getInstance();
+    protected final ConsoleLogger logger = ConsoleLogger.getInstance();
     
     // Propiedades básicas de conexión
     protected final String databaseHost;

@@ -6,14 +6,14 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import com.giozar04.configs.ServerConfig;
-import com.giozar04.logging.CustomLogger;
+import com.giozar04.logging.infrastructure.ConsoleLogger;
 import com.giozar04.servers.application.services.ServerService;
 import com.giozar04.servers.domain.exceptions.ServerOperationException;
 import com.giozar04.servers.domain.interfaces.ServerRegisterHandlers;
 
 public class ServerInitializer {
         private final ServerConfig serverConfig;
-        private final CustomLogger logger = CustomLogger.getInstance();
+        private final ConsoleLogger logger = ConsoleLogger.getInstance();
         private final ExecutorService threadPool;
     
         public ServerInitializer(ServerConfig serverConfig) {

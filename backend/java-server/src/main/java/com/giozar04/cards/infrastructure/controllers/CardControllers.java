@@ -7,14 +7,14 @@ import java.util.Map;
 import com.giozar04.card.infrastructure.serialization.CardMapper;
 import com.giozar04.card.domain.entities.Card;
 import com.giozar04.cards.application.services.CardService;
-import com.giozar04.logging.CustomLogger;
-import com.giozar04.messages.domain.models.Message;
+import com.giozar04.logging.infrastructure.ConsoleLogger;
+import com.giozar04.messages.infrastructure.transport.Message;
 import com.giozar04.servers.domain.handlers.MessageHandler;
 import com.giozar04.servers.domain.models.ClientConnection;
 
 public class CardControllers {
 
-    private static final CustomLogger LOGGER = CustomLogger.getInstance();
+    private static final ConsoleLogger LOGGER = ConsoleLogger.getInstance();
 
     public static final class CardMessageTypes {
         public static final String CREATE_CARD = "CREATE_CARD";

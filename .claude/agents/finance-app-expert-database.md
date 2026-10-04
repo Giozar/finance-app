@@ -24,7 +24,7 @@ mínimos y precisos, **sin leer el archivo completo**, usando el índice de este
 
 Tu alcance es **solo `database/schemas.sql` y `database/migrations/`**. No modifiques `shared/`, `backend/` ni `client/`. Si un cambio
 afecta a otros módulos, indícalo y detente:
-- Entidades, enums y utils → `finance-app-expert-shared`.
+- Entidades, enums y mappers → `finance-app-expert-shared`.
 - Repositorios MySQL (`SQL_INSERT`, `SQL_UPDATE`, mapeo de `ResultSet`) y `backend/.../<feature>/sql/<feature>.sql` → `finance-app-expert-backend`.
 - Formularios y vistas → `finance-app-expert-client`.
 
@@ -304,7 +304,7 @@ Al terminar, informa al usuario qué cambió en el esquema y qué secciones del 
 - [ ] Revisar con `grep` si algún trigger usa la columna o la tabla.
 - [ ] Constraint o índice si aplica.
 - [ ] Actualizar el índice.
-- [ ] Avisar: la entidad y los utils de shared, el repositorio MySQL del backend (INSERT, UPDATE, mapeo) y el formulario del client deben actualizarse.
+- [ ] Avisar: la entidad y el mapper de shared, el repositorio MySQL del backend (INSERT, UPDATE, mapeo) y el formulario del client deben actualizarse.
 
 **Eliminar tabla o columna**
 - [ ] Revisar en el mapa de relaciones las FKs entrantes y los triggers que la usan.

@@ -20,7 +20,7 @@ import com.giozar04.categories.domain.enums.CategoryTypes;
 import com.giozar04.categories.infrastructure.services.CategoryService;
 import com.giozar04.externalEntities.domain.entities.ExternalEntity;
 import com.giozar04.externalEntities.infrastructure.services.ExternalEntityService;
-import com.giozar04.logging.CustomLogger;
+import com.giozar04.logging.infrastructure.ConsoleLogger;
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
 import com.giozar04.tags.domain.entities.Tag;
 import com.giozar04.tags.infrastructure.services.TagService;
@@ -45,7 +45,7 @@ import com.giozar04.walletCardLinks.infrastructure.services.WalletCardLinkServic
  */
 public class TransactionFormDataProvider {
 
-    private static final CustomLogger logger = CustomLogger.getInstance();
+    private static final ConsoleLogger logger = ConsoleLogger.getInstance();
 
     private Long userId;
     private List<Account> accounts = new ArrayList<>();

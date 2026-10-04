@@ -41,8 +41,8 @@ Comunícate en **español**.
 
 # Propósito del backend
 
-Contiene la lógica de negocio y la persistencia. Las entidades, enums, excepciones (`<F>Exceptions`) y utils de
-conversión (`<F>Utils`) **no** viven aquí: se importan del JAR `java-shared` (`com.giozar04.<feature>.domain...`
+Contiene la lógica de negocio y la persistencia. Las entidades, enums, excepciones de aplicación y mappers de
+conversión (`<F>Mapper`) **no** viven aquí: se importan del JAR `java-shared` (`com.giozar04.<feature>.domain...`
 y `com.giozar04.<feature>.application.utils...`).
 
 - Documentación: `GENERALBACKEND.md` (árbol de archivos) y
@@ -167,7 +167,7 @@ Client → Message JSON → ServerService → <F>Handlers → <F>Controllers →
 **Abstract** (`domain/models/<F>RepositoryAbstract.java`) – referencia: `tags/domain/models/TagRepositoryAbstract.java`
 - `implements <F>RepositoryInterface`.
 - `protected final DatabaseConnectionInterface databaseConnection` (con `Objects.requireNonNull` y mensaje en español).
-- `protected final CustomLogger logger = CustomLogger.getInstance();`
+- `protected final ConsoleLogger logger = ConsoleLogger.getInstance();`
 - `protected void validate<F>(x)` y `protected void validateId(long id)` que lanzan `IllegalArgumentException`
   con mensajes en español.
 - Métodos de la interfaz redeclarados como `@Override public abstract ...`.
@@ -184,7 +184,7 @@ Client → Message JSON → ServerService → <F>Handlers → <F>Controllers →
 - Fechas: `Timestamp.valueOf(zdt.toLocalDateTime())`.
 - Tras escribir: `databaseConnection.commitTransaction()` + `logger.info(...)`.
 - En `catch (SQLException e)`: `rollback()` y lanzar la excepción de shared correspondiente
-  (`<F>Exceptions.<F>CreationException`, `...RetrievalException`, `...UpdateException`, `...DeletionException`, `...NotFoundException`).
+  (`<F>CreationException`, `<F>RetrievalException`, `<F>UpdateException`, `<F>DeletionException`, `<F>NotFoundException`).
 - Reglas de BD (triggers con `SIGNAL SQLSTATE '45000'` y CHECK) llegan como `SQLException` con mensaje en español.
   En create/update **incluye `e.getMessage()`** en la excepción (p. ej. `"Error al crear el detalle: " + e.getMessage()`)
   para que llegue al cliente vía `ServerService` (`"Error al procesar solicitud: ..."`).
@@ -204,14 +204,14 @@ Client → Message JSON → ServerService → <F>Handlers → <F>Controllers →
   antes de delegar; las reglas se inyectan desde `ApplicationInitializer`.
 
 **Controllers** (`infrastructure/controllers/<F>Controllers.java`) – referencia: `TagControllers`
-- `private static final CustomLogger LOGGER = CustomLogger.getInstance();`
+- `private static final ConsoleLogger LOGGER = ConsoleLogger.getInstance();`
 - `public static final class <F>MessageTypes` con constantes `String`: `CREATE_X`, `GET_X`, `UPDATE_X`,
   `DELETE_X`, `GET_ALL_XS` (el valor es igual al nombre).
 - Un `public static MessageHandler <op>Controller(<F>Service service)` por operación, que devuelve
   `(ClientConnection client, Message message) -> { ... }`.
 - Leer datos con `message.getData("<f>")` (cast a `Map<String, Object>` con `@SuppressWarnings("unchecked")`)
   o `parseId(message.getData("id"))`.
-- Convertir con `<F>Utils.mapTo<F>(map)` / `<F>Utils.<f>ToMap(x)` de shared.
+- Convertir con `<F>Mapper.fromMap(map)` / `<F>Mapper.toMap(x)` de shared.
 - Responder con `Message.createSuccessMessage(TYPE, "mensaje")` + `response.addData("<f>", ...)`, o
   `Message.createErrorMessage(TYPE, "mensaje")` si faltan datos o el id es inválido.
 

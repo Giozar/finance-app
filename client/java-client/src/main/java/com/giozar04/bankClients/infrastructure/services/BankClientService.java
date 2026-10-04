@@ -11,8 +11,8 @@ import com.giozar04.bankClient.application.exceptions.BankClientDeletionExceptio
 import com.giozar04.bankClient.infrastructure.serialization.BankClientParsingException;
 import com.giozar04.bankClient.application.exceptions.BankClientRetrievalException;
 import com.giozar04.bankClient.application.exceptions.BankClientUpdateException;
-import com.giozar04.logging.CustomLogger;
-import com.giozar04.messages.domain.models.Message;
+import com.giozar04.logging.infrastructure.ConsoleLogger;
+import com.giozar04.messages.infrastructure.transport.Message;
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
 import com.giozar04.serverConnection.application.services.ServerConnectionService;
 import com.giozar04.serverConnection.application.validators.ServerResponseValidator;
@@ -21,7 +21,7 @@ import com.giozar04.serverConnection.application.validators.ServerResponseValida
 public class BankClientService {
 
     private final ServerConnectionService serverConnectionService;
-    private static final CustomLogger logger = CustomLogger.getInstance();
+    private static final ConsoleLogger logger = ConsoleLogger.getInstance();
     private static BankClientService instance;
 
     private BankClientService(ServerConnectionService serverConnectionService) {

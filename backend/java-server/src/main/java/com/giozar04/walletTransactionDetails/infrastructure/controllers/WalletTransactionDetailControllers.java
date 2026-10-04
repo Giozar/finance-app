@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import com.giozar04.logging.CustomLogger;
-import com.giozar04.messages.domain.models.Message;
+import com.giozar04.logging.infrastructure.ConsoleLogger;
+import com.giozar04.messages.infrastructure.transport.Message;
 import com.giozar04.servers.domain.handlers.MessageHandler;
 import com.giozar04.servers.domain.models.ClientConnection;
 import com.giozar04.walletTransactionDetails.application.services.WalletTransactionDetailService;
@@ -14,7 +14,7 @@ import com.giozar04.walletTransactionDetails.domain.entities.WalletTransactionDe
 
 public class WalletTransactionDetailControllers {
 
-    private static final CustomLogger LOGGER = CustomLogger.getInstance();
+    private static final ConsoleLogger LOGGER = ConsoleLogger.getInstance();
 
     public static final class MessageTypes {
         public static final String CREATE_DETAIL = "CREATE_WALLET_TRANSACTION_DETAIL";

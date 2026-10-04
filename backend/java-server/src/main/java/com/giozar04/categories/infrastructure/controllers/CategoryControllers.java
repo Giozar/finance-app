@@ -7,14 +7,14 @@ import java.util.Map;
 import com.giozar04.categories.application.services.CategoryService;
 import com.giozar04.categories.infrastructure.serialization.CategoryMapper;
 import com.giozar04.categories.domain.entities.Category;
-import com.giozar04.logging.CustomLogger;
-import com.giozar04.messages.domain.models.Message;
+import com.giozar04.logging.infrastructure.ConsoleLogger;
+import com.giozar04.messages.infrastructure.transport.Message;
 import com.giozar04.servers.domain.handlers.MessageHandler;
 import com.giozar04.servers.domain.models.ClientConnection;
 
 public class CategoryControllers {
 
-    private static final CustomLogger LOGGER = CustomLogger.getInstance();
+    private static final ConsoleLogger LOGGER = ConsoleLogger.getInstance();
 
     public static final class CategoryMessageTypes {
         public static final String CREATE_CATEGORY = "CREATE_CATEGORY";

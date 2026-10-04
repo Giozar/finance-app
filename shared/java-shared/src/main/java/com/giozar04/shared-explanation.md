@@ -29,5 +29,4 @@ vigentes de la base de datos; sus etiquetas españolas se usan en la UI.
 Al migrar una feature, actualice los imports del backend y client en el mismo cambio,
 regenere índices con `python3 scripts/update_indexes.py`, compare los contratos con
 `python3 scripts/verify_shared.py`, y actualice `MIGRATION.md` y el agente de shared.
-Las features pendientes aún usan `application/utils` y `domain/exceptions` de la
-estructura anterior; `MIGRATION.md` indica el estado de cada una.
+`MIGRATION.md` indica el estado de backend y client.

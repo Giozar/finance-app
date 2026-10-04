@@ -6,7 +6,7 @@ import java.util.Objects;
 
 import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
 import com.giozar04.databases.domain.interfaces.SqlWork;
-import com.giozar04.logging.CustomLogger;
+import com.giozar04.logging.infrastructure.ConsoleLogger;
 
 /**
  * Unidad de trabajo para operaciones que escriben en varias tablas.
@@ -17,7 +17,7 @@ import com.giozar04.logging.CustomLogger;
 public class TransactionalExecutor {
 
     private final DatabaseConnectionInterface databaseConnection;
-    private final CustomLogger logger = CustomLogger.getInstance();
+    private final ConsoleLogger logger = ConsoleLogger.getInstance();
 
     public TransactionalExecutor(DatabaseConnectionInterface databaseConnection) {
         this.databaseConnection = Objects.requireNonNull(databaseConnection, "La conexión a base de datos no puede ser nula");

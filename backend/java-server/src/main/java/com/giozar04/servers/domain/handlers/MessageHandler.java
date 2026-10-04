@@ -1,6 +1,6 @@
 package com.giozar04.servers.domain.handlers;
 
-import com.giozar04.messages.domain.models.Message;
+import com.giozar04.messages.infrastructure.transport.Message;
 import com.giozar04.servers.domain.models.ClientConnection;
 /**
  * Interfaz para los manejadores de mensajes.

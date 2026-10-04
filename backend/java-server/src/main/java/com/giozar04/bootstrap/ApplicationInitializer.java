@@ -30,7 +30,7 @@ import com.giozar04.externalEntities.application.services.ExternalEntityService;
 import com.giozar04.externalEntities.domain.interfaces.ExternalEntityRepositoryInterface;
 import com.giozar04.externalEntities.infrastructure.handlers.ExternalEntityHandlers;
 import com.giozar04.externalEntities.infrastructure.repositories.ExternalEntityRepositoryMySQL;
-import com.giozar04.logging.CustomLogger;
+import com.giozar04.logging.infrastructure.ConsoleLogger;
 import com.giozar04.servers.application.services.ServerService;
 import com.giozar04.servers.domain.exceptions.ServerOperationException;
 import com.giozar04.servers.domain.interfaces.ServerRegisterHandlers;
@@ -69,7 +69,7 @@ import com.giozar04.walletTransactionDetails.infrastructure.handlers.WalletTrans
 import com.giozar04.walletTransactionDetails.infrastructure.repositories.WalletTransactionDetailRepositoryMySQL;
 
 public class ApplicationInitializer {
-    private final CustomLogger logger = CustomLogger.getInstance();
+    private final ConsoleLogger logger = ConsoleLogger.getInstance();
 
     public void start() {
         logger.info("Iniciando aplicación...");

@@ -11,8 +11,8 @@ import com.giozar04.card.application.exceptions.CardDeletionException;
 import com.giozar04.card.infrastructure.serialization.CardParsingException;
 import com.giozar04.card.application.exceptions.CardRetrievalException;
 import com.giozar04.card.application.exceptions.CardUpdateException;
-import com.giozar04.logging.CustomLogger;
-import com.giozar04.messages.domain.models.Message;
+import com.giozar04.logging.infrastructure.ConsoleLogger;
+import com.giozar04.messages.infrastructure.transport.Message;
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
 import com.giozar04.serverConnection.application.services.ServerConnectionService;
 import com.giozar04.serverConnection.application.validators.ServerResponseValidator;
@@ -20,7 +20,7 @@ import com.giozar04.serverConnection.application.validators.ServerResponseValida
 public class CardService {
 
     private final ServerConnectionService serverConnectionService;
-    private static final CustomLogger logger = CustomLogger.getInstance();
+    private static final ConsoleLogger logger = ConsoleLogger.getInstance();
     private static CardService instance;
 
     private CardService(ServerConnectionService serverConnectionService) {

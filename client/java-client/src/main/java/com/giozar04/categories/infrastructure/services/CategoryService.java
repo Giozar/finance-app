@@ -10,8 +10,8 @@ import com.giozar04.categories.application.exceptions.CategoryCreationException;
 import com.giozar04.categories.application.exceptions.CategoryDeletionException;
 import com.giozar04.categories.application.exceptions.CategoryRetrievalException;
 import com.giozar04.categories.application.exceptions.CategoryUpdateException;
-import com.giozar04.logging.CustomLogger;
-import com.giozar04.messages.domain.models.Message;
+import com.giozar04.logging.infrastructure.ConsoleLogger;
+import com.giozar04.messages.infrastructure.transport.Message;
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
 import com.giozar04.serverConnection.application.services.ServerConnectionService;
 import com.giozar04.serverConnection.application.validators.ServerResponseValidator;
@@ -19,7 +19,7 @@ import com.giozar04.serverConnection.application.validators.ServerResponseValida
 public class CategoryService {
 
     private final ServerConnectionService serverConnectionService;
-    private static final CustomLogger logger = CustomLogger.getInstance();
+    private static final ConsoleLogger logger = ConsoleLogger.getInstance();
     private static CategoryService instance;
 
     private CategoryService(ServerConnectionService serverConnectionService) {

@@ -4,8 +4,8 @@ import java.util.Map;
 
 import com.giozar04.cardTransactionDetails.infrastructure.serialization.CardTransactionDetailMapper;
 import com.giozar04.cardTransactionDetails.domain.entities.CardTransactionDetail;
-import com.giozar04.logging.CustomLogger;
-import com.giozar04.messages.domain.models.Message;
+import com.giozar04.logging.infrastructure.ConsoleLogger;
+import com.giozar04.messages.infrastructure.transport.Message;
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
 import com.giozar04.serverConnection.application.services.ServerConnectionService;
 import com.giozar04.serverConnection.application.validators.ServerResponseValidator;
@@ -13,7 +13,7 @@ import com.giozar04.serverConnection.application.validators.ServerResponseValida
 public class CardTransactionDetailService {
 
     private final ServerConnectionService serverConnectionService;
-    private static final CustomLogger logger = CustomLogger.getInstance();
+    private static final ConsoleLogger logger = ConsoleLogger.getInstance();
     private static CardTransactionDetailService instance;
 
     private CardTransactionDetailService(ServerConnectionService serverConnectionService) {

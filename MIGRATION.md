@@ -20,7 +20,7 @@ Referencia funcional inicial: `a68517e`.
 | walletTransactionDetails | Migrada; contratos y consumidores verificados |
 | transactions | Migrada; contratos y consumidores verificados |
 | accountReconciliations | Migrada; contratos y consumidores verificados |
-| serialización, mensajes y logging | Pendiente |
+| serialización, mensajes y logging | Migrada; contratos y consumidores verificados |
 
 Cada fila completada incluye referencias de consumidores, documentación, contratos
 comparados y compilación independiente de shared, backend y client.

@@ -71,12 +71,11 @@ src/main/java/com/giozar04/externalEntities/application/exceptions/ExternalEntit
 src/main/java/com/giozar04/externalEntities/domain/entities/ExternalEntity.java
 src/main/java/com/giozar04/externalEntities/domain/enums/ExternalEntityTypes.java
 src/main/java/com/giozar04/externalEntities/infrastructure/serialization/ExternalEntityMapper.java
-src/main/java/com/giozar04/json/utils/JsonUtils.java
-src/main/java/com/giozar04/logging/CustomLogger.java
-src/main/java/com/giozar04/messages/domain/models/Message.java
+src/main/java/com/giozar04/logging/infrastructure/ConsoleLogger.java
+src/main/java/com/giozar04/messages/infrastructure/serialization/MessageJsonCodec.java
+src/main/java/com/giozar04/messages/infrastructure/transport/Message.java
 src/main/java/com/giozar04/shared-explanation.md
 src/main/java/com/giozar04/shared/infrastructure/serialization/ValueParser.java
-src/main/java/com/giozar04/shared/utils/SharedUtils.java
 src/main/java/com/giozar04/tags/application/exceptions/TagCreationException.java
 src/main/java/com/giozar04/tags/application/exceptions/TagDeletionException.java
 src/main/java/com/giozar04/tags/application/exceptions/TagNotFoundException.java

@@ -1,4 +1,4 @@
-package com.giozar04.logging;
+package com.giozar04.logging.infrastructure;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -7,24 +7,24 @@ import java.time.format.DateTimeFormatter;
  * Clase para manejar el registro de eventos y mensajes en la aplicación.
  * Proporciona métodos para diferentes niveles de registro.
  */
-public class CustomLogger {
+public class ConsoleLogger {
 
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     // Instancia singleton
-    private static final CustomLogger instance = null;
+    private static final ConsoleLogger instance = null;
 
     // Constructor privado para evitar instanciación externa
-    private CustomLogger() {}
+    private ConsoleLogger() {}
 
     /**
      * Obtiene la instancia compartida del logger.
      *
-     * @return instancia única de CustomLogger
+     * @return instancia única de ConsoleLogger
      */
-    public static CustomLogger getInstance() {
+    public static ConsoleLogger getInstance() {
         if (instance == null) {
-            return new CustomLogger();
+            return new ConsoleLogger();
         }
         return instance;
     }

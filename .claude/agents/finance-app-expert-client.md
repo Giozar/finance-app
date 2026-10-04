@@ -36,7 +36,7 @@ Comunícate en **español**.
 
 Antes de implementar, se asume que **shared y backend ya están implementados y validados** para la tarea.
 Verifícalo de forma ligera, sin leer de más:
-- La entidad y sus utils existen en shared (`<F>`, `<F>Utils.mapTo<F>/<f>ToMap`, `<F>Exceptions`).
+- La entidad, su mapper y sus excepciones existen en shared (`<F>`, `<F>Mapper.fromMap/toMap`, `<F><Operation>Exception`).
 - Los `MessageType` que vas a usar existen en el backend: busca el string con `grep`, p. ej.
   `grep -rn "GET_ALL_TAGS" backend/java-server/src` (no abras el archivo completo).
 
@@ -211,16 +211,16 @@ View / FormPanel → <F>Service.getInstance() → Message → servidor → respu
 **Service** (`infrastructure/services/<F>Service.java`) – referencia: `tags/infrastructure/services/TagService.java`
 - Singleton: constructor privado, `private static <F>Service instance`,
   `public static <F>Service connectService(ServerConnectionService)` y `public static <F>Service getInstance()`.
-- `private static final CustomLogger logger = CustomLogger.getInstance();`
+- `private static final ConsoleLogger logger = ConsoleLogger.getInstance();`
 - Cada operación:
   1. `Message message = new Message(); message.setType("CREATE_X");`
      (el string debe coincidir **exactamente** con el `MessageType` del backend).
-  2. `message.addData("<f>", <F>Utils.<f>ToMap(x))` y/o `message.addData("id", id)`.
+  2. `message.addData("<f>", <F>Mapper.toMap(x))` y/o `message.addData("id", id)`.
   3. `serverConnectionService.sendMessage(message);`
   4. `Message response = serverConnectionService.waitForMessage("CREATE_X");`
   5. `ServerResponseValidator.validateResponse(response);`
-  6. Convertir con `<F>Utils.mapTo<F>((Map<String, Object>) response.getData("<f>"))`.
-  7. `catch (InterruptedException e)`: `Thread.currentThread().interrupt();` y lanzar la `<F>Exceptions.*` de shared.
+  6. Convertir con `<F>Mapper.fromMap((Map<String, Object>) response.getData("<f>"))`.
+  7. `catch (InterruptedException e)`: `Thread.currentThread().interrupt();` y lanzar la `<F><Operation>Exception` de shared.
 - Los métodos declaran `throws ClientOperationException`. **Sin lógica de UI.**
 
 **FormPanel** (`presentation/components/<F>FormPanel.java`) – referencia: `TagFormPanel` (simple), `AccountFormPanel` (con subpaneles)

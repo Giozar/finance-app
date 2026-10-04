@@ -10,8 +10,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import com.giozar04.json.utils.JsonUtils;
-import com.giozar04.messages.domain.models.Message;
+import com.giozar04.messages.infrastructure.serialization.MessageJsonCodec;
+import com.giozar04.messages.infrastructure.transport.Message;
 import com.giozar04.servers.domain.exceptions.ServerOperationException;
 import com.giozar04.servers.domain.handlers.MessageHandler;
 import com.giozar04.servers.domain.models.ClientConnection;
@@ -178,12 +178,12 @@ public class ServerService extends ServerAbstract {
                 out = new PrintWriter(socket.getOutputStream(), true);
                 Message welcomeMessage = Message.createSuccessMessage("WELCOME",
                         "Conexión establecida. Cliente ID: " + clientConnection.getId());
-                out.println(JsonUtils.messageToJson(welcomeMessage));
+                out.println(MessageJsonCodec.encode(welcomeMessage));
 
                 while (!socket.isClosed() && isRunning) {
                     String receivedJson = in.readLine();
                     if (receivedJson == null) break;
-                    Message receivedMessage = JsonUtils.jsonToMessage(receivedJson);
+                    Message receivedMessage = MessageJsonCodec.decode(receivedJson);
                     logger.info("Mensaje recibido del cliente " + clientConnection.getId() +
                                ": " + receivedMessage.getType());
                     processMessage(clientConnection, receivedMessage, out);
@@ -216,7 +216,7 @@ public class ServerService extends ServerAbstract {
             try {
                 Message response = handler.handleMessage(clientConnection, message);
                 if (response != null) {
-                    out.println(JsonUtils.messageToJson(response));
+                    out.println(MessageJsonCodec.encode(response));
                     logger.info("Respuesta enviada al cliente " + clientConnection.getId() +
                                " para mensaje: " + messageType);
                 }
@@ -224,12 +224,12 @@ public class ServerService extends ServerAbstract {
                 logger.error("Error procesando mensaje tipo '" + messageType +
                            "' del cliente " + clientConnection.getId(), e);
                 Message errorResponse = Message.createErrorMessage(messageType, "Error al procesar solicitud: " + e.getMessage());
-                out.println(JsonUtils.messageToJson(errorResponse));
+                out.println(MessageJsonCodec.encode(errorResponse));
             }
         } else {
             logger.warn("Sin manejador para mensaje de tipo: " + messageType);
             Message errorResponse = Message.createErrorMessage(messageType, "Tipo de mensaje no soportado: " + messageType);
-            out.println(JsonUtils.messageToJson(errorResponse));
+            out.println(MessageJsonCodec.encode(errorResponse));
         }
     }
 
