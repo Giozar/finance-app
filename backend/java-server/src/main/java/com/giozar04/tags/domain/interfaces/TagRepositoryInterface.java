@@ -10,4 +10,5 @@ public interface TagRepositoryInterface {
     Tag updateTagById(long id, Tag tag);
     void deleteTagById(long id);
     List<Tag> getAllTags();
+    List<Tag> getTagsByUserId(long userId);
 }

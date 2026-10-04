@@ -10,4 +10,5 @@ public interface CardRepositoryInterface {
     Card updateCardById(long id, Card card);
     void deleteCardById(long id);
     List<Card> getAllCards();
+    List<Card> getCardsByAccountId(long accountId);
 }

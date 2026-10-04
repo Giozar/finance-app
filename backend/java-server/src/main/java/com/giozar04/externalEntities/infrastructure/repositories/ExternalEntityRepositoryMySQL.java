@@ -32,6 +32,7 @@ public class ExternalEntityRepositoryMySQL extends ExternalEntityRepositoryAbstr
 
     private static final String SQL_DELETE = "DELETE FROM external_entities WHERE id = ?";
     private static final String SQL_SELECT_ALL = "SELECT * FROM external_entities";
+    private static final String SQL_SELECT_BY_USER = "SELECT * FROM external_entities WHERE user_id = ?";
 
     public ExternalEntityRepositoryMySQL(DatabaseConnectionInterface databaseConnection) {
         super(databaseConnection);
@@ -164,6 +165,28 @@ public class ExternalEntityRepositoryMySQL extends ExternalEntityRepositoryAbstr
 
         } catch (SQLException e) {
             throw new ExternalEntityExceptions.ExternalEntityRetrievalException("Error al obtener entidades externas", e);
+        }
+    }
+
+    @Override
+    public List<ExternalEntity> getExternalEntitiesByUserId(long userId) {
+        validateId(userId);
+        List<ExternalEntity> list = new ArrayList<>();
+
+        try (Connection conn = databaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(SQL_SELECT_BY_USER)) {
+
+            stmt.setLong(1, userId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapResultSetToExternalEntity(rs));
+                }
+            }
+
+            return list;
+
+        } catch (SQLException e) {
+            throw new ExternalEntityExceptions.ExternalEntityRetrievalException("Error al obtener las entidades externas del usuario con ID: " + userId, e);
         }
     }
 

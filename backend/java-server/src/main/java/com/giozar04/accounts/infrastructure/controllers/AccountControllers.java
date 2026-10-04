@@ -22,6 +22,7 @@ public class AccountControllers {
         public static final String UPDATE_ACCOUNT = "UPDATE_ACCOUNT";
         public static final String DELETE_ACCOUNT = "DELETE_ACCOUNT";
         public static final String GET_ALL_ACCOUNTS = "GET_ALL_ACCOUNTS";
+        public static final String GET_ACCOUNTS_BY_USER = "GET_ACCOUNTS_BY_USER";
     }
 
     @SuppressWarnings("unchecked")
@@ -122,6 +123,30 @@ public class AccountControllers {
                     "Cuentas obtenidas exitosamente");
             response.addData("accounts", list);
             response.addData("count", list.size());
+
+            return response;
+        };
+    }
+
+    public static MessageHandler getAccountsByUserController(AccountService accountService) {
+        return (ClientConnection clientConnection, Message message) -> {
+            LOGGER.info("Procesando solicitud de obtención de cuentas por usuario");
+
+            Long userId = parseId(message.getData("userId"));
+            if (userId == null) {
+                return Message.createErrorMessage(AccountMessageTypes.GET_ACCOUNTS_BY_USER, "userId inválido");
+            }
+
+            List<Account> items = accountService.getAccountsByUserId(userId);
+            List<Map<String, Object>> result = new ArrayList<>();
+
+            for (Account item : items) {
+                result.add(AccountUtils.accountToMap(item));
+            }
+
+            Message response = Message.createSuccessMessage(AccountMessageTypes.GET_ACCOUNTS_BY_USER, "Cuentas del usuario obtenidas exitosamente");
+            response.addData("accounts", result);
+            response.addData("count", result.size());
 
             return response;
         };

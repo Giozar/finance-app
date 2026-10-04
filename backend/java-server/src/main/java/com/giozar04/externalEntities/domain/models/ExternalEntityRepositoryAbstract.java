@@ -64,4 +64,7 @@ public abstract class ExternalEntityRepositoryAbstract implements ExternalEntity
 
     @Override
     public abstract List<ExternalEntity> getAllExternalEntities();
+
+    @Override
+    public abstract List<ExternalEntity> getExternalEntitiesByUserId(long userId);
 }

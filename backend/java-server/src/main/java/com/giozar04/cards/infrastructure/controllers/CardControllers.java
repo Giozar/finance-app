@@ -22,6 +22,7 @@ public class CardControllers {
         public static final String UPDATE_CARD = "UPDATE_CARD";
         public static final String DELETE_CARD = "DELETE_CARD";
         public static final String GET_ALL_CARDS = "GET_ALL_CARDS";
+        public static final String GET_CARDS_BY_ACCOUNT = "GET_CARDS_BY_ACCOUNT";
     }
 
     @SuppressWarnings("unchecked")
@@ -125,6 +126,30 @@ public class CardControllers {
             Message response = Message.createSuccessMessage(CardMessageTypes.GET_ALL_CARDS, "Tarjetas obtenidas exitosamente");
             response.addData("cards", list);
             response.addData("count", list.size());
+
+            return response;
+        };
+    }
+
+    public static MessageHandler getCardsByAccountController(CardService cardService) {
+        return (ClientConnection clientConnection, Message message) -> {
+            LOGGER.info("Procesando solicitud de obtención de tarjetas por cuenta");
+
+            Long accountId = parseId(message.getData("accountId"));
+            if (accountId == null) {
+                return Message.createErrorMessage(CardMessageTypes.GET_CARDS_BY_ACCOUNT, "accountId inválido");
+            }
+
+            List<Card> items = cardService.getCardsByAccountId(accountId);
+            List<Map<String, Object>> result = new ArrayList<>();
+
+            for (Card item : items) {
+                result.add(CardUtils.cardToMap(item));
+            }
+
+            Message response = Message.createSuccessMessage(CardMessageTypes.GET_CARDS_BY_ACCOUNT, "Tarjetas de la cuenta obtenidas exitosamente");
+            response.addData("cards", result);
+            response.addData("count", result.size());
 
             return response;
         };

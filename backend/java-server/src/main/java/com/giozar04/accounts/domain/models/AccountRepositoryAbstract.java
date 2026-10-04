@@ -95,4 +95,7 @@ public abstract class AccountRepositoryAbstract implements AccountRepositoryInte
 
     @Override
     public abstract List<Account> getAllAccounts();
+
+    @Override
+    public abstract List<Account> getAccountsByUserId(long userId);
 }

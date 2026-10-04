@@ -116,6 +116,7 @@ public class AccountRepositoryMySQL extends AccountRepositoryAbstract {
 
     private static final String SQL_SELECT_BY_ID = SQL_SELECT_BASE + " WHERE a.id = ?";
     private static final String SQL_SELECT_ALL = SQL_SELECT_BASE;
+    private static final String SQL_SELECT_BY_USER = SQL_SELECT_BASE + " WHERE a.user_id = ?";
 
     private static final String SQL_DELETE = "DELETE FROM accounts WHERE id = ?";
 
@@ -452,6 +453,32 @@ public class AccountRepositoryMySQL extends AccountRepositoryAbstract {
             databaseConnection.rollbackTransaction();
         } catch (SQLException ex) {
             logger.error("Error al hacer rollback: " + ex.getMessage());
+        }
+    }
+
+    @Override
+    public List<Account> getAccountsByUserId(long userId) {
+        validateId(userId);
+        List<Account> list = new ArrayList<>();
+
+        try (Connection conn = databaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(SQL_SELECT_BY_USER)) {
+
+            stmt.setLong(1, userId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    try {
+                        list.add(mapResultSetToAccount(rs));
+                    } catch (IllegalArgumentException e) {
+                        logger.error("Omitiendo cuenta inválida (posiblemente un tipo antiguo): " + e.getMessage());
+                    }
+                }
+            }
+
+            return list;
+
+        } catch (SQLException e) {
+            throw new AccountExceptions.AccountRetrievalException("Error al obtener las cuentas del usuario con ID: " + userId, e);
         }
     }
 

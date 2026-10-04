@@ -22,6 +22,7 @@ public class TagControllers {
         public static final String UPDATE_TAG = "UPDATE_TAG";
         public static final String DELETE_TAG = "DELETE_TAG";
         public static final String GET_ALL_TAGS = "GET_ALL_TAGS";
+        public static final String GET_TAGS_BY_USER = "GET_TAGS_BY_USER";
     }
 
     @SuppressWarnings("unchecked")
@@ -108,6 +109,30 @@ public class TagControllers {
             }
 
             Message response = Message.createSuccessMessage(TagMessageTypes.GET_ALL_TAGS, "Etiquetas obtenidas exitosamente");
+            response.addData("tags", result);
+            response.addData("count", result.size());
+
+            return response;
+        };
+    }
+
+    public static MessageHandler getTagsByUserController(TagService tagService) {
+        return (ClientConnection client, Message message) -> {
+            LOGGER.info("Procesando obtención de etiquetas por usuario");
+
+            Long userId = parseId(message.getData("userId"));
+            if (userId == null) {
+                return Message.createErrorMessage(TagMessageTypes.GET_TAGS_BY_USER, "userId inválido");
+            }
+
+            List<Tag> items = tagService.getTagsByUserId(userId);
+            List<Map<String, Object>> result = new ArrayList<>();
+
+            for (Tag item : items) {
+                result.add(TagUtils.tagToMap(item));
+            }
+
+            Message response = Message.createSuccessMessage(TagMessageTypes.GET_TAGS_BY_USER, "Etiquetas del usuario obtenidas exitosamente");
             response.addData("tags", result);
             response.addData("count", result.size());
 

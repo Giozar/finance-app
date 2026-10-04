@@ -35,5 +35,9 @@ public class ExternalEntityHandlers implements ServerRegisterHandlers {
             ExternalEntityControllers.ExternalEntityMessageTypes.GET_ALL_EXTERNAL_ENTITIES,
             ExternalEntityControllers.getAllExternalEntitiesController(service)
         );
+        server.registerHandler(
+            ExternalEntityControllers.ExternalEntityMessageTypes.GET_EXTERNAL_ENTITIES_BY_USER,
+            ExternalEntityControllers.getExternalEntitiesByUserController(service)
+        );
     }
 }

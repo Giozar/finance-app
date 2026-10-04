@@ -64,4 +64,7 @@ public abstract class CategoryRepositoryAbstract implements CategoryRepositoryIn
 
     @Override
     public abstract List<Category> getAllCategories();
+
+    @Override
+    public abstract List<Category> getCategoriesByUserId(long userId);
 }

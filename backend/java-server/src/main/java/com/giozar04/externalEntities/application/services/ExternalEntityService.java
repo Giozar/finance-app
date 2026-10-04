@@ -37,4 +37,9 @@ public class ExternalEntityService implements ExternalEntityRepositoryInterface 
     public List<ExternalEntity> getAllExternalEntities() {
         return repository.getAllExternalEntities();
     }
+
+    @Override
+    public List<ExternalEntity> getExternalEntitiesByUserId(long userId) {
+        return repository.getExternalEntitiesByUserId(userId);
+    }
 }

@@ -80,4 +80,7 @@ public abstract class CardRepositoryAbstract implements CardRepositoryInterface 
 
     @Override
     public abstract List<Card> getAllCards();
+
+    @Override
+    public abstract List<Card> getCardsByAccountId(long accountId);
 }

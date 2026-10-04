@@ -35,5 +35,9 @@ public class AccountHandlers implements ServerRegisterHandlers {
             AccountControllers.AccountMessageTypes.GET_ALL_ACCOUNTS,
             AccountControllers.getAllAccountsController(accountService)
         );
+        server.registerHandler(
+            AccountControllers.AccountMessageTypes.GET_ACCOUNTS_BY_USER,
+            AccountControllers.getAccountsByUserController(accountService)
+        );
     }
 }

@@ -35,5 +35,9 @@ public class TagHandlers implements ServerRegisterHandlers {
             TagControllers.TagMessageTypes.GET_ALL_TAGS,
             TagControllers.getAllTagsController(tagService)
         );
+        server.registerHandler(
+            TagControllers.TagMessageTypes.GET_TAGS_BY_USER,
+            TagControllers.getTagsByUserController(tagService)
+        );
     }
 }

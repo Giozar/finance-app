@@ -37,4 +37,9 @@ public class CategoryService implements CategoryRepositoryInterface {
     public List<Category> getAllCategories() {
         return categoryRepository.getAllCategories();
     }
+
+    @Override
+    public List<Category> getCategoriesByUserId(long userId) {
+        return categoryRepository.getCategoriesByUserId(userId);
+    }
 }

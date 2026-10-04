@@ -31,6 +31,7 @@ public class TagRepositoryMySQL extends TagRepositoryAbstract {
 
     private static final String SQL_DELETE = "DELETE FROM tags WHERE id = ?";
     private static final String SQL_SELECT_ALL = "SELECT * FROM tags";
+    private static final String SQL_SELECT_BY_USER = "SELECT * FROM tags WHERE user_id = ?";
 
     public TagRepositoryMySQL(DatabaseConnectionInterface databaseConnection) {
         super(databaseConnection);
@@ -161,6 +162,28 @@ public class TagRepositoryMySQL extends TagRepositoryAbstract {
 
         } catch (SQLException e) {
             throw new TagExceptions.TagRetrievalException("Error al obtener todas las etiquetas", e);
+        }
+    }
+
+    @Override
+    public List<Tag> getTagsByUserId(long userId) {
+        validateId(userId);
+        List<Tag> list = new ArrayList<>();
+
+        try (Connection conn = databaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(SQL_SELECT_BY_USER)) {
+
+            stmt.setLong(1, userId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapResultSetToTag(rs));
+                }
+            }
+
+            return list;
+
+        } catch (SQLException e) {
+            throw new TagExceptions.TagRetrievalException("Error al obtener las etiquetas del usuario con ID: " + userId, e);
         }
     }
 

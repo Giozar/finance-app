@@ -37,4 +37,9 @@ public class CardService implements CardRepositoryInterface {
     public List<Card> getAllCards() {
         return cardRepository.getAllCards();
     }
+
+    @Override
+    public List<Card> getCardsByAccountId(long accountId) {
+        return cardRepository.getCardsByAccountId(accountId);
+    }
 }

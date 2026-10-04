@@ -32,6 +32,7 @@ public class CardRepositoryMySQL extends CardRepositoryAbstract {
 
     private static final String SQL_DELETE = "DELETE FROM cards WHERE id = ?";
     private static final String SQL_SELECT_ALL = "SELECT * FROM cards";
+    private static final String SQL_SELECT_BY_ACCOUNT = "SELECT * FROM cards WHERE account_id = ?";
 
     public CardRepositoryMySQL(DatabaseConnectionInterface databaseConnection) {
         super(databaseConnection);
@@ -169,6 +170,28 @@ public class CardRepositoryMySQL extends CardRepositoryAbstract {
 
         } catch (SQLException e) {
             throw new CardExceptions.CardRetrievalException("Error al obtener todas las tarjetas", e);
+        }
+    }
+
+    @Override
+    public List<Card> getCardsByAccountId(long accountId) {
+        validateId(accountId);
+        List<Card> list = new ArrayList<>();
+
+        try (Connection conn = databaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(SQL_SELECT_BY_ACCOUNT)) {
+
+            stmt.setLong(1, accountId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapResultSetToCard(rs));
+                }
+            }
+
+            return list;
+
+        } catch (SQLException e) {
+            throw new CardExceptions.CardRetrievalException("Error al obtener las tarjetas de la cuenta con ID: " + accountId, e);
         }
     }
 

@@ -37,4 +37,9 @@ public class AccountService implements AccountRepositoryInterface {
     public List<Account> getAllAccounts() {
         return accountRepository.getAllAccounts();
     }
+
+    @Override
+    public List<Account> getAccountsByUserId(long userId) {
+        return accountRepository.getAccountsByUserId(userId);
+    }
 }

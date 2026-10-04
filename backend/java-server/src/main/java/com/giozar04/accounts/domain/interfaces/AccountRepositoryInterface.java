@@ -10,4 +10,5 @@ public interface AccountRepositoryInterface {
     Account updateAccountById(long id, Account account);
     void deleteAccountById(long id);
     List<Account> getAllAccounts();
+    List<Account> getAccountsByUserId(long userId);
 }

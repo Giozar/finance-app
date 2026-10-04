@@ -22,6 +22,7 @@ public class ExternalEntityControllers {
         public static final String UPDATE_EXTERNAL_ENTITY = "UPDATE_EXTERNAL_ENTITY";
         public static final String DELETE_EXTERNAL_ENTITY = "DELETE_EXTERNAL_ENTITY";
         public static final String GET_ALL_EXTERNAL_ENTITIES = "GET_ALL_EXTERNAL_ENTITIES";
+        public static final String GET_EXTERNAL_ENTITIES_BY_USER = "GET_EXTERNAL_ENTITIES_BY_USER";
     }
 
     @SuppressWarnings("unchecked")
@@ -108,6 +109,30 @@ public class ExternalEntityControllers {
             }
 
             Message response = Message.createSuccessMessage(ExternalEntityMessageTypes.GET_ALL_EXTERNAL_ENTITIES, "Entidades externas obtenidas");
+            response.addData("externalEntities", result);
+            response.addData("count", result.size());
+
+            return response;
+        };
+    }
+
+    public static MessageHandler getExternalEntitiesByUserController(ExternalEntityService service) {
+        return (ClientConnection client, Message message) -> {
+            LOGGER.info("Procesando obtención de entidades externas por usuario");
+
+            Long userId = parseId(message.getData("userId"));
+            if (userId == null) {
+                return Message.createErrorMessage(ExternalEntityMessageTypes.GET_EXTERNAL_ENTITIES_BY_USER, "userId inválido");
+            }
+
+            List<ExternalEntity> items = service.getExternalEntitiesByUserId(userId);
+            List<Map<String, Object>> result = new ArrayList<>();
+
+            for (ExternalEntity item : items) {
+                result.add(ExternalEntityUtils.externalEntityToMap(item));
+            }
+
+            Message response = Message.createSuccessMessage(ExternalEntityMessageTypes.GET_EXTERNAL_ENTITIES_BY_USER, "Entidades externas del usuario obtenidas");
             response.addData("externalEntities", result);
             response.addData("count", result.size());
 

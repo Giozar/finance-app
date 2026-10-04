@@ -35,5 +35,9 @@ public class CategoryHandlers implements ServerRegisterHandlers {
             CategoryControllers.CategoryMessageTypes.GET_ALL_CATEGORIES,
             CategoryControllers.getAllCategoriesController(categoryService)
         );
+        server.registerHandler(
+            CategoryControllers.CategoryMessageTypes.GET_CATEGORIES_BY_USER,
+            CategoryControllers.getCategoriesByUserController(categoryService)
+        );
     }
 }

@@ -35,5 +35,9 @@ public class CardHandlers implements ServerRegisterHandlers {
             CardControllers.CardMessageTypes.GET_ALL_CARDS,
             CardControllers.getAllCardsController(cardService)
         );
+        server.registerHandler(
+            CardControllers.CardMessageTypes.GET_CARDS_BY_ACCOUNT,
+            CardControllers.getCardsByAccountController(cardService)
+        );
     }
 }

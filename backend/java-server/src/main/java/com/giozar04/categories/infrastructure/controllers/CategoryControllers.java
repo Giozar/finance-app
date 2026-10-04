@@ -22,6 +22,7 @@ public class CategoryControllers {
         public static final String UPDATE_CATEGORY = "UPDATE_CATEGORY";
         public static final String DELETE_CATEGORY = "DELETE_CATEGORY";
         public static final String GET_ALL_CATEGORIES = "GET_ALL_CATEGORIES";
+        public static final String GET_CATEGORIES_BY_USER = "GET_CATEGORIES_BY_USER";
     }
 
     @SuppressWarnings("unchecked")
@@ -108,6 +109,30 @@ public class CategoryControllers {
             }
 
             Message response = Message.createSuccessMessage(CategoryMessageTypes.GET_ALL_CATEGORIES, "Categorías obtenidas exitosamente");
+            response.addData("categories", result);
+            response.addData("count", result.size());
+
+            return response;
+        };
+    }
+
+    public static MessageHandler getCategoriesByUserController(CategoryService categoryService) {
+        return (ClientConnection client, Message message) -> {
+            LOGGER.info("Procesando obtención de categorías por usuario");
+
+            Long userId = parseId(message.getData("userId"));
+            if (userId == null) {
+                return Message.createErrorMessage(CategoryMessageTypes.GET_CATEGORIES_BY_USER, "userId inválido");
+            }
+
+            List<Category> items = categoryService.getCategoriesByUserId(userId);
+            List<Map<String, Object>> result = new ArrayList<>();
+
+            for (Category item : items) {
+                result.add(CategoryUtils.categoryToMap(item));
+            }
+
+            Message response = Message.createSuccessMessage(CategoryMessageTypes.GET_CATEGORIES_BY_USER, "Categorías del usuario obtenidas exitosamente");
             response.addData("categories", result);
             response.addData("count", result.size());
 

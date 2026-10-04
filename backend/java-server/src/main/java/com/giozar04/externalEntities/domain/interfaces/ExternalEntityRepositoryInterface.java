@@ -10,4 +10,5 @@ public interface ExternalEntityRepositoryInterface {
     ExternalEntity updateExternalEntityById(long id, ExternalEntity entity);
     void deleteExternalEntityById(long id);
     List<ExternalEntity> getAllExternalEntities();
+    List<ExternalEntity> getExternalEntitiesByUserId(long userId);
 }

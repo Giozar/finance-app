@@ -10,4 +10,5 @@ public interface CategoryRepositoryInterface {
     Category updateCategoryById(long id, Category category);
     void deleteCategoryById(long id);
     List<Category> getAllCategories();
+    List<Category> getCategoriesByUserId(long userId);
 }

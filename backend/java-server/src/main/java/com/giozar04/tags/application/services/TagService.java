@@ -37,4 +37,9 @@ public class TagService implements TagRepositoryInterface {
     public List<Tag> getAllTags() {
         return tagRepository.getAllTags();
     }
+
+    @Override
+    public List<Tag> getTagsByUserId(long userId) {
+        return tagRepository.getTagsByUserId(userId);
+    }
 }

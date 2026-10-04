@@ -53,4 +53,7 @@ public abstract class TagRepositoryAbstract implements TagRepositoryInterface {
 
     @Override
     public abstract List<Tag> getAllTags();
+
+    @Override
+    public abstract List<Tag> getTagsByUserId(long userId);
 }

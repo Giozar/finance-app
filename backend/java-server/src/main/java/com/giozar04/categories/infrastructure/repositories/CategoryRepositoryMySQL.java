@@ -32,6 +32,7 @@ public class CategoryRepositoryMySQL extends CategoryRepositoryAbstract {
 
     private static final String SQL_DELETE = "DELETE FROM categories WHERE id = ?";
     private static final String SQL_SELECT_ALL = "SELECT * FROM categories";
+    private static final String SQL_SELECT_BY_USER = "SELECT * FROM categories WHERE user_id = ?";
 
     public CategoryRepositoryMySQL(DatabaseConnectionInterface databaseConnection) {
         super(databaseConnection);
@@ -164,6 +165,28 @@ public class CategoryRepositoryMySQL extends CategoryRepositoryAbstract {
 
         } catch (SQLException e) {
             throw new CategoryExceptions.CategoryRetrievalException("Error al obtener todas las categorías", e);
+        }
+    }
+
+    @Override
+    public List<Category> getCategoriesByUserId(long userId) {
+        validateId(userId);
+        List<Category> list = new ArrayList<>();
+
+        try (Connection conn = databaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(SQL_SELECT_BY_USER)) {
+
+            stmt.setLong(1, userId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapResultSetToCategory(rs));
+                }
+            }
+
+            return list;
+
+        } catch (SQLException e) {
+            throw new CategoryExceptions.CategoryRetrievalException("Error al obtener las categorías del usuario con ID: " + userId, e);
         }
     }
 
