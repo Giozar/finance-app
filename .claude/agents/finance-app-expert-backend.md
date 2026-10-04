@@ -12,6 +12,7 @@ model: inherit
 
 | Feature | Contratos y adaptadores |
 | --- | --- |
+| `users` | `UserOperations`, `UserRepository`, `UserUseCase`, `UserPolicy`, adaptadores MySQL/socket |
 | `tags` | `TagOperations`, `TagRepository`, `TagUseCase`, `TagPolicy`, `AbstractTagJdbcRepository`, `TagRepositoryMySQL`, `TagControllers`, `TagHandlers` |
 
 El flujo de «Estructura de una feature» descrito abajo aplica a las features pendientes.

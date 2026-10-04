@@ -1,14 +1,14 @@
-package com.giozar04.users.infrastructure.handlers;
+package com.giozar04.users.infrastructure.transport.socket;
 
 import com.giozar04.servers.application.services.ServerService;
 import com.giozar04.servers.domain.interfaces.ServerRegisterHandlers;
-import com.giozar04.users.application.services.UserService;
-import com.giozar04.users.infrastructure.controllers.UserControllers;
+import com.giozar04.users.application.ports.input.UserOperations;
+import com.giozar04.users.infrastructure.transport.socket.UserControllers;
 
 public class UserHandlers implements ServerRegisterHandlers {
-    private final UserService transactionService;
+    private final UserOperations transactionService;
 
-    public UserHandlers(UserService transactionService) {
+    public UserHandlers(UserOperations transactionService) {
         this.transactionService = transactionService;
     }
 

@@ -49,10 +49,11 @@ import com.giozar04.transactions.application.validation.ValidationContextFactory
 import com.giozar04.transactions.domain.interfaces.TransactionRepositoryInterface;
 import com.giozar04.transactions.infrastructure.handlers.TransactionHandlers;
 import com.giozar04.transactions.infrastructure.repositories.TransactionRepositoryMySQL;
-import com.giozar04.users.application.services.UserService;
-import com.giozar04.users.domain.interfaces.UserRepositoryInterface;
-import com.giozar04.users.infrastructure.handlers.UserHandlers;
-import com.giozar04.users.infrastructure.repositories.UserRepositoryMySQL;
+import com.giozar04.users.application.usecases.UserUseCase;
+import com.giozar04.users.application.ports.input.UserOperations;
+import com.giozar04.users.application.ports.output.UserRepository;
+import com.giozar04.users.infrastructure.transport.socket.UserHandlers;
+import com.giozar04.users.infrastructure.persistence.mysql.UserRepositoryMySQL;
 import com.giozar04.accountCashbackSettings.application.services.AccountCashbackSettingService;
 import com.giozar04.accountReconciliations.application.services.AccountReconciliationService;
 import com.giozar04.accountReconciliations.domain.interfaces.AccountReconciliationRepositoryInterface;
@@ -82,9 +83,9 @@ public class ApplicationInitializer {
         DatabaseConnectionInterface dbConnection = dbInitializer.initialize();
 
         // Inicializar repositorios y servicios de usuarios
-        UserRepositoryInterface userRepository =
+        UserRepository userRepository =
                 new UserRepositoryMySQL(dbConnection);
-        UserService userService = new UserService(userRepository);
+        UserOperations userService = new UserUseCase(userRepository);
 
         // Inicializar repositorios y servicios de clientes de bancos
         BankClientRepositoryInterface bankClientRepository =

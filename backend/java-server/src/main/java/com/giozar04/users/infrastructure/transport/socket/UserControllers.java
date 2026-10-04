@@ -1,4 +1,4 @@
-package com.giozar04.users.infrastructure.controllers;
+package com.giozar04.users.infrastructure.transport.socket;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,7 +8,7 @@ import com.giozar04.logging.infrastructure.ConsoleLogger;
 import com.giozar04.messages.infrastructure.transport.Message;
 import com.giozar04.servers.domain.handlers.MessageHandler;
 import com.giozar04.servers.domain.models.ClientConnection;
-import com.giozar04.users.application.services.UserService;
+import com.giozar04.users.application.ports.input.UserOperations;
 import com.giozar04.users.infrastructure.serialization.UserMapper;
 import com.giozar04.users.domain.entities.User;
 
@@ -25,7 +25,7 @@ public class UserControllers {
     }
 
     @SuppressWarnings("unchecked")
-    public static MessageHandler createUserController(UserService userService) {
+    public static MessageHandler createUserController(UserOperations userService) {
         return (ClientConnection clientConnection, Message message) -> {
             LOGGER.info("Procesando solicitud de creación de usuario");
 
@@ -45,7 +45,7 @@ public class UserControllers {
         };
     }
 
-    public static MessageHandler getUserController(UserService userService) {
+    public static MessageHandler getUserController(UserOperations userService) {
         return (ClientConnection clientConnection, Message message) -> {
             LOGGER.info("Procesando solicitud de obtención de usuario");
 
@@ -64,7 +64,7 @@ public class UserControllers {
     }
 
     @SuppressWarnings("unchecked")
-    public static MessageHandler updateUserController(UserService userService) {
+    public static MessageHandler updateUserController(UserOperations userService) {
         return (ClientConnection clientConnection, Message message) -> {
             LOGGER.info("Procesando solicitud de actualización de usuario");
 
@@ -89,7 +89,7 @@ public class UserControllers {
         };
     }
 
-    public static MessageHandler deleteUserController(UserService userService) {
+    public static MessageHandler deleteUserController(UserOperations userService) {
         return (ClientConnection clientConnection, Message message) -> {
             LOGGER.info("Procesando solicitud de eliminación de usuario");
 
@@ -106,7 +106,7 @@ public class UserControllers {
         };
     }
 
-    public static MessageHandler getAllUsersController(UserService userService) {
+    public static MessageHandler getAllUsersController(UserOperations userService) {
         return (ClientConnection clientConnection, Message message) -> {
             LOGGER.info("Procesando solicitud de obtención de todos los usuarios");
 

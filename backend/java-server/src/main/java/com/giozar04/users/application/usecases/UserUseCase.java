@@ -1,15 +1,16 @@
-package com.giozar04.users.application.services;
+package com.giozar04.users.application.usecases;
 
 import java.util.List;
 
 import com.giozar04.users.domain.entities.User;
-import com.giozar04.users.domain.interfaces.UserRepositoryInterface;
+import com.giozar04.users.application.ports.output.UserRepository;
+import com.giozar04.users.application.ports.input.UserOperations;
 
-public class UserService implements UserRepositoryInterface {
+public class UserUseCase implements UserOperations {
 
-    private final UserRepositoryInterface userRepository;
+    private final UserRepository userRepository;
 
-    public UserService(UserRepositoryInterface userRepository) {
+    public UserUseCase(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 

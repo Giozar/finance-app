@@ -1,4 +1,4 @@
-package com.giozar04.users.infrastructure.repositories;
+package com.giozar04.users.infrastructure.persistence.mysql;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -18,13 +18,13 @@ import com.giozar04.users.application.exceptions.UserDeletionException;
 import com.giozar04.users.application.exceptions.UserNotFoundException;
 import com.giozar04.users.application.exceptions.UserRetrievalException;
 import com.giozar04.users.application.exceptions.UserUpdateException;
-import com.giozar04.users.domain.models.UserRepositoryAbstract;
+import com.giozar04.users.infrastructure.persistence.mysql.AbstractUserJdbcRepository;
 
 /**
  * Implementación MySQL del repositorio de usuarios. Maneja operaciones CRUD
  * para entidades User en una base de datos MySQL.
  */
-public class UserRepositoryMySQL extends UserRepositoryAbstract {
+public class UserRepositoryMySQL extends AbstractUserJdbcRepository {
 
     private static final String SQL_INSERT = "INSERT INTO users (name, email, password, global_balance, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)";
     private static final String SQL_SELECT_BY_ID = "SELECT * FROM users WHERE id = ?";

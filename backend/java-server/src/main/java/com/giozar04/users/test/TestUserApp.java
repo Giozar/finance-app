@@ -5,9 +5,9 @@ import java.util.Scanner;
 
 import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
 import com.giozar04.databases.infrastructure.repositories.DatabaseConnectionMySQL;
-import com.giozar04.users.application.services.UserService;
+import com.giozar04.users.application.usecases.UserUseCase;
 import com.giozar04.users.domain.entities.User;
-import com.giozar04.users.infrastructure.repositories.UserRepositoryMySQL;
+import com.giozar04.users.infrastructure.persistence.mysql.UserRepositoryMySQL;
 
 public class TestUserApp {
 
@@ -27,7 +27,7 @@ public class TestUserApp {
             dbConnection.connect();
 
             UserRepositoryMySQL userRepository = new UserRepositoryMySQL(dbConnection);
-            UserService userService = new UserService(userRepository);
+            UserUseCase userService = new UserUseCase(userRepository);
 
             Scanner scanner = new Scanner(System.in);
             boolean exit = false;
@@ -72,7 +72,7 @@ public class TestUserApp {
         }
     }
 
-    private static void createUser(UserService service, Scanner scanner) {
+    private static void createUser(UserUseCase service, Scanner scanner) {
         User user = new User();
         System.out.print("Nombre: ");
         user.setName(scanner.nextLine());
@@ -88,7 +88,7 @@ public class TestUserApp {
         System.out.println("Usuario creado con éxito con ID: " + created.getId());
     }
 
-    private static void getAllUsers(UserService service) {
+    private static void getAllUsers(UserUseCase service) {
         var users = service.getAllUsers();
         if (users.isEmpty()) {
             System.out.println("No hay usuarios.");
@@ -97,7 +97,7 @@ public class TestUserApp {
         users.forEach(TestUserApp::printUserDetails);
     }
 
-    private static void getUserById(UserService service, Scanner scanner) {
+    private static void getUserById(UserUseCase service, Scanner scanner) {
         System.out.print("ID de usuario (long): ");
         long id = scanner.nextLong();
         scanner.nextLine();
@@ -109,7 +109,7 @@ public class TestUserApp {
         }
     }
 
-    private static void updateUser(UserService service, Scanner scanner) {
+    private static void updateUser(UserUseCase service, Scanner scanner) {
         System.out.print("ID de usuario a actualizar (long): ");
         long id = scanner.nextLong();
         scanner.nextLine();
@@ -128,7 +128,7 @@ public class TestUserApp {
         System.out.println("Usuario actualizado.");
     }
 
-    private static void deleteUser(UserService service, Scanner scanner) {
+    private static void deleteUser(UserUseCase service, Scanner scanner) {
         System.out.print("ID de usuario a eliminar (long): ");
         long id = scanner.nextLong();
         scanner.nextLine();
