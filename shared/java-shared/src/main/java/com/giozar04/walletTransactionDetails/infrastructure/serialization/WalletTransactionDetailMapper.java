@@ -1,13 +1,13 @@
-package com.giozar04.walletTransactionDetails.application.utils;
+package com.giozar04.walletTransactionDetails.infrastructure.serialization;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import com.giozar04.shared.utils.SharedUtils;
+import com.giozar04.shared.infrastructure.serialization.ValueParser;
 import com.giozar04.walletTransactionDetails.domain.entities.WalletTransactionDetail;
 import com.giozar04.walletTransactionDetails.domain.enums.WalletTransactionSourceType;
 
-public class WalletTransactionDetailUtils {
+public class WalletTransactionDetailMapper {
 
     public static Map<String, Object> toMap(WalletTransactionDetail detail) {
         Map<String, Object> map = new HashMap<>();
@@ -20,11 +20,11 @@ public class WalletTransactionDetailUtils {
         map.put("cashbackRate", detail.getCashbackRate());
 
         if (detail.getCreatedAt() != null) {
-            map.put("createdAt", detail.getCreatedAt().format(SharedUtils.getFormatter()));
+            map.put("createdAt", detail.getCreatedAt().format(ValueParser.getFormatter()));
         }
 
         if (detail.getUpdatedAt() != null) {
-            map.put("updatedAt", detail.getUpdatedAt().format(SharedUtils.getFormatter()));
+            map.put("updatedAt", detail.getUpdatedAt().format(ValueParser.getFormatter()));
         }
 
         return map;
@@ -32,15 +32,15 @@ public class WalletTransactionDetailUtils {
 
     public static WalletTransactionDetail fromMap(Map<String, Object> map) {
         WalletTransactionDetail detail = new WalletTransactionDetail();
-        detail.setId(SharedUtils.parseLong(map.get("id")));
-        detail.setTransactionId(SharedUtils.parseLong(map.get("transactionId")));
+        detail.setId(ValueParser.parseLong(map.get("id")));
+        detail.setTransactionId(ValueParser.parseLong(map.get("transactionId")));
         detail.setSourceType(WalletTransactionSourceType.fromValue((String) map.get("sourceType")));
-        detail.setWalletAccountId(SharedUtils.parseLong(map.get("walletAccountId")));
-        detail.setCardId(SharedUtils.parseNullableLong(map.get("cardId")));
-        detail.setAmount(SharedUtils.parseBigDecimal(map.get("amount"))); // <- mejor que new BigDecimal(...)
-        detail.setCashbackRate(SharedUtils.parseNullableBigDecimal(map.get("cashbackRate")));
-        detail.setCreatedAt(SharedUtils.parseZonedDateTime(map.get("createdAt")));
-        detail.setUpdatedAt(SharedUtils.parseZonedDateTime(map.get("updatedAt")));
+        detail.setWalletAccountId(ValueParser.parseLong(map.get("walletAccountId")));
+        detail.setCardId(ValueParser.parseNullableLong(map.get("cardId")));
+        detail.setAmount(ValueParser.parseBigDecimal(map.get("amount"))); // <- mejor que new BigDecimal(...)
+        detail.setCashbackRate(ValueParser.parseNullableBigDecimal(map.get("cashbackRate")));
+        detail.setCreatedAt(ValueParser.parseZonedDateTime(map.get("createdAt")));
+        detail.setUpdatedAt(ValueParser.parseZonedDateTime(map.get("updatedAt")));
         return detail;
     }
 

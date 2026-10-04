@@ -105,10 +105,14 @@ src/main/java/com/giozar04/walletCardLinks/application/exceptions/WalletCardLink
 src/main/java/com/giozar04/walletCardLinks/application/exceptions/WalletCardLinkUpdateException.java
 src/main/java/com/giozar04/walletCardLinks/domain/entities/WalletCardLink.java
 src/main/java/com/giozar04/walletCardLinks/infrastructure/serialization/WalletCardLinkMapper.java
-src/main/java/com/giozar04/walletTransactionDetails/application/utils/WalletTransactionDetailUtils.java
+src/main/java/com/giozar04/walletTransactionDetails/application/exceptions/WalletTransactionDetailCreationException.java
+src/main/java/com/giozar04/walletTransactionDetails/application/exceptions/WalletTransactionDetailDeletionException.java
+src/main/java/com/giozar04/walletTransactionDetails/application/exceptions/WalletTransactionDetailNotFoundException.java
+src/main/java/com/giozar04/walletTransactionDetails/application/exceptions/WalletTransactionDetailRetrievalException.java
+src/main/java/com/giozar04/walletTransactionDetails/application/exceptions/WalletTransactionDetailUpdateException.java
 src/main/java/com/giozar04/walletTransactionDetails/domain/entities/WalletTransactionDetail.java
 src/main/java/com/giozar04/walletTransactionDetails/domain/enums/WalletTransactionSourceType.java
-src/main/java/com/giozar04/walletTransactionDetails/domain/exceptions/WalletTransactionDetailExceptions.java
+src/main/java/com/giozar04/walletTransactionDetails/infrastructure/serialization/WalletTransactionDetailMapper.java
 src/test/java/com/giozar04/contracts/ContractProbe.java
 src/test/resources/contracts.json
 ```

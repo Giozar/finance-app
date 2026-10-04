@@ -16,7 +16,11 @@ import java.util.List;
 import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
 import com.giozar04.walletTransactionDetails.domain.entities.WalletTransactionDetail;
 import com.giozar04.walletTransactionDetails.domain.enums.WalletTransactionSourceType;
-import com.giozar04.walletTransactionDetails.domain.exceptions.WalletTransactionDetailExceptions;
+import com.giozar04.walletTransactionDetails.application.exceptions.WalletTransactionDetailCreationException;
+import com.giozar04.walletTransactionDetails.application.exceptions.WalletTransactionDetailDeletionException;
+import com.giozar04.walletTransactionDetails.application.exceptions.WalletTransactionDetailNotFoundException;
+import com.giozar04.walletTransactionDetails.application.exceptions.WalletTransactionDetailRetrievalException;
+import com.giozar04.walletTransactionDetails.application.exceptions.WalletTransactionDetailUpdateException;
 import com.giozar04.walletTransactionDetails.domain.interfaces.WalletTransactionDetailTransactionalRepositoryInterface;
 import com.giozar04.walletTransactionDetails.domain.models.WalletTransactionDetailRepositoryAbstract;
 
@@ -55,7 +59,7 @@ public class WalletTransactionDetailRepositoryMySQL extends WalletTransactionDet
 
         } catch (SQLException e) {
             rollback();
-            throw new WalletTransactionDetailExceptions.CreationException("Error al crear el detalle: " + e.getMessage(), e);
+            throw new WalletTransactionDetailCreationException("Error al crear el detalle: " + e.getMessage(), e);
         }
     }
 
@@ -69,11 +73,11 @@ public class WalletTransactionDetailRepositoryMySQL extends WalletTransactionDet
             stmt.setLong(1, id);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) return mapResultSet(rs);
-                throw new WalletTransactionDetailExceptions.NotFoundException("Detalle no encontrado con ID: " + id, null);
+                throw new WalletTransactionDetailNotFoundException("Detalle no encontrado con ID: " + id, null);
             }
 
         } catch (SQLException e) {
-            throw new WalletTransactionDetailExceptions.RetrievalException("Error al obtener detalle", e);
+            throw new WalletTransactionDetailRetrievalException("Error al obtener detalle", e);
         }
     }
 
@@ -105,7 +109,7 @@ public class WalletTransactionDetailRepositoryMySQL extends WalletTransactionDet
             stmt.setLong(8, id);
 
             int affected = stmt.executeUpdate();
-            if (affected == 0) throw new WalletTransactionDetailExceptions.NotFoundException("No se encontró el detalle para actualizar", null);
+            if (affected == 0) throw new WalletTransactionDetailNotFoundException("No se encontró el detalle para actualizar", null);
 
             databaseConnection.commitTransaction();
             detail.setId(id);
@@ -113,7 +117,7 @@ public class WalletTransactionDetailRepositoryMySQL extends WalletTransactionDet
 
         } catch (SQLException e) {
             rollback();
-            throw new WalletTransactionDetailExceptions.UpdateException("Error al actualizar detalle: " + e.getMessage(), e);
+            throw new WalletTransactionDetailUpdateException("Error al actualizar detalle: " + e.getMessage(), e);
         }
     }
 
@@ -127,14 +131,14 @@ public class WalletTransactionDetailRepositoryMySQL extends WalletTransactionDet
             stmt.setLong(1, id);
             int affected = stmt.executeUpdate();
 
-            if (affected == 0) throw new WalletTransactionDetailExceptions.NotFoundException("Detalle no encontrado", null);
+            if (affected == 0) throw new WalletTransactionDetailNotFoundException("Detalle no encontrado", null);
 
             databaseConnection.commitTransaction();
             logger.info("Detalle eliminado con ID: " + id);
 
         } catch (SQLException e) {
             rollback();
-            throw new WalletTransactionDetailExceptions.DeletionException("Error al eliminar detalle", e);
+            throw new WalletTransactionDetailDeletionException("Error al eliminar detalle", e);
         }
     }
 
@@ -150,7 +154,7 @@ public class WalletTransactionDetailRepositoryMySQL extends WalletTransactionDet
             return list;
 
         } catch (SQLException e) {
-            throw new WalletTransactionDetailExceptions.RetrievalException("Error al obtener todos los detalles", e);
+            throw new WalletTransactionDetailRetrievalException("Error al obtener todos los detalles", e);
         }
     }
 
@@ -160,7 +164,7 @@ public class WalletTransactionDetailRepositoryMySQL extends WalletTransactionDet
             return findByTransactionId(conn, transactionId);
 
         } catch (SQLException e) {
-            throw new WalletTransactionDetailExceptions.RetrievalException("Error al obtener detalles por transacción", e);
+            throw new WalletTransactionDetailRetrievalException("Error al obtener detalles por transacción", e);
         }
     }
 

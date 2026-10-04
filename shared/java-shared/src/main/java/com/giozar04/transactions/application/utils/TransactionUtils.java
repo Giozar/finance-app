@@ -11,7 +11,7 @@ import com.giozar04.transactions.domain.entities.Transaction;
 import com.giozar04.transactions.domain.enums.OperationTypes;
 import com.giozar04.transactions.domain.enums.PaymentMethod;
 import com.giozar04.transactions.domain.enums.TransactionStatus;
-import com.giozar04.walletTransactionDetails.application.utils.WalletTransactionDetailUtils;
+import com.giozar04.walletTransactionDetails.infrastructure.serialization.WalletTransactionDetailMapper;
 
 public class TransactionUtils {
 
@@ -38,7 +38,7 @@ public class TransactionUtils {
         if (tx.getCardDetail() != null)
             map.put("cardDetail", CardTransactionDetailMapper.toMap(tx.getCardDetail()));
         if (tx.getWalletDetail() != null)
-            map.put("walletDetail", WalletTransactionDetailUtils.toMap(tx.getWalletDetail()));
+            map.put("walletDetail", WalletTransactionDetailMapper.toMap(tx.getWalletDetail()));
 
         if (tx.getDate() != null)
             map.put("date", tx.getDate().format(SharedUtils.getFormatter()));
@@ -82,7 +82,7 @@ public class TransactionUtils {
         if (cardDetail != null) tx.setCardDetail(CardTransactionDetailMapper.fromMap(cardDetail));
 
         Map<String, Object> walletDetail = parseNestedMap(map.get("walletDetail"));
-        if (walletDetail != null) tx.setWalletDetail(WalletTransactionDetailUtils.fromMap(walletDetail));
+        if (walletDetail != null) tx.setWalletDetail(WalletTransactionDetailMapper.fromMap(walletDetail));
 
         tx.setCreatedAt(SharedUtils.parseZonedDateTime(map.get("createdAt")));
         tx.setUpdatedAt(SharedUtils.parseZonedDateTime(map.get("updatedAt")));

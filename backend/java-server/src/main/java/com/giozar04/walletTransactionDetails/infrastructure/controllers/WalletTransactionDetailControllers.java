@@ -9,7 +9,7 @@ import com.giozar04.messages.domain.models.Message;
 import com.giozar04.servers.domain.handlers.MessageHandler;
 import com.giozar04.servers.domain.models.ClientConnection;
 import com.giozar04.walletTransactionDetails.application.services.WalletTransactionDetailService;
-import com.giozar04.walletTransactionDetails.application.utils.WalletTransactionDetailUtils;
+import com.giozar04.walletTransactionDetails.infrastructure.serialization.WalletTransactionDetailMapper;
 import com.giozar04.walletTransactionDetails.domain.entities.WalletTransactionDetail;
 
 public class WalletTransactionDetailControllers {
@@ -35,11 +35,11 @@ public class WalletTransactionDetailControllers {
                 return Message.createErrorMessage(MessageTypes.CREATE_DETAIL, "Datos no proporcionados");
             }
 
-            WalletTransactionDetail detail = WalletTransactionDetailUtils.fromMap(data);
+            WalletTransactionDetail detail = WalletTransactionDetailMapper.fromMap(data);
             WalletTransactionDetail created = service.createDetail(detail);
 
             Message response = Message.createSuccessMessage(MessageTypes.CREATE_DETAIL, "Detalle creado");
-            response.addData("walletTransactionDetail", WalletTransactionDetailUtils.toMap(created));
+            response.addData("walletTransactionDetail", WalletTransactionDetailMapper.toMap(created));
             return response;
         };
     }
@@ -55,7 +55,7 @@ public class WalletTransactionDetailControllers {
 
             WalletTransactionDetail detail = service.getDetailById(id);
             Message response = Message.createSuccessMessage(MessageTypes.GET_DETAIL, "Detalle obtenido");
-            response.addData("walletTransactionDetail", WalletTransactionDetailUtils.toMap(detail));
+            response.addData("walletTransactionDetail", WalletTransactionDetailMapper.toMap(detail));
             return response;
         };
     }
@@ -75,10 +75,10 @@ public class WalletTransactionDetailControllers {
                 return Message.createErrorMessage(MessageTypes.UPDATE_DETAIL, "Datos no proporcionados");
             }
 
-            WalletTransactionDetail updated = service.updateDetailById(id, WalletTransactionDetailUtils.fromMap(data));
+            WalletTransactionDetail updated = service.updateDetailById(id, WalletTransactionDetailMapper.fromMap(data));
 
             Message response = Message.createSuccessMessage(MessageTypes.UPDATE_DETAIL, "Detalle actualizado");
-            response.addData("walletTransactionDetail", WalletTransactionDetailUtils.toMap(updated));
+            response.addData("walletTransactionDetail", WalletTransactionDetailMapper.toMap(updated));
             return response;
         };
     }
@@ -104,7 +104,7 @@ public class WalletTransactionDetailControllers {
             List<WalletTransactionDetail> list = service.getAllDetails();
             List<Map<String, Object>> mapped = new ArrayList<>();
             for (WalletTransactionDetail d : list) {
-                mapped.add(WalletTransactionDetailUtils.toMap(d));
+                mapped.add(WalletTransactionDetailMapper.toMap(d));
             }
 
             Message response = Message.createSuccessMessage(MessageTypes.GET_ALL_DETAILS, "Detalles obtenidos");
@@ -127,7 +127,7 @@ public class WalletTransactionDetailControllers {
             List<WalletTransactionDetail> list = service.getDetailsByTransactionId(txId);
             List<Map<String, Object>> mapped = new ArrayList<>();
             for (WalletTransactionDetail d : list) {
-                mapped.add(WalletTransactionDetailUtils.toMap(d));
+                mapped.add(WalletTransactionDetailMapper.toMap(d));
             }
 
             Message response = Message.createSuccessMessage(MessageTypes.GET_DETAILS_BY_TRANSACTION, "Detalles obtenidos");
