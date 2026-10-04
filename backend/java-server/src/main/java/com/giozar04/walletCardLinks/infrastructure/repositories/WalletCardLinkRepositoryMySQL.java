@@ -12,7 +12,10 @@ import java.util.List;
 
 import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
 import com.giozar04.walletCardLinks.domain.entities.WalletCardLink;
-import com.giozar04.walletCardLinks.domain.exceptions.WalletCardLinkExceptions;
+import com.giozar04.walletCardLinks.application.exceptions.WalletCardLinkCreationException;
+import com.giozar04.walletCardLinks.application.exceptions.WalletCardLinkDeletionException;
+import com.giozar04.walletCardLinks.application.exceptions.WalletCardLinkNotFoundException;
+import com.giozar04.walletCardLinks.application.exceptions.WalletCardLinkRetrievalException;
 import com.giozar04.walletCardLinks.domain.models.WalletCardLinkRepositoryAbstract;
 
 /**
@@ -70,7 +73,7 @@ public class WalletCardLinkRepositoryMySQL extends WalletCardLinkRepositoryAbstr
 
         } catch (SQLException e) {
             rollback();
-            throw new WalletCardLinkExceptions.CreationException("Error al crear el enlace", e);
+            throw new WalletCardLinkCreationException("Error al crear el enlace", e);
         }
     }
 
@@ -90,12 +93,12 @@ public class WalletCardLinkRepositoryMySQL extends WalletCardLinkRepositoryAbstr
                 if (rs.next()) {
                     return mapResultSet(rs);
                 } else {
-                    throw new WalletCardLinkExceptions.NotFoundException("Enlace no encontrado con card_id: " + cardId, null);
+                    throw new WalletCardLinkNotFoundException("Enlace no encontrado con card_id: " + cardId, null);
                 }
             }
 
         } catch (SQLException e) {
-            throw new WalletCardLinkExceptions.RetrievalException("Error al obtener enlace con card_id: " + cardId, e);
+            throw new WalletCardLinkRetrievalException("Error al obtener enlace con card_id: " + cardId, e);
         }
     }
 
@@ -125,7 +128,7 @@ public class WalletCardLinkRepositoryMySQL extends WalletCardLinkRepositoryAbstr
 
             int affected = stmt.executeUpdate();
             if (affected == 0) {
-                throw new WalletCardLinkExceptions.NotFoundException("No se encontró el enlace para eliminar", null);
+                throw new WalletCardLinkNotFoundException("No se encontró el enlace para eliminar", null);
             }
 
             databaseConnection.commitTransaction();
@@ -133,7 +136,7 @@ public class WalletCardLinkRepositoryMySQL extends WalletCardLinkRepositoryAbstr
 
         } catch (SQLException e) {
             rollback();
-            throw new WalletCardLinkExceptions.DeletionException("Error al eliminar el enlace", e);
+            throw new WalletCardLinkDeletionException("Error al eliminar el enlace", e);
         }
     }
 
@@ -152,7 +155,7 @@ public class WalletCardLinkRepositoryMySQL extends WalletCardLinkRepositoryAbstr
             return list;
 
         } catch (SQLException e) {
-            throw new WalletCardLinkExceptions.RetrievalException("Error al obtener todos los enlaces", e);
+            throw new WalletCardLinkRetrievalException("Error al obtener todos los enlaces", e);
         }
     }
 
@@ -173,7 +176,7 @@ public class WalletCardLinkRepositoryMySQL extends WalletCardLinkRepositoryAbstr
             return list;
 
         } catch (SQLException e) {
-            throw new WalletCardLinkExceptions.RetrievalException("Error al obtener enlaces por walletAccountId", e);
+            throw new WalletCardLinkRetrievalException("Error al obtener enlaces por walletAccountId", e);
         }
     }
 

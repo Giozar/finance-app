@@ -9,7 +9,7 @@ import com.giozar04.messages.domain.models.Message;
 import com.giozar04.servers.domain.handlers.MessageHandler;
 import com.giozar04.servers.domain.models.ClientConnection;
 import com.giozar04.walletCardLinks.application.services.WalletCardLinkService;
-import com.giozar04.walletCardLinks.application.utils.WalletCardLinkUtils;
+import com.giozar04.walletCardLinks.infrastructure.serialization.WalletCardLinkMapper;
 import com.giozar04.walletCardLinks.domain.entities.WalletCardLink;
 
 public class WalletCardLinkControllers {
@@ -35,11 +35,11 @@ public class WalletCardLinkControllers {
                 return Message.createErrorMessage(WalletCardLinkMessageTypes.CREATE_LINK, "Datos no proporcionados");
             }
 
-            WalletCardLink link = WalletCardLinkUtils.fromMap(data);
+            WalletCardLink link = WalletCardLinkMapper.fromMap(data);
             WalletCardLink created = service.createLink(link);
 
             Message response = Message.createSuccessMessage(WalletCardLinkMessageTypes.CREATE_LINK, "Vínculo creado");
-            response.addData("walletCardLink", WalletCardLinkUtils.toMap(created));
+            response.addData("walletCardLink", WalletCardLinkMapper.toMap(created));
             return response;
         };
     }
@@ -55,7 +55,7 @@ public class WalletCardLinkControllers {
 
             WalletCardLink link = service.getLinkById(id);
             Message response = Message.createSuccessMessage(WalletCardLinkMessageTypes.GET_LINK, "Vínculo obtenido");
-            response.addData("walletCardLink", WalletCardLinkUtils.toMap(link));
+            response.addData("walletCardLink", WalletCardLinkMapper.toMap(link));
             return response;
         };
     }
@@ -75,10 +75,10 @@ public class WalletCardLinkControllers {
                 return Message.createErrorMessage(WalletCardLinkMessageTypes.UPDATE_LINK, "Datos no proporcionados");
             }
 
-            WalletCardLink updated = service.updateLinkById(id, WalletCardLinkUtils.fromMap(data));
+            WalletCardLink updated = service.updateLinkById(id, WalletCardLinkMapper.fromMap(data));
 
             Message response = Message.createSuccessMessage(WalletCardLinkMessageTypes.UPDATE_LINK, "Vínculo actualizado");
-            response.addData("walletCardLink", WalletCardLinkUtils.toMap(updated));
+            response.addData("walletCardLink", WalletCardLinkMapper.toMap(updated));
             return response;
         };
     }
@@ -105,7 +105,7 @@ public class WalletCardLinkControllers {
             List<Map<String, Object>> result = new ArrayList<>();
 
             for (WalletCardLink link : links) {
-                result.add(WalletCardLinkUtils.toMap(link));
+                result.add(WalletCardLinkMapper.toMap(link));
             }
 
             Message response = Message.createSuccessMessage(WalletCardLinkMessageTypes.GET_ALL_LINKS, "Vínculos obtenidos");
@@ -129,7 +129,7 @@ public class WalletCardLinkControllers {
             List<Map<String, Object>> result = new ArrayList<>();
 
             for (WalletCardLink link : links) {
-                result.add(WalletCardLinkUtils.toMap(link));
+                result.add(WalletCardLinkMapper.toMap(link));
             }
 
             Message response = Message.createSuccessMessage(WalletCardLinkMessageTypes.GET_LINKS_BY_WALLET, "Vínculos obtenidos");

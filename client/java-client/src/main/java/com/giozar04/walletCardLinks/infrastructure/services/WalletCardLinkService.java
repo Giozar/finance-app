@@ -9,7 +9,7 @@ import com.giozar04.messages.domain.models.Message;
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
 import com.giozar04.serverConnection.application.services.ServerConnectionService;
 import com.giozar04.serverConnection.application.validators.ServerResponseValidator;
-import com.giozar04.walletCardLinks.application.utils.WalletCardLinkUtils;
+import com.giozar04.walletCardLinks.infrastructure.serialization.WalletCardLinkMapper;
 import com.giozar04.walletCardLinks.domain.entities.WalletCardLink;
 
 public class WalletCardLinkService {
@@ -49,7 +49,7 @@ public class WalletCardLinkService {
             if (raw instanceof List<?> rawList) {
                 for (Object item : rawList) {
                     if (item instanceof Map<?, ?> map) {
-                        result.add(WalletCardLinkUtils.fromMap((Map<String, Object>) map));
+                        result.add(WalletCardLinkMapper.fromMap((Map<String, Object>) map));
                     }
                 }
             }
@@ -67,14 +67,14 @@ public class WalletCardLinkService {
     public WalletCardLink createWalletCardLink(WalletCardLink link) throws ClientOperationException {
         Message message = new Message();
         message.setType("CREATE_WALLET_CARD_LINK");
-        message.addData("walletCardLink", WalletCardLinkUtils.toMap(link));
+        message.addData("walletCardLink", WalletCardLinkMapper.toMap(link));
 
         serverConnectionService.sendMessage(message);
         try {
             Message response = serverConnectionService.waitForMessage("CREATE_WALLET_CARD_LINK");
             ServerResponseValidator.validateResponse(response);
             logger.info("Vínculo wallet-tarjeta creado exitosamente: " + response);
-            return WalletCardLinkUtils.fromMap((Map<String, Object>) response.getData("walletCardLink"));
+            return WalletCardLinkMapper.fromMap((Map<String, Object>) response.getData("walletCardLink"));
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new ClientOperationException("Error al esperar respuesta del servidor", e);

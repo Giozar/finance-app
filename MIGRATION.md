@@ -15,7 +15,7 @@ Referencia funcional inicial: `a68517e`.
 | accounts | Migrada; contratos y consumidores verificados |
 | card | Migrada; contratos y consumidores verificados |
 | accountCashbackSettings | Migrada; contratos y consumidores verificados |
-| walletCardLinks | Pendiente |
+| walletCardLinks | Migrada; contratos y consumidores verificados |
 | cardTransactionDetails | Pendiente |
 | walletTransactionDetails | Pendiente |
 | transactions | Pendiente |
