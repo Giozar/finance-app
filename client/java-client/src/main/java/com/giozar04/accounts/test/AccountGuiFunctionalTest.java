@@ -9,7 +9,7 @@ import com.giozar04.accounts.infrastructure.transport.socket.AccountService;
 import com.giozar04.accounts.presentation.views.AccountsView;
 import com.giozar04.bankClients.infrastructure.transport.socket.BankClientService;
 import com.giozar04.configs.ServerConnectionConfig;
-import com.giozar04.serverConnection.application.services.ServerConnectionService;
+import com.giozar04.serverConnection.infrastructure.transport.socket.ServerConnectionService;
 import com.giozar04.shared.components.MainContentPanel;
 import com.giozar04.users.infrastructure.transport.socket.UserService;
 

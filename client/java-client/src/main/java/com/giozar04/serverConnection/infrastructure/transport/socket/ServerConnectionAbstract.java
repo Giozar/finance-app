@@ -1,8 +1,8 @@
-package com.giozar04.serverConnection.domain.models;
+package com.giozar04.serverConnection.infrastructure.transport.socket;
 
 import com.giozar04.configs.ServerConnectionConfig;
 import com.giozar04.messages.infrastructure.transport.Message;
-import com.giozar04.serverConnection.domain.interfaces.ServerConnectionInterface;
+import com.giozar04.serverConnection.infrastructure.transport.socket.ServerConnectionInterface;
 
 public abstract class ServerConnectionAbstract implements ServerConnectionInterface {
 

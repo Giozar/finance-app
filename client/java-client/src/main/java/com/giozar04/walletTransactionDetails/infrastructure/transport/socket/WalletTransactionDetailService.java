@@ -8,8 +8,8 @@ import com.giozar04.walletTransactionDetails.application.ports.output.WalletTran
 import com.giozar04.logging.infrastructure.ConsoleLogger;
 import com.giozar04.messages.infrastructure.transport.Message;
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
-import com.giozar04.serverConnection.application.services.ServerConnectionService;
-import com.giozar04.serverConnection.application.validators.ServerResponseValidator;
+import com.giozar04.serverConnection.infrastructure.transport.socket.ServerConnectionService;
+import com.giozar04.serverConnection.infrastructure.transport.socket.ServerResponseValidator;
 import com.giozar04.walletTransactionDetails.infrastructure.serialization.WalletTransactionDetailMapper;
 import com.giozar04.walletTransactionDetails.domain.entities.WalletTransactionDetail;
 

@@ -1,4 +1,4 @@
-package com.giozar04.serverConnection.domain.interfaces;
+package com.giozar04.serverConnection.infrastructure.transport.socket;
 
 import java.io.IOException;
 

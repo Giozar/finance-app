@@ -63,4 +63,4 @@ comparados y compilación independiente de shared, backend y client.
 | users | Migrada; puerto de entrada, caso de uso, puerto de salida y adaptador socket verificados |
 | tags | Migrada; puerto de entrada, caso de uso, puerto de salida y adaptador socket verificados |
 
-La compilación de consumidores durante shared no representa la migración interna de backend/client.
+Los tres módulos compilan y conservan los 92 escenarios del protocolo. Los probes de tags y transactions usan repositorios en memoria. No se ha ejecutado una prueba integrada con MySQL y Swing.

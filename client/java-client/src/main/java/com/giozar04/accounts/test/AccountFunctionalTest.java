@@ -7,7 +7,7 @@ import com.giozar04.accounts.domain.entities.Account;
 import com.giozar04.accounts.domain.enums.AccountTypes;
 import com.giozar04.accounts.infrastructure.transport.socket.AccountService;
 import com.giozar04.configs.ServerConnectionConfig;
-import com.giozar04.serverConnection.application.services.ServerConnectionService;
+import com.giozar04.serverConnection.infrastructure.transport.socket.ServerConnectionService;
 
 public class AccountFunctionalTest {
 

@@ -1,4 +1,4 @@
-package com.giozar04.serverConnection.application.validators;
+package com.giozar04.serverConnection.infrastructure.transport.socket;
 
 import com.giozar04.messages.infrastructure.transport.Message;
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;

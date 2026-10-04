@@ -28,7 +28,7 @@ import com.giozar04.externalEntities.infrastructure.transport.socket.ExternalEnt
 import com.giozar04.externalEntities.application.usecases.ExternalEntityUseCase;
 import com.giozar04.externalEntities.application.ports.input.ExternalEntityOperations;
 import com.giozar04.logging.infrastructure.ConsoleLogger;
-import com.giozar04.serverConnection.application.services.ServerConnectionService;
+import com.giozar04.serverConnection.infrastructure.transport.socket.ServerConnectionService;
 import com.giozar04.shared.layouts.AppLayout;
 import com.giozar04.tags.infrastructure.transport.socket.TagService;
 import com.giozar04.tags.application.usecases.TagUseCase;

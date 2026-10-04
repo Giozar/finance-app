@@ -85,11 +85,11 @@ src/main/java/com/giozar04/externalEntities/presentation/components/ExternalEnti
 src/main/java/com/giozar04/externalEntities/presentation/views/CreateExternalEntityView.java
 src/main/java/com/giozar04/externalEntities/presentation/views/ExternalEntitiesView.java
 src/main/java/com/giozar04/serverConnection/application/exceptions/ClientOperationException.java
-src/main/java/com/giozar04/serverConnection/application/services/ServerConnectionService.java
-src/main/java/com/giozar04/serverConnection/application/validators/ServerResponseValidator.java
-src/main/java/com/giozar04/serverConnection/domain/interfaces/ServerConnectionInterface.java
-src/main/java/com/giozar04/serverConnection/domain/models/ServerConnectionAbstract.java
-src/main/java/com/giozar04/serverConnection/domain/models/ServerConnectionConfig.java
+src/main/java/com/giozar04/serverConnection/infrastructure/transport/socket/ServerConnectionAbstract.java
+src/main/java/com/giozar04/serverConnection/infrastructure/transport/socket/ServerConnectionConfig.java
+src/main/java/com/giozar04/serverConnection/infrastructure/transport/socket/ServerConnectionInterface.java
+src/main/java/com/giozar04/serverConnection/infrastructure/transport/socket/ServerConnectionService.java
+src/main/java/com/giozar04/serverConnection/infrastructure/transport/socket/ServerResponseValidator.java
 src/main/java/com/giozar04/shared/components/CreditUsagePanel.java
 src/main/java/com/giozar04/shared/components/DatePickerComponent.java
 src/main/java/com/giozar04/shared/components/HeaderPanel.java

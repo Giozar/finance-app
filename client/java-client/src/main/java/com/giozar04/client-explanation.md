@@ -1,42 +1,27 @@
-> Migración por features: consulte [ARCHITECTURE.md](../../../../../../../ARCHITECTURE.md), [MIGRATION.md](../../../../../../../MIGRATION.md) y [AGENTS.md](../../../../../../../AGENTS.md). Las features pendientes conservan la estructura documentada aquí.
+# Crear una feature en el cliente
 
-# Implementing a New Feature in the Client Project
+[Arquitectura](../../../../../../../ARCHITECTURE.md) · [Estado](../../../../../../../MIGRATION.md)
 
-To create a new feature within the `client` project, the first step is to navigate to the main package where all application modules are organized. Features are created under the following path:
-
-```text
-client/java-client/src/main/java/com/giozar04/
-```
-
-Inside this location, a new folder should be created using the feature name. For example:
+Cada feature del cliente separa presentación, aplicación e infraestructura. Las vistas
+dependen de un puerto de entrada; el caso de uso utiliza un puerto de salida y el
+adaptador socket implementa este último. Los modelos y mappers del protocolo vienen
+de `java-shared`.
 
 ```text
-com/giozar04/featureName
+<feature>/
+├── application/
+│   ├── ports/input/<Feature>Operations.java
+│   ├── ports/output/<Feature>Gateway.java
+│   └── usecases/<Feature>UseCase.java
+├── infrastructure/transport/socket/<Feature>Service.java
+└── presentation/
+    ├── components/
+    └── views/
 ```
 
-The client project follows a layered architecture where each feature separates responsibilities into independent modules. The overall system is composed of three main projects: `backend`, `client`, and `shared/java-shared`. The backend handles business logic and persistence, the client manages the user interface and interactions, and the `shared/java-shared` project contains resources shared between both applications, such as entities, enums, exceptions, and common utilities.
-
-From the client perspective, the responsibility of a feature is to provide the visual layer and communicate with the backend through the socket infrastructure already implemented.
-
-A typical client feature follows a structure similar to the following:
-
-```text
-featureName
-├── test
-│   ├── FeatureNameFunctionalTest.java
-│   └── FeatureNameGuiFunctionalTest.java
-├── infrastructure
-│   └── services
-│       └── FeatureNameService.java
-└── presentation
-    ├── components
-    │   ├── FeatureNameFormPanel.java
-    │   └── subpanels
-    │       └── FeatureNameDetailsSubPanel.java
-    └── views
-        ├── FeatureNamesView.java
-        └── CreateFeatureNameView.java
-```
+`ApplicationInitializer` crea el adaptador, construye el caso de uso y lo registra
+en `ClientUseCases`. Las vistas piden el puerto de entrada al registro. Los
+adaptadores socket conservan los códigos de mensajes y la serialización actual.
 
 ## Test Layer
 
@@ -51,24 +36,15 @@ These tests help verify that the feature behaves correctly from the user perspec
 
 ---
 
-## Infrastructure Layer
+## Aplicación e infraestructura
 
-The `infrastructure` layer contains the services responsible for communication with the backend.
-
-Inside `infrastructure/services`, a class such as `FeatureNameService` is created. Its responsibility is to:
-
-* Build request messages.
-* Define operation types.
-* Send requests to the server.
-* Wait for responses.
-* Validate received data.
-* Convert response data into application entities.
-
-This pattern can be observed in `AccountService`, where messages such as `CREATE_ACCOUNT`, `UPDATE_ACCOUNT`, `DELETE_ACCOUNT`, and `GET_ALL_ACCOUNTS` are created and sent through `ServerConnectionService`. After receiving a response, the service validates the server output and transforms the returned data into application entities. 
-
-The service layer should never contain UI logic; its responsibility is limited to communication and data handling.
-
----
+`<Feature>Operations` define lo que necesita la presentación. El caso de uso
+implementa ese contrato y depende de `<Feature>Gateway`. El adaptador socket
+implementa el gateway: crea `Message`, envía la petición, valida la respuesta y
+convierte mapas con el mapper de shared. `ServerConnectionService` y
+`ServerResponseValidator` viven en
+`serverConnection/infrastructure/transport/socket`. La aplicación no importa
+sockets, JSON, Swing ni clases concretas de transporte.
 
 ## Presentation Layer
 
@@ -115,7 +91,7 @@ This approach improves maintainability and follows SOLID principles.
 
 * **Formal tone ("usted")**: every visible text (labels, placeholders, validation errors, dialogs) addresses the user as "usted", for example `"Seleccione un usuario..."`, `"Debe seleccionar un usuario propietario."` and `"Corrija los siguientes errores:"`.
 * **Enum-based options**: combo boxes and filters that list enum values must be built from `Enum.values()` (for example `OperationTypes.values()`), never from hard-coded arrays, so they stay in sync with `shared`. Display the enum label (`getLabel()`) and compare against the enum itself, not against fixed strings.
-* **Owner user selector**: entities that have a `userId` (accounts, tags, categories, external entities) include a `FormComboBox<User>` labeled `"Usuario propietario:"` as the first field, with placeholder `"Seleccione un usuario..."`. Users are loaded through `UserService.getInstance().getAllUsers()`, validation adds `"Debe seleccionar un usuario propietario."` when no valid selection exists, the selected user's id is assigned to `userId`, `loadX(...)` selects the matching user, and `clearForm()` clears the selection. References: `AccountFormPanel`, `TagFormPanel`.
+* **Owner user selector**: entities that have a `userId` (accounts, tags, categories, external entities) include a `FormComboBox<User>` labeled `"Usuario propietario:"` as the first field, with placeholder `"Seleccione un usuario..."`. Users are loaded through `ClientUseCases.get(UserOperations.class).getAllUsers()`, validation adds `"Debe seleccionar un usuario propietario."` when no valid selection exists, the selected user's id is assigned to `userId`, `loadX(...)` selects the matching user, and `clearForm()` clears the selection. References: `AccountFormPanel`, `TagFormPanel`.
 * **Opening balances are read-only when editing**: in `AccountFormPanel` the "Balance actual" field (and "Deuda actual" in `CreditDetailsSubPanel`) is captured only when **creating** an account (it becomes the opening state through the database trigger). When **editing**, both are read-only and show the help text `"Se modifica con transacciones o desde Conciliación."` (`FormHelpText`), so the account never goes out of balance. When creating, an empty value means `0` (if captured it must be a non-negative number).
 
 #### Quick-create pattern
@@ -240,53 +216,15 @@ Before creating a new component, this folder should always be reviewed first to 
 
 ---
 
-## Server Connection Layer
+## Conexión y arranque
 
-The project also includes a dedicated `serverConnection` module responsible for managing communication with the backend.
+`ApplicationInitializer` abre la conexión mediante
+`serverConnection/infrastructure/transport/socket/ServerConnectionService`, registra
+cada caso de uso en `ClientUseCases` y arranca Swing. El registro pertenece a
+`bootstrap`; las vistas acceden solo a las interfaces `*Operations`.
 
-Since the application uses sockets for communication, this module manages:
-
-* Server configuration
-* Connection initialization
-* Sending messages
-* Receiving responses
-* Response validation
-* Connection abstractions
-
-This layer provides the infrastructure required by all services.
-
----
-
-## Application Initialization
-
-The application startup process is managed by `ApplicationInitializer`.
-
-During application startup:
-
-1. A connection with the backend server is established.
-2. Service instances are initialized.
-3. Dependencies become available globally.
-4. The graphical interface is launched.
-
-This process ensures that all services required by the application are connected before the user interface becomes available. 
-
----
-
-## General Feature Implementation Flow
-
-The complete process for creating a new feature in the client project can be summarized as follows:
-
-```text
-1. Create the feature folder inside com/giozar04.
-2. Create the infrastructure/services layer.
-3. Implement backend communication methods using Message objects.
-4. Create presentation/components for forms and custom UI elements.
-5. Create subpanels if specialized sections are required.
-6. Create the main views inside presentation/views.
-7. Reuse existing resources from shared whenever possible.
-8. Register and initialize the service in ApplicationInitializer.
-9. Add the menu entry in SidebarPanel (menuItems) and its case in AppLayout.navigate(...).
-10. Verify that backend and shared/java-shared resources exist and are compatible.
-```
-
-In general, the application flow works as follows: `ApplicationInitializer` starts the application, `ServerConnectionService` establishes communication with the backend, feature services perform the required operations, and presentation components render and manage information for the user interface.
+Al crear una feature, añada sus puertos, caso de uso y adaptador socket, registre
+el caso de uso en bootstrap y conecte las vistas con el puerto de entrada. Actualice
+el agente, `MIGRATION.md` y los índices. Compile los tres módulos y compare los
+contratos con `python3 scripts/verify_shared.py`. Los formularios y componentes
+reutilizables se describen en las secciones anteriores.

@@ -1,4 +1,4 @@
-package com.giozar04.serverConnection.application.services;
+package com.giozar04.serverConnection.infrastructure.transport.socket;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -13,7 +13,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import com.giozar04.messages.infrastructure.serialization.MessageJsonCodec;
 import com.giozar04.messages.infrastructure.transport.Message;
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
-import com.giozar04.serverConnection.domain.models.ServerConnectionAbstract;
+import com.giozar04.serverConnection.infrastructure.transport.socket.ServerConnectionAbstract;
 
 public class ServerConnectionService extends ServerConnectionAbstract {
 

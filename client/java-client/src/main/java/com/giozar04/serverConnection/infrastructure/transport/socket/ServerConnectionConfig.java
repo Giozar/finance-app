@@ -1,4 +1,4 @@
-package com.giozar04.serverConnection.domain.models;
+package com.giozar04.serverConnection.infrastructure.transport.socket;
 
 public class ServerConnectionConfig {
     protected String serverHost;

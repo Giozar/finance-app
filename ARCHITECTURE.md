@@ -20,7 +20,7 @@ resultados observables se conservan. El estado real se registra en [MIGRATION.md
 
 Shared es una biblioteca de modelos y contratos. Sus mappers son adaptadores de
 serialización, no casos de uso. No se crean repositorios ni casos de uso vacíos en shared.
-Backend ya separa puertos, casos de uso y adaptadores por feature. Client se migra después.
+Backend y client separan puertos, casos de uso y adaptadores por feature.
 
 ## Vocabulario y ubicaciones
 
@@ -68,7 +68,7 @@ El probe incluye campos completos, defaults, ida y vuelta por mapas y JSON, todo
 valores de enum, detalles anidados, nulos, etiquetas, caracteres escapados y fechas.
 
 Esta verificación no arranca Swing, sockets ni MySQL. La comprobación funcional con
-servidor y base de datos corresponde a las etapas de backend/client y usa datos aislados.
+servidor y base de datos requiere un entorno aislado con configuración real.
 
 ## Documentación y agentes
 
