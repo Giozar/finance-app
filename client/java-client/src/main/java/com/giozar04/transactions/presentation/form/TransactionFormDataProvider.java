@@ -23,7 +23,8 @@ import com.giozar04.externalEntities.infrastructure.services.ExternalEntityServi
 import com.giozar04.logging.infrastructure.ConsoleLogger;
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
 import com.giozar04.tags.domain.entities.Tag;
-import com.giozar04.tags.infrastructure.services.TagService;
+import com.giozar04.tags.application.ports.input.TagOperations;
+import com.giozar04.bootstrap.ClientUseCases;
 import com.giozar04.transactions.domain.enums.OperationTypes;
 import com.giozar04.walletCardLinks.domain.entities.WalletCardLink;
 import com.giozar04.walletCardLinks.infrastructure.services.WalletCardLinkService;
@@ -95,7 +96,7 @@ public class TransactionFormDataProvider {
             reportError("Error al cargar las categorías del usuario: " + e.getMessage());
         }
         try {
-            tags = new ArrayList<>(TagService.getInstance().getTagsByUserId(newUserId));
+            tags = new ArrayList<>(ClientUseCases.get(TagOperations.class).getTagsByUserId(newUserId));
         } catch (ClientOperationException | RuntimeException e) {
             reportError("Error al cargar las etiquetas del usuario: " + e.getMessage());
         }

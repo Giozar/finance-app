@@ -1,9 +1,10 @@
-package com.giozar04.tags.infrastructure.services;
+package com.giozar04.tags.infrastructure.transport.socket;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.giozar04.tags.application.ports.output.TagGateway;
 import com.giozar04.logging.infrastructure.ConsoleLogger;
 import com.giozar04.messages.infrastructure.transport.Message;
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
@@ -16,7 +17,7 @@ import com.giozar04.tags.application.exceptions.TagDeletionException;
 import com.giozar04.tags.application.exceptions.TagRetrievalException;
 import com.giozar04.tags.application.exceptions.TagUpdateException;
 
-public class TagService {
+public class TagService implements TagGateway {
 
     private final ServerConnectionService serverConnectionService;
     private static final ConsoleLogger logger = ConsoleLogger.getInstance();

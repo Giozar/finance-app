@@ -41,6 +41,7 @@ src/main/java/com/giozar04/bankClients/presentation/views/CreateBankClientView.j
 src/main/java/com/giozar04/bankClients/test/BankClientFunctionalTest.java
 src/main/java/com/giozar04/bankClients/test/BankClientGuiFunctionalTest.java
 src/main/java/com/giozar04/bootstrap/ApplicationInitializer.java
+src/main/java/com/giozar04/bootstrap/ClientUseCases.java
 src/main/java/com/giozar04/cardTransactionDetails/infrastructure/services/CardTransactionDetailService.java
 src/main/java/com/giozar04/cards/infrastructure/services/CardService.java
 src/main/java/com/giozar04/cards/presentation/components/CardFormPanel.java
@@ -91,7 +92,10 @@ src/main/java/com/giozar04/shared/components/table/PopupMenuActionHandler.java
 src/main/java/com/giozar04/shared/layouts/AppLayout.java
 src/main/java/com/giozar04/shared/utils/DialogUtil.java
 src/main/java/com/giozar04/shared/utils/FormValidatorUtils.java
-src/main/java/com/giozar04/tags/infrastructure/services/TagService.java
+src/main/java/com/giozar04/tags/application/ports/input/TagOperations.java
+src/main/java/com/giozar04/tags/application/ports/output/TagGateway.java
+src/main/java/com/giozar04/tags/application/usecases/TagUseCase.java
+src/main/java/com/giozar04/tags/infrastructure/transport/socket/TagService.java
 src/main/java/com/giozar04/tags/presentation/components/TagFormPanel.java
 src/main/java/com/giozar04/tags/presentation/views/CreateTagView.java
 src/main/java/com/giozar04/tags/presentation/views/TagsView.java

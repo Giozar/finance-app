@@ -16,7 +16,8 @@ import com.giozar04.externalEntities.infrastructure.services.ExternalEntityServi
 import com.giozar04.logging.infrastructure.ConsoleLogger;
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
 import com.giozar04.tags.domain.entities.Tag;
-import com.giozar04.tags.infrastructure.services.TagService;
+import com.giozar04.tags.application.ports.input.TagOperations;
+import com.giozar04.bootstrap.ClientUseCases;
 import com.giozar04.transactions.domain.entities.Transaction;
 import com.giozar04.transactions.domain.enums.OperationTypes;
 import com.giozar04.walletTransactionDetails.domain.entities.WalletTransactionDetail;
@@ -109,7 +110,7 @@ public class TransactionNameLookup {
         if (tagNames == null) {
             tagNames = new HashMap<>();
             try {
-                for (Tag tag : TagService.getInstance().getAllTags()) {
+                for (Tag tag : ClientUseCases.get(TagOperations.class).getAllTags()) {
                     tagNames.put(tag.getId(), tag.getName());
                 }
             } catch (ClientOperationException | RuntimeException e) {

@@ -22,7 +22,8 @@ import com.giozar04.shared.components.forms.FormField;
 import com.giozar04.shared.utils.DialogUtil;
 import com.giozar04.shared.utils.FormValidatorUtils;
 import com.giozar04.tags.domain.entities.Tag;
-import com.giozar04.tags.infrastructure.services.TagService;
+import com.giozar04.tags.application.ports.input.TagOperations;
+import com.giozar04.bootstrap.ClientUseCases;
 import com.giozar04.users.domain.entities.User;
 import com.giozar04.users.infrastructure.services.UserService;
 
@@ -120,10 +121,10 @@ public class TagFormPanel extends JPanel {
         try {
             Tag savedTag;
             if (currentTag == null) {
-                savedTag = TagService.getInstance().createTag(tag);
+                savedTag = ClientUseCases.get(TagOperations.class).createTag(tag);
                 DialogUtil.showSuccess(this, "Etiqueta creada exitosamente.");
             } else {
-                savedTag = TagService.getInstance().updateTagById(tag.getId(), tag);
+                savedTag = ClientUseCases.get(TagOperations.class).updateTagById(tag.getId(), tag);
                 DialogUtil.showSuccess(this, "Etiqueta actualizada exitosamente.");
             }
             clearForm();

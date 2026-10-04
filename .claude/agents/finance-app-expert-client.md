@@ -8,6 +8,8 @@ model: inherit
 
 ## Migración vigente
 
+- `tags`: `TagOperations` → `TagUseCase` → `TagGateway` → `TagService` (socket).
+
 Consulte [ARCHITECTURE.md](../../ARCHITECTURE.md), [MIGRATION.md](../../MIGRATION.md)
 y [AGENTS.md](../../AGENTS.md). La migración autorizada sigue shared → backend → client,
 por feature y con commits locales. Las convenciones siguientes describen el código

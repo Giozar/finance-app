@@ -47,6 +47,8 @@ comparados y compilación independiente de shared, backend y client.
 
 ## Client
 
-Pendiente. Su migración empieza después de cerrar backend.
+| Feature | Estado |
+| --- | --- |
+| tags | Migrada; puerto de entrada, caso de uso, puerto de salida y adaptador socket verificados |
 
 La compilación de consumidores durante shared no representa la migración interna de backend/client.

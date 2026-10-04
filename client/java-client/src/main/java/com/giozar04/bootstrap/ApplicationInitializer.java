@@ -16,7 +16,9 @@ import com.giozar04.externalEntities.infrastructure.services.ExternalEntityServi
 import com.giozar04.logging.infrastructure.ConsoleLogger;
 import com.giozar04.serverConnection.application.services.ServerConnectionService;
 import com.giozar04.shared.layouts.AppLayout;
-import com.giozar04.tags.infrastructure.services.TagService;
+import com.giozar04.tags.infrastructure.transport.socket.TagService;
+import com.giozar04.tags.application.usecases.TagUseCase;
+import com.giozar04.tags.application.ports.input.TagOperations;
 import com.giozar04.transactions.infrastructure.services.TransactionService;
 import com.giozar04.users.infrastructure.services.UserService;
 import com.giozar04.walletCardLinks.infrastructure.services.WalletCardLinkService;
@@ -76,6 +78,7 @@ public class ApplicationInitializer {
             System.out.println("✅ Servicios de categorías conectados correctamente");
 
             this.tagService = TagService.connectService(connectionService);
+            ClientUseCases.register(TagOperations.class, new TagUseCase(TagService.getInstance()));
             System.out.println("✅ Servicio de etiquetas conectado correctamente.");
 
             this.externalEntityService = ExternalEntityService.connectService(connectionService);

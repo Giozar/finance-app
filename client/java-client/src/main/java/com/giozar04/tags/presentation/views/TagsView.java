@@ -27,17 +27,18 @@ import com.giozar04.shared.components.table.OptionsCellRenderer;
 import com.giozar04.shared.components.table.PopupMenuActionHandler;
 import com.giozar04.shared.utils.DialogUtil;
 import com.giozar04.tags.domain.entities.Tag;
-import com.giozar04.tags.infrastructure.services.TagService;
+import com.giozar04.tags.application.ports.input.TagOperations;
+import com.giozar04.bootstrap.ClientUseCases;
 import com.giozar04.tags.presentation.components.TagFormPanel;
 
 public class TagsView extends JPanel implements PopupMenuActionHandler {
 
-    private final TagService tagService;
+    private final TagOperations tagService;
     private JTextField searchField;
     private GenericTablePanel<Tag> tablePanel;
 
     public TagsView() {
-        tagService = TagService.getInstance();
+        tagService = ClientUseCases.get(TagOperations.class);
 
         setLayout(new BorderLayout());
         setBorder(new EmptyBorder(10, 10, 10, 10));
