@@ -1,4 +1,4 @@
-package com.giozar04.walletTransactionDetails.infrastructure.controllers;
+package com.giozar04.walletTransactionDetails.infrastructure.transport.socket;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,7 +8,7 @@ import com.giozar04.logging.infrastructure.ConsoleLogger;
 import com.giozar04.messages.infrastructure.transport.Message;
 import com.giozar04.servers.domain.handlers.MessageHandler;
 import com.giozar04.servers.domain.models.ClientConnection;
-import com.giozar04.walletTransactionDetails.application.services.WalletTransactionDetailService;
+import com.giozar04.walletTransactionDetails.application.ports.input.WalletTransactionDetailOperations;
 import com.giozar04.walletTransactionDetails.infrastructure.serialization.WalletTransactionDetailMapper;
 import com.giozar04.walletTransactionDetails.domain.entities.WalletTransactionDetail;
 
@@ -26,7 +26,7 @@ public class WalletTransactionDetailControllers {
     }
 
     @SuppressWarnings("unchecked")
-    public static MessageHandler createDetailController(WalletTransactionDetailService service) {
+    public static MessageHandler createDetailController(WalletTransactionDetailOperations service) {
         return (ClientConnection client, Message message) -> {
             LOGGER.info("Creando detalle de transacción wallet");
 
@@ -44,7 +44,7 @@ public class WalletTransactionDetailControllers {
         };
     }
 
-    public static MessageHandler getDetailController(WalletTransactionDetailService service) {
+    public static MessageHandler getDetailController(WalletTransactionDetailOperations service) {
         return (ClientConnection client, Message message) -> {
             LOGGER.info("Obteniendo detalle por ID");
 
@@ -61,7 +61,7 @@ public class WalletTransactionDetailControllers {
     }
 
     @SuppressWarnings("unchecked")
-    public static MessageHandler updateDetailController(WalletTransactionDetailService service) {
+    public static MessageHandler updateDetailController(WalletTransactionDetailOperations service) {
         return (ClientConnection client, Message message) -> {
             LOGGER.info("Actualizando detalle");
 
@@ -83,7 +83,7 @@ public class WalletTransactionDetailControllers {
         };
     }
 
-    public static MessageHandler deleteDetailController(WalletTransactionDetailService service) {
+    public static MessageHandler deleteDetailController(WalletTransactionDetailOperations service) {
         return (ClientConnection client, Message message) -> {
             LOGGER.info("Eliminando detalle");
 
@@ -97,7 +97,7 @@ public class WalletTransactionDetailControllers {
         };
     }
 
-    public static MessageHandler getAllDetailsController(WalletTransactionDetailService service) {
+    public static MessageHandler getAllDetailsController(WalletTransactionDetailOperations service) {
         return (ClientConnection client, Message message) -> {
             LOGGER.info("Obteniendo todos los detalles");
 
@@ -115,7 +115,7 @@ public class WalletTransactionDetailControllers {
         };
     }
 
-    public static MessageHandler getDetailsByTransactionController(WalletTransactionDetailService service) {
+    public static MessageHandler getDetailsByTransactionController(WalletTransactionDetailOperations service) {
         return (ClientConnection client, Message message) -> {
             LOGGER.info("Obteniendo detalles por ID de transacción");
 

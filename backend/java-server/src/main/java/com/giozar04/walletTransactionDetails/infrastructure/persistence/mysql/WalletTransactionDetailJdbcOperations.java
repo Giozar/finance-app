@@ -1,4 +1,4 @@
-package com.giozar04.walletTransactionDetails.domain.interfaces;
+package com.giozar04.walletTransactionDetails.infrastructure.persistence.mysql;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -10,7 +10,7 @@ import com.giozar04.walletTransactionDetails.domain.entities.WalletTransactionDe
  * Operaciones sobre wallet_transaction_details que participan en una unidad de trabajo externa
  * (TransactionalExecutor). Reciben la conexión: no hacen commit, rollback ni la cierran.
  */
-public interface WalletTransactionDetailTransactionalRepositoryInterface {
+public interface WalletTransactionDetailJdbcOperations {
     WalletTransactionDetail insert(Connection conn, WalletTransactionDetail detail) throws SQLException;
     int deleteByTransactionId(Connection conn, long transactionId) throws SQLException;
     List<WalletTransactionDetail> findByTransactionId(Connection conn, long transactionId) throws SQLException;

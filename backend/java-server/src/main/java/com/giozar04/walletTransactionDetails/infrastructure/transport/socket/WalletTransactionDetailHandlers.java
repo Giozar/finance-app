@@ -1,15 +1,15 @@
-package com.giozar04.walletTransactionDetails.infrastructure.handlers;
+package com.giozar04.walletTransactionDetails.infrastructure.transport.socket;
 
 import com.giozar04.servers.application.services.ServerService;
 import com.giozar04.servers.domain.interfaces.ServerRegisterHandlers;
-import com.giozar04.walletTransactionDetails.application.services.WalletTransactionDetailService;
-import com.giozar04.walletTransactionDetails.infrastructure.controllers.WalletTransactionDetailControllers;
+import com.giozar04.walletTransactionDetails.application.ports.input.WalletTransactionDetailOperations;
+import com.giozar04.walletTransactionDetails.infrastructure.transport.socket.WalletTransactionDetailControllers;
 
 public class WalletTransactionDetailHandlers implements ServerRegisterHandlers {
 
-    private final WalletTransactionDetailService service;
+    private final WalletTransactionDetailOperations service;
 
-    public WalletTransactionDetailHandlers(WalletTransactionDetailService service) {
+    public WalletTransactionDetailHandlers(WalletTransactionDetailOperations service) {
         this.service = service;
     }
 

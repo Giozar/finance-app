@@ -21,6 +21,7 @@ model: inherit
 | `accountCashbackSettings` | `AccountCashbackSettingOperations`, `AccountCashbackSettingRepository`, `AccountCashbackSettingUseCase`, `AccountCashbackSettingPolicy`, adaptadores MySQL/socket |
 | `walletCardLinks` | `WalletCardLinkOperations`, `WalletCardLinkRepository`, `WalletCardLinkUseCase`, `WalletCardLinkPolicy`, adaptadores MySQL/socket |
 | `cardTransactionDetails` | `CardTransactionDetailOperations`, `CardTransactionDetailRepository`, `CardTransactionDetailUseCase`, `CardTransactionDetailPolicy`, adaptadores MySQL/socket |
+| `walletTransactionDetails` | `WalletTransactionDetailOperations`, `WalletTransactionDetailRepository`, `WalletTransactionDetailUseCase`, `WalletTransactionDetailPolicy`, adaptadores MySQL/socket |
 | `tags` | `TagOperations`, `TagRepository`, `TagUseCase`, `TagPolicy`, `AbstractTagJdbcRepository`, `TagRepositoryMySQL`, `TagControllers`, `TagHandlers` |
 
 El flujo de «Estructura de una feature» descrito abajo aplica a las features pendientes.

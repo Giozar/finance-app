@@ -1,24 +1,14 @@
-package com.giozar04.walletTransactionDetails.domain.models;
+package com.giozar04.walletTransactionDetails.domain.policies;
 
 import java.util.List;
 import java.util.Objects;
-
-import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
-import com.giozar04.logging.infrastructure.ConsoleLogger;
 import com.giozar04.walletTransactionDetails.domain.entities.WalletTransactionDetail;
 import com.giozar04.walletTransactionDetails.domain.enums.WalletTransactionSourceType;
-import com.giozar04.walletTransactionDetails.domain.interfaces.WalletTransactionDetailRepositoryInterface;
 
-public abstract class WalletTransactionDetailRepositoryAbstract implements WalletTransactionDetailRepositoryInterface {
+public final class WalletTransactionDetailPolicy {
+    private WalletTransactionDetailPolicy() {}
 
-    protected final DatabaseConnectionInterface databaseConnection;
-    protected final ConsoleLogger logger = ConsoleLogger.getInstance();
-
-    protected WalletTransactionDetailRepositoryAbstract(DatabaseConnectionInterface databaseConnection) {
-        this.databaseConnection = Objects.requireNonNull(databaseConnection, "La conexión a base de datos no puede ser nula");
-    }
-
-    protected void validateDetail(WalletTransactionDetail detail) {
+    public static void validateDetail(WalletTransactionDetail detail) {
         Objects.requireNonNull(detail, "El detalle de transacción wallet no puede ser nulo");
 
         if (detail.getTransactionId() <= 0) {
@@ -49,27 +39,9 @@ public abstract class WalletTransactionDetailRepositoryAbstract implements Walle
         }
     }
 
-    protected void validateId(long id) {
+    public static void validateId(long id) {
         if (id <= 0) {
             throw new IllegalArgumentException("El ID debe ser mayor que cero");
         }
     }
-
-    @Override
-    public abstract WalletTransactionDetail createDetail(WalletTransactionDetail detail);
-
-    @Override
-    public abstract WalletTransactionDetail getDetailById(long id);
-
-    @Override
-    public abstract WalletTransactionDetail updateDetailById(long id, WalletTransactionDetail detail);
-
-    @Override
-    public abstract void deleteDetailById(long id);
-
-    @Override
-    public abstract List<WalletTransactionDetail> getAllDetails();
-
-    @Override
-    public abstract List<WalletTransactionDetail> getDetailsByTransactionId(long transactionId);
 }

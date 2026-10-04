@@ -1,4 +1,4 @@
-package com.giozar04.walletTransactionDetails.infrastructure.repositories;
+package com.giozar04.walletTransactionDetails.infrastructure.persistence.mysql;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
@@ -21,11 +21,11 @@ import com.giozar04.walletTransactionDetails.application.exceptions.WalletTransa
 import com.giozar04.walletTransactionDetails.application.exceptions.WalletTransactionDetailNotFoundException;
 import com.giozar04.walletTransactionDetails.application.exceptions.WalletTransactionDetailRetrievalException;
 import com.giozar04.walletTransactionDetails.application.exceptions.WalletTransactionDetailUpdateException;
-import com.giozar04.walletTransactionDetails.domain.interfaces.WalletTransactionDetailTransactionalRepositoryInterface;
-import com.giozar04.walletTransactionDetails.domain.models.WalletTransactionDetailRepositoryAbstract;
+import com.giozar04.walletTransactionDetails.infrastructure.persistence.mysql.WalletTransactionDetailJdbcOperations;
+import com.giozar04.walletTransactionDetails.infrastructure.persistence.mysql.AbstractWalletTransactionDetailJdbcRepository;
 
-public class WalletTransactionDetailRepositoryMySQL extends WalletTransactionDetailRepositoryAbstract
-        implements WalletTransactionDetailTransactionalRepositoryInterface {
+public class WalletTransactionDetailRepositoryMySQL extends AbstractWalletTransactionDetailJdbcRepository
+        implements WalletTransactionDetailJdbcOperations {
 
     private static final String SQL_INSERT = """
         INSERT INTO wallet_transaction_details (

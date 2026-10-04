@@ -1,15 +1,16 @@
-package com.giozar04.walletTransactionDetails.application.services;
+package com.giozar04.walletTransactionDetails.application.usecases;
 
 import java.util.List;
 
 import com.giozar04.walletTransactionDetails.domain.entities.WalletTransactionDetail;
-import com.giozar04.walletTransactionDetails.domain.interfaces.WalletTransactionDetailRepositoryInterface;
+import com.giozar04.walletTransactionDetails.application.ports.output.WalletTransactionDetailRepository;
+import com.giozar04.walletTransactionDetails.application.ports.input.WalletTransactionDetailOperations;
 
-public class WalletTransactionDetailService implements WalletTransactionDetailRepositoryInterface {
+public class WalletTransactionDetailUseCase implements WalletTransactionDetailOperations {
 
-    private final WalletTransactionDetailRepositoryInterface repository;
+    private final WalletTransactionDetailRepository repository;
 
-    public WalletTransactionDetailService(WalletTransactionDetailRepositoryInterface repository) {
+    public WalletTransactionDetailUseCase(WalletTransactionDetailRepository repository) {
         this.repository = repository;
     }
 

@@ -74,9 +74,10 @@ import com.giozar04.walletCardLinks.application.ports.input.WalletCardLinkOperat
 import com.giozar04.walletCardLinks.application.ports.output.WalletCardLinkRepository;
 import com.giozar04.walletCardLinks.infrastructure.transport.socket.WalletCardLinkHandlers;
 import com.giozar04.walletCardLinks.infrastructure.persistence.mysql.WalletCardLinkRepositoryMySQL;
-import com.giozar04.walletTransactionDetails.application.services.WalletTransactionDetailService;
-import com.giozar04.walletTransactionDetails.infrastructure.handlers.WalletTransactionDetailHandlers;
-import com.giozar04.walletTransactionDetails.infrastructure.repositories.WalletTransactionDetailRepositoryMySQL;
+import com.giozar04.walletTransactionDetails.application.usecases.WalletTransactionDetailUseCase;
+import com.giozar04.walletTransactionDetails.application.ports.input.WalletTransactionDetailOperations;
+import com.giozar04.walletTransactionDetails.infrastructure.transport.socket.WalletTransactionDetailHandlers;
+import com.giozar04.walletTransactionDetails.infrastructure.persistence.mysql.WalletTransactionDetailRepositoryMySQL;
 
 public class ApplicationInitializer {
     private final ConsoleLogger logger = ConsoleLogger.getInstance();
@@ -134,7 +135,7 @@ public class ApplicationInitializer {
         // Inicializar repositorios y servicios de detalles de transacciones de wallet
         WalletTransactionDetailRepositoryMySQL walletTransactionDetailRepository =
                 new WalletTransactionDetailRepositoryMySQL(dbConnection);
-        WalletTransactionDetailService walletTransactionDetailService = new WalletTransactionDetailService(walletTransactionDetailRepository);
+        WalletTransactionDetailOperations walletTransactionDetailService = new WalletTransactionDetailUseCase(walletTransactionDetailRepository);
 
         // Inicializar repositorios y servicios de vínculos wallet-tarjeta
         WalletCardLinkRepository walletCardLinkRepository =

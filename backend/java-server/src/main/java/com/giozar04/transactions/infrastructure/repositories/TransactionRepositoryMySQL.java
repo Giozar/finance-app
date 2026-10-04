@@ -32,7 +32,7 @@ import com.giozar04.transactions.application.exceptions.TransactionUpdateExcepti
 import com.giozar04.transactions.domain.exceptions.TransactionValidationException;
 import com.giozar04.transactions.domain.models.TransactionRepositoryAbstract;
 import com.giozar04.walletTransactionDetails.domain.entities.WalletTransactionDetail;
-import com.giozar04.walletTransactionDetails.domain.interfaces.WalletTransactionDetailTransactionalRepositoryInterface;
+import com.giozar04.walletTransactionDetails.infrastructure.persistence.mysql.WalletTransactionDetailJdbcOperations;
 
 /**
  * Persiste el agregado Transaction en una única unidad de trabajo (TransactionalExecutor):
@@ -76,13 +76,13 @@ public class TransactionRepositoryMySQL extends TransactionRepositoryAbstract {
 
     private final TransactionalExecutor executor;
     private final CardTransactionDetailJdbcOperations cardDetailRepository;
-    private final WalletTransactionDetailTransactionalRepositoryInterface walletDetailRepository;
+    private final WalletTransactionDetailJdbcOperations walletDetailRepository;
     private final TransactionTagRepositoryInterface transactionTagRepository;
 
     public TransactionRepositoryMySQL(DatabaseConnectionInterface databaseConnection,
                                       TransactionalExecutor executor,
                                       CardTransactionDetailJdbcOperations cardDetailRepository,
-                                      WalletTransactionDetailTransactionalRepositoryInterface walletDetailRepository,
+                                      WalletTransactionDetailJdbcOperations walletDetailRepository,
                                       TransactionTagRepositoryInterface transactionTagRepository) {
         super(databaseConnection);
         this.executor = Objects.requireNonNull(executor, "El ejecutor transaccional no puede ser nulo");
