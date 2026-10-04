@@ -9,9 +9,14 @@ Generado con `python3 scripts/update_indexes.py` desde la raíz.
 ```text
 pom.xml
 src/main/java/com/giozar04/Main.java
-src/main/java/com/giozar04/accountCashbackSettings/application/utils/AccountCashbackSettingUtils.java
+src/main/java/com/giozar04/accountCashbackSettings/application/exceptions/AccountCashbackSettingCreationException.java
+src/main/java/com/giozar04/accountCashbackSettings/application/exceptions/AccountCashbackSettingDeletionException.java
+src/main/java/com/giozar04/accountCashbackSettings/application/exceptions/AccountCashbackSettingNotFoundException.java
+src/main/java/com/giozar04/accountCashbackSettings/application/exceptions/AccountCashbackSettingRetrievalException.java
+src/main/java/com/giozar04/accountCashbackSettings/application/exceptions/AccountCashbackSettingUpdateException.java
 src/main/java/com/giozar04/accountCashbackSettings/domain/entities/AccountCashbackSetting.java
-src/main/java/com/giozar04/accountCashbackSettings/domain/exceptions/AccountCashbackSettingExceptions.java
+src/main/java/com/giozar04/accountCashbackSettings/infrastructure/serialization/AccountCashbackSettingMapper.java
+src/main/java/com/giozar04/accountCashbackSettings/infrastructure/serialization/AccountCashbackSettingParsingException.java
 src/main/java/com/giozar04/accountReconciliations/application/utils/AccountReconciliationUtils.java
 src/main/java/com/giozar04/accountReconciliations/domain/entities/AccountReconciliation.java
 src/main/java/com/giozar04/accountReconciliations/domain/exceptions/AccountReconciliationExceptions.java

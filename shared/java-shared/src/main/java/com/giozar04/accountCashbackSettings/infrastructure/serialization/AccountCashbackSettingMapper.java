@@ -1,4 +1,4 @@
-package com.giozar04.accountCashbackSettings.application.utils;
+package com.giozar04.accountCashbackSettings.infrastructure.serialization;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.Map;
 
 import com.giozar04.accountCashbackSettings.domain.entities.AccountCashbackSetting;
-import com.giozar04.shared.utils.SharedUtils;
+import com.giozar04.shared.infrastructure.serialization.ValueParser;
 
-public class AccountCashbackSettingUtils {
+public class AccountCashbackSettingMapper {
 
     public static Map<String, Object> toMap(AccountCashbackSetting setting) {
         Map<String, Object> map = new HashMap<>();
@@ -19,10 +19,10 @@ public class AccountCashbackSettingUtils {
                 : null);
 
         if (setting.getCreatedAt() != null) {
-            map.put("createdAt", setting.getCreatedAt().format(SharedUtils.getFormatter()));
+            map.put("createdAt", setting.getCreatedAt().format(ValueParser.getFormatter()));
         }
         if (setting.getUpdatedAt() != null) {
-            map.put("updatedAt", setting.getUpdatedAt().format(SharedUtils.getFormatter()));
+            map.put("updatedAt", setting.getUpdatedAt().format(ValueParser.getFormatter()));
         }
 
         return map;
@@ -31,16 +31,16 @@ public class AccountCashbackSettingUtils {
     public static AccountCashbackSetting fromMap(Map<String, Object> map) {
         AccountCashbackSetting setting = new AccountCashbackSetting();
 
-        setting.setAccountId(SharedUtils.parseLong(map.get("accountId")));
+        setting.setAccountId(ValueParser.parseLong(map.get("accountId")));
 
         Object enabledObj = map.get("cashbackEnabled");
         if (enabledObj != null) {
             setting.setCashbackEnabled(Boolean.parseBoolean(enabledObj.toString()));
         }
 
-        setting.setDefaultCashbackRate(SharedUtils.parseNullableBigDecimal(map.get("defaultCashbackRate")));
-        setting.setCreatedAt(SharedUtils.parseZonedDateTime(map.get("createdAt")));
-        setting.setUpdatedAt(SharedUtils.parseZonedDateTime(map.get("updatedAt")));
+        setting.setDefaultCashbackRate(ValueParser.parseNullableBigDecimal(map.get("defaultCashbackRate")));
+        setting.setCreatedAt(ValueParser.parseZonedDateTime(map.get("createdAt")));
+        setting.setUpdatedAt(ValueParser.parseZonedDateTime(map.get("updatedAt")));
 
         return setting;
     }

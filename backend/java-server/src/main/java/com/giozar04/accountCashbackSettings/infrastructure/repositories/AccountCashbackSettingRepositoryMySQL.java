@@ -12,7 +12,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.giozar04.accountCashbackSettings.domain.entities.AccountCashbackSetting;
-import com.giozar04.accountCashbackSettings.domain.exceptions.AccountCashbackSettingExceptions;
+import com.giozar04.accountCashbackSettings.application.exceptions.AccountCashbackSettingCreationException;
+import com.giozar04.accountCashbackSettings.application.exceptions.AccountCashbackSettingDeletionException;
+import com.giozar04.accountCashbackSettings.application.exceptions.AccountCashbackSettingNotFoundException;
+import com.giozar04.accountCashbackSettings.application.exceptions.AccountCashbackSettingRetrievalException;
+import com.giozar04.accountCashbackSettings.application.exceptions.AccountCashbackSettingUpdateException;
 import com.giozar04.accountCashbackSettings.domain.models.AccountCashbackSettingRepositoryAbstract;
 import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
 
@@ -73,7 +77,7 @@ public class AccountCashbackSettingRepositoryMySQL extends AccountCashbackSettin
 
         } catch (SQLException e) {
             rollback();
-            throw new AccountCashbackSettingExceptions.AccountCashbackSettingCreationException(
+            throw new AccountCashbackSettingCreationException(
                 "Error al crear la configuración de cashback para accountId: " + setting.getAccountId(), e);
         }
     }
@@ -90,13 +94,13 @@ public class AccountCashbackSettingRepositoryMySQL extends AccountCashbackSettin
                 if (rs.next()) {
                     return mapResultSet(rs);
                 } else {
-                    throw new AccountCashbackSettingExceptions.AccountCashbackSettingNotFoundException(
+                    throw new AccountCashbackSettingNotFoundException(
                         "No se encontró configuración de cashback para accountId: " + accountId, null);
                 }
             }
 
         } catch (SQLException e) {
-            throw new AccountCashbackSettingExceptions.AccountCashbackSettingRetrievalException(
+            throw new AccountCashbackSettingRetrievalException(
                 "Error al obtener la configuración de cashback para accountId: " + accountId, e);
         }
     }
@@ -121,7 +125,7 @@ public class AccountCashbackSettingRepositoryMySQL extends AccountCashbackSettin
 
             int affected = stmt.executeUpdate();
             if (affected == 0) {
-                throw new AccountCashbackSettingExceptions.AccountCashbackSettingNotFoundException(
+                throw new AccountCashbackSettingNotFoundException(
                     "No se encontró configuración de cashback para actualizar, accountId: " + accountId, null);
             }
 
@@ -132,7 +136,7 @@ public class AccountCashbackSettingRepositoryMySQL extends AccountCashbackSettin
 
         } catch (SQLException e) {
             rollback();
-            throw new AccountCashbackSettingExceptions.AccountCashbackSettingUpdateException(
+            throw new AccountCashbackSettingUpdateException(
                 "Error al actualizar la configuración de cashback para accountId: " + accountId, e);
         }
     }
@@ -148,7 +152,7 @@ public class AccountCashbackSettingRepositoryMySQL extends AccountCashbackSettin
 
             int affected = stmt.executeUpdate();
             if (affected == 0) {
-                throw new AccountCashbackSettingExceptions.AccountCashbackSettingNotFoundException(
+                throw new AccountCashbackSettingNotFoundException(
                     "No se encontró configuración de cashback para eliminar, accountId: " + accountId, null);
             }
 
@@ -157,7 +161,7 @@ public class AccountCashbackSettingRepositoryMySQL extends AccountCashbackSettin
 
         } catch (SQLException e) {
             rollback();
-            throw new AccountCashbackSettingExceptions.AccountCashbackSettingDeletionException(
+            throw new AccountCashbackSettingDeletionException(
                 "Error al eliminar la configuración de cashback para accountId: " + accountId, e);
         }
     }
@@ -176,7 +180,7 @@ public class AccountCashbackSettingRepositoryMySQL extends AccountCashbackSettin
             return list;
 
         } catch (SQLException e) {
-            throw new AccountCashbackSettingExceptions.AccountCashbackSettingRetrievalException(
+            throw new AccountCashbackSettingRetrievalException(
                 "Error al obtener todas las configuraciones de cashback", e);
         }
     }

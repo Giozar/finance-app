@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.giozar04.accountCashbackSettings.application.services.AccountCashbackSettingService;
-import com.giozar04.accountCashbackSettings.application.utils.AccountCashbackSettingUtils;
+import com.giozar04.accountCashbackSettings.infrastructure.serialization.AccountCashbackSettingMapper;
 import com.giozar04.accountCashbackSettings.domain.entities.AccountCashbackSetting;
 import com.giozar04.logging.CustomLogger;
 import com.giozar04.messages.domain.models.Message;
@@ -35,12 +35,12 @@ public class AccountCashbackSettingControllers {
                         "Datos no proporcionados");
             }
 
-            AccountCashbackSetting setting = AccountCashbackSettingUtils.fromMap(data);
+            AccountCashbackSetting setting = AccountCashbackSettingMapper.fromMap(data);
             AccountCashbackSetting created = service.createAccountCashbackSetting(setting);
 
             Message response = Message.createSuccessMessage(MessageTypes.CREATE_ACCOUNT_CASHBACK_SETTING,
                     "Configuración de cashback creada");
-            response.addData("accountCashbackSetting", AccountCashbackSettingUtils.toMap(created));
+            response.addData("accountCashbackSetting", AccountCashbackSettingMapper.toMap(created));
             return response;
         };
     }
@@ -59,7 +59,7 @@ public class AccountCashbackSettingControllers {
 
             Message response = Message.createSuccessMessage(MessageTypes.GET_ACCOUNT_CASHBACK_SETTING,
                     "Configuración de cashback obtenida");
-            response.addData("accountCashbackSetting", AccountCashbackSettingUtils.toMap(setting));
+            response.addData("accountCashbackSetting", AccountCashbackSettingMapper.toMap(setting));
             return response;
         };
     }
@@ -82,11 +82,11 @@ public class AccountCashbackSettingControllers {
             }
 
             AccountCashbackSetting updated = service.updateAccountCashbackSettingByAccountId(
-                    accountId, AccountCashbackSettingUtils.fromMap(data));
+                    accountId, AccountCashbackSettingMapper.fromMap(data));
 
             Message response = Message.createSuccessMessage(MessageTypes.UPDATE_ACCOUNT_CASHBACK_SETTING,
                     "Configuración de cashback actualizada");
-            response.addData("accountCashbackSetting", AccountCashbackSettingUtils.toMap(updated));
+            response.addData("accountCashbackSetting", AccountCashbackSettingMapper.toMap(updated));
             return response;
         };
     }
@@ -115,7 +115,7 @@ public class AccountCashbackSettingControllers {
             List<Map<String, Object>> result = new ArrayList<>();
 
             for (AccountCashbackSetting s : settings) {
-                result.add(AccountCashbackSettingUtils.toMap(s));
+                result.add(AccountCashbackSettingMapper.toMap(s));
             }
 
             Message response = Message.createSuccessMessage(MessageTypes.GET_ALL_ACCOUNT_CASHBACK_SETTINGS,

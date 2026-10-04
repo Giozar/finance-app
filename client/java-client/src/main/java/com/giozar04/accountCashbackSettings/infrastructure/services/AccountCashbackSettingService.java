@@ -2,7 +2,7 @@ package com.giozar04.accountCashbackSettings.infrastructure.services;
 
 import java.util.Map;
 
-import com.giozar04.accountCashbackSettings.application.utils.AccountCashbackSettingUtils;
+import com.giozar04.accountCashbackSettings.infrastructure.serialization.AccountCashbackSettingMapper;
 import com.giozar04.accountCashbackSettings.domain.entities.AccountCashbackSetting;
 import com.giozar04.logging.CustomLogger;
 import com.giozar04.messages.domain.models.Message;
@@ -35,14 +35,14 @@ public class AccountCashbackSettingService {
     public AccountCashbackSetting createAccountCashbackSetting(AccountCashbackSetting setting) throws ClientOperationException {
         Message message = new Message();
         message.setType("CREATE_ACCOUNT_CASHBACK_SETTING");
-        message.addData("accountCashbackSetting", AccountCashbackSettingUtils.toMap(setting));
+        message.addData("accountCashbackSetting", AccountCashbackSettingMapper.toMap(setting));
 
         serverConnectionService.sendMessage(message);
         try {
             Message response = serverConnectionService.waitForMessage("CREATE_ACCOUNT_CASHBACK_SETTING");
             ServerResponseValidator.validateResponse(response);
             logger.info("Configuración de cashback creada exitosamente: " + response);
-            return AccountCashbackSettingUtils.fromMap((Map<String, Object>) response.getData("accountCashbackSetting"));
+            return AccountCashbackSettingMapper.fromMap((Map<String, Object>) response.getData("accountCashbackSetting"));
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new ClientOperationException("Error al esperar respuesta del servidor", e);
@@ -60,7 +60,7 @@ public class AccountCashbackSettingService {
             Message response = serverConnectionService.waitForMessage("GET_ACCOUNT_CASHBACK_SETTING");
             ServerResponseValidator.validateResponse(response);
             logger.info("Configuración de cashback obtenida correctamente: " + response);
-            return AccountCashbackSettingUtils.fromMap((Map<String, Object>) response.getData("accountCashbackSetting"));
+            return AccountCashbackSettingMapper.fromMap((Map<String, Object>) response.getData("accountCashbackSetting"));
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new ClientOperationException("Error al esperar respuesta del servidor", e);
@@ -72,14 +72,14 @@ public class AccountCashbackSettingService {
         Message message = new Message();
         message.setType("UPDATE_ACCOUNT_CASHBACK_SETTING");
         message.addData("accountId", accountId);
-        message.addData("accountCashbackSetting", AccountCashbackSettingUtils.toMap(setting));
+        message.addData("accountCashbackSetting", AccountCashbackSettingMapper.toMap(setting));
 
         serverConnectionService.sendMessage(message);
         try {
             Message response = serverConnectionService.waitForMessage("UPDATE_ACCOUNT_CASHBACK_SETTING");
             ServerResponseValidator.validateResponse(response);
             logger.info("Configuración de cashback actualizada correctamente: " + response);
-            return AccountCashbackSettingUtils.fromMap((Map<String, Object>) response.getData("accountCashbackSetting"));
+            return AccountCashbackSettingMapper.fromMap((Map<String, Object>) response.getData("accountCashbackSetting"));
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new ClientOperationException("Error al esperar respuesta del servidor", e);

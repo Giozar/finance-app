@@ -27,7 +27,7 @@ public final class ContractProbe {
         new Feature("bankClient", "com.giozar04.bankClient.domain.entities.BankClient", "com.giozar04.bankClient.infrastructure.serialization.BankClientMapper", "toMap", "fromMap"),
         new Feature("accounts", "com.giozar04.accounts.domain.entities.Account", "com.giozar04.accounts.infrastructure.serialization.AccountMapper", "toMap", "fromMap"),
         new Feature("card", "com.giozar04.card.domain.entities.Card", "com.giozar04.card.infrastructure.serialization.CardMapper", "toMap", "fromMap"),
-        new Feature("accountCashbackSettings", "com.giozar04.accountCashbackSettings.domain.entities.AccountCashbackSetting", "com.giozar04.accountCashbackSettings.application.utils.AccountCashbackSettingUtils", "toMap", "fromMap"),
+        new Feature("accountCashbackSettings", "com.giozar04.accountCashbackSettings.domain.entities.AccountCashbackSetting", "com.giozar04.accountCashbackSettings.infrastructure.serialization.AccountCashbackSettingMapper", "toMap", "fromMap"),
         new Feature("walletCardLinks", "com.giozar04.walletCardLinks.domain.entities.WalletCardLink", "com.giozar04.walletCardLinks.application.utils.WalletCardLinkUtils", "toMap", "fromMap"),
         new Feature("cardTransactionDetails", "com.giozar04.cardTransactionDetails.domain.entities.CardTransactionDetail", "com.giozar04.cardTransactionDetails.application.utils.CardTransactionDetailUtils", "toMap", "fromMap"),
         new Feature("walletTransactionDetails", "com.giozar04.walletTransactionDetails.domain.entities.WalletTransactionDetail", "com.giozar04.walletTransactionDetails.application.utils.WalletTransactionDetailUtils", "toMap", "fromMap"),

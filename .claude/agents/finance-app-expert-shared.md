@@ -19,6 +19,7 @@ model: inherit
 | `bankClient` | Migrada: `BankClientMapper.toMap/fromMap`; excepciones separadas |
 | `accounts` | Migrada: `AccountMapper.toMap/fromMap`; excepciones separadas |
 | `card` | Migrada: `CardMapper.toMap/fromMap`; excepciones separadas |
+| `accountCashbackSettings` | Migrada: `AccountCashbackSettingMapper.toMap/fromMap`; excepciones separadas |
 | Resto | Estructura anterior hasta su commit; consulte `MIGRATION.md` |
 
 Las secciones «Estructura de una feature» y «Convenciones» más abajo describen
