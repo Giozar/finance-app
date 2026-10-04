@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import com.giozar04.bankClient.application.utils.BankClientUtils;
+import com.giozar04.bankClient.infrastructure.serialization.BankClientMapper;
 import com.giozar04.bankClient.domain.entities.BankClient;
 import com.giozar04.bankClients.application.services.BankClientService;
 import com.giozar04.logging.CustomLogger;
@@ -30,12 +30,12 @@ public class BankClientControllers {
             LOGGER.info("Procesando creación de BankClient");
             @SuppressWarnings("unchecked")
             Map<String, Object> data = (Map<String, Object>) message.getData("bankClient");
-            BankClient client = BankClientUtils.mapToBankClient(data);
+            BankClient client = BankClientMapper.fromMap(data);
             BankClient created = service.createBankClient(client);
 
             Message response = Message.createSuccessMessage(BankClientMessageTypes.CREATE_BANK_CLIENT,
                     "Cliente bancario creado exitosamente");
-            response.addData("bankClient", BankClientUtils.bankClientToMap(created));
+            response.addData("bankClient", BankClientMapper.toMap(created));
             return response;
         };
     }
@@ -47,7 +47,7 @@ public class BankClientControllers {
 
             Message response = Message.createSuccessMessage(BankClientMessageTypes.GET_BANK_CLIENT,
                     "Cliente bancario obtenido");
-            response.addData("bankClient", BankClientUtils.bankClientToMap(client));
+            response.addData("bankClient", BankClientMapper.toMap(client));
             return response;
         };
     }
@@ -59,7 +59,7 @@ public class BankClientControllers {
 
             List<Map<String, Object>> mapped = new ArrayList<>();
             for (BankClient c : clients) {
-                mapped.add(BankClientUtils.bankClientToMap(c));
+                mapped.add(BankClientMapper.toMap(c));
             }
 
             Message response = Message.createSuccessMessage(BankClientMessageTypes.GET_BANK_CLIENTS_BY_USER,
@@ -75,12 +75,12 @@ public class BankClientControllers {
             Long id = parseId(message.getData("id"));
             @SuppressWarnings("unchecked")
             Map<String, Object> data = (Map<String, Object>) message.getData("bankClient");
-            BankClient updated = BankClientUtils.mapToBankClient(data);
+            BankClient updated = BankClientMapper.fromMap(data);
             BankClient result = service.updateBankClientById(id, updated);
 
             Message response = Message.createSuccessMessage(BankClientMessageTypes.UPDATE_BANK_CLIENT,
                     "Cliente bancario actualizado");
-            response.addData("bankClient", BankClientUtils.bankClientToMap(result));
+            response.addData("bankClient", BankClientMapper.toMap(result));
             return response;
         };
     }
@@ -100,7 +100,7 @@ public class BankClientControllers {
             List<Map<String, Object>> mapped = new ArrayList<>();
 
             for (BankClient c : clients) {
-                mapped.add(BankClientUtils.bankClientToMap(c));
+                mapped.add(BankClientMapper.toMap(c));
             }
 
             Message response = Message.createSuccessMessage(BankClientMessageTypes.GET_ALL_BANK_CLIENTS,

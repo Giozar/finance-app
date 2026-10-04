@@ -12,7 +12,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.giozar04.bankClient.domain.entities.BankClient;
-import com.giozar04.bankClient.domain.exceptions.BankClientExceptions;
+import com.giozar04.bankClient.application.exceptions.BankClientCreationException;
+import com.giozar04.bankClient.application.exceptions.BankClientDeletionException;
+import com.giozar04.bankClient.application.exceptions.BankClientNotFoundException;
+import com.giozar04.bankClient.application.exceptions.BankClientRetrievalException;
+import com.giozar04.bankClient.application.exceptions.BankClientUpdateException;
 import com.giozar04.bankClients.domain.models.BankClientRepositoryAbstract;
 import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
 
@@ -66,7 +70,7 @@ public class BankClientRepositoryMySQL extends BankClientRepositoryAbstract {
 
         } catch (SQLException e) {
             rollback();
-            throw new BankClientExceptions.BankClientCreationException("Error al crear el cliente bancario", e);
+            throw new BankClientCreationException("Error al crear el cliente bancario", e);
         }
     }
 
@@ -81,12 +85,12 @@ public class BankClientRepositoryMySQL extends BankClientRepositoryAbstract {
                 if (rs.next()) {
                     return mapResultSetToBankClient(rs);
                 } else {
-                    throw new BankClientExceptions.BankClientNotFoundException("Cliente bancario no encontrado", null);
+                    throw new BankClientNotFoundException("Cliente bancario no encontrado", null);
                 }
             }
 
         } catch (SQLException e) {
-            throw new BankClientExceptions.BankClientRetrievalException("Error al buscar el cliente bancario", e);
+            throw new BankClientRetrievalException("Error al buscar el cliente bancario", e);
         }
     }
 
@@ -109,7 +113,7 @@ public class BankClientRepositoryMySQL extends BankClientRepositoryAbstract {
             return clients;
 
         } catch (SQLException e) {
-            throw new BankClientExceptions.BankClientRetrievalException("Error al obtener clientes por usuario", e);
+            throw new BankClientRetrievalException("Error al obtener clientes por usuario", e);
         }
     }
 
@@ -135,7 +139,7 @@ public class BankClientRepositoryMySQL extends BankClientRepositoryAbstract {
 
             int affected = stmt.executeUpdate();
             if (affected == 0) {
-                throw new BankClientExceptions.BankClientNotFoundException("Cliente bancario no encontrado para actualizar", null);
+                throw new BankClientNotFoundException("Cliente bancario no encontrado para actualizar", null);
             }
 
             databaseConnection.commitTransaction();
@@ -144,7 +148,7 @@ public class BankClientRepositoryMySQL extends BankClientRepositoryAbstract {
 
         } catch (SQLException e) {
             rollback();
-            throw new BankClientExceptions.BankClientUpdateException("Error al actualizar el cliente bancario", e);
+            throw new BankClientUpdateException("Error al actualizar el cliente bancario", e);
         }
 
     }
@@ -159,7 +163,7 @@ public class BankClientRepositoryMySQL extends BankClientRepositoryAbstract {
 
             int affected = stmt.executeUpdate();
             if (affected == 0) {
-                throw new BankClientExceptions.BankClientNotFoundException("Cliente bancario no encontrado para eliminar", null);
+                throw new BankClientNotFoundException("Cliente bancario no encontrado para eliminar", null);
             }
 
             databaseConnection.commitTransaction();
@@ -167,7 +171,7 @@ public class BankClientRepositoryMySQL extends BankClientRepositoryAbstract {
 
         } catch (SQLException e) {
             rollback();
-            throw new BankClientExceptions.BankClientDeletionException("Error al eliminar el cliente bancario", e);
+            throw new BankClientDeletionException("Error al eliminar el cliente bancario", e);
         }
     }
 
@@ -184,7 +188,7 @@ public class BankClientRepositoryMySQL extends BankClientRepositoryAbstract {
             return clients;
 
         } catch (SQLException e) {
-            throw new BankClientExceptions.BankClientRetrievalException("Error al obtener todos los clientes", e);
+            throw new BankClientRetrievalException("Error al obtener todos los clientes", e);
         }
     }
 
