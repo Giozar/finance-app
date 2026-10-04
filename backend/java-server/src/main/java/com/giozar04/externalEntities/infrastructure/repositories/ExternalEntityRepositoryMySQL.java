@@ -14,7 +14,11 @@ import java.util.List;
 import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
 import com.giozar04.externalEntities.domain.entities.ExternalEntity;
 import com.giozar04.externalEntities.domain.enums.ExternalEntityTypes;
-import com.giozar04.externalEntities.domain.exceptions.ExternalEntityExceptions;
+import com.giozar04.externalEntities.application.exceptions.ExternalEntityCreationException;
+import com.giozar04.externalEntities.application.exceptions.ExternalEntityDeletionException;
+import com.giozar04.externalEntities.application.exceptions.ExternalEntityNotFoundException;
+import com.giozar04.externalEntities.application.exceptions.ExternalEntityRetrievalException;
+import com.giozar04.externalEntities.application.exceptions.ExternalEntityUpdateException;
 import com.giozar04.externalEntities.domain.models.ExternalEntityRepositoryAbstract;
 
 public class ExternalEntityRepositoryMySQL extends ExternalEntityRepositoryAbstract {
@@ -70,7 +74,7 @@ public class ExternalEntityRepositoryMySQL extends ExternalEntityRepositoryAbstr
 
         } catch (SQLException e) {
             rollback();
-            throw new ExternalEntityExceptions.ExternalEntityCreationException("Error al crear la entidad externa", e);
+            throw new ExternalEntityCreationException("Error al crear la entidad externa", e);
         }
     }
 
@@ -86,12 +90,12 @@ public class ExternalEntityRepositoryMySQL extends ExternalEntityRepositoryAbstr
                 if (rs.next()) {
                     return mapResultSetToExternalEntity(rs);
                 } else {
-                    throw new ExternalEntityExceptions.ExternalEntityNotFoundException("Entidad externa no encontrada con ID: " + id, null);
+                    throw new ExternalEntityNotFoundException("Entidad externa no encontrada con ID: " + id, null);
                 }
             }
 
         } catch (SQLException e) {
-            throw new ExternalEntityExceptions.ExternalEntityRetrievalException("Error al obtener la entidad externa", e);
+            throw new ExternalEntityRetrievalException("Error al obtener la entidad externa", e);
         }
     }
 
@@ -113,7 +117,7 @@ public class ExternalEntityRepositoryMySQL extends ExternalEntityRepositoryAbstr
 
             int affected = stmt.executeUpdate();
             if (affected == 0) {
-                throw new ExternalEntityExceptions.ExternalEntityNotFoundException("Entidad externa no encontrada con ID: " + id, null);
+                throw new ExternalEntityNotFoundException("Entidad externa no encontrada con ID: " + id, null);
             }
 
             databaseConnection.commitTransaction();
@@ -122,7 +126,7 @@ public class ExternalEntityRepositoryMySQL extends ExternalEntityRepositoryAbstr
 
         } catch (SQLException e) {
             rollback();
-            throw new ExternalEntityExceptions.ExternalEntityUpdateException("Error al actualizar la entidad externa", e);
+            throw new ExternalEntityUpdateException("Error al actualizar la entidad externa", e);
         }
     }
 
@@ -137,7 +141,7 @@ public class ExternalEntityRepositoryMySQL extends ExternalEntityRepositoryAbstr
 
             int affected = stmt.executeUpdate();
             if (affected == 0) {
-                throw new ExternalEntityExceptions.ExternalEntityNotFoundException("Entidad externa no encontrada con ID: " + id, null);
+                throw new ExternalEntityNotFoundException("Entidad externa no encontrada con ID: " + id, null);
             }
 
             databaseConnection.commitTransaction();
@@ -145,7 +149,7 @@ public class ExternalEntityRepositoryMySQL extends ExternalEntityRepositoryAbstr
 
         } catch (SQLException e) {
             rollback();
-            throw new ExternalEntityExceptions.ExternalEntityDeletionException("Error al eliminar la entidad externa", e);
+            throw new ExternalEntityDeletionException("Error al eliminar la entidad externa", e);
         }
     }
 
@@ -164,7 +168,7 @@ public class ExternalEntityRepositoryMySQL extends ExternalEntityRepositoryAbstr
             return entities;
 
         } catch (SQLException e) {
-            throw new ExternalEntityExceptions.ExternalEntityRetrievalException("Error al obtener entidades externas", e);
+            throw new ExternalEntityRetrievalException("Error al obtener entidades externas", e);
         }
     }
 
@@ -186,7 +190,7 @@ public class ExternalEntityRepositoryMySQL extends ExternalEntityRepositoryAbstr
             return list;
 
         } catch (SQLException e) {
-            throw new ExternalEntityExceptions.ExternalEntityRetrievalException("Error al obtener las entidades externas del usuario con ID: " + userId, e);
+            throw new ExternalEntityRetrievalException("Error al obtener las entidades externas del usuario con ID: " + userId, e);
         }
     }
 

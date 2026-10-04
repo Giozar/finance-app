@@ -19,7 +19,7 @@ import com.giozar04.categories.domain.entities.Category;
 import com.giozar04.categories.application.exceptions.CategoryNotFoundException;
 import com.giozar04.categories.domain.interfaces.CategoryRepositoryInterface;
 import com.giozar04.externalEntities.domain.entities.ExternalEntity;
-import com.giozar04.externalEntities.domain.exceptions.ExternalEntityExceptions;
+import com.giozar04.externalEntities.application.exceptions.ExternalEntityNotFoundException;
 import com.giozar04.externalEntities.domain.interfaces.ExternalEntityRepositoryInterface;
 import com.giozar04.tags.domain.entities.Tag;
 import com.giozar04.tags.application.exceptions.TagNotFoundException;
@@ -84,7 +84,7 @@ public class ValidationContext {
     public ExternalEntity externalEntity(Long id) {
         if (id == null || id <= 0) return null;
         return externalEntities.computeIfAbsent(id, k -> find(() -> externalEntityRepository.getExternalEntityById(k),
-                ExternalEntityExceptions.ExternalEntityNotFoundException.class)).orElse(null);
+                ExternalEntityNotFoundException.class)).orElse(null);
     }
 
     public Tag tag(Long id) {

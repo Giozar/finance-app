@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.giozar04.externalEntities.application.services.ExternalEntityService;
-import com.giozar04.externalEntities.application.utils.ExternalEntityUtils;
+import com.giozar04.externalEntities.infrastructure.serialization.ExternalEntityMapper;
 import com.giozar04.externalEntities.domain.entities.ExternalEntity;
 import com.giozar04.logging.CustomLogger;
 import com.giozar04.messages.domain.models.Message;
@@ -35,11 +35,11 @@ public class ExternalEntityControllers {
                 return Message.createErrorMessage(ExternalEntityMessageTypes.CREATE_EXTERNAL_ENTITY, "Datos no proporcionados");
             }
 
-            ExternalEntity entity = ExternalEntityUtils.mapToExternalEntity(data);
+            ExternalEntity entity = ExternalEntityMapper.fromMap(data);
             ExternalEntity created = service.createExternalEntity(entity);
 
             Message response = Message.createSuccessMessage(ExternalEntityMessageTypes.CREATE_EXTERNAL_ENTITY, "Entidad externa creada exitosamente");
-            response.addData("externalEntity", ExternalEntityUtils.externalEntityToMap(created));
+            response.addData("externalEntity", ExternalEntityMapper.toMap(created));
             return response;
         };
     }
@@ -55,7 +55,7 @@ public class ExternalEntityControllers {
 
             ExternalEntity entity = service.getExternalEntityById(id);
             Message response = Message.createSuccessMessage(ExternalEntityMessageTypes.GET_EXTERNAL_ENTITY, "Entidad externa obtenida");
-            response.addData("externalEntity", ExternalEntityUtils.externalEntityToMap(entity));
+            response.addData("externalEntity", ExternalEntityMapper.toMap(entity));
             return response;
         };
     }
@@ -75,10 +75,10 @@ public class ExternalEntityControllers {
                 return Message.createErrorMessage(ExternalEntityMessageTypes.UPDATE_EXTERNAL_ENTITY, "Datos no proporcionados");
             }
 
-            ExternalEntity updated = service.updateExternalEntityById(id, ExternalEntityUtils.mapToExternalEntity(data));
+            ExternalEntity updated = service.updateExternalEntityById(id, ExternalEntityMapper.fromMap(data));
 
             Message response = Message.createSuccessMessage(ExternalEntityMessageTypes.UPDATE_EXTERNAL_ENTITY, "Entidad externa actualizada");
-            response.addData("externalEntity", ExternalEntityUtils.externalEntityToMap(updated));
+            response.addData("externalEntity", ExternalEntityMapper.toMap(updated));
             return response;
         };
     }
@@ -105,7 +105,7 @@ public class ExternalEntityControllers {
             List<Map<String, Object>> result = new ArrayList<>();
 
             for (ExternalEntity e : entities) {
-                result.add(ExternalEntityUtils.externalEntityToMap(e));
+                result.add(ExternalEntityMapper.toMap(e));
             }
 
             Message response = Message.createSuccessMessage(ExternalEntityMessageTypes.GET_ALL_EXTERNAL_ENTITIES, "Entidades externas obtenidas");
@@ -129,7 +129,7 @@ public class ExternalEntityControllers {
             List<Map<String, Object>> result = new ArrayList<>();
 
             for (ExternalEntity item : items) {
-                result.add(ExternalEntityUtils.externalEntityToMap(item));
+                result.add(ExternalEntityMapper.toMap(item));
             }
 
             Message response = Message.createSuccessMessage(ExternalEntityMessageTypes.GET_EXTERNAL_ENTITIES_BY_USER, "Entidades externas del usuario obtenidas");

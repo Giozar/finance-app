@@ -37,10 +37,14 @@ src/main/java/com/giozar04/categories/application/exceptions/CategoryUpdateExcep
 src/main/java/com/giozar04/categories/domain/entities/Category.java
 src/main/java/com/giozar04/categories/domain/enums/CategoryTypes.java
 src/main/java/com/giozar04/categories/infrastructure/serialization/CategoryMapper.java
-src/main/java/com/giozar04/externalEntities/application/utils/ExternalEntityUtils.java
+src/main/java/com/giozar04/externalEntities/application/exceptions/ExternalEntityCreationException.java
+src/main/java/com/giozar04/externalEntities/application/exceptions/ExternalEntityDeletionException.java
+src/main/java/com/giozar04/externalEntities/application/exceptions/ExternalEntityNotFoundException.java
+src/main/java/com/giozar04/externalEntities/application/exceptions/ExternalEntityRetrievalException.java
+src/main/java/com/giozar04/externalEntities/application/exceptions/ExternalEntityUpdateException.java
 src/main/java/com/giozar04/externalEntities/domain/entities/ExternalEntity.java
 src/main/java/com/giozar04/externalEntities/domain/enums/ExternalEntityTypes.java
-src/main/java/com/giozar04/externalEntities/domain/exceptions/ExternalEntityExceptions.java
+src/main/java/com/giozar04/externalEntities/infrastructure/serialization/ExternalEntityMapper.java
 src/main/java/com/giozar04/json/utils/JsonUtils.java
 src/main/java/com/giozar04/logging/CustomLogger.java
 src/main/java/com/giozar04/messages/domain/models/Message.java

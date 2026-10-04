@@ -1,15 +1,15 @@
-package com.giozar04.externalEntities.application.utils;
+package com.giozar04.externalEntities.infrastructure.serialization;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import com.giozar04.externalEntities.domain.entities.ExternalEntity;
 import com.giozar04.externalEntities.domain.enums.ExternalEntityTypes;
-import com.giozar04.shared.utils.SharedUtils;
+import com.giozar04.shared.infrastructure.serialization.ValueParser;
 
-public class ExternalEntityUtils {
+public class ExternalEntityMapper {
 
-    public static Map<String, Object> externalEntityToMap(ExternalEntity entity) {
+    public static Map<String, Object> toMap(ExternalEntity entity) {
         Map<String, Object> map = new HashMap<>();
         map.put("id", entity.getId());
         map.put("userId", entity.getUserId());
@@ -18,20 +18,20 @@ public class ExternalEntityUtils {
         map.put("contact", entity.getContact());
 
         if (entity.getCreatedAt() != null) {
-            map.put("createdAt", entity.getCreatedAt().format(SharedUtils.getFormatter()));
+            map.put("createdAt", entity.getCreatedAt().format(ValueParser.getFormatter()));
         }
 
         if (entity.getUpdatedAt() != null) {
-            map.put("updatedAt", entity.getUpdatedAt().format(SharedUtils.getFormatter()));
+            map.put("updatedAt", entity.getUpdatedAt().format(ValueParser.getFormatter()));
         }
 
         return map;
     }
 
-    public static ExternalEntity mapToExternalEntity(Map<String, Object> map) {
+    public static ExternalEntity fromMap(Map<String, Object> map) {
         ExternalEntity entity = new ExternalEntity();
-        entity.setId(SharedUtils.parseLong(map.get("id")));
-        entity.setUserId(SharedUtils.parseLong(map.get("userId")));
+        entity.setId(ValueParser.parseLong(map.get("id")));
+        entity.setUserId(ValueParser.parseLong(map.get("userId")));
         entity.setName((String) map.get("name"));
 
         Object typeObj = map.get("type");
@@ -40,8 +40,8 @@ public class ExternalEntityUtils {
         }
 
         entity.setContact((String) map.get("contact"));
-        entity.setCreatedAt(SharedUtils.parseZonedDateTime(map.get("createdAt")));
-        entity.setUpdatedAt(SharedUtils.parseZonedDateTime(map.get("updatedAt")));
+        entity.setCreatedAt(ValueParser.parseZonedDateTime(map.get("createdAt")));
+        entity.setUpdatedAt(ValueParser.parseZonedDateTime(map.get("updatedAt")));
         return entity;
     }
 }

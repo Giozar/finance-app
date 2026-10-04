@@ -23,7 +23,7 @@ public final class ContractProbe {
         new Feature("tags", "com.giozar04.tags.domain.entities.Tag", "com.giozar04.tags.infrastructure.serialization.TagMapper", "toMap", "fromMap"),
         new Feature("users", "com.giozar04.users.domain.entities.User", "com.giozar04.users.infrastructure.serialization.UserMapper", "toMap", "fromMap"),
         new Feature("categories", "com.giozar04.categories.domain.entities.Category", "com.giozar04.categories.infrastructure.serialization.CategoryMapper", "toMap", "fromMap"),
-        new Feature("externalEntities", "com.giozar04.externalEntities.domain.entities.ExternalEntity", "com.giozar04.externalEntities.application.utils.ExternalEntityUtils", "externalEntityToMap", "mapToExternalEntity"),
+        new Feature("externalEntities", "com.giozar04.externalEntities.domain.entities.ExternalEntity", "com.giozar04.externalEntities.infrastructure.serialization.ExternalEntityMapper", "toMap", "fromMap"),
         new Feature("bankClient", "com.giozar04.bankClient.domain.entities.BankClient", "com.giozar04.bankClient.application.utils.BankClientUtils", "bankClientToMap", "mapToBankClient"),
         new Feature("accounts", "com.giozar04.accounts.domain.entities.Account", "com.giozar04.accounts.application.utils.AccountUtils", "accountToMap", "mapToAccount"),
         new Feature("card", "com.giozar04.card.domain.entities.Card", "com.giozar04.card.application.utils.CardUtils", "cardToMap", "mapToCard"),

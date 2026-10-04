@@ -4,9 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import com.giozar04.externalEntities.application.utils.ExternalEntityUtils;
+import com.giozar04.externalEntities.infrastructure.serialization.ExternalEntityMapper;
 import com.giozar04.externalEntities.domain.entities.ExternalEntity;
-import com.giozar04.externalEntities.domain.exceptions.ExternalEntityExceptions;
+import com.giozar04.externalEntities.application.exceptions.ExternalEntityCreationException;
+import com.giozar04.externalEntities.application.exceptions.ExternalEntityDeletionException;
+import com.giozar04.externalEntities.application.exceptions.ExternalEntityRetrievalException;
+import com.giozar04.externalEntities.application.exceptions.ExternalEntityUpdateException;
 import com.giozar04.logging.CustomLogger;
 import com.giozar04.messages.domain.models.Message;
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
@@ -38,17 +41,17 @@ public class ExternalEntityService {
     public ExternalEntity createExternalEntity(ExternalEntity entity) throws ClientOperationException {
         Message message = new Message();
         message.setType("CREATE_EXTERNAL_ENTITY");
-        message.addData("externalEntity", ExternalEntityUtils.externalEntityToMap(entity));
+        message.addData("externalEntity", ExternalEntityMapper.toMap(entity));
 
         serverConnectionService.sendMessage(message);
         try {
             Message response = serverConnectionService.waitForMessage("CREATE_EXTERNAL_ENTITY");
             ServerResponseValidator.validateResponse(response);
             logger.info("Entidad externa creada exitosamente: " + response);
-            return ExternalEntityUtils.mapToExternalEntity((Map<String, Object>) response.getData("externalEntity"));
+            return ExternalEntityMapper.fromMap((Map<String, Object>) response.getData("externalEntity"));
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new ExternalEntityExceptions.ExternalEntityCreationException("Error al esperar respuesta del servidor", e);
+            throw new ExternalEntityCreationException("Error al esperar respuesta del servidor", e);
         }
     }
 
@@ -57,17 +60,17 @@ public class ExternalEntityService {
         Message message = new Message();
         message.setType("UPDATE_EXTERNAL_ENTITY");
         message.addData("id", id);
-        message.addData("externalEntity", ExternalEntityUtils.externalEntityToMap(entity));
+        message.addData("externalEntity", ExternalEntityMapper.toMap(entity));
 
         serverConnectionService.sendMessage(message);
         try {
             Message response = serverConnectionService.waitForMessage("UPDATE_EXTERNAL_ENTITY");
             ServerResponseValidator.validateResponse(response);
             logger.info("Entidad externa actualizada correctamente: " + response);
-            return ExternalEntityUtils.mapToExternalEntity((Map<String, Object>) response.getData("externalEntity"));
+            return ExternalEntityMapper.fromMap((Map<String, Object>) response.getData("externalEntity"));
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new ExternalEntityExceptions.ExternalEntityUpdateException("Error al esperar respuesta del servidor", e);
+            throw new ExternalEntityUpdateException("Error al esperar respuesta del servidor", e);
         }
     }
 
@@ -83,7 +86,7 @@ public class ExternalEntityService {
             logger.info("Entidad externa eliminada exitosamente: " + response);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new ExternalEntityExceptions.ExternalEntityDeletionException("Error al esperar respuesta del servidor", e);
+            throw new ExternalEntityDeletionException("Error al esperar respuesta del servidor", e);
         }
     }
 
@@ -100,25 +103,25 @@ public class ExternalEntityService {
             Object raw = response.getData("externalEntities");
 
             if (raw == null) {
-                throw new ExternalEntityExceptions.ExternalEntityRetrievalException("Lista vacía", null);
+                throw new ExternalEntityRetrievalException("Lista vacía", null);
             }
 
             if (raw instanceof List<?> rawList) {
                 List<ExternalEntity> entities = new ArrayList<>();
                 for (Object item : rawList) {
                     if (item instanceof Map<?, ?> map) {
-                        entities.add(ExternalEntityUtils.mapToExternalEntity((Map<String, Object>) map));
+                        entities.add(ExternalEntityMapper.fromMap((Map<String, Object>) map));
                     }
                 }
                 logger.info("Entidades externas obtenidas. Total: " + entities.size());
                 return entities;
             } else {
-                throw new ExternalEntityExceptions.ExternalEntityRetrievalException("Formato inesperado: " + raw.getClass().getName(), null);
+                throw new ExternalEntityRetrievalException("Formato inesperado: " + raw.getClass().getName(), null);
             }
 
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new ExternalEntityExceptions.ExternalEntityRetrievalException("Error al esperar respuesta del servidor", e);
+            throw new ExternalEntityRetrievalException("Error al esperar respuesta del servidor", e);
         }
     }
 
@@ -136,25 +139,25 @@ public class ExternalEntityService {
             Object raw = response.getData("externalEntities");
 
             if (raw == null) {
-                throw new ExternalEntityExceptions.ExternalEntityRetrievalException("Lista vacía", null);
+                throw new ExternalEntityRetrievalException("Lista vacía", null);
             }
 
             if (raw instanceof List<?> rawList) {
                 List<ExternalEntity> entities = new ArrayList<>();
                 for (Object item : rawList) {
                     if (item instanceof Map<?, ?> map) {
-                        entities.add(ExternalEntityUtils.mapToExternalEntity((Map<String, Object>) map));
+                        entities.add(ExternalEntityMapper.fromMap((Map<String, Object>) map));
                     }
                 }
                 logger.info("Entidades externas del usuario obtenidas correctamente. Total: " + entities.size());
                 return entities;
             } else {
-                throw new ExternalEntityExceptions.ExternalEntityRetrievalException("Formato inesperado: " + raw.getClass().getName(), null);
+                throw new ExternalEntityRetrievalException("Formato inesperado: " + raw.getClass().getName(), null);
             }
 
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new ExternalEntityExceptions.ExternalEntityRetrievalException("Error al esperar respuesta del servidor", e);
+            throw new ExternalEntityRetrievalException("Error al esperar respuesta del servidor", e);
         }
     }
 }
