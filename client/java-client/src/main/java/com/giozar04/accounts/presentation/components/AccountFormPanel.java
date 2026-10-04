@@ -28,7 +28,8 @@ import com.giozar04.accounts.presentation.components.subpanels.CashbackSettingsP
 import com.giozar04.accounts.presentation.components.subpanels.WalletCardLinksPanel;
 import com.giozar04.accounts.presentation.views.AccountsView;
 import com.giozar04.accountCashbackSettings.domain.entities.AccountCashbackSetting;
-import com.giozar04.accountCashbackSettings.infrastructure.services.AccountCashbackSettingService;
+import com.giozar04.accountCashbackSettings.application.ports.input.AccountCashbackSettingOperations;
+import com.giozar04.bootstrap.ClientUseCases;
 import com.giozar04.walletCardLinks.domain.entities.WalletCardLink;
 import com.giozar04.walletCardLinks.infrastructure.services.WalletCardLinkService;
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
@@ -353,9 +354,9 @@ public class AccountFormPanel extends JPanel {
                 cashbackSettingsPanel.applyTo(cashbackSetting);
 
                 if (hasExistingCashback) {
-                    AccountCashbackSettingService.getInstance().updateAccountCashbackSettingByAccountId(accountId, cashbackSetting);
+                    ClientUseCases.get(AccountCashbackSettingOperations.class).updateAccountCashbackSettingByAccountId(accountId, cashbackSetting);
                 } else {
-                    AccountCashbackSettingService.getInstance().createAccountCashbackSetting(cashbackSetting);
+                    ClientUseCases.get(AccountCashbackSettingOperations.class).createAccountCashbackSetting(cashbackSetting);
                 }
             }
 
@@ -430,7 +431,7 @@ public class AccountFormPanel extends JPanel {
         AccountTypes type = account.getType();
         if (type == AccountTypes.DEBIT || type == AccountTypes.CREDIT || type == AccountTypes.WALLET) {
             try {
-                AccountCashbackSetting setting = AccountCashbackSettingService.getInstance()
+                AccountCashbackSetting setting = ClientUseCases.get(AccountCashbackSettingOperations.class)
                         .getAccountCashbackSettingByAccountId(account.getId());
                 cashbackSettingsPanel.loadFrom(setting);
                 hasExistingCashback = true;

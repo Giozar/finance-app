@@ -8,7 +8,8 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 import com.giozar04.accountCashbackSettings.domain.entities.AccountCashbackSetting;
-import com.giozar04.accountCashbackSettings.infrastructure.services.AccountCashbackSettingService;
+import com.giozar04.accountCashbackSettings.application.ports.input.AccountCashbackSettingOperations;
+import com.giozar04.bootstrap.ClientUseCases;
 import com.giozar04.accounts.domain.entities.Account;
 import com.giozar04.accounts.domain.enums.AccountTypes;
 import com.giozar04.accounts.application.ports.input.AccountOperations;
@@ -41,7 +42,7 @@ import com.giozar04.walletCardLinks.infrastructure.services.WalletCardLinkServic
  *   <li>Cuentas, categorías, etiquetas y entidades externas del usuario ({@code *_BY_USER}).</li>
  *   <li>Tarjetas de una cuenta ({@code GET_CARDS_BY_ACCOUNT}), opcionalmente por tipo (física/digital).</li>
  *   <li>Tarjetas vinculadas a una wallet ({@code WalletCardLinkService} → tarjetas).</li>
- *   <li>Configuración de cashback de una wallet ({@code AccountCashbackSettingService}).</li>
+ *   <li>Configuración de cashback de una wallet ({@code AccountCashbackSettingOperations}).</li>
  *   <li>Categorías compatibles con una operación (mismo tipo o {@code BOTH}).</li>
  * </ul>
  *
@@ -268,7 +269,7 @@ public class TransactionFormDataProvider {
     public Optional<AccountCashbackSetting> getCashbackSetting(long accountId) {
         return cashbackByWallet.computeIfAbsent(accountId, id -> {
             try {
-                return Optional.ofNullable(AccountCashbackSettingService.getInstance()
+                return Optional.ofNullable(ClientUseCases.get(AccountCashbackSettingOperations.class)
                         .getAccountCashbackSettingByAccountId(id));
             } catch (ClientOperationException | RuntimeException e) {
                 logger.info("La cuenta " + id + " no tiene configuración de cashback: " + e.getMessage());

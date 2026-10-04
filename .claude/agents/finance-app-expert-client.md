@@ -8,6 +8,8 @@ model: inherit
 
 ## Migración vigente
 
+- `accountCashbackSettings`: `AccountCashbackSettingOperations` → `AccountCashbackSettingUseCase` → `AccountCashbackSettingGateway` → `AccountCashbackSettingService` (socket).
+
 - `cards`: `CardOperations` → `CardUseCase` → `CardGateway` → `CardService` (socket).
 
 - `accounts`: `AccountOperations` → `AccountUseCase` → `AccountGateway` → `AccountService` (socket).

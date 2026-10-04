@@ -1,16 +1,17 @@
-package com.giozar04.accountCashbackSettings.infrastructure.services;
+package com.giozar04.accountCashbackSettings.infrastructure.transport.socket;
 
 import java.util.Map;
 
 import com.giozar04.accountCashbackSettings.infrastructure.serialization.AccountCashbackSettingMapper;
 import com.giozar04.accountCashbackSettings.domain.entities.AccountCashbackSetting;
+import com.giozar04.accountCashbackSettings.application.ports.output.AccountCashbackSettingGateway;
 import com.giozar04.logging.infrastructure.ConsoleLogger;
 import com.giozar04.messages.infrastructure.transport.Message;
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
 import com.giozar04.serverConnection.application.services.ServerConnectionService;
 import com.giozar04.serverConnection.application.validators.ServerResponseValidator;
 
-public class AccountCashbackSettingService {
+public class AccountCashbackSettingService implements AccountCashbackSettingGateway {
 
     private final ServerConnectionService serverConnectionService;
     private static final ConsoleLogger logger = ConsoleLogger.getInstance();

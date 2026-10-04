@@ -34,7 +34,9 @@ import com.giozar04.users.infrastructure.transport.socket.UserService;
 import com.giozar04.users.application.usecases.UserUseCase;
 import com.giozar04.users.application.ports.input.UserOperations;
 import com.giozar04.walletCardLinks.infrastructure.services.WalletCardLinkService;
-import com.giozar04.accountCashbackSettings.infrastructure.services.AccountCashbackSettingService;
+import com.giozar04.accountCashbackSettings.infrastructure.transport.socket.AccountCashbackSettingService;
+import com.giozar04.accountCashbackSettings.application.usecases.AccountCashbackSettingUseCase;
+import com.giozar04.accountCashbackSettings.application.ports.input.AccountCashbackSettingOperations;
 import com.giozar04.walletTransactionDetails.infrastructure.services.WalletTransactionDetailService;
 
 public class ApplicationInitializer {
@@ -112,6 +114,7 @@ public class ApplicationInitializer {
             System.out.println("✅ Servicio de vínculos tarjeta-wallet conectado correctamente.");
 
             AccountCashbackSettingService.connectService(connectionService);
+            ClientUseCases.register(AccountCashbackSettingOperations.class, new AccountCashbackSettingUseCase(AccountCashbackSettingService.getInstance()));
             System.out.println("✅ Servicio de configuración de cashback conectado correctamente.");
 
             WalletTransactionDetailService.connectService(connectionService);

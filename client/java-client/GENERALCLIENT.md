@@ -9,7 +9,10 @@ Generado con `python3 scripts/update_indexes.py` desde la raíz.
 ```text
 pom.xml
 src/main/java/com/giozar04/Main.java
-src/main/java/com/giozar04/accountCashbackSettings/infrastructure/services/AccountCashbackSettingService.java
+src/main/java/com/giozar04/accountCashbackSettings/application/ports/input/AccountCashbackSettingOperations.java
+src/main/java/com/giozar04/accountCashbackSettings/application/ports/output/AccountCashbackSettingGateway.java
+src/main/java/com/giozar04/accountCashbackSettings/application/usecases/AccountCashbackSettingUseCase.java
+src/main/java/com/giozar04/accountCashbackSettings/infrastructure/transport/socket/AccountCashbackSettingService.java
 src/main/java/com/giozar04/accountReconciliations/infrastructure/services/AccountReconciliationService.java
 src/main/java/com/giozar04/accountReconciliations/presentation/views/AccountReconciliationsView.java
 src/main/java/com/giozar04/accounts/application/ports/input/AccountOperations.java
