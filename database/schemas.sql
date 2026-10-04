@@ -328,11 +328,13 @@ CREATE TABLE IF NOT EXISTS categories (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     user_id BIGINT NOT NULL,
     name VARCHAR(100) NOT NULL,
+        -- type: 'INCOME', 'EXPENSE', 'REALLOCATION' (reubicación entre cuentas propias), 'BOTH'
+        -- (shared CategoryTypes). No se cruza con transactions.operation_type en BD.
         -- OPCIÓN 1: VARCHAR + CHECK (Flexibilidad)
         -- Es un texto con una regla "pegada" que imita al ENUM.
     type VARCHAR(20) NOT NULL,
         -- OPCIÓN 2: ENUM (Rigidez/Optimización)
-        -- type ENUM('INCOME', 'EXPENSE', 'BOTH') NOT NULL,
+        -- type ENUM('INCOME', 'EXPENSE', 'REALLOCATION', 'BOTH') NOT NULL,
     icon VARCHAR(100) NOT NULL,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -341,8 +343,8 @@ CREATE TABLE IF NOT EXISTS categories (
         -- Evita que tengas dos "Comida", pero permite que OTRO usuario tenga la suya.
     CONSTRAINT unique_category_per_user UNIQUE (user_id, name),
         -- LA REGLA "TIPO ENUM":
-        -- Obliga a que el VARCHAR solo acepte estas 3 palabras.
-    CONSTRAINT chk_category_type CHECK (type IN ('INCOME', 'EXPENSE', 'BOTH'))
+        -- Obliga a que el VARCHAR solo acepte estas 4 palabras.
+    CONSTRAINT chk_category_type CHECK (type IN ('INCOME', 'EXPENSE', 'REALLOCATION', 'BOTH'))
 );
 
 CREATE INDEX idx_categories_user_id ON categories (user_id);
@@ -387,6 +389,15 @@ CREATE TABLE IF NOT EXISTS transactions (
         -- status: 'PENDING', 'COMPLETED', 'FAILED', 'CANCELLED'. Solo COMPLETED afecta saldos
         -- (triggers 2, 3, 4 y 4.1, y los de wallet_transaction_details 5, 5.1 y 5.2)
     status VARCHAR(20) NOT NULL DEFAULT 'COMPLETED',
+        -- Partes por tipo de operación (sp_validate_transaction_parties, triggers 8.2 y 8.3;
+        -- en REALLOCATION, origen/destino los valida sp_validate_transaction_reallocation):
+        --   INCOME       -> destination_account_id y external_entity_id obligatorios; source_account_id NULL
+        --   EXPENSE      -> source_account_id y external_entity_id obligatorios; destination_account_id NULL
+        --   REALLOCATION -> source_account_id y destination_account_id (distintos); external_entity_id NULL
+        -- En WALLET (solo EXPENSE), source_account_id es la cuenta que financia el pago: la
+        -- wallet (WALLET_BALANCE) o la cuenta de la tarjeta vinculada (LINKED_CARD). En CARD, es
+        -- la cuenta de la tarjeta de card_transaction_details.
+        -- Son NULL-ables por las reglas anteriores y por ON DELETE SET NULL.
     source_account_id BIGINT NULL,
     destination_account_id BIGINT NULL,
     external_entity_id BIGINT NULL,
@@ -410,9 +421,13 @@ CREATE TABLE IF NOT EXISTS transactions (
     CONSTRAINT chk_tx_payment_method CHECK (payment_method IN ('CASH', 'CARD', 'WIRE_TRANSFER', 'INTERNAL', 'QR', 'CODI', 'WALLET')),
         -- INTERNAL (movimiento entre cuentas propias) solo tiene sentido en una REALLOCATION
     CONSTRAINT chk_tx_internal_reallocation CHECK (payment_method <> 'INTERNAL' OR operation_type = 'REALLOCATION'),
+        -- WALLET (pago con wallet) solo tiene sentido en un gasto
+    CONSTRAINT chk_tx_wallet_expense CHECK (payment_method <> 'WALLET' OR operation_type = 'EXPENSE'),
     CONSTRAINT chk_tx_status CHECK (status IN ('PENDING', 'COMPLETED', 'FAILED', 'CANCELLED'))
 );
 
+-- idx_tx_category e idx_tx_parent sustituyen a los índices implícitos que InnoDB crea para
+-- fk_tx_category y fk_tx_parent (MySQL los elimina al existir uno equivalente).
 CREATE INDEX idx_tx_user_id ON transactions (user_id);
 CREATE INDEX idx_tx_date ON transactions (date);
 CREATE INDEX idx_tx_type ON transactions (operation_type);
@@ -420,6 +435,8 @@ CREATE INDEX idx_tx_method ON transactions (payment_method);
 CREATE INDEX idx_tx_source_account ON transactions (source_account_id);
 CREATE INDEX idx_tx_destination_account ON transactions (destination_account_id);
 CREATE INDEX idx_tx_entity ON transactions (external_entity_id);
+CREATE INDEX idx_tx_category ON transactions (category_id);
+CREATE INDEX idx_tx_parent ON transactions (parent_transaction_id);
 
 -- ======================================================
 -- 9. TRANSACTION_TAGS
@@ -442,6 +459,11 @@ CREATE INDEX idx_tt_tag_id ON transaction_tags (tag_id);
 -- ======================================================
 -- 10. CARD_TRANSACTION_DETAILS
 -- ======================================================
+-- Detalle de una transacción con payment_method = 'CARD'. Solo registra información
+-- (MSI, plástico usado): el efecto en saldos lo aplica la transacción sobre source_account_id.
+-- Triggers 10 y 10.1 (sp_validate_card_detail): la transacción padre debe ser CARD y la
+-- tarjeta debe pertenecer a su source_account_id. El backend inserta primero la transacción
+-- y después el detalle (misma transacción SQL).
 CREATE TABLE IF NOT EXISTS card_transaction_details (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     transaction_id BIGINT NOT NULL,
@@ -471,14 +493,19 @@ CREATE INDEX idx_card_msi ON card_transaction_details (interest_free, installmen
 -- ======================================================
 -- 11. WALLET_TRANSACTION_DETAILS
 -- ======================================================
+-- Detalle de una transacción con payment_method = 'WALLET' (solo EXPENSE). Su efecto en
+-- saldos lo aplican los triggers 5, 5.1 y 5.2 (la transacción WALLET no tiene efecto propio).
+-- Triggers 5.3 y 5.4 (sp_validate_wallet_detail): padre WALLET, wallet_account_id de tipo
+-- WALLET y, en LINKED_CARD, card_id obligatorio y vinculado a la wallet (wallet_card_links).
+-- El backend inserta primero la transacción y después el detalle (misma transacción SQL).
 CREATE TABLE IF NOT EXISTS wallet_transaction_details (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     transaction_id BIGINT NOT NULL,
     source_type VARCHAR(20) NOT NULL, -- 'WALLET_BALANCE', 'LINKED_CARD' (shared WalletTransactionSourceType)
-    wallet_account_id BIGINT NOT NULL, -- Referencia a accounts (type='WALLET')
+    wallet_account_id BIGINT NOT NULL, -- Referencia a accounts (type='WALLET', triggers 5.3 y 5.4)
     card_id BIGINT NULL,               -- Obligatorio si source_type = 'LINKED_CARD' (triggers 5.3 y 5.4, no CHECK: ver ahí)
     amount DECIMAL(12, 2) NOT NULL,
-    cashback_rate DECIMAL(9, 6) NULL,  -- Fracción 0-1: 0.020000 = 2% (igual que default_cashback_rate)
+    cashback_rate DECIMAL(9, 6) NULL,  -- Fracción 0-1: 0.020000 = 2% (igual que default_cashback_rate). Solo informativo: no afecta saldos
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT fk_wallet_tx FOREIGN KEY (transaction_id) REFERENCES transactions (id) ON DELETE CASCADE,
@@ -506,9 +533,13 @@ CREATE INDEX idx_wallet_cashback_rate ON wallet_transaction_details (cashback_ra
 --   - sp_wallet_details_effect_for_transaction -> triggers 3 y 4.1 (todos los detalles de wallet de una transacción)
 --   - sp_validate_transaction_amount -> triggers 1 y 1.1 (monto)
 --   - sp_validate_transaction_reallocation -> triggers 8 y 8.1 (reubicaciones)
---   - sp_validate_wallet_detail -> triggers 5.3 y 5.4 (LINKED_CARD exige card_id)
+--   - sp_validate_wallet_detail -> triggers 5.3 y 5.4 (padre WALLET, cuenta WALLET, tarjeta vinculada)
 --   - sp_reconcile_account (PROCEDIMIENTO 8) -> definido al final, en RECONCILIACIÓN DE CUENTAS
 --     (usa la vista v_account_reconciliation)
+--   - sp_validate_transaction_parties (PROCEDIMIENTO 9) -> triggers 8.2 y 8.3 (origen, destino
+--     y entidad externa según operation_type)
+--   - sp_validate_card_detail (PROCEDIMIENTO 10) -> triggers 10 y 10.1 (padre CARD, tarjeta de
+--     la cuenta origen)
 --
 -- Regla de estado: solo las transacciones con status = 'COMPLETED' afectan saldos.
 -- Los procedimientos de efecto no consultan el estado; lo filtran los triggers que los llaman.
@@ -840,19 +871,169 @@ END //
 -- ======================================================
 -- PROCEDIMIENTO 7: Validar un detalle de wallet
 -- ======================================================
--- source_type = 'LINKED_CARD' exige card_id (sin tarjeta no hay cuenta a la que cargar).
+--   - la transacción padre debe existir y tener payment_method = 'WALLET'
+--   - wallet_account_id debe ser una cuenta de tipo 'WALLET'
+--   - source_type = 'LINKED_CARD' exige card_id (sin tarjeta no hay cuenta a la que cargar)
+--     y que la tarjeta esté vinculada a esa wallet (wallet_card_links)
 -- Se valida con trigger y no con CHECK porque MySQL prohíbe CHECK sobre columnas
--- usadas en una FK con acción referencial ON DELETE SET NULL (fk_wallet_card sobre card_id).
+-- usadas en una FK con acción referencial ON DELETE SET NULL (fk_wallet_card sobre card_id),
+-- y porque las reglas consultan otras tablas.
+-- El padre ya existe al insertar el detalle: el backend inserta primero la transacción.
 DROP PROCEDURE IF EXISTS sp_validate_wallet_detail //
 
 CREATE PROCEDURE sp_validate_wallet_detail(
+    IN p_transaction_id BIGINT,
     IN p_source_type VARCHAR(20),
+    IN p_wallet_account_id BIGINT,
     IN p_card_id BIGINT
 )
 BEGIN
-    IF p_source_type = 'LINKED_CARD' AND p_card_id IS NULL THEN
+    DECLARE v_payment_method VARCHAR(20) DEFAULT NULL;
+    DECLARE v_wallet_type VARCHAR(20) DEFAULT NULL;
+
+    -- 1. Transacción padre: debe existir y ser un pago con WALLET
+    SELECT payment_method INTO v_payment_method
+    FROM transactions WHERE id = p_transaction_id;
+
+    IF v_payment_method IS NULL THEN
         SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'Error: Un detalle de wallet con origen LINKED_CARD requiere card_id.';
+        SET MESSAGE_TEXT = 'Error: La transacción del detalle de wallet no existe.';
+    END IF;
+
+    IF v_payment_method <> 'WALLET' THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Error: Solo una transacción con método de pago WALLET puede tener detalle de wallet.';
+    END IF;
+
+    -- 2. La cuenta del detalle debe ser una wallet
+    SELECT type INTO v_wallet_type
+    FROM accounts WHERE id = p_wallet_account_id;
+
+    IF NOT (v_wallet_type <=> 'WALLET') THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Error: La cuenta del detalle de wallet debe ser una cuenta de tipo WALLET.';
+    END IF;
+
+    -- 3. Tarjeta vinculada: obligatoria y enlazada a esa wallet
+    IF p_source_type = 'LINKED_CARD' THEN
+        IF p_card_id IS NULL THEN
+            SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Error: Un detalle de wallet con origen LINKED_CARD requiere card_id.';
+        END IF;
+
+        IF NOT EXISTS (
+            SELECT 1 FROM wallet_card_links
+            WHERE account_id = p_wallet_account_id AND card_id = p_card_id
+        ) THEN
+            SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Error: La tarjeta no está vinculada a la wallet del detalle.';
+        END IF;
+    END IF;
+END //
+
+-- ======================================================
+-- PROCEDIMIENTO 9: Validar las partes de una transacción (cuentas y entidad externa)
+-- ======================================================
+-- Reglas estructurales según operation_type (no consulta tablas):
+--   INCOME       -> destino y entidad externa obligatorios; sin origen
+--   EXPENSE      -> origen y entidad externa obligatorios; sin destino
+--   REALLOCATION -> sin entidad externa (origen y destino los valida
+--                   sp_validate_transaction_reallocation)
+-- (El PROCEDIMIENTO 8, sp_reconcile_account, está al final del archivo.)
+DROP PROCEDURE IF EXISTS sp_validate_transaction_parties //
+
+CREATE PROCEDURE sp_validate_transaction_parties(
+    IN p_operation_type VARCHAR(20),
+    IN p_source_account_id BIGINT,
+    IN p_destination_account_id BIGINT,
+    IN p_external_entity_id BIGINT
+)
+BEGIN
+    IF p_operation_type = 'INCOME' THEN
+        IF p_destination_account_id IS NULL THEN
+            SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Error: Un ingreso requiere una cuenta destino.';
+        END IF;
+
+        IF p_external_entity_id IS NULL THEN
+            SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Error: Un ingreso requiere una entidad externa (quién paga).';
+        END IF;
+
+        IF p_source_account_id IS NOT NULL THEN
+            SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Error: Un ingreso no puede tener cuenta origen.';
+        END IF;
+
+    ELSEIF p_operation_type = 'EXPENSE' THEN
+        IF p_source_account_id IS NULL THEN
+            SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Error: Un gasto requiere una cuenta origen.';
+        END IF;
+
+        IF p_external_entity_id IS NULL THEN
+            SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Error: Un gasto requiere una entidad externa (a quién se paga).';
+        END IF;
+
+        IF p_destination_account_id IS NOT NULL THEN
+            SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Error: Un gasto no puede tener cuenta destino.';
+        END IF;
+
+    ELSEIF p_operation_type = 'REALLOCATION' THEN
+        IF p_external_entity_id IS NOT NULL THEN
+            SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Error: Una reubicación entre cuentas propias no puede tener entidad externa.';
+        END IF;
+    END IF;
+END //
+
+-- ======================================================
+-- PROCEDIMIENTO 10: Validar un detalle de tarjeta
+-- ======================================================
+--   - la transacción padre debe existir y tener payment_method = 'CARD'
+--   - la tarjeta debe existir y pertenecer a la cuenta origen de la transacción
+--     (cards.account_id = transactions.source_account_id)
+-- El padre ya existe al insertar el detalle: el backend inserta primero la transacción
+-- (con source_account_id fijado) y después el detalle, en la misma transacción SQL.
+DROP PROCEDURE IF EXISTS sp_validate_card_detail //
+
+CREATE PROCEDURE sp_validate_card_detail(
+    IN p_transaction_id BIGINT,
+    IN p_card_id BIGINT
+)
+BEGIN
+    DECLARE v_payment_method VARCHAR(20) DEFAULT NULL;
+    DECLARE v_source_account_id BIGINT DEFAULT NULL;
+    DECLARE v_card_account_id BIGINT DEFAULT NULL;
+
+    -- 1. Transacción padre: debe existir y ser un pago con tarjeta
+    SELECT payment_method, source_account_id INTO v_payment_method, v_source_account_id
+    FROM transactions WHERE id = p_transaction_id;
+
+    IF v_payment_method IS NULL THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Error: La transacción del detalle de tarjeta no existe.';
+    END IF;
+
+    IF v_payment_method <> 'CARD' THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Error: Solo una transacción con método de pago CARD puede tener detalle de tarjeta.';
+    END IF;
+
+    -- 2. La tarjeta debe ser de la cuenta origen
+    SELECT account_id INTO v_card_account_id
+    FROM cards WHERE id = p_card_id;
+
+    IF v_card_account_id IS NULL THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Error: La tarjeta del detalle no existe.';
+    END IF;
+
+    IF NOT (v_card_account_id <=> v_source_account_id) THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Error: La tarjeta debe pertenecer a la cuenta origen de la transacción.';
     END IF;
 END //
 
@@ -869,8 +1050,8 @@ DELIMITER ;
 -- (los suyos y los de sus wallet_transaction_details).
 --
 -- Orden por evento sobre transactions:
---   BEFORE INSERT: 1 -> 8 (FOLLOWS)
---   BEFORE UPDATE: 1.1 -> 8.1 (FOLLOWS)
+--   BEFORE INSERT: 1 -> 8 -> 8.2 (FOLLOWS)
+--   BEFORE UPDATE: 1.1 -> 8.1 -> 8.3 (FOLLOWS)
 --   BEFORE DELETE: 4.1
 --   AFTER INSERT: 2 / AFTER UPDATE: 3 / AFTER DELETE: 4
 --
@@ -1099,31 +1280,42 @@ END //
 -- ======================================================
 -- TRIGGER 5.3: Validar detalle de wallet antes de insertar
 -- ======================================================
--- LINKED_CARD exige card_id. Es trigger y no CHECK porque MySQL prohíbe CHECK sobre
--- card_id: la columna está en una FK con ON DELETE SET NULL (fk_wallet_card).
+-- Padre WALLET, cuenta de tipo WALLET y, en LINKED_CARD, card_id obligatorio y vinculado
+-- a la wallet (sp_validate_wallet_detail). Es trigger y no CHECK porque MySQL prohíbe
+-- CHECK sobre card_id (FK con ON DELETE SET NULL, fk_wallet_card) y porque consulta
+-- otras tablas.
 DROP TRIGGER IF EXISTS tr_before_wallet_detail_insert_val //
 
 CREATE TRIGGER tr_before_wallet_detail_insert_val
 BEFORE INSERT ON wallet_transaction_details
 FOR EACH ROW
 BEGIN
-    CALL sp_validate_wallet_detail(NEW.source_type, NEW.card_id);
+    CALL sp_validate_wallet_detail(
+        NEW.transaction_id, NEW.source_type, NEW.wallet_account_id, NEW.card_id
+    );
 END //
 
 -- ======================================================
 -- TRIGGER 5.4: Validar detalle de wallet antes de actualizar
 -- ======================================================
--- Solo valida si cambió source_type o card_id: un detalle histórico que quedó
--- LINKED_CARD con card_id NULL (tarjeta borrada) se puede seguir editando
--- (monto, cashback) sin error.
+-- Solo valida si cambió alguna columna que participa en las reglas (transaction_id,
+-- source_type, wallet_account_id o card_id). Así un detalle histórico que quedó
+-- LINKED_CARD con card_id NULL (tarjeta borrada) o cuya tarjeta se desvinculó después
+-- se puede seguir editando (monto, cashback) sin error.
 DROP TRIGGER IF EXISTS tr_before_wallet_detail_update_val //
 
 CREATE TRIGGER tr_before_wallet_detail_update_val
 BEFORE UPDATE ON wallet_transaction_details
 FOR EACH ROW
 BEGIN
-    IF NOT (OLD.source_type <=> NEW.source_type AND OLD.card_id <=> NEW.card_id) THEN
-        CALL sp_validate_wallet_detail(NEW.source_type, NEW.card_id);
+    IF NOT (OLD.transaction_id <=> NEW.transaction_id
+        AND OLD.source_type <=> NEW.source_type
+        AND OLD.wallet_account_id <=> NEW.wallet_account_id
+        AND OLD.card_id <=> NEW.card_id) THEN
+
+        CALL sp_validate_wallet_detail(
+            NEW.transaction_id, NEW.source_type, NEW.wallet_account_id, NEW.card_id
+        );
     END IF;
 END //
 
@@ -1231,10 +1423,13 @@ END //
 DELIMITER ;
 
 -- ======================================================
--- TRIGGERS DE TRANSACTIONS: validación de reubicaciones (8 y 8.1)
+-- TRIGGERS DE TRANSACTIONS: validación estructural (8 a 8.3)
 -- ======================================================
--- Son los segundos BEFORE INSERT / BEFORE UPDATE sobre transactions: FOLLOWS fija
--- que se ejecuten después de los triggers 1 / 1.1 (que normalizan el monto).
+-- 8 / 8.1: reubicaciones (sp_validate_transaction_reallocation).
+-- 8.2 / 8.3: partes según operation_type (sp_validate_transaction_parties).
+-- FOLLOWS fija el orden de los BEFORE sobre transactions:
+--   BEFORE INSERT: 1 (monto) -> 8 (reubicación) -> 8.2 (partes)
+--   BEFORE UPDATE: 1.1 (monto) -> 8.1 (reubicación) -> 8.3 (partes)
 DELIMITER //
 
 -- ======================================================
@@ -1274,6 +1469,80 @@ BEGIN
         CALL sp_validate_transaction_reallocation(
             NEW.operation_type, NEW.source_account_id, NEW.destination_account_id
         );
+    END IF;
+END //
+
+-- ======================================================
+-- TRIGGER 8.2: Validación de partes (origen, destino, entidad) al insertar
+-- ======================================================
+DROP TRIGGER IF EXISTS tr_before_transaction_insert_parties_check //
+
+CREATE TRIGGER tr_before_transaction_insert_parties_check
+BEFORE INSERT ON transactions
+FOR EACH ROW
+FOLLOWS tr_before_transaction_reallocation_check
+BEGIN
+    CALL sp_validate_transaction_parties(
+        NEW.operation_type, NEW.source_account_id,
+        NEW.destination_account_id, NEW.external_entity_id
+    );
+END //
+
+-- ======================================================
+-- TRIGGER 8.3: Validación de partes (origen, destino, entidad) al actualizar
+-- ======================================================
+-- Valida SIEMPRE (las reglas son estructurales, no dependen del estado de otras tablas).
+-- Consecuencia: una fila que quedó inválida por un ON DELETE SET NULL (cuenta o entidad
+-- borrada; las cascadas no disparan triggers) no se puede editar ni cancelar hasta que el
+-- mismo UPDATE complete los datos que faltan. Borrarla sí se puede.
+DROP TRIGGER IF EXISTS tr_before_transaction_update_parties_check //
+
+CREATE TRIGGER tr_before_transaction_update_parties_check
+BEFORE UPDATE ON transactions
+FOR EACH ROW
+FOLLOWS tr_before_transaction_update_reallocation_check
+BEGIN
+    CALL sp_validate_transaction_parties(
+        NEW.operation_type, NEW.source_account_id,
+        NEW.destination_account_id, NEW.external_entity_id
+    );
+END //
+
+DELIMITER ;
+
+-- ======================================================
+-- TRIGGERS DE CARD_TRANSACTION_DETAILS (10 y 10.1)
+-- ======================================================
+-- Únicos BEFORE INSERT / BEFORE UPDATE sobre card_transaction_details (sin FOLLOWS).
+-- El detalle de tarjeta no tiene efecto en saldos (lo aplica la transacción padre sobre
+-- source_account_id); estos triggers solo validan su coherencia con el padre.
+DELIMITER //
+
+-- ======================================================
+-- TRIGGER 10: Validar detalle de tarjeta antes de insertar
+-- ======================================================
+DROP TRIGGER IF EXISTS tr_before_card_detail_insert_val //
+
+CREATE TRIGGER tr_before_card_detail_insert_val
+BEFORE INSERT ON card_transaction_details
+FOR EACH ROW
+BEGIN
+    CALL sp_validate_card_detail(NEW.transaction_id, NEW.card_id);
+END //
+
+-- ======================================================
+-- TRIGGER 10.1: Validar detalle de tarjeta antes de actualizar
+-- ======================================================
+-- Solo valida si cambió transaction_id o card_id: editar MSI o monto de un detalle
+-- histórico no falla aunque la tarjeta se haya movido de cuenta después.
+DROP TRIGGER IF EXISTS tr_before_card_detail_update_val //
+
+CREATE TRIGGER tr_before_card_detail_update_val
+BEFORE UPDATE ON card_transaction_details
+FOR EACH ROW
+BEGIN
+    IF NOT (OLD.transaction_id <=> NEW.transaction_id AND OLD.card_id <=> NEW.card_id) THEN
+        CALL sp_validate_card_detail(NEW.transaction_id, NEW.card_id);
     END IF;
 END //
 
@@ -1342,6 +1611,10 @@ DELIMITER ;
 --        cards.account_id.
 --     Los detalles de wallet cuentan sin importar el payment_method del padre (igual que
 --     los triggers 5, 5.1, 5.2, 3 y 4.1).
+--     En una transacción WALLET, source_account_id (cuenta que financia: la wallet o la
+--     cuenta de la tarjeta vinculada) NO cuenta en a) porque se excluye WALLET: la salida
+--     está solo en b) o c), sin doble conteo. En CARD, la salida está solo en a): los
+--     card_transaction_details no se suman.
 --   Excepción (igual que los procedimientos): en una cuenta CREDIT SIN fila en
 --     credit_details, los procedimientos actualizan credit_details (0 filas) y no tienen
 --     efecto, así que a) y c) no cuentan para ella. b) sí cuenta (actúa en current_balance).

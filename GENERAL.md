@@ -6,6 +6,7 @@
 │   │   ├── 2026-10-03_schema_consistency.sql
 │   │   ├── 2026-10-03_transaction_integrity.sql
 │   │   ├── 2026-10-04_account_reconciliation.sql
+│   │   ├── 2026-10-05_transactions_redesign.sql
 │   ├── schemas.sql
 ├── GENERAL.md
 ├── backend
