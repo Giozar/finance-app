@@ -21,7 +21,7 @@ public final class ContractProbe {
 
     private static final List<Feature> FEATURES = List.of(
         new Feature("tags", "com.giozar04.tags.domain.entities.Tag", "com.giozar04.tags.infrastructure.serialization.TagMapper", "toMap", "fromMap"),
-        new Feature("users", "com.giozar04.users.domain.entities.User", "com.giozar04.users.application.utils.UserUtils", "userToMap", "mapToUser"),
+        new Feature("users", "com.giozar04.users.domain.entities.User", "com.giozar04.users.infrastructure.serialization.UserMapper", "toMap", "fromMap"),
         new Feature("categories", "com.giozar04.categories.domain.entities.Category", "com.giozar04.categories.application.utils.CategoryUtils", "categoryToMap", "mapToCategory"),
         new Feature("externalEntities", "com.giozar04.externalEntities.domain.entities.ExternalEntity", "com.giozar04.externalEntities.application.utils.ExternalEntityUtils", "externalEntityToMap", "mapToExternalEntity"),
         new Feature("bankClient", "com.giozar04.bankClient.domain.entities.BankClient", "com.giozar04.bankClient.application.utils.BankClientUtils", "bankClientToMap", "mapToBankClient"),

@@ -139,6 +139,12 @@ def migrate(feature):
     migration = ROOT / "MIGRATION.md"
     text = migration.read_text().replace(f"| {feature} | Pendiente |", f"| {feature} | Migrada; contratos y consumidores verificados |")
     migration.write_text(text)
+    agent = ROOT / ".claude/agents/finance-app-expert-shared.md"
+    text = agent.read_text()
+    anchor = "| Resto | Estructura anterior hasta su commit; consulte `MIGRATION.md` |"
+    if feature != "tags":
+        text = text.replace(anchor, f"| `{feature}` | Migrada: `{entity}Mapper.toMap/fromMap`; excepciones separadas |\n" + anchor)
+    agent.write_text(text)
     print(f"Migrada {feature}: mapper, {len(exceptions)} excepciones y referencias")
 
 

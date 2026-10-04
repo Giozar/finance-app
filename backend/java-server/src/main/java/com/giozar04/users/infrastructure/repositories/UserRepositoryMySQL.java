@@ -13,7 +13,11 @@ import java.util.List;
 
 import com.giozar04.databases.domain.interfaces.DatabaseConnectionInterface;
 import com.giozar04.users.domain.entities.User;
-import com.giozar04.users.domain.exceptions.UserExceptions;
+import com.giozar04.users.application.exceptions.UserCreationException;
+import com.giozar04.users.application.exceptions.UserDeletionException;
+import com.giozar04.users.application.exceptions.UserNotFoundException;
+import com.giozar04.users.application.exceptions.UserRetrievalException;
+import com.giozar04.users.application.exceptions.UserUpdateException;
 import com.giozar04.users.domain.models.UserRepositoryAbstract;
 
 /**
@@ -70,7 +74,7 @@ public class UserRepositoryMySQL extends UserRepositoryAbstract {
 
         } catch (SQLException e) {
             rollback();
-            throw new UserExceptions.UserCreationException("Error al crear el usuario", e);
+            throw new UserCreationException("Error al crear el usuario", e);
         }
     }
 
@@ -85,12 +89,12 @@ public class UserRepositoryMySQL extends UserRepositoryAbstract {
                 if (rs.next()) {
                     return mapResultSetToUser(rs);
                 } else {
-                    throw new UserExceptions.UserNotFoundException("Usuario no encontrado con ID: " + id, null);
+                    throw new UserNotFoundException("Usuario no encontrado con ID: " + id, null);
                 }
             }
 
         } catch (SQLException e) {
-            throw new UserExceptions.UserRetrievalException("Error al obtener usuario con ID: " + id, e);
+            throw new UserRetrievalException("Error al obtener usuario con ID: " + id, e);
         }
     }
 
@@ -117,7 +121,7 @@ public class UserRepositoryMySQL extends UserRepositoryAbstract {
 
             int affected = stmt.executeUpdate();
             if (affected == 0) {
-                throw new UserExceptions.UserNotFoundException("Usuario no encontrado con ID: " + id, null);
+                throw new UserNotFoundException("Usuario no encontrado con ID: " + id, null);
             }
 
             databaseConnection.commitTransaction();
@@ -126,7 +130,7 @@ public class UserRepositoryMySQL extends UserRepositoryAbstract {
 
         } catch (SQLException e) {
             rollback();
-            throw new UserExceptions.UserUpdateException("Error al actualizar usuario con ID: " + id, e);
+            throw new UserUpdateException("Error al actualizar usuario con ID: " + id, e);
         }
     }
 
@@ -140,7 +144,7 @@ public class UserRepositoryMySQL extends UserRepositoryAbstract {
 
             int affected = stmt.executeUpdate();
             if (affected == 0) {
-                throw new UserExceptions.UserNotFoundException("Usuario no encontrado con ID: " + id, null);
+                throw new UserNotFoundException("Usuario no encontrado con ID: " + id, null);
             }
 
             databaseConnection.commitTransaction();
@@ -148,7 +152,7 @@ public class UserRepositoryMySQL extends UserRepositoryAbstract {
 
         } catch (SQLException e) {
             rollback();
-            throw new UserExceptions.UserDeletionException("Error al eliminar usuario con ID: " + id, e);
+            throw new UserDeletionException("Error al eliminar usuario con ID: " + id, e);
         }
     }
 
@@ -165,7 +169,7 @@ public class UserRepositoryMySQL extends UserRepositoryAbstract {
             return users;
 
         } catch (SQLException e) {
-            throw new UserExceptions.UserRetrievalException("Error al obtener todos los usuarios", e);
+            throw new UserRetrievalException("Error al obtener todos los usuarios", e);
         }
     }
 

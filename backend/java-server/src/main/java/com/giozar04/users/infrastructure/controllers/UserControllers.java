@@ -9,7 +9,7 @@ import com.giozar04.messages.domain.models.Message;
 import com.giozar04.servers.domain.handlers.MessageHandler;
 import com.giozar04.servers.domain.models.ClientConnection;
 import com.giozar04.users.application.services.UserService;
-import com.giozar04.users.application.utils.UserUtils;
+import com.giozar04.users.infrastructure.serialization.UserMapper;
 import com.giozar04.users.domain.entities.User;
 
 public class UserControllers {
@@ -35,12 +35,12 @@ public class UserControllers {
                         "Datos de usuario no proporcionados");
             }
 
-            User user = UserUtils.mapToUser(userData);
+            User user = UserMapper.fromMap(userData);
             User created = userService.createUser(user);
 
             Message response = Message.createSuccessMessage(UserMessageTypes.CREATE_USER,
                     "Usuario creado exitosamente");
-            response.addData("user", UserUtils.userToMap(created));
+            response.addData("user", UserMapper.toMap(created));
             return response;
         };
     }
@@ -58,7 +58,7 @@ public class UserControllers {
             User user = userService.getUserById(id);
             Message response = Message.createSuccessMessage(UserMessageTypes.GET_USER,
                     "Usuario obtenido exitosamente");
-            response.addData("user", UserUtils.userToMap(user));
+            response.addData("user", UserMapper.toMap(user));
             return response;
         };
     }
@@ -79,12 +79,12 @@ public class UserControllers {
                 return Message.createErrorMessage(UserMessageTypes.UPDATE_USER, "Datos de usuario no proporcionados");
             }
 
-            User user = UserUtils.mapToUser(userData);
+            User user = UserMapper.fromMap(userData);
             User updated = userService.updateUserById(id, user);
 
             Message response = Message.createSuccessMessage(UserMessageTypes.UPDATE_USER,
                     "Usuario actualizado exitosamente");
-            response.addData("user", UserUtils.userToMap(updated));
+            response.addData("user", UserMapper.toMap(updated));
             return response;
         };
     }
@@ -114,7 +114,7 @@ public class UserControllers {
             List<Map<String, Object>> userList = new ArrayList<>();
 
             for (User user : users) {
-                userList.add(UserUtils.userToMap(user));
+                userList.add(UserMapper.toMap(user));
             }
 
             Message response = Message.createSuccessMessage(UserMessageTypes.GET_ALL_USERS,

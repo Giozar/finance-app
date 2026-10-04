@@ -8,7 +8,7 @@ Referencia funcional inicial: `a68517e`.
 | Feature | Estado |
 | --- | --- |
 | tags | Migrada; contratos y consumidores verificados |
-| users | Pendiente |
+| users | Migrada; contratos y consumidores verificados |
 | categories | Pendiente |
 | externalEntities | Pendiente |
 | bankClient | Pendiente |

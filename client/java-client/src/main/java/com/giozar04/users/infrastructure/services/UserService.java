@@ -9,9 +9,13 @@ import com.giozar04.messages.domain.models.Message;
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
 import com.giozar04.serverConnection.application.services.ServerConnectionService;
 import com.giozar04.serverConnection.application.validators.ServerResponseValidator;
-import com.giozar04.users.application.utils.UserUtils;
+import com.giozar04.users.infrastructure.serialization.UserMapper;
 import com.giozar04.users.domain.entities.User;
-import com.giozar04.users.domain.exceptions.UserExceptions;
+import com.giozar04.users.application.exceptions.UserCreationException;
+import com.giozar04.users.application.exceptions.UserDeletionException;
+import com.giozar04.users.infrastructure.serialization.UserParsingException;
+import com.giozar04.users.application.exceptions.UserRetrievalException;
+import com.giozar04.users.application.exceptions.UserUpdateException;
 
 public class UserService {
 
@@ -38,17 +42,17 @@ public class UserService {
     public User createUser(User user) throws ClientOperationException {
         Message message = new Message();
         message.setType("CREATE_USER");
-        message.addData("user", UserUtils.userToMap(user));
+        message.addData("user", UserMapper.toMap(user));
 
         serverConnectionService.sendMessage(message);
         try {
             Message response = serverConnectionService.waitForMessage("CREATE_USER");
             ServerResponseValidator.validateResponse(response);
             logger.info("Usuario creado exitosamente: " + response);
-            return UserUtils.mapToUser((Map<String, Object>) response.getData("user"));
+            return UserMapper.fromMap((Map<String, Object>) response.getData("user"));
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new UserExceptions.UserCreationException("Error al esperar la respuesta del servidor", e);
+            throw new UserCreationException("Error al esperar la respuesta del servidor", e);
         }
     }
 
@@ -57,17 +61,17 @@ public class UserService {
         Message message = new Message();
         message.setType("UPDATE_USER");
         message.addData("id", userId);
-        message.addData("user", UserUtils.userToMap(user));
+        message.addData("user", UserMapper.toMap(user));
 
         serverConnectionService.sendMessage(message);
         try {
             Message response = serverConnectionService.waitForMessage("UPDATE_USER");
             ServerResponseValidator.validateResponse(response);
             logger.info("Usuario actualizado correctamente: " + response);
-            return UserUtils.mapToUser((Map<String, Object>) response.getData("user"));
+            return UserMapper.fromMap((Map<String, Object>) response.getData("user"));
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new UserExceptions.UserUpdateException("Error al esperar la respuesta del servidor", e);
+            throw new UserUpdateException("Error al esperar la respuesta del servidor", e);
         }
     }
 
@@ -83,7 +87,7 @@ public class UserService {
             logger.info("Usuario eliminado exitosamente: " + response);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new UserExceptions.UserDeletionException("Error al esperar la respuesta del servidor", e);
+            throw new UserDeletionException("Error al esperar la respuesta del servidor", e);
         }
     }
 
@@ -98,10 +102,10 @@ public class UserService {
             Message response = serverConnectionService.waitForMessage("GET_USER");
             ServerResponseValidator.validateResponse(response);
             logger.info("Usuario obtenido: " + response);
-            return UserUtils.mapToUser((Map<String, Object>) response.getData("user"));
+            return UserMapper.fromMap((Map<String, Object>) response.getData("user"));
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new UserExceptions.UserRetrievalException("Error al esperar la respuesta del servidor", e);
+            throw new UserRetrievalException("Error al esperar la respuesta del servidor", e);
         }
     }
 
@@ -118,7 +122,7 @@ public class UserService {
             Object raw = response.getData("users");
 
             if (raw == null) {
-                throw new UserExceptions.UserRetrievalException(
+                throw new UserRetrievalException(
                         "El servidor respondió sin incluir la lista de usuarios", null
                 );
             }
@@ -127,19 +131,19 @@ public class UserService {
                 List<User> users = new ArrayList<>();
                 for (Object item : rawList) {
                     if (item instanceof Map<?, ?> map) {
-                        users.add(UserUtils.mapToUser((Map<String, Object>) map));
+                        users.add(UserMapper.fromMap((Map<String, Object>) map));
                     }
                 }
                 logger.info("Usuarios obtenidos correctamente. Total: " + users.size());
                 return users;
             } else {
-                throw new UserExceptions.UserParsingException(
+                throw new UserParsingException(
                         "Formato inesperado: " + raw.getClass().getName(), null
                 );
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new UserExceptions.UserRetrievalException("Error al esperar la respuesta del servidor", e);
+            throw new UserRetrievalException("Error al esperar la respuesta del servidor", e);
         }
     }
 }

@@ -56,9 +56,15 @@ src/main/java/com/giozar04/transactions/domain/enums/OperationTypes.java
 src/main/java/com/giozar04/transactions/domain/enums/PaymentMethod.java
 src/main/java/com/giozar04/transactions/domain/enums/TransactionStatus.java
 src/main/java/com/giozar04/transactions/domain/exceptions/TransactionExceptions.java
-src/main/java/com/giozar04/users/application/utils/UserUtils.java
+src/main/java/com/giozar04/users/application/exceptions/UserAuthenticationException.java
+src/main/java/com/giozar04/users/application/exceptions/UserCreationException.java
+src/main/java/com/giozar04/users/application/exceptions/UserDeletionException.java
+src/main/java/com/giozar04/users/application/exceptions/UserNotFoundException.java
+src/main/java/com/giozar04/users/application/exceptions/UserRetrievalException.java
+src/main/java/com/giozar04/users/application/exceptions/UserUpdateException.java
 src/main/java/com/giozar04/users/domain/entities/User.java
-src/main/java/com/giozar04/users/domain/exceptions/UserExceptions.java
+src/main/java/com/giozar04/users/infrastructure/serialization/UserMapper.java
+src/main/java/com/giozar04/users/infrastructure/serialization/UserParsingException.java
 src/main/java/com/giozar04/walletCardLinks/application/utils/WalletCardLinkUtils.java
 src/main/java/com/giozar04/walletCardLinks/domain/entities/WalletCardLink.java
 src/main/java/com/giozar04/walletCardLinks/domain/exceptions/WalletCardLinkExceptions.java
