@@ -102,6 +102,11 @@ Navegación: arreglo `menuItems` de `SidebarPanel` + `case` en `AppLayout.naviga
 - `Account.openingBalance` / `openingCreditUsed` son de **solo lectura** (los fija la BD): se muestran en
   `BaseAccountDetailView` ("Saldo inicial") y `CreditAccountDetailView` ("Deuda inicial"); **nunca** se añaden a
   formularios.
+- **Resumen de deuda (solo cliente, sin tocar BD/protocolo)**: `AccountsView` muestra `FinancialSummaryPanel`
+  (disponible = Σ `currentBalance`, deuda = Σ `creditUsed` de los `CREDIT`, balance real = disponible − deuda) y la
+  columna "Deuda crédito". `CreditAccountDetailView` tiene "Abonar a esta tarjeta" (abre `CreateTransactionView(draft)`
+  con `TransactionFormPanel.prefill`: REALLOCATION con la tarjeta como destino) y el historial de abonos. El pago de un
+  crédito es siempre REALLOCATION (nunca EXPENSE: el gasto ya se contó al cargar la tarjeta).
 - **Saldos de solo lectura al editar**: "Balance actual" (`AccountFormPanel`) y "Deuda actual" (`creditUsed`, en
   `CreditDetailsSubPanel`, validada ≥ 0 y ≤ límite) solo se capturan al **crear** la cuenta (el trigger los guarda
   como estado inicial). Al **editar** son de solo lectura con el `FormHelpText` "Se modifica con transacciones o

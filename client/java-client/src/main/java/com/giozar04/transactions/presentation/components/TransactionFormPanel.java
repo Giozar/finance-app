@@ -221,6 +221,14 @@ public class TransactionFormPanel extends JPanel {
         updateTitle();
     }
 
+    /** Prellena un formulario de alta (no es edición) a partir de un borrador parcial. */
+    public void prefill(Transaction draft) {
+        clearForm();
+        for (TransactionFormSection section : sections) {
+            section.loadFrom(draft);
+        }
+    }
+
     // ------------------------------------------------------------------
     // Limpiar
     // ------------------------------------------------------------------

@@ -22,7 +22,9 @@ import javax.swing.table.DefaultTableCellRenderer;
 import com.giozar04.accounts.domain.entities.Account;
 import com.giozar04.accounts.application.ports.input.AccountOperations;
 import com.giozar04.bootstrap.ClientUseCases;
+import com.giozar04.accounts.domain.enums.AccountTypes;
 import com.giozar04.accounts.presentation.components.AccountFormPanel;
+import com.giozar04.accounts.presentation.components.FinancialSummaryPanel;
 import com.giozar04.accounts.presentation.views.AccountDetailView;
 import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
 import com.giozar04.shared.components.MainContentPanel;
@@ -38,6 +40,7 @@ public class AccountsView extends JPanel implements PopupMenuActionHandler {
     private final AccountOperations accountService;
     private JTextField searchField;
     private GenericTablePanel<Account> tablePanel;
+    private final FinancialSummaryPanel summaryPanel = new FinancialSummaryPanel();
 
     public AccountsView() {
         accountService = ClientUseCases.get(AccountOperations.class);
@@ -71,7 +74,10 @@ public class AccountsView extends JPanel implements PopupMenuActionHandler {
 
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.add(headerPanel, BorderLayout.NORTH);
-        topPanel.add(searchPanel, BorderLayout.SOUTH);
+        JPanel lower = new JPanel(new BorderLayout());
+        lower.add(summaryPanel, BorderLayout.NORTH);
+        lower.add(searchPanel, BorderLayout.SOUTH);
+        topPanel.add(lower, BorderLayout.SOUTH);
 
         return topPanel;
     }
@@ -81,20 +87,24 @@ public class AccountsView extends JPanel implements PopupMenuActionHandler {
                 new ColumnDefinition<>("Nombre", Account::getName),
                 new ColumnDefinition<>("Tipo", Account::getType),
                 new ColumnDefinition<>("Balance", a -> String.format("$%.2f", a.getCurrentBalance())),
+                new ColumnDefinition<>("Deuda crédito", a -> a.getType() == AccountTypes.CREDIT && a.getCreditUsed() != null
+                        ? String.format("$%.2f", a.getCreditUsed()) : "—"),
                 new ColumnDefinition<>("Opciones", a -> "···")
         );
 
         DefaultTableCellRenderer rightAlign = new DefaultTableCellRenderer();
         rightAlign.setHorizontalAlignment(SwingConstants.RIGHT);
         columns.get(2).setRenderer(rightAlign);
+        columns.get(3).setRenderer(rightAlign);
 
-        columns.get(3).setRenderer(new OptionsCellRenderer());
-        columns.get(3).setEditor(new OptionsCellEditor(this));
+        columns.get(4).setRenderer(new OptionsCellRenderer());
+        columns.get(4).setEditor(new OptionsCellEditor(this));
 
         try {
             List<Account> accounts = accountService.getAllAccounts();
             tablePanel = new GenericTablePanel<>(columns, accounts);
             add(tablePanel, BorderLayout.CENTER);
+            summaryPanel.refresh(accounts);
         } catch (ClientOperationException e) {
             DialogUtil.showError(this, "Error al cargar las cuentas.");
         }
@@ -104,6 +114,7 @@ public class AccountsView extends JPanel implements PopupMenuActionHandler {
         try {
             List<Account> accounts = accountService.getAllAccounts();
             tablePanel.setData(accounts);
+            summaryPanel.refresh(accounts);
         } catch (ClientOperationException e) {
             DialogUtil.showError(this, "Error al recargar las cuentas.");
         }

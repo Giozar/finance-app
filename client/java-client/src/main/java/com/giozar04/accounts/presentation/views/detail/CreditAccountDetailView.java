@@ -2,17 +2,36 @@ package com.giozar04.accounts.presentation.views.detail;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Container;
 import java.awt.Font;
+import java.math.BigDecimal;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import com.giozar04.accounts.domain.entities.Account;
+import com.giozar04.accounts.application.ports.input.AccountOperations;
+import com.giozar04.bootstrap.ClientUseCases;
+import com.giozar04.serverConnection.application.exceptions.ClientOperationException;
 import com.giozar04.shared.components.CreditUsagePanel;
+import com.giozar04.shared.components.MainContentPanel;
+import com.giozar04.shared.utils.DialogUtil;
+import com.giozar04.transactions.application.ports.input.TransactionOperations;
+import com.giozar04.transactions.domain.entities.Transaction;
+import com.giozar04.transactions.domain.enums.OperationTypes;
+import com.giozar04.transactions.domain.enums.TransactionStatus;
+import com.giozar04.transactions.presentation.views.CreateTransactionView;
 
 /**
  * Vista de detalle para cuentas de tipo <b>CREDIT (Crédito)</b>.
@@ -50,6 +69,16 @@ public class CreditAccountDetailView extends BaseAccountDetailView {
         panel.add(buildSection("Datos bancarios"));
         panel.add(buildRow("Número de cuenta", account.getAccountNumber()));
         panel.add(buildRow("CLABE",            account.getClabe()));
+
+        // --- Abonos ---
+        addGap(panel);
+        panel.add(buildSection("Abonos a esta tarjeta"));
+        JButton payButton = new JButton("Abonar a esta tarjeta");
+        payButton.setAlignmentX(LEFT_ALIGNMENT);
+        payButton.addActionListener(e -> openPaymentForm());
+        panel.add(payButton);
+        panel.add(Box.createRigidArea(new Dimension(0, 8)));
+        addPayments(panel);
 
         return panel;
     }
@@ -106,5 +135,59 @@ public class CreditAccountDetailView extends BaseAccountDetailView {
         card.add(openingDebtLabel);
 
         return card;
+    }
+
+    private void openPaymentForm() {
+        Transaction draft = new Transaction();
+        draft.setUserId(account.getUserId());
+        draft.setOperationType(OperationTypes.REALLOCATION);
+        draft.setStatus(TransactionStatus.COMPLETED);
+        draft.setDestinationAccountId(account.getId());
+        draft.setConcept("Pago de " + account.getName());
+        draft.setDate(ZonedDateTime.now());
+        Container parent = getParent();
+        while (parent != null && !(parent instanceof MainContentPanel)) {
+            parent = parent.getParent();
+        }
+        if (parent instanceof MainContentPanel main) {
+            main.setView(new CreateTransactionView(draft));
+        }
+    }
+
+    /** Reubicaciones completadas cuyo destino es esta tarjeta: historial y total abonado. */
+    private void addPayments(JPanel panel) {
+        try {
+            Map<Long, String> names = new HashMap<>();
+            for (Account a : ClientUseCases.get(AccountOperations.class).getAllAccounts()) {
+                names.put(a.getId(), a.getName());
+            }
+            List<Transaction> payments = new ArrayList<>();
+            for (Transaction tx : ClientUseCases.get(TransactionOperations.class).getTransactionsByUserId(account.getUserId())) {
+                if (tx.getOperationType() == OperationTypes.REALLOCATION
+                        && tx.getStatus() == TransactionStatus.COMPLETED
+                        && tx.getDestinationAccountId() != null
+                        && tx.getDestinationAccountId() == account.getId()) {
+                    payments.add(tx);
+                }
+            }
+            payments.sort(Comparator.comparing(Transaction::getDate, Comparator.nullsLast(Comparator.reverseOrder())));
+
+            BigDecimal total = BigDecimal.ZERO;
+            for (Transaction tx : payments) {
+                if (tx.getAmount() != null) {
+                    total = total.add(tx.getAmount());
+                }
+                String date = tx.getDate() != null ? tx.getDate().toLocalDate().toString() : "—";
+                String source = tx.getSourceAccountId() != null ? names.getOrDefault(tx.getSourceAccountId(), "—") : "—";
+                panel.add(buildRow(date, String.format("$%,.2f  desde %s", tx.getAmount(), source)));
+            }
+            if (payments.isEmpty()) {
+                panel.add(buildRow("Sin abonos", "Aún no hay abonos registrados"));
+            } else {
+                panel.add(buildRow("Total abonado", String.format("$%,.2f", total)));
+            }
+        } catch (ClientOperationException ex) {
+            DialogUtil.showError(this, "Error al cargar los abonos: " + ex.getMessage());
+        }
     }
 }

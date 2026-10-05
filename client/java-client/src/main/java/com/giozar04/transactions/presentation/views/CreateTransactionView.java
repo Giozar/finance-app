@@ -5,11 +5,17 @@ import java.awt.BorderLayout;
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 
+import com.giozar04.transactions.domain.entities.Transaction;
 import com.giozar04.transactions.presentation.components.TransactionFormPanel;
 
 public class CreateTransactionView extends JPanel {
 
     private final TransactionFormPanel transactionFormPanel;
+
+    public CreateTransactionView(Transaction draft) {
+        this();
+        transactionFormPanel.prefill(draft);
+    }
 
     public CreateTransactionView() {
         super(new BorderLayout());

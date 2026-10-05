@@ -71,6 +71,7 @@ Mapa de la estructura actual del cliente.
                         │   └── presentation
                         │       ├── components
                         │       │   ├── AccountFormPanel.java
+                        │       │   ├── FinancialSummaryPanel.java
                         │       │   └── subpanels
                         │       │       ├── BankDetailsSubPanel.java
                         │       │       ├── CashbackSettingsPanel.java
