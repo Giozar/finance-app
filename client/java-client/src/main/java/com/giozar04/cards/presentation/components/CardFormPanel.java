@@ -20,6 +20,7 @@ import com.giozar04.accounts.application.ports.input.AccountOperations;
 import com.giozar04.bootstrap.ClientUseCases;
 import com.giozar04.card.domain.entities.Card;
 import com.giozar04.card.domain.enums.CardTypes;
+import com.giozar04.card.domain.enums.CardStatus;
 import com.giozar04.cards.application.ports.input.CardOperations;
 import com.giozar04.bootstrap.ClientUseCases;
 import com.giozar04.cards.presentation.views.CardsView;
@@ -50,12 +51,13 @@ public class CardFormPanel extends JPanel {
     private final AccountOperations accountService = ClientUseCases.get(AccountOperations.class);
 
     // --- Campos del formulario ---
-    private final FormComboBox<User>      userCombo;
-    private final FormComboBox<Account>   accountCombo;
-    private final FormField               nameField;
-    private final FormComboBox<CardTypes> typeCombo;
-    private final FormField               numberField;
-    private final DatePickerComponent     expirationDatePicker;
+    private final FormComboBox<User>       userCombo;
+    private final FormComboBox<Account>    accountCombo;
+    private final FormField                nameField;
+    private final FormComboBox<CardTypes>  typeCombo;
+    private final FormField                numberField;
+    private final DatePickerComponent      expirationDatePicker;
+    private final FormComboBox<CardStatus> statusCombo;
 
     // --- Botones ---
     private final JButton saveButton;
@@ -99,6 +101,11 @@ public class CardFormPanel extends JPanel {
         // --- Fecha de expiración ---
         expirationDatePicker = new DatePickerComponent();
 
+        // --- Estado de la tarjeta ---
+        statusCombo = new FormComboBox<>("Estado de la tarjeta:", 400, 40);
+        statusCombo.setPlaceholder("Seleccione un estado...");
+        statusCombo.setItems(List.of(CardStatus.values()));
+
         // --- Construir el panel ---
         formPanel.add(userCombo);
         formPanel.add(Box.createRigidArea(new Dimension(0, 10)));
@@ -111,6 +118,8 @@ public class CardFormPanel extends JPanel {
         formPanel.add(numberField);
         formPanel.add(Box.createRigidArea(new Dimension(0, 10)));
         formPanel.add(expirationDatePicker);
+        formPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+        formPanel.add(statusCombo);
 
         add(formPanel, BorderLayout.CENTER);
 
@@ -207,6 +216,7 @@ public class CardFormPanel extends JPanel {
         String cardNumber       = numberField.getValue().trim();
         ZonedDateTime expiration = expirationDatePicker.getDate();
         CardTypes type          = typeCombo.getSelectedItem();
+        CardStatus status       = statusCombo.getSelectedItem();
 
         // Validaciones
         if (selectedUser == null || !userCombo.isSelectionValid()) {
@@ -226,6 +236,9 @@ public class CardFormPanel extends JPanel {
         if (expiration == null) {
             errors.add("Debe seleccionar una fecha de expiración válida.");
         }
+        if (status == null) {
+            errors.add("Debe seleccionar un estado para la tarjeta.");
+        }
 
         if (!errors.isEmpty()) {
             DialogUtil.showError(this, FormValidatorUtils.formatErrorMessage(errors));
@@ -237,6 +250,7 @@ public class CardFormPanel extends JPanel {
         card.setCardType(type);
         card.setCardNumber(cardNumber);
         card.setExpirationDate(expiration);
+        card.setStatus(status);
         card.setAccountId(selectedAccount.getId());
 
         if (currentCard == null) {
@@ -311,6 +325,7 @@ public class CardFormPanel extends JPanel {
         typeCombo.setSelectedItem(card.getCardType());
         numberField.setValue(card.getCardNumber());
         expirationDatePicker.setDate(card.getExpirationDate());
+        statusCombo.setSelectedItem(card.getStatus());
     }
 
     // ------------------------------------------------------------------
@@ -327,6 +342,7 @@ public class CardFormPanel extends JPanel {
         numberField.clear();
         expirationDatePicker.clear();
         typeCombo.setSelectedIndex(0);
+        statusCombo.setSelectedIndex(0);
     }
 
     // ------------------------------------------------------------------

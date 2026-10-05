@@ -5,6 +5,7 @@ import java.util.Scanner;
 
 import com.giozar04.card.domain.entities.Card;
 import com.giozar04.card.domain.enums.CardTypes;
+import com.giozar04.card.domain.enums.CardStatus;
 import com.giozar04.cards.application.usecases.CardUseCase;
 import com.giozar04.cards.infrastructure.persistence.mysql.CardRepositoryMySQL;
 import com.giozar04.databases.infrastructure.persistence.mysql.DatabaseConnectionInterface;
@@ -93,7 +94,7 @@ public class CardTestApp {
 
         System.out.print("Estado (ACTIVE/BLOCKED/EXPIRED) [ACTIVE]: ");
         String status = scanner.nextLine().trim().toUpperCase();
-        card.setStatus(status.isBlank() ? "ACTIVE" : status);
+        card.setStatus(CardStatus.fromValue(status.isBlank() ? "ACTIVE" : status));
 
         card.setCreatedAt(ZonedDateTime.now());
         card.setUpdatedAt(ZonedDateTime.now());
@@ -127,7 +128,7 @@ public class CardTestApp {
 
         System.out.print("Nuevo estado (ACTIVE/BLOCKED/EXPIRED) [" + card.getStatus() + "]: ");
         String statusStr = scanner.nextLine().trim().toUpperCase();
-        if (!statusStr.isBlank()) card.setStatus(statusStr);
+        if (!statusStr.isBlank()) card.setStatus(CardStatus.fromValue(statusStr));
 
         card.setUpdatedAt(ZonedDateTime.now());
 

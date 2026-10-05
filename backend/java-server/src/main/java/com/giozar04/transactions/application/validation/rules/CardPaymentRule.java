@@ -5,6 +5,7 @@ import java.time.ZoneId;
 import java.util.List;
 
 import com.giozar04.card.domain.entities.Card;
+import com.giozar04.card.domain.enums.CardStatus;
 import com.giozar04.cardTransactionDetails.domain.entities.CardTransactionDetail;
 import com.giozar04.transactions.application.validation.TransactionRule;
 import com.giozar04.transactions.application.validation.ValidationContext;
@@ -52,7 +53,7 @@ public class CardPaymentRule implements TransactionRule {
             errors.add("La tarjeta \"" + card.getName() + "\" no pertenece a la cuenta origen");
         }
 
-        if (card.getStatus() != null && !ACTIVE.equalsIgnoreCase(card.getStatus().trim())) {
+        if (card.getStatus() != CardStatus.ACTIVE) {
             errors.add("La tarjeta \"" + card.getName() + "\" no está activa (estado: " + card.getStatus() + ")");
         }
 

@@ -13,6 +13,7 @@ import java.util.List;
 
 import com.giozar04.card.domain.entities.Card;
 import com.giozar04.card.domain.enums.CardTypes;
+import com.giozar04.card.domain.enums.CardStatus;
 import com.giozar04.card.application.exceptions.CardCreationException;
 import com.giozar04.card.application.exceptions.CardDeletionException;
 import com.giozar04.card.application.exceptions.CardNotFoundException;
@@ -57,7 +58,7 @@ public class CardRepositoryMySQL extends AbstractCardJdbcRepository {
             stmt.setString(3, card.getCardType().getValue());
             stmt.setString(4, card.getCardNumber());
             stmt.setDate(5, java.sql.Date.valueOf(card.getExpirationDate().toLocalDate()));
-            stmt.setString(6, card.getStatus()); // normalizado en validateCard
+            stmt.setString(6, card.getStatus().getValue());
             stmt.setTimestamp(7, Timestamp.valueOf(card.getCreatedAt().toLocalDateTime()));
             stmt.setTimestamp(8, Timestamp.valueOf(card.getUpdatedAt().toLocalDateTime()));
 
@@ -116,7 +117,7 @@ public class CardRepositoryMySQL extends AbstractCardJdbcRepository {
             stmt.setString(3, card.getCardType().getValue());
             stmt.setString(4, card.getCardNumber());
             stmt.setDate(5, java.sql.Date.valueOf(card.getExpirationDate().toLocalDate()));
-            stmt.setString(6, card.getStatus()); // normalizado en validateCard
+            stmt.setString(6, card.getStatus().getValue());
             stmt.setTimestamp(7, Timestamp.valueOf(card.getUpdatedAt().toLocalDateTime()));
             stmt.setLong(8, id);
 
@@ -208,7 +209,7 @@ public class CardRepositoryMySQL extends AbstractCardJdbcRepository {
         card.setName(rs.getString("name"));
         card.setCardType(CardTypes.fromValue(rs.getString("card_type")));
         card.setCardNumber(rs.getString("card_number"));
-        card.setStatus(rs.getString("status"));
+        card.setStatus(CardStatus.fromValue(rs.getString("status")));
 
         java.sql.Date expiration = rs.getDate("expiration_date");
         if (expiration != null) {

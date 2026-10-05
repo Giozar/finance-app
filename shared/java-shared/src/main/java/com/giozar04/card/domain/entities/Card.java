@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.time.ZonedDateTime;
 
 import com.giozar04.card.domain.enums.CardTypes;
+import com.giozar04.card.domain.enums.CardStatus;
 
 public class Card implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -14,11 +15,11 @@ public class Card implements Serializable {
     private CardTypes cardType;
     private String cardNumber;
     private ZonedDateTime expirationDate;
-    private String status;
+    private CardStatus status;
     private ZonedDateTime createdAt;
     private ZonedDateTime updatedAt;
 
-    public Card(long id, long accountId, String name, CardTypes cardType, String cardNumber, ZonedDateTime expirationDate, String status, ZonedDateTime createdAt, ZonedDateTime updatedAt){
+    public Card(long id, long accountId, String name, CardTypes cardType, String cardNumber, ZonedDateTime expirationDate, CardStatus status, ZonedDateTime createdAt, ZonedDateTime updatedAt){
         this.id = id;
         this.accountId = accountId;
         this.name = name;
@@ -98,11 +99,11 @@ public class Card implements Serializable {
         this.updatedAt = updatedAt;
     }
 
-    public String getStatus() {
+    public CardStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(CardStatus status) {
         this.status = status;
     }
 

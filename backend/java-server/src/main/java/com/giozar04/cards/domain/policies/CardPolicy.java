@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Objects;
 import com.giozar04.card.domain.entities.Card;
 import com.giozar04.card.domain.enums.CardTypes;
+import com.giozar04.card.domain.enums.CardStatus;
 
 public final class CardPolicy {
     private CardPolicy() {}
@@ -41,12 +42,9 @@ public final class CardPolicy {
             throw new IllegalArgumentException("La fecha de expiración de la tarjeta no puede estar vacía");
         }
 
-        // Normaliza el estado: null -> ACTIVE; en otro caso, mayúsculas
-        String status = card.getStatus() == null ? "ACTIVE" : card.getStatus().trim().toUpperCase();
-        if (!status.equals("ACTIVE") && !status.equals("BLOCKED") && !status.equals("EXPIRED")) {
-            throw new IllegalArgumentException("Estado de tarjeta no válido: " + card.getStatus() + " (use ACTIVE, BLOCKED o EXPIRED)");
+        if (card.getStatus() == null) {
+            card.setStatus(CardStatus.ACTIVE);
         }
-        card.setStatus(status);
     }
 
     public static void validateId(long id) {

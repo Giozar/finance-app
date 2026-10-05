@@ -5,6 +5,7 @@ import java.util.Map;
 
 import com.giozar04.card.domain.entities.Card;
 import com.giozar04.card.domain.enums.CardTypes;
+import com.giozar04.card.domain.enums.CardStatus;
 import com.giozar04.shared.infrastructure.serialization.ValueParser;
 
 public class CardMapper {
@@ -16,7 +17,7 @@ public class CardMapper {
         map.put("name", card.getName());
         map.put("cardType", card.getCardType() != null ? card.getCardType().getValue() : null);
         map.put("cardNumber", card.getCardNumber());
-        map.put("status", card.getStatus());
+        map.put("status", card.getStatus() != null ? card.getStatus().getValue() : null);
 
         if (card.getExpirationDate() != null) {
             map.put("expirationDate", card.getExpirationDate().format(ValueParser.getFormatter()));
@@ -39,9 +40,15 @@ public class CardMapper {
         card.setName((String) map.getOrDefault("name", ""));
         card.setCardNumber((String) map.getOrDefault("cardNumber", ""));
         card.setExpirationDate(ValueParser.parseZonedDateTime(map.get("expirationDate")));
-        card.setStatus((String) map.getOrDefault("status", "ACTIVE"));
         card.setCreatedAt(ValueParser.parseZonedDateTime(map.get("createdAt")));
         card.setUpdatedAt(ValueParser.parseZonedDateTime(map.get("updatedAt")));
+
+        Object statusObj = map.get("status");
+        if (statusObj != null) {
+            card.setStatus(CardStatus.fromValue(statusObj.toString()));
+        } else {
+            card.setStatus(CardStatus.ACTIVE);
+        }
 
         Object typeObj = map.get("cardType");
         if (typeObj != null) {
